@@ -1,0 +1,32 @@
+\def\half{\textstyle\frac{1}{2}}
+\def\hhalf{\scriptstyle\frac{1}{2}}
+\def\quarter{\textstyle\frac{1}{4}}
+\def\qquarter{\scriptstyle\frac{1}{4}}
+\def\squarter{\sfrac{1}{4}}
+\def\stwelfth{\sfrac{1}{12}}
+\def\sthirtysixth{\sfrac{1}{36}}
+% \newcommand{\grad}{\boldsymbol{\nabla}}
+% \newcommand{\gradh}{\boldsymbol{\nabla}_h}
+\newcommand{\grad}{\nabla}
+\newcommand{\gradh}{\nabla_h}
+\def\bgamma\boldsymbol{\gamma}
+\def\rdt{\Delta t}
+\newcommand{\ew}[3]{{e_{3#1}}_{\,#2}^{\,#3} }
+\newcommand{\vect}[1]{\ensuremath{\mathbf{#1}}} % for vectors                                % non-italic bold
+\newcommand{\Div}{\grad\cdot}
+% \newcommand{\curl}{\boldsymbol{\nabla} \times} % for curl
+\newcommand{\curl}{\nabla \times} % for curl
+\newcommand{\pd}[2][]{\frac{\partial #1}{\partial #2}}
+\def\deg{\degres}                            % degrees  (NB: \r{} can % % also be used)
+\newcommand{\alpbet} {\left(\alpha / \beta \right)} 	% alpha/beta  for slp computation
+\newcommand{\triad}[6][]{\ensuremath{{}_{#2}^{#3}{\mathbb{#4}_{#1}}_{#5}^{\,#6}}}
+\newcommand{\triadd}[5]{\ensuremath{{}_{#1}^{#2}{\mathbb{#3}}_{#4}^{\,#5}}}
+\newcommand{\triadt}[5]{\ensuremath{{}_{#1}^{#2}{\tilde{\mathbb{#3}}}_{#4}^{\,#5}}}
+\newcommand{\rtriad}[2][]{\ensuremath{\triad[#1]{i}{k}{#2}{i_p}{k_p}}}
+\newcommand{\rtriadt}[1]{\ensuremath{\triadt{i}{k}{#1}{i_p}{k_p}}}
+\newcommand{\Alts}{{A}}
+\newcommand{\Alt}{{A^{lT}}}
+\newcommand{\rMLt}[1][i]{\tilde{r}_{\mathrm{ML}\,#1}}
+\newcommand{\rML}[1][i]{r_{\mathrm{ML}\,#1}}
+\newcommand{\mygstrut}[2]{\rule[#1 em]{0pt}{#2 em}}
+\newcommand{\mystrut}{\rule[-.9 em]{0pt}{1.79 em}}
