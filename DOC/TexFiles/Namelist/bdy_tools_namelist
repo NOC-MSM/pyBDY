@@ -1,0 +1,72 @@
+!-----------------------------------------------------------------------
+!   vertical coordinate
+!-----------------------------------------------------------------------
+   ln_zco      = .false.   !  z-coordinate - full    steps   (T/F)  
+   ln_zps      = .true.    !  z-coordinate - partial steps   (T/F)
+   ln_sco      = .false.   !  s- or hybrid z-s-coordinate    (T/F)
+   rn_hmin     =   -10     !  min depth of the ocean (>0) or 
+                           !  min number of ocean level (<0)
+
+!-----------------------------------------------------------------------
+!   s-coordinate or hybrid z-s-coordinate
+!-----------------------------------------------------------------------
+   rn_sbot_min =   10.     !  minimum depth of s-bottom surface (>0) (m)
+   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface 
+                           !  (= ocean depth) (>0) (m)
+   ln_s_sigma  = .false.   !  hybrid s-sigma coordinates
+   rn_hc       =  150.0    !  critical depth with s-sigma
+
+!-----------------------------------------------------------------------
+!  grid information 
+!-----------------------------------------------------------------------
+   cn_src_hgr = 'some_dir/mesh_hgr_src.nc'
+   cn_src_zgr = 'some_dir/mesh_zgr_src.nc'
+   cn_dst_hgr = 'some_dir/mesh_hgr_dst.nc'
+   cn_dst_zgr = 'some_dir/mesh_zgr_dst.nc'
+   cn_src_msk = 'some_dir/mask_src.nc'
+
+!-----------------------------------------------------------------------
+!  I/O 
+!-----------------------------------------------------------------------
+   cn_src_dir = 'path_to_src_data/'
+   cn_dst_dir = 'path_to_dst_data/'
+   cn_fn      = 'my_exp'                  ! prefix for output files
+   nn_fv      = -1e20                     !  set fill value for output files
+
+!-----------------------------------------------------------------------
+!  unstructured open boundaries                         
+!-----------------------------------------------------------------------
+    ln_coords_file = .true.               !  =T : produce bdy coordinates files
+    cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files 
+                                          !  (if ln_coords_file=.TRUE.)
+    ln_mask_file   = .false.              !  =T : read mask from file
+    cn_mask_file   = ''                   !  name of mask file (if ln_mask_file=.TRUE.)
+    ln_dyn2d       = .true.               !  boundary conditions for barotropic fields
+    ln_dyn3d       = .true.               !  boundary conditions for baroclinic velocities
+    ln_tra         = .true.               !  boundary conditions for T and S
+    ln_ice         = .true.               !  ice boundary condition   
+    nn_rimwidth    = 9                    !  width of the relaxation zone
+
+!-----------------------------------------------------------------------
+!  Time information
+!-----------------------------------------------------------------------
+    nn_year_000     = 1982        !  year start
+    nn_year_end     = 1982        !  year end
+    nn_month_000    = 1           !  month start (default = 1 is years>1)
+    nn_month_end    = 12          !  month end (default = 12 is years>1)
+    cn_dst_calendar = 'gregorian' !  output calendar format
+    nn_base_year    = 1960        !  base year for time counter
+
+!-----------------------------------------------------------------------
+!  Additional parameters
+!-----------------------------------------------------------------------
+    nn_wei  = 1                   !  smoothing filter weights 
+    rn_r0   = 0.0417              !  decorrelation distance use in gauss
+                                  !  smoothing onto dst points. Need to 
+                                  !  make this a funct. of dlon
+    cn_history  = 'bdy files produced by a.nobody'
+                                  !  history for netcdf file
+    ln_nemo3p4  = .true.          !  else presume v3.2 or v3.3
+    nn_alpha    = 0               !  Euler rotation angle
+    nn_beta     = 0               !  Euler rotation angle
+    nn_gamma    = 0               !  Euler rotation angle

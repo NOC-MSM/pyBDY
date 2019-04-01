@@ -105,3 +105,12 @@ venv.bak/
 
 # tex additions
 .aux
+*.idx
+*.log
+*.maf
+*.mtc*
+*.out
+*.gz
+*.toc 
+*.aux
+*.ist
