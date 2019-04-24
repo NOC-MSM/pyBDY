@@ -10,13 +10,16 @@ def sub2ind(shap, subx, suby):
     ind = (subx * shap[0]) + suby
     return ind
 
-    # THIS FUNCTION MAY BE BROKEN
 def rot_rep(pxin, pyin, dummy, cd_todo, gcos, gsin):
     """rotate function"""
-    if cd_todo.lower() in ['en to i', 'ij to e']:
+    if cd_todo.lower() == 'en to i':
         x_var, y_var = pxin, pyin
-    elif cd_todo.lower() in ['en to j', 'ij to n']:
+    elif cd_todo.lower() == 'en to j':
         x_var, y_var = pyin, pxin*-1
+    elif cd_todo.lower() == 'ij to e':
+        x_var, y_var = pxin, pyin*-1
+    elif cd_todo.lower() == 'ij to n':
+        x_var, y_var = pyin, pxin
     else:
         raise SyntaxError('rot_rep cd_todo %s is invalid' %cd_todo)
     return x_var * gcos + y_var * gsin
