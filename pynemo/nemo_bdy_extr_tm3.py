@@ -506,6 +506,9 @@ class Extract:
 #            meta_data[n] = self.fnames_2[first_date].get_meta_data(self.var_nam[n], meta_data[n])
             meta_data[n] = self.fnames_2.get_meta_data(self.var_nam[n], meta_data[n])
 
+        for vn in range(self.nvar):
+            self.d_bdy[self.var_nam[vn]]['date'] = sc_time.date_counter[first_date:last_date + 1] 
+
         # Loop over identified files
         for f in range(first_date, last_date + 1):
             sc_array = [None, None]
@@ -720,7 +723,6 @@ class Extract:
                 else:
                     entry['data'] = np.concatenate((entry['data'],
                                                    np.array([data_out])))
-                entry['date'] = sc_time.time_counter[f] #count skipped
         
         # Need stats on fill pts in z and horiz + missing pts...
     # end month
@@ -794,14 +796,15 @@ class Extract:
             
         """
         # Extract time information 
-        
-        nt           = len(self.sc_time.time_counter)
+        # TODO: check that we can just use var_nam[0]. Rational is that if 
+        # we're grouping variables then they must all have the same date stamps
+        nt           = len(self.d_bdy[self.var_nam[0]]['date'])
         time_counter = np.zeros([nt])
         tmp_cal      = utime('seconds since %d-1-1' %year,
                              self.settings['dst_calendar'].lower())
         
         for t in range(nt):
-            time_counter[t] = tmp_cal.date2num(self.sc_time.date_counter[t])
+            time_counter[t] = tmp_cal.date2num(self.d_bdy[self.var_nam[0]]['date'][t])
         
         date_000 = datetime(year, month, 1, 12, 0, 0)
         if month < 12:
