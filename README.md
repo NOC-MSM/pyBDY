@@ -1,5 +1,5 @@
 # PyNEMO
-PyNEMO: a Python based regional NEMO model configuration toolbox. v0.1
+PyNEMO: a Python based regional NEMO model configuration toolbox. (v0.1.0)
  
 To be udated soon. This work springboards from the [PyNEMO](http://pynemo.readthedocs.io/en/latest/index.html) Project.
 
@@ -12,4 +12,7 @@ To be udated soon. This work springboards from the [PyNEMO](http://pynemo.readth
 ## Who do I talk to? ##
 
 * Repo owner or admin
+
+jdha
+
 * Other community or team contact
