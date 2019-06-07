@@ -15,3 +15,6 @@ To be udated soon. This work springboards from the [PyNEMO](http://pynemo.readth
 jdha
 
 * Other community or team contact
+
+
+For more information regarding the use and development of PyNEMO see: [PyNEMO Wiki](https://github.com/jdha/PyNEMO/wiki)
