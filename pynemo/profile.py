@@ -132,7 +132,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     logger.info('Gathering grid information')
     nc = GetFile(settings['src_zgr'])
     SourceCoord.zt = np.squeeze(nc['gdept_0'][:])
-    print SourceCoord.zt.shape
     nc.close()
 
     # Define z at t/u/v points
