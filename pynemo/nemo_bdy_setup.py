@@ -129,13 +129,11 @@ class Setup(object):
             for index, value in values.iteritems():
                 count = -1
                 for line in data:
-#                    print line
                     count = count + 1
                     #find the variable
                     line_without_comments = strip_comments(line)
                     if line_without_comments == '':
                         continue
-                    #print line_without_comments
                     data_name, data_index, data_value = self._get_var_name_value(line_without_comments)
 
                     if data_name == name:
@@ -248,7 +246,6 @@ def _replace_var_value(original_line, value, new_value):
         value = str(value).lower()
         new_value = str(new_value).lower()
     elif type(value).__name__ == 'str': #an empty string need to replace with ''
-        print value, new_value
         if value == '':
             value = '\'\''
             new_value = '\''+new_value+'\''
