@@ -85,9 +85,7 @@ class Extract:
         
         sc_time = Grid[grd].source_time
         self.var_nam = var_nam
-        print 'Here', var_nam
         sc_z = SC.zt[:]
-        print 'SC_Z', SC.zt, SC.zt
         sc_z_len = len(sc_z)
         
         
@@ -226,9 +224,6 @@ class Extract:
             self.dst_gcos = np.tile(tmp_gcos, (sc_z_len,1))
             self.dst_gsin = np.tile(tmp_gsin, (sc_z_len,1))
             
-            print self.dst_gcos.shape
-
-
         # Determine size of source data subset
         dst_len_z = len(dst_dep[:, 0])
 
@@ -437,7 +432,6 @@ class Extract:
         ind = self.sc_ind['ind']
         sc_time = self.sc_time
         sc_z_len = self.sc_z_len
-        print dir(sc_time)
         # define src/dst cals
         sf, ed = self.cal_trans(sc_time.calendar, #sc_time[0].calendar 
                                 self.settings['dst_calendar'], year, month)
@@ -493,7 +487,6 @@ class Extract:
             for x in 'mv', 'sf', 'os', 'fv':
                 meta_data[v][x] = np.ones((self.nvar, 1)) * np.NaN
 
-        print 'VARNAME', self.var_nam
         for v in range(self.nvar):
 #            meta_data[v] = self._get_meta_data(sc_time[first_date].file_name, 
 #                                               self.var_nam[v], meta_data[v])
@@ -502,7 +495,6 @@ class Extract:
 
         if self.key_vec:
             n = self.nvar
-            print n, self.var_nam[n], meta_data[n]
 #            meta_data[n] = self.fnames_2[first_date].get_meta_data(self.var_nam[n], meta_data[n])
             meta_data[n] = self.fnames_2.get_meta_data(self.var_nam[n], meta_data[n])
 
@@ -827,7 +819,6 @@ class Extract:
         # multiple of 86400 | data are annual means
         if del_t >= 86400.:
             for v in self.var_nam:    
-                print len(time_counter), self.d_bdy[v][1979]['data'][:,:,:]
                 intfn = interp1d(time_counter, self.d_bdy[v][1979]['data'][:,:,:], axis=0,
                                                                  bounds_error=True)
                 self.d_bdy[v][1979]['data'] = intfn(np.arange(time_000, time_end, 86400))
@@ -880,7 +871,6 @@ class Extract:
             
 #        for v in self.variables:
         for v in self.var_nam:
-            print self.settings
             if self.settings['dyn2d']: # Calculate depth averaged velocity
                 tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
                 tmp_var = np.reshape(self.d_bdy[v][1979]['data'][:,:,:], tile_dz.shape)
@@ -896,8 +886,6 @@ class Extract:
     
         # Write remaining data to file (indices are in Python notation
         # therefore we must add 1 to i,j and r)
-        print self.bdy_z.shape
-        print tmp_var.shape
         ncpop.write_data_to_file(f_out, 'nav_lon', self.nav_lon)
         ncpop.write_data_to_file(f_out, 'nav_lat', self.nav_lat)
         ncpop.write_data_to_file(f_out, 'depth'+self.g_type, self.dst_dep)
