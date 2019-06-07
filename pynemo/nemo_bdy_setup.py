@@ -99,6 +99,8 @@ class Setup(object):
                     raise
         elif name_prefix == 'cn' or name_prefix == 'sn':
             value = value_str.strip("'")
+            if name == 'dst_dir':
+                value = os.path.join(value, '')
         elif name_prefix == 'cl':
             name = key_value[0].split('(')
             index = name[1].split(')')
@@ -229,6 +231,8 @@ def _get_val(vars_dictionary, bool_vars_dictionary, line):
                 raise
     elif name_prefix == 'cn' or name_prefix == 'sn':
         vars_dictionary[name] = value.strip("'")
+        if name == 'dst_dir':
+            vars_dictionary[name] = os.path.join(vars_dictionary[name], '')
     elif name_prefix == 'cl':
         name = line[0].split('(')
         index = name[1].split(')')
