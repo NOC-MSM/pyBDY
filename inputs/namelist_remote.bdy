@@ -30,17 +30,17 @@
 !------------------------------------------------------------------------------
 !  grid information 
 !------------------------------------------------------------------------------
-   sn_src_hgr = './benchmark/grid_low_res_C/mesh_hgr.nc' 
-   sn_src_zgr = './benchmark/grid_low_res_C/mesh_zgr.nc'
-   sn_dst_hgr = './benchmark/grid_C/mesh_hgr_zps.nc'
-   sn_dst_zgr = './benchmark/grid_C/mesh_zgr_zps.nc'
-   sn_src_msk = './benchmark/grid_low_res_C/mask.nc'
-   sn_bathy   = './benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'
+   sn_src_hgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_low_res_C/mesh_hgr.nc' 
+   sn_src_zgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_low_res_C/mesh_zgr.nc'
+   sn_dst_hgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/mesh_hgr_zps.nc'
+   sn_dst_zgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/mesh_zgr_zps.nc'
+   sn_src_msk = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_low_res_C/mask.nc'
+   sn_bathy   = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/NNA_R12_bathy_meter_bench.nc'
 
 !------------------------------------------------------------------------------
 !  I/O 
 !------------------------------------------------------------------------------
-   sn_src_dir = '/Users/jdha/Projects/GitHub/PyNEMO/inputs/src_data.ncml' ! src_files/'
+   sn_src_dir = './PyNEMO/inputs/src_data.ncml' ! src_files/'
    sn_dst_dir = './outputs'
    sn_fn      = 'NNA_R12'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
