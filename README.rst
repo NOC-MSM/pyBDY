@@ -1,7 +1,7 @@
 PyNEMO
 ======
 
-To be updated soon. This work springboards from the [PyNEMO](http://pynemo.readthedocs.io/en/latest/index.html) Project.
+To be updated soon. This work springboards from the `PyNEMO Project <http://pynemo.readthedocs.io/en/latest/index.html/>`_.
 
 What is this repository for?
 ----------------------------
