@@ -40,8 +40,8 @@
 !------------------------------------------------------------------------------
 !  I/O 
 !------------------------------------------------------------------------------
-   sn_src_dir = './PyNEMO/inputs/src_data_remote.ncml' ! src_files/'
-   sn_dst_dir = './outputs'
+   sn_src_dir = '/Users/thopri/Projects/PyNEMO/inputs/src_data_remote.ncml' ! src_files/'
+   sn_dst_dir = '/Users/thopri/Projects/PyNEMO/outputs'
    sn_fn      = 'NNA_R12'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
