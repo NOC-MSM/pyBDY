@@ -12,6 +12,11 @@ How do I get set up?
 Steps to take to install PyNEMO, creating a specific conda virtual environment is highly recommended. 
 `click here for more about virtual enviroments <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html/>`_
 
+- Install Git (outside scope of this readme)
+- Clone PyNEMO repository::
+    
+    $ git clone https://github.com/NOC-MSM/PyNEMO.git 
+    
 - Install Conda, either Anaconda or Miniconda (outside scope of this readme)
 - Create conda environment for PyNEMO::
 
@@ -25,10 +30,6 @@ Steps to take to install PyNEMO, creating a specific conda virtual environment i
 - Install Jave JRE (outside scope of this readme) and link libjvm.dylib to LD_LIBRARY_PATH variable::
 
     $ export LD_LIBRARY_PATH=/path/to/java/library/folder/containing/libjvm.dylib:$LD_LIBARY_PATH # see notes below
-
-- Install Git (outside scope of this readme)::
-
-   $ git clone https://github.com/NOC-MSM/PyNEMO.git
 
 - Install PyNEMO::
   
@@ -58,7 +59,7 @@ To use PyNEMO, the following command is entered: (the example will run an benchm
 
 **Additional NOTES** 
 
-for MacOs and Java SDK 13 and JRE 8 the following path should be correct:: 
+For macOS Mojave and Java SDK 13 and JRE 8 the following path for the libjvm library should be correct:: 
 
     /Library/Java/JavaVirtualMachines/jdk-13.0.1.jdk/Contents/Home/lib/server
 
