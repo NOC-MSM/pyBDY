@@ -6,7 +6,7 @@ Created on Thu Oct 24 11:28:04 2019
 @author: thopri
 """
 
-# Must be run from the PyNEMO main folder. Otherwise permission errors abound
+# Hard file/folder paths in namelist file and in process_bdy call below need to be updated to suit user
 
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset
