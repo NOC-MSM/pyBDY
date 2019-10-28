@@ -6,7 +6,7 @@ To be udated soon. This work springboards from the [PyNEMO](http://pynemo.readth
 
 ## How do I get set up? ##
 
-Steps to take to install PyNEMO, creating a specific conda virtual environment is highly recommended. [click here for more about virtual enviroments] (https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
+Steps to take to install PyNEMO, creating a specific conda virtual environment is highly recommended. [click here for more about virtual enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)
 
 - Install Conda, either Anaconda or Miniconda (outside of this readme)
 - Create conda environment for PyNEMO
