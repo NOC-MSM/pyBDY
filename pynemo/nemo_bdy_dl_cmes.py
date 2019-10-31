@@ -29,8 +29,24 @@ from subprocess import Popen, PIPE
 #       'config_out'     : './config/motu_config.ini'
 #       }
 
-def request_CMES(args):
+# Need to add try excepts for files and folders being present
 
+def chk_motu():
+    chk = Popen(['motuclient','--version'], stdout=PIPE, stderr=PIPE)
+    stdout,stderr = chk.communicate()
+    
+    if not 'motuclient-python' in stdout:
+        status = 1
+    
+    else:
+        idx = stdout.find('v')
+        version = stdout[idx:-1]
+        status = version
+        
+    return status
+    
+def request_CMES(args):
+    
     with open(args['ini_config_template'], 'r') as file:
         filedata = file.read()
             
