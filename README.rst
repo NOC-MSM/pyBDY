@@ -56,6 +56,14 @@ To reactivate, the following needs to be typed::
 To use PyNEMO, the following command is entered: (the example will run an benchmarking test)::
 
     $ pynemo -s /path/to/namelist/file (e.g. PyNEMO/inputs/namelist_remote.bdy)
+    
+If you want to download CMEMS data the Motuclient is also required, this can be installed by::
+
+    $ pip install motuclient
+
+Test the install by typing::
+
+    $ motuclient --version
 
 **Additional NOTES** 
 

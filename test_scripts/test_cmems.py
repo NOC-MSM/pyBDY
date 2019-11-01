@@ -20,7 +20,7 @@ logging.basicConfig(filename='cmes_test.log', level=logging.INFO)
 Setup = setup.Setup('/Users/thopri/Projects/PyNEMO/inputs/namelist_cmems.bdy') # default settings file
 settings = Setup.settings
 
-if settings['use_cmes'] == True:
+if settings['use_cmems'] == True:
     
     if settings['year_end'] - settings['year_000'] > 0:
         date_min = settings['year_000']+'-01-01'
