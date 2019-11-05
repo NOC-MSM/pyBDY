@@ -8,14 +8,13 @@ into profile.py
 
 @author: thopri
 """
-
 import nemo_bdy_dl_cmems as dl_cmems
 import logging
 import nemo_bdy_setup as setup
 from calendar import monthrange
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='cmes_test.log', level=logging.INFO)
+logging.basicConfig(filename='/Users/thopri/Projects/PyNEMO/test_scripts/cmems_test.log', level=logging.INFO)
 
 Setup = setup.Setup('/Users/thopri/Projects/PyNEMO/inputs/namelist_cmems.bdy') # default settings file
 settings = Setup.settings
@@ -48,7 +47,7 @@ if settings['use_cmems'] == True:
            'depth_min'              : settings['depth_min'],
            'depth_max'              : settings['depth_max'],
            'variable'               : settings['cmes_variable'],
-           'out_dir'                : settings['dst_dir'],
+           'src_dir'                : settings['src_dir'],
            'out_name'               : settings['cmes_output'],
            'config_out'             : settings['cmes_config']
            }        

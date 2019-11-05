@@ -112,13 +112,13 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         
         date_max = str(settings['year_end'])+'-'+str(settings['month_end'])+'-'+str(days_mth[1])
         
-        cmes_config= {
-               'ini_config_template'    : settings['cmes_config_template'],
-               'user'                   : settings['cmes_usr'],
-               'pwd'                    : settings['cmes_pwd'],
+        cmems_config= {
+               'ini_config_template'    : settings['cmems_config_template'],
+               'user'                   : settings['cmems_usr'],
+               'pwd'                    : settings['cmems_pwd'],
                'motu_server'            : settings['motu_server'],  
-               'service_id'             : settings['cmes_model'],
-               'product_id'             : settings['cmes_product'],
+               'service_id'             : settings['cmems_model'],
+               'product_id'             : settings['cmems_product'],
                'date_min'               : date_min,
                'date_max'               : date_max,
                'latitude_min'           : settings['latitude_min'],
@@ -127,11 +127,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                'longitude_max'          : settings['longitude_max'],
                'depth_min'              : settings['depth_min'],
                'depth_max'              : settings['depth_max'],
-               'variable'               : settings['cmes_variable'],
-               'out_dir'                : settings['dst_dir'],
-               'out_name'               : settings['cmes_output'],
-               'config_out'             : settings['cmes_config']
-               }        
+               'variable'               : settings['cmems_variable'],
+               'src_dir'                : settings['src_dir'],
+               'out_name'               : settings['cmems_output'],
+               'config_out'             : settings['cmems_config']
+
+        }
         
         chk = dl_cmems.chk_motu()
         
@@ -141,7 +142,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         else:
             logger.info('version ' +chk+ ' of motuclient is installed')
         logger.info('requesting CMES download now (this can take a while)...')    
-        dl = dl_cmems.request_CMEMS(cmes_config)
+        dl = dl_cmems.request_CMEMS(cmems_config)
         
         if dl == 0:
             logger.info('CMES data downloaded successfully')

@@ -750,7 +750,8 @@ class Extract:
         year -- input year
         month -- input month  
         """
-        vals = {'gregorian': 365. + isleap(year), 'noleap': 
+#        vals = {'gregorian': 365. + isleap(year), 'noleap':
+        vals = {'Gregorian': 365. + isleap(year), 'noleap':
                 365., '360_day': 360.}
         if source not in vals.keys():
             raise ValueError('Unknown source calendar type: %s' %source)

@@ -69,7 +69,8 @@ class Reader(object):
         group.date_counter = []
         for filename in dir_list:   
             nc = Dataset(filename, 'r')
-            varid = nc.variables['time_counter'] 
+            #varid = nc.variables['time_counter']
+            varid = nc.variables['time']
             for index in range(0,len(varid)):
                 x = [filename, index]
                 group.data_list.append(x)
