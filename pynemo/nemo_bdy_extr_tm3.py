@@ -468,10 +468,13 @@ class Extract:
         sc_z_len
         if self.first:
             nc_3 = GetFile(self.settings['src_msk'])
+            # TODO: sort generic mask variable name
             #varid_3 = nc_3['tmask']
             varid_3 = nc_3['mask']
             varid_3 = np.expand_dims(varid_3, axis=0)
-            t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
+            # TODO: Sort out issue with j_run and i_run not broadcasting to varid_3
+            #t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
+            t_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run)+1, np.min(i_run):np.max(i_run)+1]
             if self.key_vec:
                 #varid_3 = nc_3['umask']
                 varid_3 = nc_3['mask']
@@ -824,9 +827,9 @@ class Extract:
         # multiple of 86400 | data are annual means
         if del_t >= 86400.:
             for v in self.var_nam:    
-                intfn = interp1d(time_counter, self.d_bdy[v][1979]['data'][:,:,:], axis=0,
+                intfn = interp1d(time_counter, self.d_bdy[v][year]['data'][:,:,:], axis=0,
                                                                  bounds_error=True)
-                self.d_bdy[v][1979]['data'] = intfn(np.arange(time_000, time_end, 86400))
+                self.d_bdy[v][year]['data'] = intfn(np.arange(time_000, time_end, 86400))
         else:
             for v in self.var_nam: 
                 for t in range(dstep):
@@ -878,12 +881,12 @@ class Extract:
         for v in self.var_nam:
             if self.settings['dyn2d']: # Calculate depth averaged velocity
                 tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
-                tmp_var = np.reshape(self.d_bdy[v][1979]['data'][:,:,:], tile_dz.shape)
+                tmp_var = np.reshape(self.d_bdy[v][year]['data'][:,:,:], tile_dz.shape)
                 tmp_var = np.nansum(tmp_var * tile_dz, 2) /np.nansum(tile_dz, 2)
             else: # Replace NaNs with specified fill value
-                tmp_var = np.where(np.isnan(self.d_bdy[v][1979]['data'][:,:,:]),
+                tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:,:,:]),
                                             self.settings['fv'], 
-                                            self.d_bdy[v][1979]['data'][:,:,:])
+                                            self.d_bdy[v][year]['data'][:,:,:])
                
             # Write variable to file
             

@@ -15,9 +15,9 @@ from mpl_toolkits.basemap import Basemap
 
 from pynemo.tests import bdy_coords as bdc
 
-bdc.process_bdy('/Users/thopri/Projects/PyNEMO/inputs/namelist_remote.bdy',False)
+bdc.process_bdy('/Users/thopri/Projects/PyNEMO/inputs/namelist_cmems.bdy',False)
 
-rootgrp = Dataset('/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y1979m11.nc', "r", format="NETCDF4")
+rootgrp = Dataset('/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y2017m11.nc', "r", format="NETCDF4")
 bdy_msk = np.squeeze(rootgrp.variables['bdy_msk'][:]) - 1
 bdy_lon = np.squeeze(rootgrp.variables['nav_lon'][:])
 bdy_lat = np.squeeze(rootgrp.variables['nav_lat'][:])
@@ -59,3 +59,5 @@ cb = plt.colorbar(orientation='vertical', shrink=0.75, aspect=30, fraction=0.1,p
 cb.set_label('RimWidth Number')
 cb.set_ticks(np.arange(10))
 th=plt.title(('BDY Points'),fontweight='bold')
+
+plt.show()

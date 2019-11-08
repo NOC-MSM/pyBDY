@@ -55,8 +55,11 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd):
     elif grd in ['T', 'I']:
         varztID = ncid.createVariable('deptht', 'f4', ('z', 'yb', 'xb', ))
         varmskID = ncid.createVariable('bdy_msk', 'f4', ('y', 'x', ), fill_value=fv)
-        vartmpID = ncid.createVariable('votemper', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+        # TODO: generic variable name assignment
+        vartmpID = ncid.createVariable('thetao', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
                                        fill_value=fv)
+        #vartmpID = ncid.createVariable('votemper', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+        #                               fill_value=fv)
         varsalID = ncid.createVariable('vosaline', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
                                        fill_value=fv)
         if grd == 'I':
