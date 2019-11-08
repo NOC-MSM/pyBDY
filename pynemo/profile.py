@@ -98,7 +98,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # download CMEMS data if requested
     
-    if settings['use_cmems'] == True:
+    if settings['download_cmems'] == True:
         
         logger.info('starting CMEMS download process....')
  
@@ -336,7 +336,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     ln_ice     = settings['ice']   
 
     # Define mapping of variables to grids with a dictionary
-    
+
     emap = {}
     grd  = [  't',  'u',  'v']
     pair = [ None, 'uv', 'uv'] # TODO: devolve this to the namelist?
@@ -353,7 +353,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         
     if ln_tra:
         #var_in['t'].extend(['votemper', 'vosaline'])
-        var_in['t'].extend(['thetao']) #,'so'])
+        var_in['t'].extend(['thetao','so'])
         
     if ln_dyn2d or ln_dyn3d:
         #var_in['u'].extend(['vozocrtx', 'vomecrty'])

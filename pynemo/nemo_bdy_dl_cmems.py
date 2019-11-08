@@ -25,37 +25,11 @@ def chk_motu():
         status = version
         
     return status
- 
-# request CMEMS data by populating config file with arguments passed from bdy file
-# then execute command using subprocess. stdout is checked for errors 
-# and confirmation of successful download
-
-# def request_static(args):
-#     # log into FTP server
-#     try:
-#         ftp = ftplib.FTP(host=args['FTPSERVER'], user=args['LOGIN'], passwd=args['PWORD'])
-#     except PermissionError as e:
-#         return e
-#     except TimeoutError as e:
-#         return e
-
-    # filename = config.FILENAME_FRAG + runday + '_hi' + simdate + '.nc'
-    # # try to download the file and save in local archive
-    # try:
-    #     ftp.cwd(config.FTPPATH + config.SSH_DIR + '/' + year + '/' + month + '/')
-    #     try:
-    #         os.makedirs(config.FTP_DL_STORE + config.SSH_DIR + year + '/' + month)
-    #     except FileExistsError:
-    #         pass
-    #     ftp.retrbinary("RETR " + filename,
-    #                    open(config.FTP_DL_STORE + config.SSH_DIR + year + '/' + month + '/' + filename, 'wb').write)
-    #     ftp.quit()
 
 def request_CMEMS(args):
 
-    variables = args['variable'].split(',')
-    filenames = args['out_name'].split(',')
-    #products = args['product_id'].split(',')
+    variables = args['variable'].split(' ')
+    filenames = args['out_name'].split(' ')
     v_num = len(variables)
 
     for v in range(v_num):
