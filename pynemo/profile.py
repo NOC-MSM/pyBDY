@@ -188,7 +188,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     
     logger.info('Gathering grid information')
     nc = GetFile(settings['src_zgr'])
-    SourceCoord.zt = np.squeeze(nc['gdept_0'][:])
+    #SourceCoord.zt = np.squeeze(nc['gdept_0'][:])
+    SourceCoord.zt = np.squeeze(nc['depth'][:])
     nc.close()
 
     # Define z at t/u/v points
@@ -212,9 +213,14 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Gather vorizontal grid information
 
     nc = GetFile(settings['src_hgr'])
-    SourceCoord.lon = nc['glamt'][:,:]
-    SourceCoord.lat = nc['gphit'][:,:]
-    
+#    SourceCoord.lon = nc['glamt'][:,:]
+#    SourceCoord.lat = nc['gphit'][:,:]
+    SourceCoord.lon = nc['longitude'][:]
+    SourceCoord.lat = nc['latitude'][:]
+    SourceCoord.lon = np.tile(SourceCoord.lon, (np.shape(SourceCoord.lat)[0],1))
+    SourceCoord.lat = np.tile(SourceCoord.lat,(np.shape(SourceCoord.lon)[1],1))
+    SourceCoord.lon = np.rot90(SourceCoord.lon)
+
     try: # if they are masked array convert them to normal arrays
         SourceCoord.lon = SourceCoord.lon.filled()
     except:
@@ -344,14 +350,18 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         var_in[grd[g]] = []
         
     if ln_tra:
-        var_in['t'].extend(['votemper', 'vosaline'])
+        #var_in['t'].extend(['votemper', 'vosaline'])
+        var_in['t'].extend(['thetao'])
         
     if ln_dyn2d or ln_dyn3d:
-        var_in['u'].extend(['vozocrtx', 'vomecrty'])
-        var_in['v'].extend(['vozocrtx', 'vomecrty'])
+        #var_in['u'].extend(['vozocrtx', 'vomecrty'])
+        #var_in['v'].extend(['vozocrtx', 'vomecrty'])
+        var_in['u'].extend(['uo'])
+        var_in['v'].extend(['vo'])
     
     if ln_dyn2d:
-        var_in['t'].extend(['sossheig'])
+        #var_in['t'].extend(['sossheig'])
+        var_in['t'].extend(['zos'])
         
     if ln_ice:
         var_in['t'].extend(['ice1', 'ice2', 'ice3'])

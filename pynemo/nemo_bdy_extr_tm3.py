@@ -465,15 +465,19 @@ class Extract:
                 break
 
         self.logger.info('first/last dates: %s %s', first_date, last_date)
-
+        sc_z_len
         if self.first:
             nc_3 = GetFile(self.settings['src_msk'])
-            varid_3 = nc_3['tmask']
+            #varid_3 = nc_3['tmask']
+            varid_3 = nc_3['mask']
+            varid_3 = np.expand_dims(varid_3, axis=0)
             t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
             if self.key_vec:
-                varid_3 = nc_3['umask']
+                #varid_3 = nc_3['umask']
+                varid_3 = nc_3['mask']
                 u_mask = varid_3[:1, :sc_z_len, j_run, extended_i]
-                varid_3 = nc_3['vmask']
+                #varid_3 = nc_3['vmask']
+                varid_3 = nc_3['mask']
                 v_mask = varid_3[:1, :sc_z_len, extended_j, i_run]
             nc_3.close()
 
@@ -505,7 +509,7 @@ class Extract:
         for f in range(first_date, last_date + 1):
             sc_array = [None, None]
             sc_alt_arr = [None, None]
-            #self.logger.info('opening nc file: %s', sc_time[f].file_name)            
+#            self.logger.info('opening nc file: %s', sc_time[f].file_name)
             # Counters not implemented
 
             sc_bdy = np.zeros((len(self.var_nam), sc_z_len, ind.shape[0], 
@@ -750,8 +754,8 @@ class Extract:
         year -- input year
         month -- input month  
         """
-#        vals = {'gregorian': 365. + isleap(year), 'noleap':
-        vals = {'Gregorian': 365. + isleap(year), 'noleap':
+        vals = {'gregorian': 365. + isleap(year), 'noleap':
+        #vals = {'Gregorian': 365. + isleap(year), 'noleap':
                 365., '360_day': 360.}
         if source not in vals.keys():
             raise ValueError('Unknown source calendar type: %s' %source)
