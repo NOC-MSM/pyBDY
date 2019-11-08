@@ -60,7 +60,9 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd):
                                        fill_value=fv)
         #vartmpID = ncid.createVariable('votemper', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
         #                               fill_value=fv)
-        varsalID = ncid.createVariable('vosaline', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+#        varsalID = ncid.createVariable('vosaline', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+#                                       fill_value=fv)
+        varsalID = ncid.createVariable('so', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
                                        fill_value=fv)
         if grd == 'I':
             varildID = ncid.createVariable('ileadfra', 'f4', ('time_counter', 'yb', 'xb',),
