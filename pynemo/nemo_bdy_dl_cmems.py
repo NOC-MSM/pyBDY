@@ -5,8 +5,7 @@ using the motu client python module
 """
 # import modules
 from subprocess import Popen, PIPE
-import ftplib
-import os
+import xml.etree.ElementTree as ET
 
 # Need to add try excepts for files and folders being present
 
@@ -26,8 +25,7 @@ def chk_motu():
         
     return status
 
-def request_CMEMS(args):
-
+def update_ini(args):
     variables = args['variable'].split(' ')
     filenames = args['out_name'].split(' ')
     v_num = len(variables)
@@ -55,16 +53,49 @@ def request_CMEMS(args):
     
         with open(args['config_out'], 'w') as file:
             file.write(filedata)
-    
-        motu = Popen(['motuclient','--config-file',args['config_out']], stdout=PIPE, stderr=PIPE)
+
+    # check ini file has been updated here
+    status = 0
+    return status
+
+def request_CMEMS(args):
+
+    size_chk = Popen(['motuclient', '--size','--config-file', args['config_out']], stdout=PIPE, stderr=PIPE)
+    stdout,stderr = size_chk.communicate()
+
+    if 'ERROR' in stdout:
+        idx = stdout.find('ERROR')
+        status = stdout[idx:-1]
+        return status
+
+    if 'Done' in stdout:
+        status = 0
+
+    split_filename = filenames[v].split('.')
+    xml = split_filename[0] + '.xml'
+    root = ET.parse(xml).getroot()
+
+    if 'ok' in root.attrib['msg']:
+
+        motu = Popen(['motuclient', '--config-file', args['config_out']], stdout=PIPE, stderr=PIPE)
         stdout, stderr = motu.communicate()
-    
+
         if 'ERROR' in stdout:
             idx = stdout.find('ERROR')
             status = stdout[idx:-1]
             return status
-        
+
         if 'Done' in stdout:
             status = 0
 
-    return status
+        return status
+
+    #split = float(root.attrib['maxAllowedSize']) / float(root.attrib['size'])
+
+    if 'too big' in root.attrib['msg']:
+
+        status = 'file request too big reduce size of domain or length of time series'
+        return status
+
+
+

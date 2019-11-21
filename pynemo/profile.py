@@ -97,58 +97,71 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     settings = Setup.settings
 
     # download CMEMS data if requested
-    
-    if settings['download_cmems'] == True:
-        
-        logger.info('starting CMEMS download process....')
- 
-        if settings['year_end'] - settings['year_000'] > 0:
-            date_min = settings['year_000']+'-01-01'
-            date_max = settings['year_end']+'-12-31'
-        
-        days_mth = monthrange(settings['year_end'],settings['month_end'])
-        
-        date_min = str(settings['year_000'])+'-'+str(settings['month_000'])+'-01'
-        
-        date_max = str(settings['year_end'])+'-'+str(settings['month_end'])+'-'+str(days_mth[1])
-        
-        cmems_config= {
-               'ini_config_template'    : settings['cmems_config_template'],
-               'user'                   : settings['cmems_usr'],
-               'pwd'                    : settings['cmems_pwd'],
-               'motu_server'            : settings['motu_server'],  
-               'service_id'             : settings['cmems_model'],
-               'product_id'             : settings['cmems_product'],
-               'date_min'               : date_min,
-               'date_max'               : date_max,
-               'latitude_min'           : settings['latitude_min'],
-               'latitude_max'           : settings['latitude_max'],
-               'longitude_min'          : settings['longitude_min'],
-               'longitude_max'          : settings['longitude_max'],
-               'depth_min'              : settings['depth_min'],
-               'depth_max'              : settings['depth_max'],
-               'variable'               : settings['cmems_variable'],
-               'src_dir'                : settings['src_dir'],
-               'out_name'               : settings['cmems_output'],
-               'config_out'             : settings['cmems_config']
+    # check if download flag is present in settings (old bdy files may not have it)
+    if 'download_cmems' in settings:
+        if settings['download_cmems'] == True:
 
-        }
-        
-        chk = dl_cmems.chk_motu()
-        
-        if chk == 1:
-            logger.error('motuclient not installed, please install by running $ pip install motuclient')
-            
-        else:
-            logger.info('version ' +chk+ ' of motuclient is installed')
-        logger.info('requesting CMES download now (this can take a while)...')    
-        dl = dl_cmems.request_CMEMS(cmems_config)
-        
-        if dl == 0:
-            logger.info('CMES data downloaded successfully')
-            
-        if type(dl) == str:
-            logger.error(dl)
+            logger.info('starting CMEMS download process....')
+
+            if settings['year_end'] - settings['year_000'] > 0:
+                date_min = settings['year_000']+'-01-01'
+                date_max = settings['year_end']+'-12-31'
+
+            days_mth = monthrange(settings['year_end'],settings['month_end'])
+
+            date_min = str(settings['year_000'])+'-'+str(settings['month_000'])+'-01'
+
+            date_max = str(settings['year_end'])+'-'+str(settings['month_end'])+'-'+str(days_mth[1])
+
+            cmems_config= {
+                   'ini_config_template'    : settings['cmems_config_template'],
+                   'user'                   : settings['cmems_usr'],
+                   'pwd'                    : settings['cmems_pwd'],
+                   'motu_server'            : settings['motu_server'],
+                   'service_id'             : settings['cmems_model'],
+                   'product_id'             : settings['cmems_product'],
+                   'date_min'               : date_min,
+                   'date_max'               : date_max,
+                   'latitude_min'           : settings['latitude_min'],
+                   'latitude_max'           : settings['latitude_max'],
+                   'longitude_min'          : settings['longitude_min'],
+                   'longitude_max'          : settings['longitude_max'],
+                   'depth_min'              : settings['depth_min'],
+                   'depth_max'              : settings['depth_max'],
+                   'variable'               : settings['cmems_variable'],
+                   'src_dir'                : settings['src_dir'],
+                   'out_name'               : settings['cmems_output'],
+                   'config_out'             : settings['cmems_config']
+
+            }
+
+            chk = dl_cmems.chk_motu()
+
+            if chk == 1:
+                logger.error('motuclient not installed, please install by running $ pip install motuclient')
+
+            else:
+                logger.info('version ' +chk+ ' of motuclient is installed')
+            logger.info('requesting CMES download now (this can take a while)...')
+
+            ini = dl_cmems.update_ini(cmems_config)
+
+            if ini == 0:
+                logger.info('cmems config file populated successfully')
+
+            if type(ini) == str:
+                logger.error(ini)
+
+            dl = dl_cmems.request_CMEMS(cmems_config)
+
+            if dl == 0:
+                logger.info('CMES data downloaded successfully')
+
+            if type(dl) == str:
+                logger.error(dl)
+
+        if settings['download_cmems'] == False:
+            logger.info('no data from CMEMS requested.......')
 
     SourceCoord = source_coord.SourceCoord()
     DstCoord    = dst_coord.DstCoord()

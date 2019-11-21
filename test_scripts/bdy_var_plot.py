@@ -186,7 +186,7 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
     f, ax = plt.subplots(nrows=nsc, ncols=1, figsize=(14, 10 * nsc))
 
     for n in range(nsc):
-
+        print('NSC '+str(n))
         plt.sca(ax[n])
 
         # from gdep create some pseudo w points
@@ -239,7 +239,7 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
                     colors = np.append(colors, dta[n][k, i])
 
         for i in range(len(coords)):
-
+            print(i)
             for k in np.arange(jpk - 2, -1, -1):
                 x = [coords[i] - 0.5, coords[i], coords[i] + 0.5,
                      coords[i] + 0.5, coords[i], coords[i] - 0.5, coords[i] - 0.5]
