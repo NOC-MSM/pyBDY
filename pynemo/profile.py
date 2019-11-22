@@ -144,15 +144,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 logger.info('version ' +chk+ ' of motuclient is installed')
             logger.info('requesting CMES download now (this can take a while)...')
 
-            ini = dl_cmems.update_ini(cmems_config)
-
-            if ini == 0:
-                logger.info('cmems config file populated successfully')
-
-            if type(ini) == str:
-                logger.error(ini)
-
-            dl = dl_cmems.request_CMEMS(cmems_config)
+            dl = dl_cmems.request_cmems(cmems_config)
 
             if dl == 0:
                 logger.info('CMES data downloaded successfully')
