@@ -153,7 +153,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 logger.error(dl)
 
         if settings['download_cmems'] == False:
-            logger.info('no data from CMEMS requested.......')
+            logger.info('no new data from CMEMS requested.......')
 
     SourceCoord = source_coord.SourceCoord()
     DstCoord    = dst_coord.DstCoord()

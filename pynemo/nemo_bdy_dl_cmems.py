@@ -69,7 +69,7 @@ def request_cmems(args):
         xml = args['src_dir']+split_filename[0] + '.xml'
         root = ET.parse(xml).getroot()
 
-        if 'ok' in root.attrib['msg']:
+        if 'OK' in root.attrib['msg']:
 
             motu = Popen(['motuclient', '--config-file', args['config_out']], stdout=PIPE, stderr=PIPE)
             stdout, stderr = motu.communicate()
@@ -84,10 +84,13 @@ def request_cmems(args):
 
         #split = float(root.attrib['maxAllowedSize']) / float(root.attrib['size'])
 
-        if 'too big' in root.attrib['msg']:
+        elif 'too big' in root.attrib['msg']:
 
             status = 'file request too big reduce size of domain or length of time series'
             return status
+
+        else:
+            status = 'unable to determine if size request is valid (too big or not)'
 
     return status
 
