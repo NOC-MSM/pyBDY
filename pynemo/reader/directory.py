@@ -8,6 +8,9 @@ from netCDF4 import Dataset
 from netCDF4 import netcdftime
 import copy
 import logging
+
+logger = logging.getLogger(__name__)
+
 class Reader(object):
     '''
     This provides a reader for all the files in the directory as one
@@ -69,6 +72,7 @@ class Reader(object):
         group.date_counter = []
         for filename in dir_list:   
             nc = Dataset(filename, 'r')
+            # TODO: need to sort flexible time number variables
             #varid = nc.variables['time_counter']
             varid = nc.variables['time']
             for index in range(0,len(varid)):
@@ -96,14 +100,21 @@ class Reader(object):
         days = set()
         hrs = set()
         for grid_type in self.grid_source_data.keys():
-            day, hr = self._delta_time_interval(self.grid_source_data[grid_type].time_counter[0],
+
+            if self.grid_source_data[grid_type].time_counter.__len__() != 0:
+
+                day, hr = self._delta_time_interval(self.grid_source_data[grid_type].time_counter[0],
                                                 self.grid_source_data[grid_type].time_counter[1])
-            days.add(day)
-            hrs.add(hr)
-        if len(days) != 1 or len(hrs) != 1:
-            raise Exception('All the Grid time interval is not same')
-        self.day_interval = list(days)[0]
-        self.hr_interval = list(hrs)[0] 
+                days.add(day)
+                hrs.add(hr)
+
+                if len(days) != 1 or len(hrs) != 1:
+                    raise Exception('All the Grid time interval is not same')
+                self.day_interval = list(days)[0]
+                self.hr_interval = list(hrs)[0]
+
+            if self.grid_source_data[grid_type].time_counter.__len__() == 0:
+                logger.warning(grid_type+' grid data missing')
         
     def __getitem__(self,val):
         if val in self.grid_type_list:

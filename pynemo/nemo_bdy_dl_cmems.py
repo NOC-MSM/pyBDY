@@ -6,11 +6,14 @@ using the motu client python module
 # import modules
 from subprocess import Popen, PIPE
 import xml.etree.ElementTree as ET
+import logging
 
 # Need to add try excepts for files and folders being present
 
 # check to see if motuclient is installed, if not then return error
 # if it is installed return the version number
+logger = logging.getLogger(__name__)
+
 def chk_motu():
     chk = Popen(['motuclient','--version'], stdout=PIPE, stderr=PIPE)
     stdout,stderr = chk.communicate()
@@ -29,7 +32,7 @@ def request_cmems(args):
     variables = args['variable'].split(' ')
     filenames = args['out_name'].split(' ')
     v_num = len(variables)
-
+    logger.info('CMEMS data requested.......')
     for v in range(v_num):
         with open(args['ini_config_template'], 'r') as file:
             filedata = file.read()
@@ -56,6 +59,7 @@ def request_cmems(args):
 
         size_chk = Popen(['motuclient', '--size','--config-file', args['config_out']], stdout=PIPE, stderr=PIPE)
         stdout,stderr = size_chk.communicate()
+        logger.info('checking size of request for variables '+variables[v])
 
         if 'ERROR' in stdout:
             idx = stdout.find('ERROR')
@@ -68,9 +72,10 @@ def request_cmems(args):
         split_filename = filenames[v].split('.')
         xml = args['src_dir']+split_filename[0] + '.xml'
         root = ET.parse(xml).getroot()
+        logger.info('size of request ' + root.attrib['size'])
 
         if 'OK' in root.attrib['msg']:
-
+            logger.info('request valid, downloading now......')
             motu = Popen(['motuclient', '--config-file', args['config_out']], stdout=PIPE, stderr=PIPE)
             stdout, stderr = motu.communicate()
 
@@ -80,6 +85,7 @@ def request_cmems(args):
                 return status
 
             if 'Done' in stdout:
+                logger.info('downloading of variables '+variables[v]+' successful')
                 status = 0
 
         #split = float(root.attrib['maxAllowedSize']) / float(root.attrib['size'])

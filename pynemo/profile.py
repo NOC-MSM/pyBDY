@@ -73,6 +73,15 @@ class Grid(object):
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='nrct.log', level=logging.INFO)
+# define a Handler which writes INFO messages or higher to the sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+# set a format which is simpler for console use
+formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+# tell the handler to use this format
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
 
 def process_bdy(setup_filepath=0, mask_gui=False):
     """ 
@@ -99,6 +108,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # download CMEMS data if requested
     # check if download flag is present in settings (old bdy files may not have it)
     if 'download_cmems' in settings:
+
         if settings['download_cmems'] == True:
 
             logger.info('starting CMEMS download process....')
@@ -107,11 +117,19 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 date_min = settings['year_000']+'-01-01'
                 date_max = settings['year_end']+'-12-31'
 
-            days_mth = monthrange(settings['year_end'],settings['month_end'])
+            elif settings['year_end'] - settings['year_000'] == 0:
 
-            date_min = str(settings['year_000'])+'-'+str(settings['month_000'])+'-01'
+                days_mth = monthrange(settings['year_end'],settings['month_end'])
+                date_min = str(settings['year_000'])+'-'+str(settings['month_000'])+'-01'
+                date_max = str(settings['year_end'])+'-'+str(settings['month_end'])+'-'+str(days_mth[1])
 
-            date_max = str(settings['year_end'])+'-'+str(settings['month_end'])+'-'+str(days_mth[1])
+            elif settings['year_end'] - settings['year_000'] < 0:
+                logger.error('end date before start date please ammend bdy file')
+
+            else:
+                logger.warning('unable to parse dates..... using demo date November 2017')
+                date_min = '2017-11-01'
+                date_max = '2017-11-30'
 
             cmems_config= {
                    'ini_config_template'    : settings['cmems_config_template'],
@@ -142,7 +160,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
             else:
                 logger.info('version ' +chk+ ' of motuclient is installed')
-            logger.info('requesting CMES download now (this can take a while)...')
+            logger.info('starting CMES download now (this can take a while)...')
 
             dl = dl_cmems.request_cmems(cmems_config)
 
