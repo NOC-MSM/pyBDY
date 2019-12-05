@@ -59,3 +59,5 @@ cb = plt.colorbar(orientation='vertical', shrink=0.75, aspect=30, fraction=0.1,p
 cb.set_label('RimWidth Number')
 cb.set_ticks(np.arange(10))
 th=plt.title(('BDY Points'),fontweight='bold')
+
+plt.show()
