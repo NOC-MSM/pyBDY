@@ -225,7 +225,7 @@ class Variable(object):
             retval = data_array.copyToNDJavaArray() 
             #TODO: copy it into numpy instead of Java array and then convert to numpy
             # convert to numpy array
-            retval = np.asarray(retval)
+            retval = np.asarray(retval, dtype='float')
             self.logger.info(retval.shape)
             if np_input: #if an array is passed as selection
                 ret_dim_list = ()
