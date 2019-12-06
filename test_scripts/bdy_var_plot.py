@@ -238,15 +238,15 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
                     patches.append(polygon)
                     colors = np.append(colors, dta[n][k, i])
 
-        for i in range(len(coords)):
-            print(i)
-            for k in np.arange(jpk - 2, -1, -1):
-                x = [coords[i] - 0.5, coords[i], coords[i] + 0.5,
-                     coords[i] + 0.5, coords[i], coords[i] - 0.5, coords[i] - 0.5]
-                y = [gdepvw[k + 1, i], gdepw[k + 1, i], gdepvw[k + 1, i + 1],
-                     gdepvw[k, i + 1], gdepw[k, i], gdepvw[k, i], gdepvw[k + 1, i]]
-                plt.plot(x, y, 'k-', linewidth=0.1)
-                plt.plot(coords[i], gdept[k, i], 'k.', markersize=1)
+        # for i in range(len(coords)):
+        #     #print(i)
+        #     for k in np.arange(jpk - 2, -1, -1):
+        #         x = [coords[i] - 0.5, coords[i], coords[i] + 0.5,
+        #              coords[i] + 0.5, coords[i], coords[i] - 0.5, coords[i] - 0.5]
+        #         y = [gdepvw[k + 1, i], gdepw[k + 1, i], gdepvw[k + 1, i + 1],
+        #              gdepvw[k, i + 1], gdepw[k, i], gdepvw[k, i], gdepvw[k + 1, i]]
+        #         plt.plot(x, y, 'k-', linewidth=0.1)
+        #         plt.plot(coords[i], gdept[k, i], 'k.', markersize=1)
 
         plt.plot(coords, bathy, '-', color=(0.4, 0, 0))
         p = PatchCollection(patches, alpha=0.8, edgecolor='none')
@@ -261,3 +261,5 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
 fname = '/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y2017m11.nc'
 ind, dst, brk = nemo_bdy_order(fname)
 f = plot_bdy(fname, ind, dst, brk, 'thetao', 0, 0)
+
+plt.show()

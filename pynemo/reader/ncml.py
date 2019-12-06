@@ -38,8 +38,9 @@ try:
     init_jnius()
 except ImportError:
     print 'Warning: Please make sure pyjnius is installed and jvm.dll/libjvm.so/libjvm.dylib is in the path'
-
+# TODO: sort out variables below (hard coded to CMEMS)
 time_counter_const = "time_counter"
+time_counter_const = "time"
 class Reader(object):
     """ This class is the high level of object for the NCML reader, from here using grid type
     will return the grid data
@@ -225,7 +226,7 @@ class Variable(object):
             retval = data_array.copyToNDJavaArray() 
             #TODO: copy it into numpy instead of Java array and then convert to numpy
             # convert to numpy array
-            retval = np.asarray(retval)
+            retval = np.asarray(retval, dtype='float')
             self.logger.info(retval.shape)
             if np_input: #if an array is passed as selection
                 ret_dim_list = ()
