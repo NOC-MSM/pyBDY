@@ -67,6 +67,14 @@ Resulting in the following command: (this will be different for different java v
 
     $ export LD_LIBRARY_PATH=/Library/Java/JavaVirtualMachines/jdk-13.0.1.jdk/Contents/Home/lib/server:$LD_LIBRARY_PATH
 
+For an iMac 2013 and JRE 8 only the followinng path was found to be correct::
+    
+   /Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/server
+   
+With the following command being required to set the environment variable::
+
+    $ export LD_LIBRARY_PATH=/Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/server:$LD_LIBRARY_PATH
+
 The conda environment creation command has not yet been tested. The yml document (can be opened using text editor) gives a list of all the modules and their versions that are required for PyNEMO so a environment can be constructed using this document as reference (or if you use pip!)
 
 **Update** conda environment yaml file has been tested (and works!) on a Macbook Pro 2015 and iMac 2013 running Anaconda 3.7 and Miniconda 3.7 respectively. 
