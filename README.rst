@@ -59,7 +59,7 @@ To use PyNEMO, the following command is entered: (the example will run an benchm
 
 **Additional NOTES** 
 
-For macOS Mojave and Java SDK 13 and JRE 8 the following path for the libjvm library should be correct:: 
+For Macbook Pro 2015, macOS Mojave and Java SDK 13 and JRE 8 the following path for the libjvm library should be correct:: 
 
     /Library/Java/JavaVirtualMachines/jdk-13.0.1.jdk/Contents/Home/lib/server
 
@@ -67,7 +67,7 @@ Resulting in the following command: (this will be different for different java v
 
     $ export LD_LIBRARY_PATH=/Library/Java/JavaVirtualMachines/jdk-13.0.1.jdk/Contents/Home/lib/server:$LD_LIBRARY_PATH
 
-For an iMac 2013 and JRE 8 only the followinng path was found to be correct::
+For an iMac 2013, macOS Catalina and JRE 8 only the followinng path was found to be correct::
     
    /Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/server
    
