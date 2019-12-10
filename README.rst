@@ -77,6 +77,8 @@ Resulting in the following command: (this will be different for different java v
 
 The conda environment creation command has not yet been tested. The yml document (can be opened using text editor) gives a list of all the modules and their versions that are required for PyNEMO so a environment can be constructed using this document as reference (or if you use pip!)
 
+**Update** conda environmental yaml file has been tested to work using miniconda on a Macbook Pro and iMac.
+
 Contribution guidelines
 -----------------------
 
