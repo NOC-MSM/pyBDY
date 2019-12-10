@@ -243,22 +243,17 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     try:
         SourceCoord.lon = nc['glamt'][:,:]
-    except:
-        SourceCoord.lon = nc['longitude'][:]
-        # expand lat and lon 1D arrays into 2D array matching nav_lat nav_lon
-        SourceCoord.lon = np.tile(SourceCoord.lon, (np.shape(SourceCoord.lat)[0], 1))
-    else:
-        logger.error('Incorrect Variable Name: unable to parse longitude variable')
-    try:
         SourceCoord.lat = nc['gphit'][:,:]
     except:
+        SourceCoord.lon = nc['longitude'][:]
         SourceCoord.lat = nc['latitude'][:]
         # expand lat and lon 1D arrays into 2D array matching nav_lat nav_lon
+        SourceCoord.lon = np.tile(SourceCoord.lon, (np.shape(SourceCoord.lat)[0], 1))
         SourceCoord.lat = np.tile(SourceCoord.lat, (np.shape(SourceCoord.lon)[1], 1))
-        # latitude needs to be rotated 90 degrees to be in correct orientation
         SourceCoord.lat = np.rot90(SourceCoord.lat)
     else:
-        logger.error('Incorrect Variable Name: unable to parse latitude variable')
+        logger.error('Incorrect Variable Name: unable to parse longitude variable')
+
     try: # if they are masked array convert them to normal arrays
         SourceCoord.lon = SourceCoord.lon.filled()
     except:
@@ -377,8 +372,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     grd  = [  't',  'u',  'v']
     pair = [ None, 'uv', 'uv'] # TODO: devolve this to the namelist?
     
-    # TODO: The following is a temporary stop gap to assign variables. In 
-    # future we need a slicker way of determining the variables to extract. 
+    # TODO: The following is a temporary stop gap to assign variables for both CMEMS downloads
+    #  and existing variable names. In future we need a slicker way of determining the variables to extract.
     # Perhaps by scraping the .ncml file - this way biogeochemical tracers
     # can be included in the ln_tra = .true. option without having to
     # explicitly declaring them.
@@ -386,35 +381,52 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     var_in = {}
     for g in range(len(grd)):
         var_in[grd[g]] = []
-        
-    if ln_tra:
-        try:
+    if 'use_cmems' in settings:
+        if settings['use_cmems'] == True:
+            logger.info('using CMEMS variable names......')
+            if ln_tra:
+                var_in['t'].extend(['thetao','so'])
+
+            if ln_dyn2d or ln_dyn3d:
+                var_in['u'].extend(['uo'])
+                var_in['v'].extend(['vo'])
+
+            if ln_dyn2d:
+                var_in['t'].extend(['zos'])
+
+            if ln_ice:
+                var_in['t'].extend(['ice1', 'ice2', 'ice3'])
+
+        if settings['use_cmems'] == False:
+            logger.info('using existing PyNEMO variable names.....')
+            if ln_tra:
+                var_in['t'].extend(['votemper', 'vosaline'])
+
+            if ln_dyn2d or ln_dyn3d:
+                var_in['u'].extend(['vozocrtx', 'vomecrty'])
+                var_in['v'].extend(['vozocrtx', 'vomecrty'])
+
+            if ln_dyn2d:
+                var_in['t'].extend(['sossheig'])
+
+            if ln_ice:
+                var_in['t'].extend(['ice1', 'ice2', 'ice3'])
+
+    if 'use_cmems' not in settings:
+        logger.info('using existing PyNEMO variable names.....')
+        if ln_tra:
             var_in['t'].extend(['votemper', 'vosaline'])
-        except:
-            var_in['t'].extend(['thetao','so'])
-        else:
-            logger.error('Incorrect Variable Name: unable to parse temperature and/or salinity')
-        
-    if ln_dyn2d or ln_dyn3d:
-        try:
+
+        if ln_dyn2d or ln_dyn3d:
             var_in['u'].extend(['vozocrtx', 'vomecrty'])
             var_in['v'].extend(['vozocrtx', 'vomecrty'])
-        except:
-            var_in['u'].extend(['uo'])
-            var_in['v'].extend(['vo'])
-        else:
-            logger.error('Incorrect Variable Name: unable to parse U and V current components')
 
-    if ln_dyn2d:
-        try:
+        if ln_dyn2d:
             var_in['t'].extend(['sossheig'])
-        except:
-            var_in['t'].extend(['zos'])
-        else:
-            logger.error('Incorrect Variable Name: unable to parse SSH')
-    if ln_ice:
-        var_in['t'].extend(['ice1', 'ice2', 'ice3'])
-    
+
+        if ln_ice:
+            var_in['t'].extend(['ice1', 'ice2', 'ice3'])
+
     # As variables are associated with grd there must be a filename attached
     # to each variable
     
