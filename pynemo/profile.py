@@ -211,8 +211,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     
     logger.info('Gathering grid information')
     nc = GetFile(settings['src_zgr'])
-    #SourceCoord.zt = np.squeeze(nc['gdept_0'][:])
-    SourceCoord.zt = np.squeeze(nc['depth'][:])
+    try:
+        SourceCoord.zt = np.squeeze(nc['gdept_0'][:])
+    except:
+        SourceCoord.zt = np.squeeze(nc['depth'][:])
+    else:
+        logger.error('Invalid Variable Name: Unable to parse depth variable')
     nc.close()
 
     # Define z at t/u/v points
@@ -236,16 +240,25 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Gather vorizontal grid information
     # TODO: Sort generic grid variables (define in bdy file?)
     nc = GetFile(settings['src_hgr'])
-#    SourceCoord.lon = nc['glamt'][:,:]
-#    SourceCoord.lat = nc['gphit'][:,:]
-    SourceCoord.lon = nc['longitude'][:]
-    SourceCoord.lat = nc['latitude'][:]
-    # expand lat and lon 1D arrays into 2D array matching nav_lat nav_lon
-    SourceCoord.lon = np.tile(SourceCoord.lon, (np.shape(SourceCoord.lat)[0],1))
-    SourceCoord.lat = np.tile(SourceCoord.lat,(np.shape(SourceCoord.lon)[1],1))
-    # latitude needs to be rotated 90 degrees to be in correct orientation
-    SourceCoord.lat = np.rot90(SourceCoord.lat)
 
+    try:
+        SourceCoord.lon = nc['glamt'][:,:]
+    except:
+        SourceCoord.lon = nc['longitude'][:]
+        # expand lat and lon 1D arrays into 2D array matching nav_lat nav_lon
+        SourceCoord.lon = np.tile(SourceCoord.lon, (np.shape(SourceCoord.lat)[0], 1))
+    else:
+        logger.error('Incorrect Variable Name: unable to parse longitude variable')
+    try:
+        SourceCoord.lat = nc['gphit'][:,:]
+    except:
+        SourceCoord.lat = nc['latitude'][:]
+        # expand lat and lon 1D arrays into 2D array matching nav_lat nav_lon
+        SourceCoord.lat = np.tile(SourceCoord.lat, (np.shape(SourceCoord.lon)[1], 1))
+        # latitude needs to be rotated 90 degrees to be in correct orientation
+        SourceCoord.lat = np.rot90(SourceCoord.lat)
+    else:
+        logger.error('Incorrect Variable Name: unable to parse latitude variable')
     try: # if they are masked array convert them to normal arrays
         SourceCoord.lon = SourceCoord.lon.filled()
     except:
@@ -375,19 +388,30 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         var_in[grd[g]] = []
         
     if ln_tra:
-        #var_in['t'].extend(['votemper', 'vosaline'])
-        var_in['t'].extend(['thetao','so'])
+        try:
+            var_in['t'].extend(['votemper', 'vosaline'])
+        except:
+            var_in['t'].extend(['thetao','so'])
+        else:
+            logger.error('Incorrect Variable Name: unable to parse temperature and/or salinity')
         
     if ln_dyn2d or ln_dyn3d:
-        #var_in['u'].extend(['vozocrtx', 'vomecrty'])
-        #var_in['v'].extend(['vozocrtx', 'vomecrty'])
-        var_in['u'].extend(['uo'])
-        var_in['v'].extend(['vo'])
-    
+        try:
+            var_in['u'].extend(['vozocrtx', 'vomecrty'])
+            var_in['v'].extend(['vozocrtx', 'vomecrty'])
+        except:
+            var_in['u'].extend(['uo'])
+            var_in['v'].extend(['vo'])
+        else:
+            logger.error('Incorrect Variable Name: unable to parse U and V current components')
+
     if ln_dyn2d:
-        #var_in['t'].extend(['sossheig'])
-        var_in['t'].extend(['zos'])
-        
+        try:
+            var_in['t'].extend(['sossheig'])
+        except:
+            var_in['t'].extend(['zos'])
+        else:
+            logger.error('Incorrect Variable Name: unable to parse SSH')
     if ln_ice:
         var_in['t'].extend(['ice1', 'ice2', 'ice3'])
     
