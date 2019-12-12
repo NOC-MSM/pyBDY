@@ -23,8 +23,7 @@ def chk_motu():
     
     else:
         idx = stdout.find('v')
-        version = stdout[idx:-1]
-        status = version
+        status = stdout[idx:-1]
         
     return status
 
@@ -63,7 +62,7 @@ def request_cmems(args):
 
         if 'ERROR' in stdout:
             idx = stdout.find('ERROR')
-            status = stdout[idx:-1]
+            status = stdout[idx-1:-1]
             return status
 
         if 'Done' in stdout:

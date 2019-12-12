@@ -16,5 +16,10 @@
            <netcdf location="/Users/thopri/Projects/PyNEMO/inputs/subsetT.nc" />
         </aggregation>
      </netcdf>
+     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+        <aggregation type="joinExisting" dimName="time" >
+           <netcdf location="/Users/thopri/Projects/PyNEMO/inputs/subsetI.nc" />
+        </aggregation>
+     </netcdf>
   </aggregation>
 </netcdf>

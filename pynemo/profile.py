@@ -125,7 +125,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
             elif settings['year_end'] - settings['year_000'] < 0:
                 logger.error('end date before start date please ammend bdy file')
-
+                return
             else:
                 logger.warning('unable to parse dates..... using demo date November 2017')
                 date_min = '2017-11-01'
@@ -147,7 +147,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                    'depth_min'              : settings['depth_min'],
                    'depth_max'              : settings['depth_max'],
                    'variable'               : settings['cmems_variable'],
-                   'src_dir'                : settings['src_dir'],
+                   'src_dir'                : settings['cmems_dir'],
                    'out_name'               : settings['cmems_output'],
                    'config_out'             : settings['cmems_config']
 
@@ -157,7 +157,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
             if chk == 1:
                 logger.error('motuclient not installed, please install by running $ pip install motuclient')
-
+                return
             else:
                 logger.info('version ' +chk+ ' of motuclient is installed')
             logger.info('starting CMES download now (this can take a while)...')
@@ -169,6 +169,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
             if type(dl) == str:
                 logger.error(dl)
+                return
 
         if settings['download_cmems'] == False:
             logger.info('no new data from CMEMS requested.......')
@@ -217,6 +218,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         SourceCoord.zt = np.squeeze(nc['depth'][:])
     else:
         logger.error('Invalid Variable Name: Unable to parse depth variable')
+        return
     nc.close()
 
     # Define z at t/u/v points
@@ -253,7 +255,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         SourceCoord.lat = np.rot90(SourceCoord.lat)
     else:
         logger.error('Incorrect Variable Name: unable to parse longitude variable')
-
+        return
     try: # if they are masked array convert them to normal arrays
         SourceCoord.lon = SourceCoord.lon.filled()
     except:
@@ -395,7 +397,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 var_in['t'].extend(['zos'])
 
             if ln_ice:
-                var_in['t'].extend(['ice1', 'ice2', 'ice3'])
+                var_in['t'].extend(['siconc', 'sithick'])
 
         if settings['use_cmems'] == False:
             logger.info('using existing PyNEMO variable names.....')

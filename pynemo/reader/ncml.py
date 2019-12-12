@@ -14,6 +14,7 @@ from netCDF4 import netcdftime
 ncmlpath, file_name = os.path.split(__file__)
 ncmlpath = os.path.join(ncmlpath, "jars", "netcdfAll-4.6.jar") 
 jnius_config.set_classpath('.',ncmlpath)
+
 try:
     if os.environ['http_proxy'] is not None:
         #split the proxy name and port
@@ -38,9 +39,12 @@ try:
     init_jnius()
 except ImportError:
     print 'Warning: Please make sure pyjnius is installed and jvm.dll/libjvm.so/libjvm.dylib is in the path'
-# TODO: sort out variables below (hard coded to CMEMS)
-time_counter_const = "time_counter"
-time_counter_const = "time"
+# TODO: sort out variables below (hard coded to CMEMS and NEMO benchmark)
+try:
+    time_counter_const = "time_counter"
+except:
+    time_counter_const = "time"
+
 class Reader(object):
     """ This class is the high level of object for the NCML reader, from here using grid type
     will return the grid data
