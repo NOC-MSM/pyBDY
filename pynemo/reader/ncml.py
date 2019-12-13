@@ -11,6 +11,8 @@ import logging
 import numpy as np
 import jnius_config
 from netCDF4 import netcdftime
+
+
 ncmlpath, file_name = os.path.split(__file__)
 ncmlpath = os.path.join(ncmlpath, "jars", "netcdfAll-4.6.jar") 
 jnius_config.set_classpath('.',ncmlpath)
@@ -39,11 +41,10 @@ try:
     init_jnius()
 except ImportError:
     print 'Warning: Please make sure pyjnius is installed and jvm.dll/libjvm.so/libjvm.dylib is in the path'
+
 # TODO: sort out variables below (hard coded to CMEMS and NEMO benchmark)
-try:
-    time_counter_const = "time_counter"
-except:
-    time_counter_const = "time"
+
+time_counter_const = "time"
 
 class Reader(object):
     """ This class is the high level of object for the NCML reader, from here using grid type
@@ -61,7 +62,7 @@ class Reader(object):
             self.dataset = NetcdfDataset.openFile(self.uri, None)
         except (IOError, RuntimeError):
             self.logger.error('Cannot open the file '+self.uri)
-        self.grid = GridGroup(self.uri,self.dataset)                           
+        self.grid = GridGroup(self.uri,self.dataset)
         self._get_source_timedata(self.grid,self.time_adjust)
     def __del__(self):
         """ Destructor close the netcdf file """
@@ -79,7 +80,7 @@ class Reader(object):
         
     def _get_source_timedata(self, grid, t_adjust):
         """ Get the source time data information. builds up sourcedata objects of a given grid """
-        timevar = grid[self.time_counter]    
+        timevar = grid[self.time_counter]
         grid.time_counter = timevar[:]+t_adjust
         grid.date_counter = []
         for index in range(0,len(grid.time_counter)):            

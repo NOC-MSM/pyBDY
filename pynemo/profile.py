@@ -212,13 +212,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     
     logger.info('Gathering grid information')
     nc = GetFile(settings['src_zgr'])
+    # TODO: sort variarble handling of depths
     try:
         SourceCoord.zt = np.squeeze(nc['gdept_0'][:])
     except:
         SourceCoord.zt = np.squeeze(nc['depth'][:])
-    else:
-        logger.error('Invalid Variable Name: Unable to parse depth variable')
-        return
     nc.close()
 
     # Define z at t/u/v points
@@ -253,9 +251,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         SourceCoord.lon = np.tile(SourceCoord.lon, (np.shape(SourceCoord.lat)[0], 1))
         SourceCoord.lat = np.tile(SourceCoord.lat, (np.shape(SourceCoord.lon)[1], 1))
         SourceCoord.lat = np.rot90(SourceCoord.lat)
-    else:
-        logger.error('Incorrect Variable Name: unable to parse longitude variable')
-        return
+
     try: # if they are masked array convert them to normal arrays
         SourceCoord.lon = SourceCoord.lon.filled()
     except:
@@ -305,6 +301,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Set up time information
     
     t_adj = settings['src_time_adj'] # any time adjutments?
+    time_counter_const = "time"
     reader = factory.GetReader(settings['src_dir'],t_adj)
     for grd in ['t', 'u', 'v']:
         bdy_ind[grd].source_time = reader[grd]

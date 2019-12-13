@@ -469,8 +469,10 @@ class Extract:
         if self.first:
             nc_3 = GetFile(self.settings['src_msk'])
             # TODO: sort generic mask variable name
-            #varid_3 = nc_3['tmask']
-            varid_3 = nc_3['mask']
+            try:
+                varid_3 = nc_3['tmask']
+            except:
+                varid_3 = nc_3['mask']
             varid_3 = np.expand_dims(varid_3, axis=0)
             # TODO: Sort out issue with j_run and i_run not broadcasting to varid_3
             #t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
