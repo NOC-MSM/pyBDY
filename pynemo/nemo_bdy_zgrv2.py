@@ -68,6 +68,7 @@ class Depth:
         v_ind = sub2ind(mbathy.shape, bdy_v[:,0], bdy_v[:,1])
         v_ind2 = sub2ind(mbathy.shape, bdy_v[:,0], bdy_v[:,1] + 1) 
    
+    	[tmp_zt, tmp_zw] = e3_to_depth(np.squeeze(nc['e3t'][:,:,:,:]), np.squeeze(nc['e3w'][:,:,:,:]), nz)
         # This is very slow
         self.logger.debug( 'starting nc reads loop' )
         for k in range(nz):
@@ -85,7 +86,8 @@ class Depth:
 		# jelt: replace 'load gdep[wt] with load e3[tw] and compute gdep[tw]
                 #wrk1 = nc['gdept'][0,k,:,:]#nc.variables['gdept'][0,k,:,:]
                 #wrk2 = nc['gdepw'][0,k,:,:]#nc.variables['gdepw'][0,k,:,:]
-		[wrk1, wrk2] = e3_to_depth(nc['e3t'][0,k,:,:], nc['e3w'][0,k,:,:], nz)
+                #print 'e3t shape: ', nc['e3t_0'][:].shape
+                [wrk1, wrk2] = tmp_zt[k,:,:], tmp_zw[k,:,:] 
 
             # Replace deep levels that are not used with NaN
             wrk2[mbathy + 1 < k + 1] = np.NaN
