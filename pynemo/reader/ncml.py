@@ -44,7 +44,7 @@ except ImportError:
 
 # TODO: sort out variables below (hard coded to CMEMS and NEMO benchmark)
 
-time_counter_const = "time"
+time_counter_const = "time_counter"
 
 class Reader(object):
     """ This class is the high level of object for the NCML reader, from here using grid type
