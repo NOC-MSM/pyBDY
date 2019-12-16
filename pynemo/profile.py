@@ -518,7 +518,7 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
                             dst_coord_var.lonlat['t']['lon'].shape[1],
                             dst_coord_var.lonlat['t']['lon'].shape[0], 
                             val['des']+tide_con, 
-                            setup_var.settings['fv'], key.upper())
+                            setup_var.settings['fv'], key.upper(), 'tide_data')
             
             ncpop.write_data_to_file(fout_tide, val['nam']+'1', 
                                      cons['cos'][val['nam']][indx])

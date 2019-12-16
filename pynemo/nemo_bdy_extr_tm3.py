@@ -471,12 +471,12 @@ class Extract:
             # TODO: sort generic mask variable name
             try:
                 varid_3 = nc_3['tmask']
+                t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
             except:
                 varid_3 = nc_3['mask']
-            varid_3 = np.expand_dims(varid_3, axis=0)
+                varid_3 = np.expand_dims(varid_3, axis=0)
+                t_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run) + 1, np.min(i_run):np.max(i_run) + 1]
             # TODO: Sort out issue with j_run and i_run not broadcasting to varid_3
-            t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
-            #t_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run)+1, np.min(i_run):np.max(i_run)+1]
             if self.key_vec:
                 #varid_3 = nc_3['umask']
                 varid_3 = nc_3['mask']
@@ -873,7 +873,7 @@ class Extract:
                                   unit_origin,
                                   self.settings['fv'],
                                   self.settings['dst_calendar'],
-                                  self.g_type.upper())
+                                  self.g_type.upper(),self.var_nam)
         
         self.logger.info('Writing out BDY data to: %s', f_out)
         
