@@ -301,7 +301,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Set up time information
     
     t_adj = settings['src_time_adj'] # any time adjutments?
-    time_counter_const = "time"
     reader = factory.GetReader(settings['src_dir'],t_adj)
     for grd in ['t', 'u', 'v']:
         bdy_ind[grd].source_time = reader[grd]

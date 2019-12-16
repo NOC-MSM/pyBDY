@@ -74,7 +74,7 @@ class Reader(object):
             nc = Dataset(filename, 'r')
             # TODO: need to sort flexible time number variables
             #varid = nc.variables['time_counter']
-            varid = nc.variables['time']
+            varid = nc.variables['time_counter']
             for index in range(0,len(varid)):
                 x = [filename, index]
                 group.data_list.append(x)

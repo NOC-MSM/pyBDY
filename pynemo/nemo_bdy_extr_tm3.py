@@ -465,7 +465,7 @@ class Extract:
                 break
 
         self.logger.info('first/last dates: %s %s', first_date, last_date)
-        sc_z_len
+
         if self.first:
             nc_3 = GetFile(self.settings['src_msk'])
             # TODO: sort generic mask variable name
@@ -475,8 +475,8 @@ class Extract:
                 varid_3 = nc_3['mask']
             varid_3 = np.expand_dims(varid_3, axis=0)
             # TODO: Sort out issue with j_run and i_run not broadcasting to varid_3
-            #t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
-            t_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run)+1, np.min(i_run):np.max(i_run)+1]
+            t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
+            #t_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run)+1, np.min(i_run):np.max(i_run)+1]
             if self.key_vec:
                 #varid_3 = nc_3['umask']
                 varid_3 = nc_3['mask']
