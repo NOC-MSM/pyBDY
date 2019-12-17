@@ -106,12 +106,30 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     settings = Setup.settings
 
     # download CMEMS data if requested
+    # download CMEMS static data if requested
     # check if download flag is present in settings (old bdy files may not have it)
     if 'download_cmems' in settings:
 
+        if settings['download_static'] == True:
+            logger.info('CMEMS Static data requested: downloading static data now.... (this may take awhile)')
+            static = dl_cmems.get_static(settings)
+            if static == 0:
+                logger.info('CMEMS static data downloaded')
+            if type(static) == str:
+                logger.error(static)
+                return
+        if settings['subset_static'] == True:
+            logger.info('CMEMS subset static data requested: subsetting now......')
+            subset_static = dl_cmems.subset_static(settings)
+            if subset_static == 0:
+                logger.info('CMEMS static data subset successfully')
+            if type(subset_static) == str:
+                logger.error(subset_static)
+                return
+
         if settings['download_cmems'] == True:
 
-            logger.info('starting CMEMS download process....')
+            logger.info('CMEMS Boundary data requested: starting download process....')
 
             if settings['year_end'] - settings['year_000'] > 0:
                 date_min = settings['year_000']+'-01-01'
@@ -131,28 +149,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 date_min = '2017-11-01'
                 date_max = '2017-11-30'
 
-            cmems_config= {
-                   'ini_config_template'    : settings['cmems_config_template'],
-                   'user'                   : settings['cmems_usr'],
-                   'pwd'                    : settings['cmems_pwd'],
-                   'motu_server'            : settings['motu_server'],
-                   'service_id'             : settings['cmems_model'],
-                   'product_id'             : settings['cmems_product'],
-                   'date_min'               : date_min,
-                   'date_max'               : date_max,
-                   'latitude_min'           : settings['latitude_min'],
-                   'latitude_max'           : settings['latitude_max'],
-                   'longitude_min'          : settings['longitude_min'],
-                   'longitude_max'          : settings['longitude_max'],
-                   'depth_min'              : settings['depth_min'],
-                   'depth_max'              : settings['depth_max'],
-                   'variable'               : settings['cmems_variable'],
-                   'src_dir'                : settings['cmems_dir'],
-                   'out_name'               : settings['cmems_output'],
-                   'config_out'             : settings['cmems_config']
-
-            }
-
             chk = dl_cmems.chk_motu()
 
             if chk == 1:
@@ -160,13 +156,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 return
             else:
                 logger.info('version ' +chk+ ' of motuclient is installed')
+
             logger.info('starting CMES download now (this can take a while)...')
-
-            dl = dl_cmems.request_cmems(cmems_config)
-
+            dl = dl_cmems.request_cmems(settings, date_min, date_max)
             if dl == 0:
                 logger.info('CMES data downloaded successfully')
-
             if type(dl) == str:
                 logger.error(dl)
                 return
