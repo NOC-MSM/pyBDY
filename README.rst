@@ -64,6 +64,11 @@ If you want to download CMEMS data the Motuclient is also required, this can be 
 Test the install by typing::
 
     $ motuclient --version
+    
+The CMEMS static subsetting feature needs the CDO command line tool to be installed. For linux, apt-get install CDO should work (or equivilent) MacOS requires homebrew or macports installed which can then install CDO::
+
+    $ sudo brew install cdo #(homebrew)  
+    $ sudo port install cdo #(macports)
 
 **Additional NOTES** 
 
