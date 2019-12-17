@@ -259,6 +259,7 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
     return f
 
 fname = '/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y2017m11.nc'
+print(fname)
 ind, dst, brk = nemo_bdy_order(fname)
 f = plot_bdy(fname, ind, dst, brk, 'thetao', 0, 0)
 
