@@ -12,6 +12,17 @@ import copy # DEBUG ONLY- allows multiple runs without corruption
 from pynemo import nemo_bdy_grid_angle
 from pynemo.nemo_bdy_lib import rot_rep
 
+
+"
+import foo
+method_to_call = getattr(foo, 'bar')
+result = method_to_call()
+You could shorten lines 2 and 3 to:
+
+result = getattr(foo, 'bar')()
+"
+
+
 class Extract:
 
     def __init__(self, setup, DstCoord, Grid):
