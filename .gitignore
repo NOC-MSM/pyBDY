@@ -8,6 +8,10 @@ __pycache__/
 *.nc
 *.xml
 
+# CMEMS creditial file
+CMEMS_cred.py
+motu_config.ini
+
 # Distribution / packaging
 .Python
 build/

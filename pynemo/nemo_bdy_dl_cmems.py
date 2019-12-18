@@ -8,6 +8,7 @@ from subprocess import Popen, PIPE
 import xml.etree.ElementTree as ET
 import logging
 import ftplib
+from pynemo.utils import CMEMS_cred
 
 # Need to add try excepts for files and folders being present
 
@@ -30,7 +31,7 @@ def chk_motu():
 
 def get_static(args):
     try:
-        ftp = ftplib.FTP(host=args['ftp_server'], user=args['cmems_usr'], passwd=args['cmems_pwd'])
+        ftp = ftplib.FTP(host=args['ftp_server'], user=CMEMS_cred.user, passwd=CMEMS_cred.pwd)
     except PermissionError as e:
         return e
     except TimeoutError as e:
@@ -76,8 +77,8 @@ def request_cmems(args, date_min, date_max):
         with open(args['cmems_config_template'], 'r') as file:
             filedata = file.read()
             
-            filedata = filedata.replace('J90TBS4Q1UCT4CM7', args['cmems_usr'])
-            filedata = filedata.replace('Z8UKFNXA5OIZRXCK', args['cmems_pwd'])
+            filedata = filedata.replace('J90TBS4Q1UCT4CM7', CMEMS_cred.user)
+            filedata = filedata.replace('Z8UKFNXA5OIZRXCK', CMEMS_cred.pwd)
             filedata = filedata.replace('DSGJJGWODV2F8TFU', args['motu_server'])
             filedata = filedata.replace('S7L40ACQHANTAC6Y', args['cmems_model'])
             filedata = filedata.replace('4LC8ALR9T96XN08U', args['cmems_product'])

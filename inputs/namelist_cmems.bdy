@@ -55,7 +55,7 @@
    ln_download_cmems        = .false.
    ln_download_static       = .false.
    ln_subset_static         = .false.
-   sn_cmems_usr             = 'username'
+   sn_cmems_usr             = 'user'
    sn_cmems_pwd             = 'password'
    sn_motu_server           = 'http://nrt.cmems-du.eu/motu-web/Motu'
    sn_cmems_config_template = '/Users/thopri/Projects/PyNEMO/pynemo/config/motu_config_template.ini'
