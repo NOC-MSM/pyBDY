@@ -42,7 +42,7 @@
 !------------------------------------------------------------------------------
    sn_src_dir = '/Users/thopri/Projects/PyNEMO/inputs/CMEMS.ncml' ! src_files/'
    sn_dst_dir = '/Users/thopri/Projects/PyNEMO/outputs'
-   sn_cmems_dir = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS src files
+
    sn_fn      = 'NNA_R12'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
@@ -52,7 +52,7 @@
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
    ln_use_cmems             = .true.                                                        !(to deprecate)
-   ln_download_cmems        = .false.
+   ln_download_cmems        = .true.
     !------------------------------------------------------------------------------
     !  CMEMS MOTU Configuration
     !------------------------------------------------------------------------------
@@ -70,6 +70,7 @@
    sn_ftp_server            = 'nrt.cmems-du.eu'
    sn_static_dir            = '/Core/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/global-analysis-forecast-phy-001-024-statics'
    sn_static_filenames      = 'GLO-MFC_001_024_coordinates.nc GLO-MFC_001_024_mask_bathy.nc GLO-MFC_001_024_mdt.nc'
+   sn_cmems_dir = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS static files
     !------------------------------------------------------------------------------
     !  CMEMS Extent Configuration
     !------------------------------------------------------------------------------
