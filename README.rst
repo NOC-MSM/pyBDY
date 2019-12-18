@@ -69,6 +69,15 @@ The CMEMS static subsetting feature needs the CDO command line tool to be instal
 
     $ sudo brew install cdo #(homebrew)  
     $ sudo port install cdo #(macports)
+    
+Creditials need to be provided to access the Copernicus repositories. To do this, register on the copernicus site and get a user name and password. http://marine.copernicus.eu
+
+Regarding user name and password, it is **STRONGLY** recommended that you use a unique password that is not the same as one used for emails etc, as it will be stored in plain txt in PyNEMO. PyNEMO expects there to be a file called 'CMEMS_cred.py' in the utils folder. This needs to be created and in it there need to be two variables that PyNEMO will read and use as user and password.::
+
+    user = 'username'
+    pwd = 'password'
+    
+This is all that is required in the file for PyNEMO to be able to access CMEMS.
 
 **Additional NOTES** 
 
