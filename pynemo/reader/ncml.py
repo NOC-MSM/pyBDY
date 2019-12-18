@@ -57,7 +57,6 @@ if 'use_cmems' not in settings:
     time_counter_const = "time_counter"
 del settings, Setup
 
-
 class Reader(object):
     """ This class is the high level of object for the NCML reader, from here using grid type
     will return the grid data

@@ -271,46 +271,46 @@ class Ncml_generator(QtGui.QDialog):
                 vname = unicode('variable').encode('utf-8')
                 #v is None          
                 if tab.name == unicode('temperature').encode('utf-8') and tab.old_name != unicode('votemper').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='votemper', orgName = str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName = str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('salinity').encode('utf-8') and tab.old_name != unicode('vosaline').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='vosaline', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('ice_thickness').encode('utf-8') and tab.old_name != unicode('iicethic').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='iicethic', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('leads_fraction').encode('utf-8') and tab.old_name != unicode('ileadfra').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='ileadfra', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('snow_thickness').encode('utf-8') and tab.old_name != unicode('isnowthi').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='isnowthi', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('zonal_velocity').encode('utf-8') and tab.old_name != unicode('vozocrtx').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='vozocrtx', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('meridian_velocity').encode('utf-8') and tab.old_name != unicode('vomecrty').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='vomecrty', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('sea_surface_height').encode('utf-8') and tab.old_name != unicode('sossheig').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='sossheig', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('depth_at_t_points').encode('utf-8') and tab.old_name != unicode('gdept').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='gdept', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('depth_at_w_points').encode('utf-8') and tab.old_name != unicode('gdepw').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='gdepw', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('number_of_wet_levels').encode('utf-8') and tab.old_name != unicode('mbathy').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='mbathy', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('vertical_scale_factors_at_t_points').encode('utf-8') and tab.old_name != unicode('e3t').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='e3t', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('vertical_scale_factors_at_u_points').encode('utf-8') and tab.old_name != unicode('e3u').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='e3u', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                 elif tab.name == unicode('vertical_scale_factors_at_v_points').encode('utf-8') and tab.old_name != unicode('e3v').encode('utf-8'):
-                    v = ET.Element(ns+vname, name='e3v', orgName =  str(tab.old_name))
+                    v = ET.Element(ns+vname, name=str(tab.old_name), orgName =  str(tab.old_name))
                     self.root.append(v)
                    
         #write ncml to file

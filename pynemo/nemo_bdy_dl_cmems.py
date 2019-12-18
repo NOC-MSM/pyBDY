@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 import logging
 import ftplib
 from pynemo.utils import CMEMS_cred
+import re
 
 # Need to add try excepts for files and folders being present
 
@@ -69,11 +70,31 @@ def subset_static(args):
     return 0
 
 def request_cmems(args, date_min, date_max):
-    variables = args['cmems_variable'].split(' ')
-    filenames = args['cmems_output'].split(' ')
-    v_num = len(variables)
     logger.info('CMEMS data requested.......')
-    for v in range(v_num):
+    xml = args['src_dir']
+    root = ET.parse(xml).getroot()
+    num_var = (len(root.getchildren()[0].getchildren()))
+    logger.info('number of variables requested is '+str(num_var))
+    grids = {}
+    locs = {}
+    for n in range(num_var):
+        F = root.getchildren()[0].getchildren()[n].getchildren()[0].getchildren()[0].attrib
+        var_name = root.getchildren()[n+1].attrib['name']
+        Type = root.getchildren()[0].getchildren()[n].getchildren()[0].attrib
+        logger.info('Variable '+ str(n+1)+' is '+Type['name']+'( Variable name: '+var_name+')')
+        r = re.findall('([A-Z])', F['regExp'])
+        r = ''.join(r)
+        logger.info('It is on the '+str(r)+' grid')
+        if r in grids:
+            grids[r].append(var_name)
+        else:
+            grids[r] = [var_name]
+        if r in locs:
+            pass
+        else:
+            locs[r] = F['location'][6:]
+
+    for key in grids:
         with open(args['cmems_config_template'], 'r') as file:
             filedata = file.read()
             
@@ -90,16 +111,16 @@ def request_cmems(args, date_min, date_max):
             filedata = filedata.replace('K0UQJJDJOKX14DPS', str(args['longitude_max']))
             filedata = filedata.replace('FNO0GZ1INQDATAXA', str(args['depth_min']))
             filedata = filedata.replace('EI6GB1FHTMCIPOZC', str(args['depth_max']))
-            filedata = filedata.replace('4Y4LMQLAKP10YFUE', variables[v])
-            filedata = filedata.replace('QFCN2P56ZQSA7YNK', args['cmems_dir'])
-            filedata = filedata.replace('YSLTB459ZW0P84GE', filenames[v])
+            filedata = filedata.replace('4Y4LMQLAKP10YFUE', ','.join(grids[key]))
+            filedata = filedata.replace('QFCN2P56ZQSA7YNK', locs[key])
+            filedata = filedata.replace('YSLTB459ZW0P84GE', args['dl_prefix']+'_'+str(key)+'.nc')
     
         with open(args['cmems_config'], 'w') as file:
             file.write(filedata)
 
         size_chk = Popen(['motuclient', '--size','--config-file', args['cmems_config']], stdout=PIPE, stderr=PIPE)
         stdout,stderr = size_chk.communicate()
-        logger.info('checking size of request for variables '+variables[v])
+        logger.info('checking size of request for variables '+' '.join(grids[key]))
 
         if 'ERROR' in stdout:
             idx = stdout.find('ERROR')
@@ -109,8 +130,7 @@ def request_cmems(args, date_min, date_max):
         if 'Done' in stdout:
             status = 0
 
-        split_filename = filenames[v].split('.')
-        xml = args['cmems_dir']+split_filename[0] + '.xml'
+        xml = locs[key]+args['dl_prefix']+'_'+key+ '.xml'
         root = ET.parse(xml).getroot()
         logger.info('size of request ' + root.attrib['size'])
 
@@ -125,10 +145,8 @@ def request_cmems(args, date_min, date_max):
                 return status
 
             if 'Done' in stdout:
-                logger.info('downloading of variables '+variables[v]+' successful')
+                logger.info('downloading of variables '+' '.join(grids[key])+' successful')
                 status = 0
-
-        #split = float(root.attrib['maxAllowedSize']) / float(root.attrib['size'])
 
         elif 'too big' in root.attrib['msg']:
 

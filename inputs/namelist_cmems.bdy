@@ -40,7 +40,7 @@
 !------------------------------------------------------------------------------
 !  I/O 
 !------------------------------------------------------------------------------
-   sn_src_dir = '/Users/thopri/Projects/PyNEMO/inputs/src_data_CMEMS.ncml' ! src_files/'
+   sn_src_dir = '/Users/thopri/Projects/PyNEMO/inputs/CMEMS.ncml' ! src_files/'
    sn_dst_dir = '/Users/thopri/Projects/PyNEMO/outputs'
    sn_cmems_dir = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS src files
    sn_fn      = 'NNA_R12'             ! prefix for output files
@@ -52,27 +52,27 @@
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
    ln_use_cmems             = .true.                                                        !(to deprecate)
-   ln_download_cmems        = .true.
-   ln_download_static       = .true.
-   ln_subset_static         = .true.
+   ln_download_cmems        = .false.
+    !------------------------------------------------------------------------------
+    !  CMEMS MOTU Configuration
+    !------------------------------------------------------------------------------
    sn_motu_server           = 'http://nrt.cmems-du.eu/motu-web/Motu'
    sn_cmems_config_template = '/Users/thopri/Projects/PyNEMO/pynemo/config/motu_config_template.ini'
    sn_cmems_config          = '/Users/thopri/Projects/PyNEMO/pynemo/config/motu_config.ini'
-   sn_ftp_server            = 'nrt.cmems-du.eu'
    sn_cmems_model           = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS'
    sn_cmems_product         = 'global-analysis-forecast-phy-001-024'
+   sn_dl_prefix             = 'subset'
+    !------------------------------------------------------------------------------
+    !  CMEMS Static File Configuration
+    !------------------------------------------------------------------------------
+   ln_download_static       = .false.
+   ln_subset_static         = .false.
+   sn_ftp_server            = 'nrt.cmems-du.eu'
    sn_static_dir            = '/Core/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/global-analysis-forecast-phy-001-024-statics'
-   !-----------------------------------------------------
-   ! spaces separate the different static files to download
    sn_static_filenames      = 'GLO-MFC_001_024_coordinates.nc GLO-MFC_001_024_mask_bathy.nc GLO-MFC_001_024_mdt.nc'
-   !-----------------------------------------------------
-   ! commas separating variables are downloaded in same NC file
-   ! spaces separating variables are downloaded in different NC file
-   ! number of output files need to match number of sets of spaced variables
-   sn_cmems_variable        = 'thetao,so,zos uo vo siconc,sithick'
-   sn_cmems_output          = 'subsetT.nc subsetU.nc subsetV.nc subsetI.nc'
-   !------------------------------------------------------
-   nn_subset_extent         = 1 ! number of degrees to extend past dst grid for src subset (to implement)
+    !------------------------------------------------------------------------------
+    !  CMEMS Extent Configuration
+    !------------------------------------------------------------------------------
    nn_latitude_min          = 40                                                            !(to deprecate)
    nn_latitude_max          = 66                                                            !(to deprecate)
    nn_longitude_min         = -22                                                           !(to deprecate)
