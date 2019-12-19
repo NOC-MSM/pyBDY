@@ -8,7 +8,6 @@ from subprocess import Popen, PIPE
 import xml.etree.ElementTree as ET
 import logging
 import ftplib
-from pynemo.utils import CMEMS_cred
 import re
 
 # Need to add try excepts for files and folders being present
@@ -22,28 +21,44 @@ def chk_motu():
     stdout,stderr = chk.communicate()
     
     if not 'motuclient-python' in stdout:
-        status = 1
-    
+        return 1
     else:
         idx = stdout.find('v')
-        status = stdout[idx:-1]
-        
-    return status
+        return stdout[idx:-1]
 
 def get_static(args):
     try:
+        from pynemo.utils import CMEMS_cred
+    except ImportError:
+        logger.error('Unable to import CMEMS creditials, see Readme for instructions on adding to PyNEMO')
+        return 'Unable to import credintials file'
+    try:
         ftp = ftplib.FTP(host=args['ftp_server'], user=CMEMS_cred.user, passwd=CMEMS_cred.pwd)
-    except PermissionError as e:
-        return e
-    except TimeoutError as e:
-        return e
+    except ftplib.error_temp:
+        return 'temporary error in FTP connection, please try running PyNEMO again........'
+    except ftplib.error_perm as err:
+        return err
+    except ftplib.error_reply as err:
+        return err
+    except ftplib.error_proto as err:
+        return err
+
     # TODO: add try excepts to handle issues with files being missing etc.
     # TODO: Check there is enough space to download as well.....
     # TODO: Handle timeouts etc as well......
     ftp.cwd(args['static_dir'])
     filenames = args['static_filenames'].split(' ')
     for f in filenames:
-        ftp.retrbinary("RETR " + f, open(args['cmems_dir']+f, 'wb').write)
+        try:
+            ftp.retrbinary("RETR " + f, open(args['cmems_dir']+f, 'wb').write)
+        except ftplib.error_temp:
+            return 'temporary error in FTP download, please try running PyNEMO again........'
+        except ftplib.error_perm as err:
+            return err
+        except ftplib.error_reply as err:
+            return err
+        except ftplib.error_proto as err:
+            return err
     ftp.quit()
 
     return 0
@@ -53,8 +68,8 @@ def subset_static(args):
     filenames = args['static_filenames'].split(' ')
     for f in filenames:
         v = f.split('_')
-        v = 'subset_'+v[-1]
-        cdo = '/opt/local/bin/cdo'
+        v = args['dl_prefix']+'_'+v[-1]
+        cdo = args['cdo_loc']
         sellon = 'sellonlatbox,'+str(args['longitude_min'])+','+str(args['longitude_max'])+','\
                  +str(args['latitude_min'])+','+str(args['latitude_max'])
         src_file = args['cmems_dir']+f
@@ -70,21 +85,28 @@ def subset_static(args):
     return 0
 
 def request_cmems(args, date_min, date_max):
-    logger.info('CMEMS data requested.......')
+    try:
+        from pynemo.utils import CMEMS_cred
+    except ImportError:
+        logger.error('Unable to import CMEMS credentials, see Readme for instructions on adding to PyNEMO')
+        return 'Unable to import credentials file'
+
     xml = args['src_dir']
     root = ET.parse(xml).getroot()
     num_var = (len(root.getchildren()[0].getchildren()))
     logger.info('number of variables requested is '+str(num_var))
     grids = {}
     locs = {}
+
     for n in range(num_var):
         F = root.getchildren()[0].getchildren()[n].getchildren()[0].getchildren()[0].attrib
         var_name = root.getchildren()[n+1].attrib['name']
         Type = root.getchildren()[0].getchildren()[n].getchildren()[0].attrib
-        logger.info('Variable '+ str(n+1)+' is '+Type['name']+'( Variable name: '+var_name+')')
+        logger.info('Variable '+ str(n+1)+' is '+Type['name']+' (Variable name: '+var_name+')')
         r = re.findall('([A-Z])', F['regExp'])
         r = ''.join(r)
         logger.info('It is on the '+str(r)+' grid')
+
         if r in grids:
             grids[r].append(var_name)
         else:
@@ -124,11 +146,10 @@ def request_cmems(args, date_min, date_max):
 
         if 'ERROR' in stdout:
             idx = stdout.find('ERROR')
-            status = stdout[idx-1:-1]
-            return status
+            return stdout[idx-1:-1]
 
         if 'Done' in stdout:
-            status = 0
+            logger.info('downloading of variables ' + ' '.join(grids[key]) + ' successful')
 
         xml = locs[key]+args['dl_prefix']+'_'+key+ '.xml'
         root = ET.parse(xml).getroot()
@@ -141,20 +162,17 @@ def request_cmems(args, date_min, date_max):
 
             if 'ERROR' in stdout:
                 idx = stdout.find('ERROR')
-                status = stdout[idx:-1]
-                return status
+                return stdout[idx:-1]
 
             if 'Done' in stdout:
                 logger.info('downloading of variables '+' '.join(grids[key])+' successful')
-                status = 0
 
         elif 'too big' in root.attrib['msg']:
 
-            status = 'file request too big reduce size of domain or length of time series'
-            return status
+            return 'file request too big reduce size of domain or length of time series'
 
         else:
-            status = 'unable to determine if size request is valid (too big or not)'
+            return 'unable to determine if size request is valid (too big or not)'
 
-    return status
+    return 0
 

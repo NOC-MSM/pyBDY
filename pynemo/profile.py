@@ -118,6 +118,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             if type(static) == str:
                 logger.error(static)
                 return
+
         if settings['subset_static'] == True:
             logger.info('CMEMS subset static data requested: subsetting now......')
             subset_static = dl_cmems.subset_static(settings)
@@ -155,7 +156,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 logger.error('motuclient not installed, please install by running $ pip install motuclient')
                 return
             else:
-                logger.info('version ' +chk+ ' of motuclient is installed')
+                logger.info('version '+chk+' of motuclient is installed')
 
             logger.info('starting CMES download now (this can take a while)...')
             dl = dl_cmems.request_cmems(settings, date_min, date_max)

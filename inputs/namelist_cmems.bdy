@@ -65,12 +65,13 @@
     !------------------------------------------------------------------------------
     !  CMEMS Static File Configuration
     !------------------------------------------------------------------------------
-   ln_download_static       = .false.
-   ln_subset_static         = .false.
+   ln_download_static       = .true.
+   ln_subset_static         = .true.
    sn_ftp_server            = 'nrt.cmems-du.eu'
    sn_static_dir            = '/Core/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/global-analysis-forecast-phy-001-024-statics'
    sn_static_filenames      = 'GLO-MFC_001_024_coordinates.nc GLO-MFC_001_024_mask_bathy.nc GLO-MFC_001_024_mdt.nc'
-   sn_cmems_dir = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS static files
+   sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS static files
+   sn_cdo_loc               = '/opt/local/bin/cdo' ! location of cdo executable can be found by running "where cdo"
     !------------------------------------------------------------------------------
     !  CMEMS Extent Configuration
     !------------------------------------------------------------------------------
