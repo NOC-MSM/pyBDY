@@ -57,6 +57,7 @@ from pynemo.gui.nemo_bdy_mask import Mask as Mask_File
 
 from pynemo import nemo_bdy_dl_cmems as dl_cmems
 from calendar import monthrange
+import os
 
 class Grid(object):
     """ 
@@ -133,8 +134,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             logger.info('CMEMS Boundary data requested: starting download process....')
 
             if settings['year_end'] - settings['year_000'] > 0:
-                date_min = settings['year_000']+'-01-01'
-                date_max = settings['year_end']+'-12-31'
+                date_min = str(settings['year_000'])+'-01-01'
+                date_max = str(settings['year_end'])+'-12-31'
 
             elif settings['year_end'] - settings['year_000'] == 0:
 
@@ -165,6 +166,32 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             if type(dl) == str:
                 logger.error(dl)
                 return
+            if dl == 1:
+                logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
+                mnth_dl = dl_cmems.MWD_request_cmems(settings,date_min,date_max,'M')
+                if mnth_dl == 0:
+                    logger.info('CMEMS monthly request successful')
+                if type(mnth_dl) == str:
+                    logger.error(mnth_dl)
+                    return
+                if mnth_dl == 1:
+                    logger.warning('CMEMS request still too large, trying weekly downloads...(this will take longer...)')
+                    wk_dl = dl_cmems.MWD_request_cmems(settings,date_min,date_max,'W')
+                    if wk_dl == 0:
+                        logger.info('CMEMS weekly request successful')
+                    if type(wk_dl) ==str:
+                        logger.error(wk_dl)
+                        return
+                    if wk_dl == 1:
+                        logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....')
+                        dy_dl = dl_cmems.MWD_request_cmems(settings, date_min,date_max,'D')
+                        if dy_dl == 0:
+                            logger.info('CMEMS daily request successful')
+                        if dy_dl == str:
+                            logger.error(dy_dl)
+                            return
+            # TODO: implement function to remove unneeded xml files.
+            #os.remove(file) for file in os.listdir(settings['cmems_dir']) if file.endswith('.xml')
 
         if settings['download_cmems'] == False:
             logger.info('no new data from CMEMS requested.......')

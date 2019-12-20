@@ -9,6 +9,8 @@ import xml.etree.ElementTree as ET
 import logging
 import ftplib
 import re
+import pandas as pd
+from datetime import datetime
 
 # Need to add try excepts for files and folders being present
 
@@ -84,6 +86,58 @@ def subset_static(args):
             return stdout
     return 0
 
+def MWD_request_cmems(args,date_min,date_max,F):
+    if F == 'M':
+        month_start = pd.date_range(date_min, date_max,
+                                freq='MS').strftime("%Y-%m-%d").tolist()
+        month_end = pd.date_range(date_min, date_max,
+                              freq='M').strftime("%Y-%m-%d").tolist()
+        for m in range(len(month_end)):
+            mnth_dl = request_cmems(args, month_start[m], month_end[m])
+            if mnth_dl == 0:
+                logger.info('CMEMS month request ' + str((m + 1)) + 'of' + (str(len(month_end) + 1)) + ' successful')
+            if type(mnth_dl) == str:
+                logger.error(
+                    'CMEMS month request ' + str((m + 1)) + 'of' + str((len(month_end) + 1)) + ' unsuccessful: Error Msg below')
+                logger.error(mnth_dl)
+                return
+            if mnth_dl == 1:
+                return 1
+    if F == 'W':
+        week_start = pd.date_range(date_min, date_max,
+                                   freq='W').strftime("%Y-%m-%d").tolist()
+        week_end = []
+        for w in range(len(week_start)):
+            week_end.append((datetime.strptime(week_start[w], '%Y-%m-%d')
+                             + datetime.timedelta(days=6)).strftime('%Y-%m-%d'))
+        for w in range(len(week_end)):
+            wk_dl = request_cmems(args, week_start[w], week_end[w])
+            if wk_dl == 0:
+                logger.info('CMEMS week request ' + str((w + 1)) + 'of' + str((len(week_end) + 1)) + ' successful')
+                if type(wk_dl) == str:
+                    logger.error(
+                        'CMEMS week request ' + str((m + 1)) + 'of' + str((len(week_end)) + 1) + ' unsuccessful: Error Msg below')
+                    logger.error(mnth_dl)
+                    return
+                if wk_dl == 1:
+                    return 1
+    if F == 'D':
+        days = pd.date_range(date_min, date_max,
+                             freq='D').strftime("%Y-%m-%d").tolist()
+        for d in range(len(days)):
+            dy_dl = request_cmems(args, days[d], days[d])
+            if dy_dl == 0:
+                logger.info('CMEMS day request ' + str((d + 1)) + 'of' + str((len(week_end) + 1)) + ' successful')
+            if dy_dl == 1:
+                logger.error('CMEMS day request still too big, please make domain smaller, or use less variables')
+                return
+            if type(dy_dl) == str:
+                logger.error('CMEMS day request ' + str((d + 1)) + 'of' + (
+                        str(len(days) + 1)) + ' unsuccessful: Error Msg below')
+                logger.error(dy_dl)
+                return
+    return 0
+
 def request_cmems(args, date_min, date_max):
     try:
         from pynemo.utils import CMEMS_cred
@@ -135,7 +189,7 @@ def request_cmems(args, date_min, date_max):
             filedata = filedata.replace('EI6GB1FHTMCIPOZC', str(args['depth_max']))
             filedata = filedata.replace('4Y4LMQLAKP10YFUE', ','.join(grids[key]))
             filedata = filedata.replace('QFCN2P56ZQSA7YNK', locs[key])
-            filedata = filedata.replace('YSLTB459ZW0P84GE', args['dl_prefix']+'_'+str(key)+'.nc')
+            filedata = filedata.replace('YSLTB459ZW0P84GE', args['dl_prefix']+'_'+str(date_min)+'_'+str(date_max)+'_'+str(key)+'.nc')
     
         with open(args['cmems_config'], 'w') as file:
             file.write(filedata)
@@ -149,9 +203,9 @@ def request_cmems(args, date_min, date_max):
             return stdout[idx-1:-1]
 
         if 'Done' in stdout:
-            logger.info('downloading of variables ' + ' '.join(grids[key]) + ' successful')
+            logger.info('download of request xml file for variable ' + ' '.join(grids[key]) + ' successful')
 
-        xml = locs[key]+args['dl_prefix']+'_'+key+ '.xml'
+        xml = locs[key]+args['dl_prefix']+'_'+str(date_min)+'_'+str(date_max)+'_'+str(key)+ '.xml'
         root = ET.parse(xml).getroot()
         logger.info('size of request ' + root.attrib['size'])
 
@@ -168,9 +222,7 @@ def request_cmems(args, date_min, date_max):
                 logger.info('downloading of variables '+' '.join(grids[key])+' successful')
 
         elif 'too big' in root.attrib['msg']:
-
-            return 'file request too big reduce size of domain or length of time series'
-
+            return 1
         else:
             return 'unable to determine if size request is valid (too big or not)'
 

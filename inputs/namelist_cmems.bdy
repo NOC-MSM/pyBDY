@@ -65,7 +65,7 @@
     !------------------------------------------------------------------------------
     !  CMEMS Static File Configuration
     !------------------------------------------------------------------------------
-   ln_download_static       = .true.
+   ln_download_static       = .false.
    ln_subset_static         = .true.
    sn_ftp_server            = 'nrt.cmems-du.eu'
    sn_static_dir            = '/Core/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/global-analysis-forecast-phy-001-024-statics'
@@ -114,9 +114,9 @@
 !  Time information
 !------------------------------------------------------------------------------
     nn_year_000     = 2017        !  year start
-    nn_year_end     = 2017        !  year end
-    nn_month_000    = 11          !  month start (default = 1 is years>1)
-    nn_month_end    = 11          !  month end (default = 12 is years>1)
+    nn_year_end     = 2018        !  year end
+    nn_month_000    = 01          !  month start (default = 1 is years>1)
+    nn_month_end    = 12          !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
 	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'

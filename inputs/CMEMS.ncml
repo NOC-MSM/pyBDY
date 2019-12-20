@@ -6,11 +6,6 @@
       </ns0:aggregation>
     </ns0:netcdf>
     <ns0:netcdf>
-      <ns0:aggregation dimName="time" name="salinity" type="joinExisting">
-        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/inputs/" regExp=".*T\.nc$" />
-      </ns0:aggregation>
-    </ns0:netcdf>
-    <ns0:netcdf>
       <ns0:aggregation dimName="time" name="zonal_velocity" type="joinExisting">
         <ns0:scan location="file://Users/thopri/Projects/PyNEMO/inputs/" regExp=".*U\.nc$" />
       </ns0:aggregation>
@@ -27,7 +22,6 @@
     </ns0:netcdf>
   </ns0:aggregation>
   <ns0:variable name="thetao" orgName="thetao" />
-  <ns0:variable name="so" orgName="so" />
   <ns0:variable name="uo" orgName="uo" />
   <ns0:variable name="vo" orgName="vo" />
   <ns0:variable name="zos" orgName="zos" />
