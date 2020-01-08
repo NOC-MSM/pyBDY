@@ -7,7 +7,7 @@ Module to extract constituents for the input grid mapped onto output grid
 # pylint: disable=E1103
 # pylint: disable=no-name-in-module
 import copy
-import tpxo_extract_HC
+from . import tpxo_extract_HC
 import numpy as np
 from netCDF4 import Dataset
 from pynemo import nemo_bdy_grid_angle
@@ -263,7 +263,7 @@ def constituents_index(constituents, inputcons):
     """
     retindx = np.zeros(len(inputcons))
     count = 0
-    for value in inputcons.values():
+    for value in list(inputcons.values()):
         const_name = value.replace("'", "").lower() # force inputcons entries to lowercase
         retindx[count] = [x.lower() for x in constituents].index(const_name) # force constituents to lowercase
         count = count+1
