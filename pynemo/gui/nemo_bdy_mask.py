@@ -199,7 +199,7 @@ class Mask(object):
         mask_data[index] = self.data[index]        
         #connected components
         label_mask, num_labels = ndimage.label(mask_data)
-        mean_values = ndimage.sum(np.ones(self.data.shape),label_mask,range(1, num_labels+1))
+        mean_values = ndimage.sum(np.ones(self.data.shape),label_mask,list(range(1, num_labels+1)))
         max_area_mask = None
         if mean_values.size != 0:
             max_area_index = np.argmax(mean_values)+1
@@ -228,7 +228,7 @@ class Mask(object):
         label_mask, num_labels = ndimage.label(mask_data)
         if num_labels == 0: #if mask is empty/clear
             return
-        mean_values = ndimage.sum(np.ones(self.data.shape),label_mask,range(1, num_labels+1))
+        mean_values = ndimage.sum(np.ones(self.data.shape),label_mask,list(range(1, num_labels+1)))
         max_area_mask = None
         if mean_values.size != 0:
             max_area_index = np.argmax(mean_values)+1

@@ -11,7 +11,7 @@ import numpy as np
 from .selection_editor import PolygonEditor, BoxEditor
 import os.path
 from PyQt4.QtCore import pyqtSignal, pyqtSlot, Qt
-from nemo_bdy_mask import Mask
+from .nemo_bdy_mask import Mask
 import logging
 from PyQt4.QtGui import QSizePolicy
 from matplotlib.colors import Normalize
@@ -126,7 +126,7 @@ class MatplotlibWidget(QtGui.QWidget):
                 x = np.arange(0, self.mask.lon.shape[0])
                 y = np.arange(0, self.mask.lon.shape[1])
                 x_vals, y_vals = np.meshgrid(y, x)
-                grid = zip(x_vals.ravel(), y_vals.ravel())
+                grid = list(zip(x_vals.ravel(), y_vals.ravel()))
                 
                 self._drawing_tool.polygon.set_linewidth(1.0)
                 p_path = Path(self._drawing_tool.polygon.xy)
@@ -146,7 +146,7 @@ class MatplotlibWidget(QtGui.QWidget):
                 x = np.arange(0, self.mask.lon.shape[0])
                 y = np.arange(0, self.mask.lon.shape[1])
                 x_vals, y_vals = np.meshgrid(y, x)
-                grid = zip(x_vals.ravel(), y_vals.ravel()) #check for the index
+                grid = list(zip(x_vals.ravel(), y_vals.ravel())) #check for the index
 
                 self._drawing_tool.polygon.set_linewidth(1.0)
                 p_path = Path(self._drawing_tool.polygon.xy)

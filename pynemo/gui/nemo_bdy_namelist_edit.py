@@ -51,7 +51,7 @@ class NameListEditor(QtGui.QWidget):
                 text.setText(str(self.settings[setting]))
                 text.textChanged.connect(lambda value=setting,\
                                          var_name=setting: self.label_changed(value, var_name))
-                if self.bool_settings.has_key(setting):
+                if setting in self.bool_settings:
                     chkbox = QtGui.QCheckBox(self)
                     chkbox.setChecked(self.bool_settings[setting])
                     chkbox.stateChanged.connect(lambda value=setting,\
@@ -109,7 +109,7 @@ class NameListEditor(QtGui.QWidget):
 
     def label_changed(self, value, name):
         """ callback when the text is changed in the text box"""
-        self.new_settings[name] = unicode(value).encode('utf_8')
+        self.new_settings[name] = str(value).encode('utf_8')
 
     def combo_index_changed(self, value, name):
         """ callback when the True/False drop down for the settings which has boolean value
@@ -153,7 +153,7 @@ class NameListEditor(QtGui.QWidget):
         try:
             self.mask_settings_update.emit(float(self.settings['mask_max_depth']), float(self.settings['mask_shelfbreak_dist']))
         except KeyError:
-            print 'Set the mask setting mask_max_depth and mask_shelfbreak_dist'
+            print('Set the mask setting mask_max_depth and mask_shelfbreak_dist')
             
         if self.bool_settings['mask_file']:
             self.bathymetry_update.emit(self.settings['bathy'],self.settings['mask_file'])
