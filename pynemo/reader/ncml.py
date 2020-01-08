@@ -22,7 +22,7 @@ try:
         proxy_port = proxylist[1]        
         jnius_config.add_options('-Dhttp.proxyHost='+proxy_host,'-Dhttp.proxyPort='+proxy_port)
 except:
-    print "Didn't find a proxy environment variable"
+    print("Didn't find a proxy environment variable")
 NetcdfDataset = None
 NcMLReader = None
 Section = None
@@ -37,7 +37,7 @@ try:
         Section = autoclass('ucar.ma2.Section')
     init_jnius()
 except ImportError:
-    print 'Warning: Please make sure pyjnius is installed and jvm.dll/libjvm.so/libjvm.dylib is in the path'
+    print('Warning: Please make sure pyjnius is installed and jvm.dll/libjvm.so/libjvm.dylib is in the path')
 
 time_counter_const = "time_counter"
 class Reader(object):

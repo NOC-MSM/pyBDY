@@ -50,7 +50,7 @@ class Reader(object):
                 dir_list[i] = self.directory + dir_list[i]
 
         dir_list.sort()
-        return filter(None, dir_list)
+        return [_f for _f in dir_list if _f]
 
     def _delta_time_interval(self, time1, time2):
         """ Get the difference between the two times in days and hours"""
@@ -94,7 +94,7 @@ class Reader(object):
         error"""
         days = set()
         hrs = set()
-        for grid_type in self.grid_source_data.keys():
+        for grid_type in list(self.grid_source_data.keys()):
             day, hr = self._delta_time_interval(self.grid_source_data[grid_type].time_counter[0],
                                                 self.grid_source_data[grid_type].time_counter[1])
             days.add(day)
