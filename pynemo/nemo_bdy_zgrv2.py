@@ -14,12 +14,12 @@ Initialise with bdy t, u and v grid attributes (Grid.bdy_i)
 and settings dictionary 
 """
 
-from reader.factory import GetFile
+from .reader.factory import GetFile
 import numpy as np
 import logging
 
-from utils.nemo_bdy_lib import sub2ind
-from utils.e3_to_depth import e3_to_depth
+from .utils.nemo_bdy_lib import sub2ind
+from .utils.e3_to_depth import e3_to_depth
 #     pylint: disable=E1101
 # Query name
 class Depth:
@@ -95,7 +95,7 @@ class Depth:
 
             # Set u and v grid point depths
             zshapes = {}
-            for p in self.zpoints.keys():
+            for p in list(self.zpoints.keys()):
                 zshapes[p] = self.zpoints[p].shape
             wshapes = []
             wshapes.append(wrk1.shape)
@@ -111,7 +111,7 @@ class Depth:
             self.zpoints['v'][k,:]  = 0.5 * (wrk1[v_ind] + wrk1[v_ind2])
             self.zpoints['wv'][k,:] = 0.5 * (wrk2[v_ind] + wrk2[v_ind2])
 
-            for p in self.zpoints.keys():
+            for p in list(self.zpoints.keys()):
                 self.zpoints[p] = self.zpoints[p].reshape(zshapes[p])
             
         self.logger.debug( 'Done loop, zpoints: %s ', self.zpoints['t'].shape)

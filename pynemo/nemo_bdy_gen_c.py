@@ -13,7 +13,7 @@ import numpy as np
 import logging
 
 #Local Imports
-from utils.nemo_bdy_lib import sub2ind
+from .utils.nemo_bdy_lib import sub2ind
 
 class Boundary:
     # Bearings for overlays
@@ -211,10 +211,10 @@ class Boundary:
         """ 
         sh = np.shape(t)
 	if (len(sh)> 2) or (sh[0] ==0) or (sh[1] == 0):
-	    print 'Warning: Shape of expected 2D array:', sh
+	    print('Warning: Shape of expected 2D array:', sh)
         tlist = t.tolist()
         sortt = []
-        indx = zip(*sorted([(val, i) for i,val in enumerate(tlist)]))[1]
+        indx = list(zip(*sorted([(val, i) for i,val in enumerate(tlist)])))[1]
         indx = np.array(indx)
         for i in indx:
             sortt.append(tlist[i])

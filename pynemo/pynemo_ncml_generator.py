@@ -7,8 +7,8 @@ Used for development purposes to display the ncml editor dialog.
 @author: Shirley Crompton, UK Science and Technology Facilities Council
 '''
 import sys
-from PyQt4.QtGui import *
-from gui import nemo_ncml_generator as ncml_generator
+from PyQt5.QtGui import *
+from .gui import nemo_ncml_generator as ncml_generator
 import logging
 # Logging set to info
 logging.basicConfig(level=logging.INFO)

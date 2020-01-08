@@ -43,7 +43,7 @@ from pynemo import nemo_bdy_ncgen as ncgen
 from pynemo import nemo_bdy_ncpop as ncpop
 
 # Local Imports
-import nemo_bdy_grid_angle as ga
+from . import nemo_bdy_grid_angle as ga
 from pynemo.reader.factory import GetFile
 from pynemo.utils.nemo_bdy_lib import rot_rep, sub2ind
 
@@ -233,12 +233,12 @@ class Extract:
         # Ann Query substitute
         source_tree = None
         try:
-            source_tree = sp.cKDTree(zip(SC.lon.ravel(order='F'),
-                                     SC.lat.ravel(order='F')), balanced_tree=False,compact_nodes=False)
+            source_tree = sp.cKDTree(list(zip(SC.lon.ravel(order='F'),
+                                     SC.lat.ravel(order='F'))), balanced_tree=False,compact_nodes=False)
         except TypeError: #added this fix to make it compatible with scipy 0.16.0
-            source_tree = sp.cKDTree(zip(SC.lon.ravel(order='F'),
-                                     SC.lat.ravel(order='F')))            
-        dst_pts = zip(dst_lon[:].ravel(order='F'), dst_lat[:].ravel(order='F'))
+            source_tree = sp.cKDTree(list(zip(SC.lon.ravel(order='F'),
+                                     SC.lat.ravel(order='F'))))            
+        dst_pts = list(zip(dst_lon[:].ravel(order='F'), dst_lat[:].ravel(order='F')))
         nn_dist, nn_id = source_tree.query(dst_pts, k=1)
 
         # Find surrounding points
@@ -301,14 +301,14 @@ class Extract:
             tmp_lat[r_id] = -9999
             source_tree = None
             try:
-                source_tree = sp.cKDTree(zip(tmp_lon.ravel(order='F'),
-                                         tmp_lat.ravel(order='F')), balanced_tree=False,compact_nodes=False)
+                source_tree = sp.cKDTree(list(zip(tmp_lon.ravel(order='F'),
+                                         tmp_lat.ravel(order='F'))), balanced_tree=False,compact_nodes=False)
             except TypeError: #fix for scipy 0.16.0
-                source_tree = sp.cKDTree(zip(tmp_lon.ravel(order='F'),
-                                         tmp_lat.ravel(order='F')))
+                source_tree = sp.cKDTree(list(zip(tmp_lon.ravel(order='F'),
+                                         tmp_lat.ravel(order='F'))))
                 
-            dst_pts = zip(dst_lon[rr_id].ravel(order='F'),
-                          dst_lat[rr_id].ravel(order='F'))
+            dst_pts = list(zip(dst_lon[rr_id].ravel(order='F'),
+                          dst_lat[rr_id].ravel(order='F')))
             junk, an_id = source_tree.query(dst_pts, k=3,
                                             distance_upper_bound=fr)
             id_121[rr_id, :] = an_id
@@ -347,11 +347,11 @@ class Extract:
             z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
             source_tree = None
             try:
-                source_tree = sp.cKDTree(zip(sc_z.ravel(order='F')), balanced_tree=False,compact_nodes=False)
+                source_tree = sp.cKDTree(list(zip(sc_z.ravel(order='F'))), balanced_tree=False,compact_nodes=False)
             except TypeError: #fix for scipy 0.16.0
-                source_tree = sp.cKDTree(zip(sc_z.ravel(order='F')))
+                source_tree = sp.cKDTree(list(zip(sc_z.ravel(order='F'))))
 
-            junk, nn_id = source_tree.query(zip(dst_dep_rv), k=1)
+            junk, nn_id = source_tree.query(list(zip(dst_dep_rv)), k=1)
 
             # WORKAROUND: the tree query returns out of range val when
             # dst_dep point is NaN, causing ref problems later.
@@ -453,7 +453,7 @@ class Extract:
         # Get first and last date within range, init to cover entire range
         first_date = 0
         last_date = len(sc_time.time_counter) - 1 
-        rev_seq = range(len(sc_time.time_counter))
+        rev_seq = list(range(len(sc_time.time_counter)))
         rev_seq.reverse()
         for date in rev_seq:
             if src_date_seconds[date] < dst_start:
@@ -752,7 +752,7 @@ class Extract:
         """
         vals = {'gregorian': 365. + isleap(year), 'noleap': 
                 365., '360_day': 360.}
-        if source not in vals.keys():
+        if source not in list(vals.keys()):
             raise ValueError('Unknown source calendar type: %s' %source)
         # Get month length
         if dest == '360_day':

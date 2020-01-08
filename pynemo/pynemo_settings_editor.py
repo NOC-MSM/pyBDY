@@ -5,10 +5,10 @@ Created on 7 Jan 2015
 '''
 # pylint: disable=E1103
 # pylint: disable=no-name-in-module
-from PyQt4 import QtGui
+from PyQt5 import QtGui
 
-from gui.nemo_bdy_input_window import InputWindow
-import nemo_bdy_setup
+from .gui.nemo_bdy_input_window import InputWindow
+from . import nemo_bdy_setup
 
 import sys, getopt
 
@@ -41,12 +41,12 @@ def main():
     try:
         opts, dummy_args = getopt.getopt(sys.argv[1:], "hs:", ["help", "setup="])
     except getopt.GetoptError:
-        print "usage: pynemo_settings_editor -s <namelist.bdy> "
+        print("usage: pynemo_settings_editor -s <namelist.bdy> ")
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == "-h":
-            print "usage: pynemo_settings_editor -s <namelist.bdy> "
+            print("usage: pynemo_settings_editor -s <namelist.bdy> ")
             sys.exit()
         elif opt in ("-s", "--setup"):
             setup_file = arg
