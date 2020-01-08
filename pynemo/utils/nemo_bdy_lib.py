@@ -74,7 +74,7 @@ def bdy_sections(nbidta,nbjdta,nbrdta,rw):
     count = 0
     flag = 0
     mark = 0
-    source_tree = sp.cKDTree(zip(outer_rim_i, outer_rim_j)) 
+    source_tree = sp.cKDTree(list(zip(outer_rim_i, outer_rim_j))) 
     id_order = np.ones((nbdy,), dtype=np.int)*source_tree.n
     id_order[count] = 0 # use index 0 as the starting point 
     count += 1
@@ -85,8 +85,8 @@ def bdy_sections(nbidta,nbjdta,nbrdta,rw):
 
     while count <= nbdy:
         
-        lcl_pt = zip([outer_rim_i[id_order[count-1]]],
-                     [outer_rim_j[id_order[count-1]]])
+        lcl_pt = list(zip([outer_rim_i[id_order[count-1]]],
+                     [outer_rim_j[id_order[count-1]]]))
         junk, an_id = source_tree.query(lcl_pt, k=3, distance_upper_bound=1.1)
         
         if an_id[0,1] in id_order:
