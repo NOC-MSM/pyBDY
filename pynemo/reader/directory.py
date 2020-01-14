@@ -5,7 +5,7 @@ This is an abstraction for the data repository
 from os import listdir
 import numpy as np
 from netCDF4 import Dataset
-from netCDF4 import netcdftime
+from cftime import utime 
 import copy
 import logging
 class Reader(object):
@@ -74,7 +74,7 @@ class Reader(object):
                 x = [filename, index]
                 group.data_list.append(x)
                 group.time_counter.append(varid[index]+t_adjust)
-                group.date_counter.append(netcdftime.utime(varid.units,
+                group.date_counter.append(utime(varid.units,
                                                            varid.calendar).num2date(varid[index]+t_adjust))
             group.units = varid.units
             group.calendar = varid.calendar

@@ -10,7 +10,7 @@ import string
 import logging
 import numpy as np
 import jnius_config
-from netCDF4 import netcdftime
+from cftime import utime 
 ncmlpath, file_name = os.path.split(__file__)
 ncmlpath = os.path.join(ncmlpath, "jars", "netcdfAll-4.6.jar") 
 jnius_config.set_classpath('.',ncmlpath)
@@ -78,7 +78,7 @@ class Reader(object):
         grid.time_counter = timevar[:]+t_adjust
         grid.date_counter = []
         for index in range(0,len(grid.time_counter)):            
-            grid.date_counter.append(netcdftime.utime(grid.units,
+            grid.date_counter.append(utime(grid.units,
                                                       grid.calendar).num2date(grid.time_counter[index])) 
 
     def close(self):

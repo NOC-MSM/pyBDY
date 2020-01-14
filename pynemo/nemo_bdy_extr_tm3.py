@@ -38,7 +38,7 @@ import numpy as np
 import scipy.spatial as sp
 from calendar import monthrange, isleap
 from scipy.interpolate import interp1d
-from netcdftime import datetime, utime
+from cftime import datetime, utime
 from pynemo import nemo_bdy_ncgen as ncgen
 from pynemo import nemo_bdy_ncpop as ncpop
 
