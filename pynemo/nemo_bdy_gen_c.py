@@ -210,8 +210,8 @@ class Boundary:
         t -- input 2D array
         """ 
         sh = np.shape(t)
-	if (len(sh)> 2) or (sh[0] ==0) or (sh[1] == 0):
-	    print('Warning: Shape of expected 2D array:', sh)
+        if (len(sh)> 2) or (sh[0] ==0) or (sh[1] == 0):
+           print('Warning: Shape of expected 2D array:', sh)
         tlist = t.tolist()
         sortt = []
         indx = list(zip(*sorted([(val, i) for i,val in enumerate(tlist)])))[1]
@@ -224,7 +224,7 @@ class Boundary:
                 indx[i] = -1
         # all the rows are identical, set the first as the unique row
         if sortt[0] == sortt[-1]:
-	    indx[0] = 0
+            indx[0] = 0
 			        
         return indx[indx != -1]
 

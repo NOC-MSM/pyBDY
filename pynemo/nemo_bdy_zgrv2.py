@@ -68,7 +68,7 @@ class Depth:
         v_ind = sub2ind(mbathy.shape, bdy_v[:,0], bdy_v[:,1])
         v_ind2 = sub2ind(mbathy.shape, bdy_v[:,0], bdy_v[:,1] + 1) 
    
-    	[tmp_zt, tmp_zw] = e3_to_depth(np.squeeze(nc['e3t'][:,:,:,:]), np.squeeze(nc['e3w'][:,:,:,:]), nz)
+        [tmp_zt, tmp_zw] = e3_to_depth(np.squeeze(nc['e3t'][:,:,:,:]), np.squeeze(nc['e3w'][:,:,:,:]), nz)
         # This is very slow
         self.logger.debug( 'starting nc reads loop' )
         for k in range(nz):

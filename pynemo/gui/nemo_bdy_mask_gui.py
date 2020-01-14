@@ -13,12 +13,12 @@ import os.path
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
 from .nemo_bdy_mask import Mask
 import logging
-from PyQt5.QtGui import QSizePolicy
+from PyQt5.QtWidgets import QSizePolicy
 from matplotlib.colors import Normalize
 
 mask_alpha = 0.3
 
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtWidgets
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.path import Path
@@ -26,7 +26,7 @@ from matplotlib.transforms import Bbox
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 # pylint: disable=E1002
-class MatplotlibWidget(QtGui.QWidget):
+class MatplotlibWidget(QtWidgets.QWidget):
     """This class is a QWidget for pyNEMO mask plot"""
     min_depth = 200.0
     shelfbreak_dist = 200.0
@@ -34,7 +34,7 @@ class MatplotlibWidget(QtGui.QWidget):
     def __init__(self, parent=None, mask=None, min_depth = 200.0, shelfbreak_dist = 200.0,*args, **kwargs):
         """ Initialises the mask, matplot and the navigation toolbar """
         super(MatplotlibWidget, self).__init__(parent)
-        #QtGui.QWidget.__init__(self, parent)
+        #QtWidgets.QWidget.__init__(self, parent)
         self.figure = Figure(*args, **kwargs)
         self.canvas = FigureCanvas(self.figure)
         self.mask = mask

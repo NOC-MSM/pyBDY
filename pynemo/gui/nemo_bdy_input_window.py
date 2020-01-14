@@ -6,13 +6,13 @@ Created on 21 Jan 2015
 # pylint: disable=E1103
 # pylint: disable=no-name-in-module
 # pylint: disable=E1002
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtWidgets
 from .nemo_bdy_namelist_edit import NameListEditor
 from .nemo_bdy_mask_gui import MatplotlibWidget
-from PyQt5.QtGui import QSizePolicy
+from PyQt5.QtWidgets import QSizePolicy
 from PyQt5.Qt import Qt
 
-class InputWindow(QtGui.QDialog):
+class InputWindow(QtWidgets.QDialog):
     '''
     Input Window for editing pyNEMO settings
     '''
