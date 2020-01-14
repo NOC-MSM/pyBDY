@@ -10,15 +10,15 @@ from mpl_toolkits.basemap import Basemap, cm
 import numpy as np
 from .selection_editor import PolygonEditor, BoxEditor
 import os.path
-from PyQt4.QtCore import pyqtSignal, pyqtSlot, Qt
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
 from .nemo_bdy_mask import Mask
 import logging
-from PyQt4.QtGui import QSizePolicy
+from PyQt5.QtGui import QSizePolicy
 from matplotlib.colors import Normalize
 
 mask_alpha = 0.3
 
-from PyQt4 import QtGui
+from PyQt5 import QtGui
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.path import Path

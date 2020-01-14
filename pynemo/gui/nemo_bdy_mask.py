@@ -12,8 +12,8 @@ import logging
 from scipy import ndimage
 import matplotlib.pyplot as plt
 from pynemo.utils import gcoms_break_depth
-from PyQt4.QtGui import QMessageBox
-from PyQt4 import QtCore
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5 import QtCore
 
 class Mask(object):
     """This is a Mask holder. which reads from a netCDF bathymetry file and

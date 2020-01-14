@@ -6,9 +6,9 @@ Created on 6 Aug 2015
 import logging
 import os
 import xml.etree.ElementTree as ET
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-from PyQt4.QtCore import pyqtSlot
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
 from . import nemo_ncml_tab_widget
 from thredds_crawler.crawl import Crawl
 

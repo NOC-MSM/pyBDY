@@ -34,7 +34,7 @@ $Last commit on:$
 import time
 import logging
 import numpy as np
-from PyQt4.QtGui import QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 
 #Local imports
 from pynemo import pynemo_settings_editor

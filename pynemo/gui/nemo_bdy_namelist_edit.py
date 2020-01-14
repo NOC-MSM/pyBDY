@@ -6,13 +6,14 @@ Editor for namelist.bdy file
 # pylint: disable=E1103
 # pylint: disable=no-name-in-module
 # pylint: disable=E1002
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import pyqtSignal, Qt, QRect, QPoint
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import pyqtSignal, Qt, QRect, QPoint
 
 import ast
-from PyQt4.QtGui import QMessageBox, QRegion, QIcon, QToolTip, QCursor
+from PyQt5.QtGui import QRegion, QIcon, QCursor
+from PyQt5.QtWidgets import QMessageBox, QToolTip
 
-class NameListEditor(QtGui.QWidget):
+class NameListEditor(QtWidgets.QWidget):
     '''
     This class creates a gui for the Namelist file options
     '''

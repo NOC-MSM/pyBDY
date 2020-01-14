@@ -5,9 +5,9 @@ Created on 2 Jul 2015
 '''
 import logging
 import os
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-from PyQt4.QtCore import pyqtSlot
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
 
 class Ncml_tab(QtGui.QWidget):
     '''
