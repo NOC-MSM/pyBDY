@@ -149,7 +149,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         DstCoord.depths[grd]['bdy_H']  = np.nanmax(z.zpoints['w'+grd], axis=0)
         DstCoord.depths[grd]['bdy_dz'] = np.diff(z.zpoints['w'+grd], axis=0)
         DstCoord.depths[grd]['bdy_z']  = z.zpoints[grd]
-
     logger.info('Depths defined')
     
     # Gather vorizontal grid information

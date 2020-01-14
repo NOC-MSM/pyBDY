@@ -7,6 +7,7 @@ Entry for the project
 import sys, getopt
 import profile
 import logging
+import cProfile
 
 # Logging set to info
 logging.basicConfig(level=logging.INFO)
@@ -41,7 +42,7 @@ def main():
     #Logger
     #logger = logging.getLogger(__name__)
     t0 = time.time()
-    profile.process_bdy(setup_file, mask_gui)
+    cProfile.runctx("f(x, y)",{'f': profile.process_bdy, 'x': setup_file, 'y': mask_gui}, {}, 'pynemo_stats')
     t1 = time.time()
     print "Execution Time: %s" % (t1-t0)
     
