@@ -204,11 +204,11 @@ def _get_val(vars_dictionary, bool_vars_dictionary, line):
 
     if name_prefix == 'ln':
         if value.find('true') is not -1:
-            if vars_dictionary.has_key(name) != True:
+            if (name in vars_dictionary) != True:
                 vars_dictionary[name] = True
             bool_vars_dictionary[name] = True
         elif value.find('false') is not -1:
-            if vars_dictionary.has_key(name) != True:
+            if (name in vars_dictionary) != True:
                 vars_dictionary[name] = False
             bool_vars_dictionary[name] = False
         else:
