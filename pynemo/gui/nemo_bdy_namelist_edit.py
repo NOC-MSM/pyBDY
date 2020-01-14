@@ -35,25 +35,25 @@ class NameListEditor(QtWidgets.QWidget):
         '''
         Initialises the UI components of the GUI
         '''
-        client = QtGui.QWidget(self)
+        client = QtWidgets.QWidget(self)
         # Create the Layout to Grid
-        grid = QtGui.QGridLayout()
+        grid = QtWidgets.QGridLayout()
 
         # Loop through the settings and create widgets for each setting
         index = 0
         for setting in self.settings:
             # initialises setting Widget
-            label = QtGui.QLabel(setting)
-            qlabel = QtGui.QPushButton("")
-            qlabel.setIcon(self.style().standardIcon(QtGui.QStyle.SP_MessageBoxQuestion))
+            label = QtWidgets.QLabel(setting)
+            qlabel = QtWidgets.QPushButton("")
+            qlabel.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxQuestion))
             if type(self.settings[setting]).__name__ in ['str', 'float', 'double',
                                                          'int', 'time', 'dict']:
-                text = QtGui.QLineEdit(self)
+                text = QtWidgets.QLineEdit(self)
                 text.setText(str(self.settings[setting]))
                 text.textChanged.connect(lambda value=setting,\
                                          var_name=setting: self.label_changed(value, var_name))
                 if setting in self.bool_settings:
-                    chkbox = QtGui.QCheckBox(self)
+                    chkbox = QtWidgets.QCheckBox(self)
                     chkbox.setChecked(self.bool_settings[setting])
                     chkbox.stateChanged.connect(lambda value=setting,\
                                                 var_name=setting:\
@@ -61,7 +61,7 @@ class NameListEditor(QtWidgets.QWidget):
                     grid.addWidget(chkbox, index, 0)
 
             elif type(self.settings[setting]).__name__ == 'bool':
-                text = QtGui.QComboBox(self)
+                text = QtWidgets.QComboBox(self)
                 text.insertItem(0, 'True')
                 text.insertItem(1, 'False')
                 if self.settings[setting]:
@@ -84,22 +84,22 @@ class NameListEditor(QtWidgets.QWidget):
 
         client.setLayout(grid)
         #scrollbars
-        scroll_area = QtGui.QScrollArea(self)
+        scroll_area = QtWidgets.QScrollArea(self)
         #scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll_area.setWidget(client)
 
         #save cancel buttons
-        btn_widget = QtGui.QWidget(self)
-        hbox_layout = QtGui.QHBoxLayout(self)      
-        btn_save = QtGui.QPushButton('Save')
+        btn_widget = QtWidgets.QWidget(self)
+        hbox_layout = QtWidgets.QHBoxLayout(self)      
+        btn_save = QtWidgets.QPushButton('Save')
         btn_save.clicked.connect(self._btn_save_callback)
-        self.btn_cancel = QtGui.QPushButton('Close')
+        self.btn_cancel = QtWidgets.QPushButton('Close')
         self.btn_cancel.clicked.connect(self._btn_cancel_callback)
         hbox_layout.addWidget(btn_save)
         hbox_layout.addWidget(self.btn_cancel)
         btn_widget.setLayout(hbox_layout)
 
-        box_layout = QtGui.QVBoxLayout(self)
+        box_layout = QtWidgets.QVBoxLayout(self)
         box_layout.addWidget(scroll_area)
         box_layout.addWidget(btn_widget)
         btn_widget.setMaximumWidth(400)

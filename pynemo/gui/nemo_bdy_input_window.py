@@ -43,15 +43,15 @@ class InputWindow(QtWidgets.QDialog):
 
         self.mpl_widget.set_mask_settings(float(setup.settings['mask_max_depth']), float(setup.settings['mask_shelfbreak_dist']))
 
-        splitter = QtGui.QSplitter(Qt.Horizontal)
+        splitter = QtWidgets.QSplitter(Qt.Horizontal)
         splitter.addWidget(self.nl_editor)
         splitter.addWidget(self.mpl_widget)
 
-        hbox = QtGui.QHBoxLayout()
+        hbox = QtWidgets.QHBoxLayout()
         hbox.addWidget(splitter)
         self.setLayout(hbox)
         #set the Dialog title
         self.setWindowTitle("PyNEMO Settings Editor")
-        QtGui.QApplication.setStyle(QtGui.QStyleFactory.create('Cleanlooks'))        
+        QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create('Cleanlooks'))        
         #show the window
         self.show()
