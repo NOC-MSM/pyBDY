@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from matplotlib.artist import Artist
-from matplotlib.mlab import dist_point_to_segment
+from pynemo.utils.nemo_bdy_lib import dist_point_to_segment
 from matplotlib.widgets import RectangleSelector
 
 
