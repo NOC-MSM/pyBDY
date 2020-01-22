@@ -51,37 +51,37 @@
 !------------------------------------------------------------------------------
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
-   ln_use_cmems             = .true.                                                        !(to deprecate)
+   ln_use_cmems             = .true.
    ln_download_cmems        = .true.
-    !------------------------------------------------------------------------------
-    !  CMEMS MOTU Configuration
-    !------------------------------------------------------------------------------
+   sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
+!------------------------------------------------------------------------------
+!  CMEMS MOTU Configuration (for Boundary Data)
+!------------------------------------------------------------------------------
    sn_motu_server           = 'http://nrt.cmems-du.eu/motu-web/Motu'
    sn_cmems_config_template = '/Users/thopri/Projects/PyNEMO/pynemo/config/motu_config_template.ini'
    sn_cmems_config          = '/Users/thopri/Projects/PyNEMO/pynemo/config/motu_config.ini'
    sn_cmems_model           = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS'
    sn_cmems_product         = 'global-analysis-forecast-phy-001-024'
    sn_dl_prefix             = 'subset'
-    !------------------------------------------------------------------------------
-    !  CMEMS Static File Configuration
-    !------------------------------------------------------------------------------
+!------------------------------------------------------------------------------
+!  CMEMS FTP Configuration (for Static Files)
+!------------------------------------------------------------------------------
    ln_download_static       = .false.
-   ln_subset_static         = .true.
+   ln_subset_static         = .false.
    sn_ftp_server            = 'nrt.cmems-du.eu'
    sn_static_dir            = '/Core/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/global-analysis-forecast-phy-001-024-statics'
    sn_static_filenames      = 'GLO-MFC_001_024_coordinates.nc GLO-MFC_001_024_mask_bathy.nc GLO-MFC_001_024_mdt.nc'
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS static files
    sn_cdo_loc               = '/opt/local/bin/cdo' ! location of cdo executable can be found by running "where cdo"
-    !------------------------------------------------------------------------------
-    !  CMEMS Extent Configuration
-    !------------------------------------------------------------------------------
-   nn_latitude_min          = 40                                                            !(to deprecate)
-   nn_latitude_max          = 66                                                            !(to deprecate)
-   nn_longitude_min         = -22                                                           !(to deprecate)
-   nn_longitude_max         = 16                                                            !(to deprecate)
-   ! need to decide options for depth selection, 2D surface, 3D and 2D depth averaged or user define max/min?
-   nn_depth_min             = 0.493                                                         !(to deprecate?)
-   nn_depth_max             = 5727.918000000001                                             !(to deprecate?)
+!------------------------------------------------------------------------------
+!  CMEMS Extent Configuration
+!------------------------------------------------------------------------------
+   nn_latitude_min          = 40
+   nn_latitude_max          = 66
+   nn_longitude_min         = -22
+   nn_longitude_max         = 16
+   nn_depth_min             = 0.493
+   nn_depth_max             = 5727.918000000001
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries                         
@@ -114,9 +114,9 @@
 !  Time information
 !------------------------------------------------------------------------------
     nn_year_000     = 2017        !  year start
-    nn_year_end     = 2018        !  year end
+    nn_year_end     = 2017        !  year end
     nn_month_000    = 01          !  month start (default = 1 is years>1)
-    nn_month_end    = 12          !  month end (default = 12 is years>1)
+    nn_month_end    = 04        !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
 	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'
@@ -130,7 +130,7 @@
     rn_r0   = 0.041666666         !  decorrelation distance use in gauss
                                   !  smoothing onto dst points. Need to 
                                   !  make this a funct. of dlon
-    sn_history  = 'Benchmarking test case'
+    sn_history  = 'CMEMS test case'
                                   !  history for netcdf file
     ln_nemo3p4  = .true.          !  else presume v3.2 or v3.3
     nn_alpha    = 0               !  Euler rotation angle

@@ -17,7 +17,10 @@ from datetime import datetime
 # check to see if motuclient is installed, if not then return error
 # if it is installed return the version number
 logger = logging.getLogger(__name__)
-
+'''
+This function checks to see if the MOTU client is installed on the PyNEMO python environment. If it is not installed
+error code 1 is returned . If it is installed the version number of the installed client is returned as a string
+'''
 def chk_motu():
     chk = Popen(['motuclient','--version'], stdout=PIPE, stderr=PIPE)
     stdout,stderr = chk.communicate()
@@ -27,7 +30,13 @@ def chk_motu():
     else:
         idx = stdout.find('v')
         return stdout[idx:-1]
-
+'''
+CMEMS holds mask data for the model grids as an FTP download only, i.e. it can't be used with the MOTU subsetter.
+This code logs on to the FTP server and downloads the requested files. The config bdy file needs to provide location and 
+filenames to download. These can be found using an FTP server or the CMEMS web portal. The credintials for the 
+FTP connection (and MOTU client) are stored in a Credintials files called CMEMS_cred.py located in the utils folder.
+If the download is successful a zero status code is returned. Other wise an error message is returned in the form of a string
+'''
 def get_static(args):
     try:
         from pynemo.utils import CMEMS_cred
@@ -44,7 +53,7 @@ def get_static(args):
         return err
     except ftplib.error_proto as err:
         return err
-
+    # TODO: provide better returns for the various FTP errors
     # TODO: add try excepts to handle issues with files being missing etc.
     # TODO: Check there is enough space to download as well.....
     # TODO: Handle timeouts etc as well......
@@ -65,6 +74,13 @@ def get_static(args):
 
     return 0
 
+'''
+The FTP download results in the whole product grid being downloaded, so this needs to be subset to match the data downloads
+This functions uses CDO library to subset the netcdf file. Therefore CDO should be installed on the operating system.
+For each of the defined static files this function subsets based on the defined extent in the settings bdy file, 
+if 'Abort' is in the string returned by CDO then this is returned as an error string. 
+If Abort is not in the returned string this indicates success, then a zero status code is returned.
+'''
 def subset_static(args):
     logger.info('subsetting static files now......')
     filenames = args['static_filenames'].split(' ')
@@ -86,6 +102,13 @@ def subset_static(args):
             return stdout
     return 0
 
+'''
+Request CMEMS data in either monthly, weekly, and daily intervals. Depending on the character passed to the function 'F'
+the function will split the requests into monthly, weekly or daily intervals. The function splits the requested period into 
+the relevent intervals and passes the interval into the request_cmems function below. If request_cmems returns a zero then
+the next interval is downloaded. If there is an error then the string containing the error is returned. Part of request_cmems
+is that it returns a 1 if the interval is too large.
+'''
 def MWD_request_cmems(args,date_min,date_max,F):
     if F == 'M':
         month_start = pd.date_range(date_min, date_max,
@@ -100,7 +123,7 @@ def MWD_request_cmems(args,date_min,date_max,F):
                 logger.error(
                     'CMEMS month request ' + str((m + 1)) + 'of' + str((len(month_end) + 1)) + ' unsuccessful: Error Msg below')
                 logger.error(mnth_dl)
-                return
+                return mnth_dl
             if mnth_dl == 1:
                 return 1
     if F == 'W':
@@ -117,8 +140,8 @@ def MWD_request_cmems(args,date_min,date_max,F):
                 if type(wk_dl) == str:
                     logger.error(
                         'CMEMS week request ' + str((m + 1)) + 'of' + str((len(week_end)) + 1) + ' unsuccessful: Error Msg below')
-                    logger.error(mnth_dl)
-                    return
+                    logger.error(wk_dl)
+                    return wk_dl
                 if wk_dl == 1:
                     return 1
     if F == 'D':
@@ -135,9 +158,26 @@ def MWD_request_cmems(args,date_min,date_max,F):
                 logger.error('CMEMS day request ' + str((d + 1)) + 'of' + (
                         str(len(days) + 1)) + ' unsuccessful: Error Msg below')
                 logger.error(dy_dl)
-                return
+                return dy_dl
+    else:
+        time_int_err = 'incorrect character used to define time download interval please use M, W or D'
+        logger.error(time_int_err)
+        return time_int_err
     return 0
 
+'''
+Main request cmems download function. First tries to import CMEMS creditials as per FTP function. This function reads
+the defined NCML file from the bdy file. This gives the number of variables to populate the MOTU download config file.
+For each variable, the name and grid type are pulled from the NCML and populated into a python dictionary.
+
+For each item in the dictionary the relevent request is populated in the CMEMS config file. The first request has
+ a size flag applied and a xml file is downloaded containing details of the request. 
+ If the request is valid a field in the XML is set to OK and then the request is repeated with the size flag removed
+resulting in the download of the relevent netcdf file. The console information is parsed to check for errors 
+and for confirmation of the success of the download. If there are errors the error string is returned otherwise a
+success message is written to the log file. If the request is too big than a 1 error code is returned. 
+Otherwise if all requests are successful then a zero status code is returned.
+'''
 def request_cmems(args, date_min, date_max):
     try:
         from pynemo.utils import CMEMS_cred
@@ -227,4 +267,3 @@ def request_cmems(args, date_min, date_max):
             return 'unable to determine if size request is valid (too big or not)'
 
     return 0
-

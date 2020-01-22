@@ -85,7 +85,7 @@
     nn_year_000     = 1979        !  year start
     nn_year_end     = 1979        !  year end
     nn_month_000    = 11          !  month start (default = 1 is years>1)
-    nn_month_end    = 11          !  month end (default = 12 is years>1)
+    nn_month_end    = 12          !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
 	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'

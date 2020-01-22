@@ -543,7 +543,7 @@ class Extract:
                 else:
                     self.logger.info(' 2D source array ')
                     sc_array[0] = varid[f:f+1, j_run, i_run].reshape([1,1,j_run.size,i_run.size])
-
+                # TODO: This maybe where to adjust the static grid issues of CMEMS
                 # Average vector vars onto T-grid
                 if self.key_vec:
                     # First make sure land points have a zero val
