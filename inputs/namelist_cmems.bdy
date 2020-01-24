@@ -56,6 +56,7 @@
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
    ln_download_static       = .false.
    ln_subset_static         = .false.
+   nn_num_restart           = 2
 !------------------------------------------------------------------------------
 !  CMEMS MOTU Configuration (for Boundary Data)
 !------------------------------------------------------------------------------

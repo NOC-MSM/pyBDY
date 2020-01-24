@@ -105,20 +105,28 @@ def download_cmems(setup_filepath=0):
 
     Setup = setup.Setup(setup_filepath)  # default settings file
     settings = Setup.settings
-
     if settings['download_static'] == True:
-        logger.info('CMEMS Static data requested: downloading static data now.... (this may take awhile)')
-        static = dl_cmems.get_static(settings)
-        if static == 0:
-            logger.info('CMEMS static data downloaded')
-        if type(static) == str:
-            err_chk = dl_cmems.err_parse(static,'FTP')
-            if err_chk == 0:
-                logger.info('retrying FTP download')
-            if err_chk == 1:
-                sys.exit(static)
-            if err_chk == 2:
-                sys.exit(static)
+        for re in range(settings['num_restart']):
+            logger.info('CMEMS Static data requested: downloading static data now.... (this may take awhile)')
+            static = dl_cmems.get_static(settings)
+            if static == 0:
+                logger.info('CMEMS static data downloaded')
+                break
+            if type(static) == str:
+                err_chk = dl_cmems.err_parse(static,'FTP')
+                if err_chk == 0:
+                    logger.info('retrying FTP download....restart number '+str(re+1)+' of '+str(settings['num_restart']) )
+                    if re == (settings['num_restart']-1):
+                        logger.critical('reached restart limit defined in BDY file, exiting now')
+                        logger.critical(static)
+                        dl_cmems.clean_up(settings)
+                        sys.exit(static)
+                if err_chk == 1:
+                    dl_cmems.clean_up(settings)
+                    sys.exit(static)
+                if err_chk == 2:
+                    dl_cmems.clean_up(settings)
+                    sys.exit(static)
     # subset downloaded static grid files to match downloaded CMEMS data
     if settings['subset_static'] == True:
         logger.info('CMEMS subset static data requested: subsetting now......')
@@ -127,6 +135,7 @@ def download_cmems(setup_filepath=0):
             logger.info('CMEMS static data subset successfully')
         if type(subset_static) == str:
             logger.error(subset_static)
+            dl_cmems.clean_up(settings)
             sys.exit(subset_static)
 
     if settings['download_cmems'] == True:
@@ -147,6 +156,7 @@ def download_cmems(setup_filepath=0):
         elif settings['year_end'] - settings['year_000'] < 0:
             error_msg = 'end date before start date please ammend bdy file'
             logger.error(error_msg)
+            dl_cmems.clean_up(settings)
             sys.exit(error_msg)
         else:
             logger.warning('unable to parse dates..... using demo date November 2017')
@@ -157,85 +167,113 @@ def download_cmems(setup_filepath=0):
         if chk == 1:
             error_msg = 'motuclient not installed, please install by running $ pip install motuclient'
             logger.error(error_msg)
+            dl_cmems.clean_up(settings)
             sys.exit(error_msg)
         if type(chk) == str:
             logger.info('version ' + chk + ' of motuclient is installed')
         else:
             error_msg = 'unable to parse MOTU check'
             logger.error(error_msg)
+            dl_cmems.clean_up(settings)
             sys.exit(error_msg)
         # download request for CMEMS data, try whole time interval first.
-        logger.info('starting CMES download now (this can take a while)...')
-
-        dl = dl_cmems.request_cmems(settings, date_min, date_max)
-        if dl == 0:
-            logger.info('CMES data downloaded successfully')
-        # a string return means MOTU has return an error
-        if type(dl) == str:
+        for re in range(settings['num_restart']):
+            logger.info('starting CMES download now (this can take a while)...')
+            dl = dl_cmems.request_cmems(settings, date_min, date_max)
+            if dl == 0:
+                logger.info('CMES data downloaded successfully')
+                break
+            # a string return means MOTU has return an error
+            if type(dl) == str:
             # check error message against logged errors
-            err_chk = dl_cmems.err_parse(dl,'MOTU')
+                err_chk = dl_cmems.err_parse(dl,'MOTU')
             # error is known and restarting is likely to work
-            if err_chk == 0:
-                logger.info('restarting download now......')
+                if err_chk == 0:
+                    logger.info('retrying CMEMS download....restart number '+str(re+1)+' of '+str(settings['num_restart']) )
+                    if re == (settings['num_restart']-1):
+                        logger.critical('reached restart limit defined in BDY file, exiting now')
+                        logger.critical(dl)
+                        dl_cmems.clean_up(settings)
+                        sys.exit(dl)
             # error is known and restarting is likely to not work
-            if err_chk == 1:
-                sys.exit(dl)
+                if err_chk == 1:
+                    dl_cmems.clean_up(settings)
+                    sys.exit(dl)
             # error is not logged, add to error file.
-            if err_chk == 2:
-                sys.exit(dl)
+                if err_chk == 2:
+                    dl_cmems.clean_up(settings)
+                    sys.exit(dl)
         if dl == 1:
             # if the request is too large try monthly intervals
-            logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
-            mnth_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'M')
-            if mnth_dl == 0:
-                logger.info('CMEMS monthly request successful')
-            if type(mnth_dl) == str:
-                err_chk = dl_cmems.err_parse(mnth_dl,'MOTU')
-                if err_chk == 0:
-                    logger.info('restarting download now.....')
-                if err_chk == 1:
-                    sys.exit(mnth_dl)
-                if err_chk == 2:
-                    sys.exit(mnth_dl)
-            if mnth_dl == 1:
-                # if the request is too large try weekly intervals
-                logger.warning(
-                    'CMEMS request still too large, trying weekly downloads...(this will take longer...)')
-                wk_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'W')
-                if wk_dl == 0:
-                    logger.info('CMEMS weekly request successful')
-                if type(wk_dl) == str:
-                    err_chk = dl_cmems.err_parse(wk_dl,'MOTU')
+            for re in range(settings['num_restart']):
+                logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
+                mnth_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'M')
+                if mnth_dl == 0:
+                    logger.info('CMEMS monthly request successful')
+                    break
+                if type(mnth_dl) == str:
+                    err_chk = dl_cmems.err_parse(mnth_dl,'MOTU')
                     if err_chk == 0:
-                        logger.info('restarting download now.....')
+                        logger.info('retrying CMEMS download....restart number '+str(re+1)+' of '+str(settings['num_restart']) )
+                        if re == (settings['num_restart']-1):
+                            logger.critical('reached restart limit defined in BDY file, exiting now')
+                            logger.critical(mnth_dl)
+                            dl_cmems.clean_up(settings)
+                            sys.exit(mnth_dl)
                     if err_chk == 1:
-                        sys.exit(wk_dl)
+                        dl_cmems.clean_up(settings)
+                        sys.exit(mnth_dl)
                     if err_chk == 2:
-                        sys.exit(wk_dl)
-                if wk_dl == 1:
+                        dl_cmems.clean_up(settings)
+                        sys.exit(mnth_dl)
+                if mnth_dl == 1:
+                    # if the request is too large try weekly intervals
+                    for re in range(settings['num_restart']):
+                        logger.warning('CMEMS request still too large, trying weekly downloads...(this will take longer...)')
+                        wk_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'W')
+                        if wk_dl == 0:
+                            logger.info('CMEMS weekly request successful')
+                            break
+                        if type(wk_dl) == str:
+                            err_chk = dl_cmems.err_parse(wk_dl,'MOTU')
+                            if err_chk == 0:
+                                logger.info('retrying CMEMS download....restart number ' + str(re + 1) + ' of ' + str(settings['num_restart']))
+                                if re == (settings['num_restart'] - 1):
+                                    logger.critical('reached restart limit defined in BDY file, exiting now')
+                                    logger.critical(wk_dl)
+                                    dl_cmems.clean_up(settings)
+                                    sys.exit(wk_dl)
+                            if err_chk == 1:
+                                dl_cmems.clean_up(settings)
+                                sys.exit(wk_dl)
+                            if err_chk == 2:
+                                dl_cmems.clean_up(settings)
+                                sys.exit(wk_dl)
+                    if wk_dl == 1:
                     # if the request is too large try daily intervals.
-                    logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
-                    dy_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'D')
-                    if dy_dl == 0:
-                        logger.info('CMEMS daily request successful')
-                    # if the request is still too large then smaller domain is required.
-                    if dy_dl == str:
-                        # perform error check for retry
-                        err_chk = dl_cmems.err_parse(dy_dl,'MOTU')
-                        if err_chk == 0:
-                            logger.info('restarting download now.....')
-                        if err_chk == 1:
-                            sys.exit(dy_dl)
-                        if err_chk == 2:
-                            sys.exit(dy_dl)
-        # remove size check XML files that are no longer needed.
-        try:
-            for f in glob.glob(settings['cmems_dir'] + "*.xml"):
-                os.remove(f)
-        except OSError:
-            logger.info('no xml files found to remove, please check input directory.')
-            pass
-        logger.info('removed size check xml files successfully')
+                        for re in range(settings['num_restart']):
+                            logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
+                            dy_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'D')
+                            if dy_dl == 0:
+                                logger.info('CMEMS daily request successful')
+                                break
+                            # if the request is still too large then smaller domain is required.
+                            if dy_dl == str:
+                                # perform error check for retry
+                                err_chk = dl_cmems.err_parse(dy_dl,'MOTU')
+                                if err_chk == 0:
+                                    logger.info('retrying CMEMS download....restart number ' + str(re + 1) + ' of ' + str(settings['num_restart']))
+                                    if re == (settings['num_restart'] - 1):
+                                        logger.critical('reached restart limit defined in BDY file, exiting now')
+                                        logger.critical(dy_dl)
+                                        dl_cmems.clean_up(settings)
+                                        sys.exit(dy_dl)
+                                if err_chk == 1:
+                                    dl_cmems.clean_up(settings)
+                                    sys.exit(dy_dl)
+                                if err_chk == 2:
+                                    dl_cmems.clean_up(settings)
+                                    sys.exit(dy_dl)
 
         logger.info('End CMEMS download: ' + time.asctime())
         logger.info('==========================================')

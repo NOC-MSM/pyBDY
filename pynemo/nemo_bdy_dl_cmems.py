@@ -12,7 +12,8 @@ import re
 import pandas as pd
 from datetime import datetime
 from pynemo.utils import cmems_errors as errors
-
+import glob
+import os
 # Need to add try excepts for files and folders being present
 
 # check to see if motuclient is installed, if not then return error
@@ -307,3 +308,14 @@ def err_parse(error, err_type):
         logger.critical('unlogged error: please see below')
         logger.critical(error)
         return 2
+
+def clean_up(settings):
+    # remove size check XML files that are no longer needed.
+    try:
+        for f in glob.glob(settings['cmems_dir'] + "*.xml"):
+            os.remove(f)
+    except OSError:
+        logger.info('no xml files found to remove')
+        return
+    logger.info('removed size check xml files successfully')
+    return

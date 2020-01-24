@@ -10,5 +10,5 @@ MOTU_retry = {'004-27': 'Error in NetcdfWriter finish'}
 # errors that are not worth retrying e.g. cmems network is down
 MOTU_critical = {'50': 'Network Down'}
 # FTP specific errors
-FTP_retry = {'999': 'add ftp errors here' }
-FTP_critical = {'999': 'add ftp errors here' }
+FTP_retry = {'999': 'add ftp retry errors here' }
+FTP_critical = {'999': 'add ftp critical errors here' }
