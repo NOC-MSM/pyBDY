@@ -425,13 +425,19 @@ class Extract:
         year -- year of data to be extracted
         month -- month of the year to be extracted
         """
+
         self.logger.info('extract_month function called')
+
         # Check year entry exists in d_bdy, if not create it.
+        # for v in range(self.nvar):
+        #     try:
+        #         self.d_bdy[self.var_nam[v]][year]
+        #     except KeyError:
+        #         self.d_bdy[self.var_nam[v]][year] = {'data': None, 'date': {}}
+
+        # flush previous months data......
         for v in range(self.nvar):
-            try:
-                self.d_bdy[self.var_nam[v]][year]
-            except KeyError:        
-                self.d_bdy[self.var_nam[v]][year] = {'data': None, 'date': {}}
+            self.d_bdy[self.var_nam[v]][year] = {'data': None, 'date': {}}
         
         i_run = np.arange(self.sc_ind['imin'], self.sc_ind['imax']) 
         j_run = np.arange(self.sc_ind['jmin'], self.sc_ind['jmax'])
@@ -836,7 +842,7 @@ class Extract:
         # TODO put in an error handler for the unlikely event of frequency not a
         # multiple of 86400 | data are annual means
         if del_t >= 86400.:
-            for v in self.var_nam:    
+            for v in self.var_nam:
                 intfn = interp1d(time_counter, self.d_bdy[v][year]['data'][:,:,:], axis=0,
                                                                  bounds_error=True)
                 self.d_bdy[v][year]['data'] = intfn(np.arange(time_000, time_end, 86400))
