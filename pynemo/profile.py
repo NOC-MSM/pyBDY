@@ -112,8 +112,13 @@ def download_cmems(setup_filepath=0):
         if static == 0:
             logger.info('CMEMS static data downloaded')
         if type(static) == str:
-            logger.error(static)
-            sys.exit(static)
+            err_chk = dl_cmems.err_parse(static,'FTP')
+            if err_chk == 0:
+                logger.info('retrying FTP download')
+            if err_chk == 1:
+                sys.exit(static)
+            if err_chk == 2:
+                sys.exit(static)
     # subset downloaded static grid files to match downloaded CMEMS data
     if settings['subset_static'] == True:
         logger.info('CMEMS subset static data requested: subsetting now......')
@@ -149,7 +154,6 @@ def download_cmems(setup_filepath=0):
             date_max = '2017-11-30'
         # check to see if MOTU client is installed
         chk = dl_cmems.chk_motu()
-
         if chk == 1:
             error_msg = 'motuclient not installed, please install by running $ pip install motuclient'
             logger.error(error_msg)
@@ -166,9 +170,19 @@ def download_cmems(setup_filepath=0):
         dl = dl_cmems.request_cmems(settings, date_min, date_max)
         if dl == 0:
             logger.info('CMES data downloaded successfully')
+        # a string return means MOTU has return an error
         if type(dl) == str:
-            logger.error(dl)
-            sys.exit(dl)
+            # check error message against logged errors
+            err_chk = dl_cmems.err_parse(dl,'MOTU')
+            # error is known and restarting is likely to work
+            if err_chk == 0:
+                logger.info('restarting download now......')
+            # error is known and restarting is likely to not work
+            if err_chk == 1:
+                sys.exit(dl)
+            # error is not logged, add to error file.
+            if err_chk == 2:
+                sys.exit(dl)
         if dl == 1:
             # if the request is too large try monthly intervals
             logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
@@ -176,7 +190,13 @@ def download_cmems(setup_filepath=0):
             if mnth_dl == 0:
                 logger.info('CMEMS monthly request successful')
             if type(mnth_dl) == str:
-                sys.exit(mnth_dl)
+                err_chk = dl_cmems.err_parse(mnth_dl,'MOTU')
+                if err_chk == 0:
+                    logger.info('restarting download now.....')
+                if err_chk == 1:
+                    sys.exit(mnth_dl)
+                if err_chk == 2:
+                    sys.exit(mnth_dl)
             if mnth_dl == 1:
                 # if the request is too large try weekly intervals
                 logger.warning(
@@ -185,7 +205,13 @@ def download_cmems(setup_filepath=0):
                 if wk_dl == 0:
                     logger.info('CMEMS weekly request successful')
                 if type(wk_dl) == str:
-                    sys.exit(wk_dl)
+                    err_chk = dl_cmems.err_parse(wk_dl,'MOTU')
+                    if err_chk == 0:
+                        logger.info('restarting download now.....')
+                    if err_chk == 1:
+                        sys.exit(wk_dl)
+                    if err_chk == 2:
+                        sys.exit(wk_dl)
                 if wk_dl == 1:
                     # if the request is too large try daily intervals.
                     logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
@@ -194,7 +220,14 @@ def download_cmems(setup_filepath=0):
                         logger.info('CMEMS daily request successful')
                     # if the request is still too large then smaller domain is required.
                     if dy_dl == str:
-                        sys.exit(dy_dl)
+                        # perform error check for retry
+                        err_chk = dl_cmems.err_parse(dy_dl,'MOTU')
+                        if err_chk == 0:
+                            logger.info('restarting download now.....')
+                        if err_chk == 1:
+                            sys.exit(dy_dl)
+                        if err_chk == 2:
+                            sys.exit(dy_dl)
         # remove size check XML files that are no longer needed.
         try:
             for f in glob.glob(settings['cmems_dir'] + "*.xml"):

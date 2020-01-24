@@ -11,6 +11,7 @@ import ftplib
 import re
 import pandas as pd
 from datetime import datetime
+from pynemo.utils import cmems_errors as errors
 
 # Need to add try excepts for files and folders being present
 
@@ -275,3 +276,34 @@ def request_cmems(args, date_min, date_max):
             return 'unable to determine if size request is valid (too big or not)'
 
     return 0
+
+
+def err_parse(error, err_type):
+
+    if err_type == 'FTP':
+        for key in errors.FTP_retry:
+            if key in error:
+                logger.info('retrying FTP download....')
+                return 0
+        for key in errors.FTP_critical:
+            if key in error:
+                logger.info('critical FTP error, stopping')
+                return 1
+        logger.critical('unlogged FTP error, stopping')
+        logger.critical(error)
+        return 2
+
+    if err_type == 'MOTU':
+        for key in errors.MOTU_retry:
+            if key in error:
+                logger.info('non critical error')
+                logger.info('restarting download....')
+                return 0
+        for key in errors.MOTU_critical:
+            if key in error:
+                logger.critical('critical error found: please see below')
+                logger.critical(error)
+                return 1
+        logger.critical('unlogged error: please see below')
+        logger.critical(error)
+        return 2
