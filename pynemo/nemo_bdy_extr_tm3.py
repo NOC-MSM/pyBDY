@@ -74,6 +74,14 @@ class Extract:
         self.g_type = grd
         self.settings = setup
         self.key_vec = False
+        self.t_mask = None
+        self.u_mask = None
+        self.v_mask = None
+        self.dist_wei = None
+        self.dist_fac = None
+        self.tmp_valid = None
+        self.data_ind = None
+        self.nan_ind = None
         
         # TODO: Why are we deepcopying the coordinates???
         
@@ -452,7 +460,7 @@ class Extract:
 
         # Get first and last date within range, init to cover entire range
         first_date = 0
-        last_date = len(sc_time.time_counter) - 1 
+        last_date = len(sc_time.time_counter) - 1
         rev_seq = range(len(sc_time.time_counter))
         rev_seq.reverse()
         for date in rev_seq:
@@ -471,19 +479,19 @@ class Extract:
             # TODO: sort generic mask variable name
             try:
                 varid_3 = nc_3['tmask']
-                t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
+                self.t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
             except:
                 varid_3 = nc_3['mask']
                 varid_3 = np.expand_dims(varid_3, axis=0)
-                t_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run) + 1, np.min(i_run):np.max(i_run) + 1]
+                self.t_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run) + 1, np.min(i_run):np.max(i_run) + 1]
             # TODO: Sort out issue with j_run and i_run not broadcasting to varid_3
             if self.key_vec:
                 #varid_3 = nc_3['umask']
                 varid_3 = nc_3['mask']
-                u_mask = varid_3[:1, :sc_z_len, j_run, extended_i]
+                self.u_mask = varid_3[:1, :sc_z_len, j_run, extended_i]
                 #varid_3 = nc_3['vmask']
                 varid_3 = nc_3['mask']
-                v_mask = varid_3[:1, :sc_z_len, extended_j, i_run]
+                self.v_mask = varid_3[:1, :sc_z_len, extended_j, i_run]
             nc_3.close()
 
         # Identify missing values and scale factors if defined
@@ -547,8 +555,8 @@ class Extract:
                 # Average vector vars onto T-grid
                 if self.key_vec:
                     # First make sure land points have a zero val
-                    sc_alt_arr[0] *= u_mask
-                    sc_alt_arr[1] *= v_mask
+                    sc_alt_arr[0] *= self.u_mask
+                    sc_alt_arr[1] *= self.v_mask
                     # Average from to T-grid assuming C-grid stagger
                     sc_array[0] = 0.5 * (sc_alt_arr[0][:,:,:,:-1] + 
                                          sc_alt_arr[0][:,:,:,1:])
@@ -560,7 +568,7 @@ class Extract:
                 # Note using isnan/sum is relatively fast, but less than 
                 # bottleneck external lib
                 self.logger.info('SC ARRAY MIN MAX : %s %s', np.nanmin(sc_array[0]), np.nanmax(sc_array[0]))
-                sc_array[0][t_mask == 0] = np.NaN
+                sc_array[0][self.t_mask == 0] = np.NaN
                 self.logger.info( 'SC ARRAY MIN MAX : %s %s', np.nanmin(sc_array[0]), np.nanmax(sc_array[0]))
                 if not np.isnan(np.sum(meta_data[vn]['sf'])):
                     sc_array[0] *= meta_data[vn]['sf']
@@ -568,7 +576,7 @@ class Extract:
                     sc_array[0] += meta_data[vn]['os']
 
                 if self.key_vec:
-                    sc_array[1][t_mask == 0] = np.NaN
+                    sc_array[1][self.t_mask == 0] = np.NaN
                     if not np.isnan(np.sum(meta_data[vn + 1]['sf'])):
                         sc_array[1] *= meta_data[vn + 1]['sf']
                     if not np.isnan(np.sum(meta_data[vn + 1]['os'])):
@@ -611,7 +619,7 @@ class Extract:
             # source data to dest bdy pts. Only need do once.
             if self.first:
                 # identify valid pts
-                data_ind = np.invert(np.isnan(sc_bdy[0,:,:,:]))
+                self.data_ind = np.invert(np.isnan(sc_bdy[0,:,:,:]))
                 # dist_tot is currently 2D so extend along depth
                 # axis to allow single array calc later, also remove
                 # any invalid pts using our eldritch data_ind
@@ -619,10 +627,10 @@ class Extract:
                 self.dist_tot = (np.repeat(self.dist_tot, sc_z_len).reshape(
                             self.dist_tot.shape[0],
                             self.dist_tot.shape[1], sc_z_len)).transpose(2,0,1)
-                self.dist_tot *= data_ind
+                self.dist_tot *= self.data_ind
                 self.logger.info('DIST TOT ZEROS %s', np.sum(self.dist_tot == 0))
 
-                self.logger.info('DIST IND ZEROS %s', np.sum(data_ind == 0))
+                self.logger.info('DIST IND ZEROS %s', np.sum(self.data_ind == 0))
 
                 # Identify problem pts due to grid discontinuities 
                 # using dists >  lat
@@ -634,22 +642,22 @@ class Extract:
 
                 # Calculate guassian weighting with correlation dist
                 r0 = self.settings['r0']
-                dist_wei = (1/(r0 * np.power(2 * np.pi, 0.5)))*(np.exp( -0.5 *np.power(self.dist_tot / r0, 2)))
+                self.dist_wei = (1/(r0 * np.power(2 * np.pi, 0.5)))*(np.exp( -0.5 *np.power(self.dist_tot / r0, 2)))
                 # Calculate sum of weightings
-                dist_fac = np.sum(dist_wei * data_ind, 2)
+                self.dist_fac = np.sum(self.dist_wei * self.data_ind, 2)
                 # identify loc where all sc pts are land
-                nan_ind = np.sum(data_ind, 2) == 0
-                self.logger.info('NAN IND : %s ', np.sum(nan_ind))
+                self.nan_ind = np.sum(self.data_ind, 2) == 0
+                self.logger.info('NAN IND : %s ', np.sum(self.nan_ind))
                 
                 # Calc max zlevel to which data available on sc grid
-                data_ind = np.sum(nan_ind == 0, 0) - 1
+                self.data_ind = np.sum(self.nan_ind == 0, 0) - 1
                 # set land val to level 1 otherwise indexing problems
                 # may occur- should not affect later results because
                 # land is masked in weightings array
-                data_ind[data_ind == -1] = 0
+                self.data_ind[self.data_ind == -1] = 0
                 # transform depth levels at each bdy pt to vector
                 # index that can be used to speed up calcs
-                data_ind += np.arange(0, sc_z_len * self.num_bdy, sc_z_len)
+                self.data_ind += np.arange(0, sc_z_len * self.num_bdy, sc_z_len)
 
                 # ? Attribute only used on first run so clear. 
                 del self.dist_tot
@@ -657,8 +665,8 @@ class Extract:
             # weighted averaged onto new horizontal grid
             for vn in range(self.nvar):
                 self.logger.info(' sc_bdy %s %s', np.nanmin(sc_bdy), np.nanmax(sc_bdy))
-                dst_bdy = (np.nansum(sc_bdy[vn,:,:,:] * dist_wei, 2) /
-                           dist_fac)
+                dst_bdy = (np.nansum(sc_bdy[vn,:,:,:] * self.dist_wei, 2) /
+                           self.dist_fac)
                 self.logger.info(' dst_bdy %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 # Quick check to see we have not got bad values
                 if np.sum(dst_bdy == np.inf) > 0:
@@ -667,8 +675,8 @@ class Extract:
                 # weight vector array and rotate onto dest grid
                 if self.key_vec:
                     # [:,:,:,vn+1]
-                    dst_bdy_2 = (np.nansum(sc_bdy[vn+1,:,:,:] * dist_wei, 2) /
-                                 dist_fac)
+                    dst_bdy_2 = (np.nansum(sc_bdy[vn+1,:,:,:] * self.dist_wei, 2) /
+                                 self.dist_fac)
                     self.logger.info('time to to rot and rep ')
                     self.logger.info('%s %s',  np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                     self.logger.info( '%s en to %s %s' , self.rot_str,self.rot_dir, dst_bdy.shape)
@@ -677,18 +685,18 @@ class Extract:
                     self.logger.info('%s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 # Apply 1-2-1 filter along bdy pts using NN ind self.id_121
                 if self.first:
-                    tmp_valid = np.invert(np.isnan(
+                    self.tmp_valid = np.invert(np.isnan(
                                             dst_bdy.flatten(1)[self.id_121]))
                     # Finished first run operations
                     self.first = False
 
                 dst_bdy = (np.nansum(dst_bdy.flatten(1)[self.id_121] * 
                            self.tmp_filt, 2) / np.sum(self.tmp_filt *
-                           tmp_valid, 2))
+                           self.tmp_valid, 2))
                 # Set land pts to zero
 
-                self.logger.info(' pre dst_bdy[nan_ind] %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
-                dst_bdy[nan_ind] = 0
+                self.logger.info(' pre dst_bdy %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
+                dst_bdy[self.nan_ind] = 0
                 self.logger.info(' post dst_bdy %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 # Remove any data on dst grid that is in land
                 dst_bdy[:,np.isnan(self.bdy_z)] = 0
@@ -699,7 +707,7 @@ class Extract:
                     # If all else fails fill down using deepest pt
                     dst_bdy = dst_bdy.flatten(1)
                     dst_bdy += ((dst_bdy == 0) *
-                                dst_bdy[data_ind].repeat(sc_z_len))
+                                dst_bdy[self.data_ind].repeat(sc_z_len))
                     # Weighted averaged on new vertical grid
                     dst_bdy = (dst_bdy[self.z_ind[:,0]] * self.z_dist[:,0] +
                                dst_bdy[self.z_ind[:,1]] * self.z_dist[:,1])

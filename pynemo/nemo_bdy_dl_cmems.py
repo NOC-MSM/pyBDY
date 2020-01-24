@@ -118,14 +118,15 @@ def MWD_request_cmems(args,date_min,date_max,F):
         for m in range(len(month_end)):
             mnth_dl = request_cmems(args, month_start[m], month_end[m])
             if mnth_dl == 0:
-                logger.info('CMEMS month request ' + str((m + 1)) + 'of' + (str(len(month_end) + 1)) + ' successful')
+                logger.info('CMEMS month request ' + str((m + 1)) + 'of' + (str(len(month_end))) + ' successful')
             if type(mnth_dl) == str:
                 logger.error(
-                    'CMEMS month request ' + str((m + 1)) + 'of' + str((len(month_end) + 1)) + ' unsuccessful: Error Msg below')
+                    'CMEMS month request ' + str((m + 1)) + 'of' + str((len(month_end))) + ' unsuccessful: Error Msg below')
                 logger.error(mnth_dl)
                 return mnth_dl
             if mnth_dl == 1:
                 return 1
+
     if F == 'W':
         week_start = pd.date_range(date_min, date_max,
                                    freq='W').strftime("%Y-%m-%d").tolist()
@@ -136,14 +137,15 @@ def MWD_request_cmems(args,date_min,date_max,F):
         for w in range(len(week_end)):
             wk_dl = request_cmems(args, week_start[w], week_end[w])
             if wk_dl == 0:
-                logger.info('CMEMS week request ' + str((w + 1)) + 'of' + str((len(week_end) + 1)) + ' successful')
+                logger.info('CMEMS week request ' + str((w + 1)) + 'of' + str((len(week_end))) + ' successful')
                 if type(wk_dl) == str:
                     logger.error(
-                        'CMEMS week request ' + str((m + 1)) + 'of' + str((len(week_end)) + 1) + ' unsuccessful: Error Msg below')
+                        'CMEMS week request ' + str((m + 1)) + 'of' + str((len(week_end))) + ' unsuccessful: Error Msg below')
                     logger.error(wk_dl)
                     return wk_dl
                 if wk_dl == 1:
                     return 1
+
     if F == 'D':
         days = pd.date_range(date_min, date_max,
                              freq='D').strftime("%Y-%m-%d").tolist()
@@ -156,13 +158,15 @@ def MWD_request_cmems(args,date_min,date_max,F):
                 return
             if type(dy_dl) == str:
                 logger.error('CMEMS day request ' + str((d + 1)) + 'of' + (
-                        str(len(days) + 1)) + ' unsuccessful: Error Msg below')
+                        str(len(days))) + ' unsuccessful: Error Msg below')
                 logger.error(dy_dl)
                 return dy_dl
-    else:
+
+    if (not F == 'M' or not F == 'W' or not F == 'D'):
         time_int_err = 'incorrect character used to define time download interval please use M, W or D'
         logger.error(time_int_err)
         return time_int_err
+
     return 0
 
 '''
@@ -246,7 +250,11 @@ def request_cmems(args, date_min, date_max):
             logger.info('download of request xml file for variable ' + ' '.join(grids[key]) + ' successful')
 
         xml = locs[key]+args['dl_prefix']+'_'+str(date_min)+'_'+str(date_max)+'_'+str(key)+ '.xml'
-        root = ET.parse(xml).getroot()
+        try:
+            root = ET.parse(xml).getroot()
+        except ET.ParseError:
+            return 'Parse Error in XML file, This generally occurs when CMEMS service is down and returns an unexpected XML.'
+
         logger.info('size of request ' + root.attrib['size'])
 
         if 'OK' in root.attrib['msg']:

@@ -52,7 +52,7 @@
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
    ln_use_cmems             = .true.
-   ln_download_cmems        = .true.
+   ln_download_cmems        = .false.
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
 !------------------------------------------------------------------------------
 !  CMEMS MOTU Configuration (for Boundary Data)
@@ -115,8 +115,8 @@
 !------------------------------------------------------------------------------
     nn_year_000     = 2017        !  year start
     nn_year_end     = 2017        !  year end
-    nn_month_000    = 01          !  month start (default = 1 is years>1)
-    nn_month_end    = 04        !  month end (default = 12 is years>1)
+    nn_month_000    = 02          !  month start (default = 1 is years>1)
+    nn_month_end    = 03        !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
 	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'

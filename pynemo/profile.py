@@ -142,8 +142,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             elif settings['year_end'] - settings['year_000'] == 0:
 
                 days_mth = monthrange(settings['year_end'],settings['month_end'])
-                date_min = str(settings['year_000'])+'-'+str(settings['month_000'])+'-01'
-                date_max = str(settings['year_end'])+'-'+str(settings['month_end'])+'-'+str(days_mth[1])
+                date_min = str(settings['year_000'])+'-'+str(settings['month_000']).zfill(2)+'-01'
+                date_max = str(settings['year_end'])+'-'+str(settings['month_end']).zfill(2)+'-'+str(days_mth[1])
 
             elif settings['year_end'] - settings['year_000'] < 0:
                 error_msg = 'end date before start date please ammend bdy file'
@@ -168,6 +168,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 sys.exit(error_msg)
             # download request for CMEMS data, try whole time interval first.
             logger.info('starting CMES download now (this can take a while)...')
+
             dl = dl_cmems.request_cmems(settings, date_min, date_max)
             if dl == 0:
                 logger.info('CMES data downloaded successfully')
