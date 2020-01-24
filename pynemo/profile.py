@@ -35,6 +35,8 @@ import time
 import logging
 import numpy as np
 from PyQt4.QtGui import QMessageBox
+from calendar import monthrange
+import sys
 
 #Local imports
 from pynemo import pynemo_settings_editor
@@ -54,12 +56,8 @@ from pynemo.tide import nemo_bdy_tide3 as tide
 from pynemo.tide import nemo_bdy_tide_ncgen
 from pynemo.utils import Constants
 from pynemo.gui.nemo_bdy_mask import Mask as Mask_File
-
 from pynemo import nemo_bdy_dl_cmems as dl_cmems
-from calendar import monthrange
-import sys
-import os
-import glob
+
 
 class Grid(object):
     """ 
@@ -127,6 +125,7 @@ def download_cmems(setup_filepath=0):
                 if err_chk == 2:
                     dl_cmems.clean_up(settings)
                     sys.exit(static)
+        dl_cmems.clean_up(settings)
     # subset downloaded static grid files to match downloaded CMEMS data
     if settings['subset_static'] == True:
         logger.info('CMEMS subset static data requested: subsetting now......')
@@ -137,6 +136,7 @@ def download_cmems(setup_filepath=0):
             logger.error(subset_static)
             dl_cmems.clean_up(settings)
             sys.exit(subset_static)
+        dl_cmems.clean_up(settings)
 
     if settings['download_cmems'] == True:
 
@@ -274,9 +274,11 @@ def download_cmems(setup_filepath=0):
                                 if err_chk == 2:
                                     dl_cmems.clean_up(settings)
                                     sys.exit(dy_dl)
+# end of messy if statements to split requests into months, weeks and days as needed.
+        dl_cmems.clean_up(settings)
 
-        logger.info('End CMEMS download: ' + time.asctime())
-        logger.info('==========================================')
+    logger.info('End CMEMS download: ' + time.asctime())
+    logger.info('==========================================')
 
 
 def process_bdy(setup_filepath=0, mask_gui=False):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Libray module to populate an motu configuration file to download CMEMS data 
-using the motu client python module
+Set of functions to download CMEMS files using FTP (for static mask data) and MOTU (for subsetted variable data).
+
 """
 # import modules
 from subprocess import Popen, PIPE
@@ -11,14 +11,13 @@ import ftplib
 import re
 import pandas as pd
 from datetime import datetime
-from pynemo.utils import cmems_errors as errors
 import glob
 import os
-# Need to add try excepts for files and folders being present
+#local imports
+from pynemo.utils import cmems_errors as errors
 
-# check to see if motuclient is installed, if not then return error
-# if it is installed return the version number
 logger = logging.getLogger(__name__)
+
 '''
 This function checks to see if the MOTU client is installed on the PyNEMO python environment. If it is not installed
 error code 1 is returned . If it is installed the version number of the installed client is returned as a string
@@ -278,7 +277,13 @@ def request_cmems(args, date_min, date_max):
 
     return 0
 
-
+'''
+Function to check errors from both FTP or MOTU. This checks a python file containing dictionaries for different error types,
+(currently FTP and MOTU) with the error from the download. If the error code is present as a key, then the system will retry
+or exit. This depends which error dictionary the type is in. i.e. restart errors result in restart and critical errors result
+in sys exit. The number of restarts is defined in the BDY file and once expired results in sys exit. Finally if the error is 
+not in the type dictionaries the system will exit. Unlogged errors can be added so that a restart or exit occurs when they occur.
+'''
 def err_parse(error, err_type):
 
     if err_type == 'FTP':
@@ -309,6 +314,10 @@ def err_parse(error, err_type):
         logger.critical(error)
         return 2
 
+'''
+Function to clean up the download process, this is called before every sys exit and at the end of the download function
+At the moment it only removes the xml size files that are no longer required. Other functionality maybe added in the future
+'''
 def clean_up(settings):
     # remove size check XML files that are no longer needed.
     try:
