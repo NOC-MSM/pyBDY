@@ -52,8 +52,10 @@
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
    ln_use_cmems             = .true.
-   ln_download_cmems        = .false.
+   ln_download_cmems        = .true.
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
+   ln_download_static       = .false.
+   ln_subset_static         = .false.
 !------------------------------------------------------------------------------
 !  CMEMS MOTU Configuration (for Boundary Data)
 !------------------------------------------------------------------------------
@@ -66,8 +68,6 @@
 !------------------------------------------------------------------------------
 !  CMEMS FTP Configuration (for Static Files)
 !------------------------------------------------------------------------------
-   ln_download_static       = .false.
-   ln_subset_static         = .false.
    sn_ftp_server            = 'nrt.cmems-du.eu'
    sn_static_dir            = '/Core/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/global-analysis-forecast-phy-001-024-statics'
    sn_static_filenames      = 'GLO-MFC_001_024_coordinates.nc GLO-MFC_001_024_mask_bathy.nc GLO-MFC_001_024_mdt.nc'
@@ -114,7 +114,7 @@
 !  Time information
 !------------------------------------------------------------------------------
     nn_year_000     = 2017        !  year start
-    nn_year_end     = 2017        !  year end
+    nn_year_end     = 2018        !  year end
     nn_month_000    = 01          !  month start (default = 1 is years>1)
     nn_month_end    = 04        !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format

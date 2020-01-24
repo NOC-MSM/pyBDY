@@ -86,6 +86,128 @@ console.setFormatter(formatter)
 # add the handler to the root logger
 logging.getLogger('').addHandler(console)
 
+def download_cmems(setup_filepath=0):
+    '''
+    CMEMS download function.
+
+    This is the main script to download CMEMS data, it has been removed from core PyNEMO function
+    to handle issues with downloading better e.g. connection issues etc.
+
+    Input options are handled in the same NEMO style namelist that the main script uses.
+
+
+    :param setup_filepath:
+    :param mask_gui:
+    :return:
+    '''
+    logger.info('Start CMEMS download Logging: ' + time.asctime())
+    logger.info('============================================')
+
+    Setup = setup.Setup(setup_filepath)  # default settings file
+    settings = Setup.settings
+
+    if settings['download_static'] == True:
+        logger.info('CMEMS Static data requested: downloading static data now.... (this may take awhile)')
+        static = dl_cmems.get_static(settings)
+        if static == 0:
+            logger.info('CMEMS static data downloaded')
+        if type(static) == str:
+            logger.error(static)
+            sys.exit(static)
+    # subset downloaded static grid files to match downloaded CMEMS data
+    if settings['subset_static'] == True:
+        logger.info('CMEMS subset static data requested: subsetting now......')
+        subset_static = dl_cmems.subset_static(settings)
+        if subset_static == 0:
+            logger.info('CMEMS static data subset successfully')
+        if type(subset_static) == str:
+            logger.error(subset_static)
+            sys.exit(subset_static)
+
+    if settings['download_cmems'] == True:
+
+        logger.info('CMEMS Boundary data requested: starting download process....')
+
+        if settings['year_end'] - settings['year_000'] > 0:
+            date_min = str(settings['year_000']) + '-01-01'
+            date_max = str(settings['year_end']) + '-12-31'
+
+        elif settings['year_end'] - settings['year_000'] == 0:
+
+            days_mth = monthrange(settings['year_end'], settings['month_end'])
+            date_min = str(settings['year_000']) + '-' + str(settings['month_000']).zfill(2) + '-01'
+            date_max = str(settings['year_end']) + '-' + str(settings['month_end']).zfill(2) + '-' + str(
+                days_mth[1])
+
+        elif settings['year_end'] - settings['year_000'] < 0:
+            error_msg = 'end date before start date please ammend bdy file'
+            logger.error(error_msg)
+            sys.exit(error_msg)
+        else:
+            logger.warning('unable to parse dates..... using demo date November 2017')
+            date_min = '2017-11-01'
+            date_max = '2017-11-30'
+        # check to see if MOTU client is installed
+        chk = dl_cmems.chk_motu()
+
+        if chk == 1:
+            error_msg = 'motuclient not installed, please install by running $ pip install motuclient'
+            logger.error(error_msg)
+            sys.exit(error_msg)
+        if type(chk) == str:
+            logger.info('version ' + chk + ' of motuclient is installed')
+        else:
+            error_msg = 'unable to parse MOTU check'
+            logger.error(error_msg)
+            sys.exit(error_msg)
+        # download request for CMEMS data, try whole time interval first.
+        logger.info('starting CMES download now (this can take a while)...')
+
+        dl = dl_cmems.request_cmems(settings, date_min, date_max)
+        if dl == 0:
+            logger.info('CMES data downloaded successfully')
+        if type(dl) == str:
+            logger.error(dl)
+            sys.exit(dl)
+        if dl == 1:
+            # if the request is too large try monthly intervals
+            logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
+            mnth_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'M')
+            if mnth_dl == 0:
+                logger.info('CMEMS monthly request successful')
+            if type(mnth_dl) == str:
+                sys.exit(mnth_dl)
+            if mnth_dl == 1:
+                # if the request is too large try weekly intervals
+                logger.warning(
+                    'CMEMS request still too large, trying weekly downloads...(this will take longer...)')
+                wk_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'W')
+                if wk_dl == 0:
+                    logger.info('CMEMS weekly request successful')
+                if type(wk_dl) == str:
+                    sys.exit(wk_dl)
+                if wk_dl == 1:
+                    # if the request is too large try daily intervals.
+                    logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
+                    dy_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'D')
+                    if dy_dl == 0:
+                        logger.info('CMEMS daily request successful')
+                    # if the request is still too large then smaller domain is required.
+                    if dy_dl == str:
+                        sys.exit(dy_dl)
+        # remove size check XML files that are no longer needed.
+        try:
+            for f in glob.glob(settings['cmems_dir'] + "*.xml"):
+                os.remove(f)
+        except OSError:
+            logger.info('no xml files found to remove, please check input directory.')
+            pass
+        logger.info('removed size check xml files successfully')
+
+        logger.info('End CMEMS download: ' + time.asctime())
+        logger.info('==========================================')
+
+
 def process_bdy(setup_filepath=0, mask_gui=False):
     """ 
     Main entry for processing BDY lateral boundary conditions.
@@ -101,116 +223,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     """
     # Start Logger
-    
-    logger.info('Start NRCT Logging: '+time.asctime())
+
+    logger.info('Start NRCT Logging: ' + time.asctime())
     logger.info('============================================')
 
-    Setup = setup.Setup(setup_filepath) # default settings file
+    Setup = setup.Setup(setup_filepath)  # default settings file
     settings = Setup.settings
-
-    # download CMEMS data if requested
-    # download CMEMS static data if requested
-    # check if download flag is present in settings (old bdy files may not have it)
-    if 'download_cmems' in settings:
-        # downloads static grid files e.g. model mask using FTP (not able to use subsetter)
-        if settings['download_static'] == True:
-            logger.info('CMEMS Static data requested: downloading static data now.... (this may take awhile)')
-            static = dl_cmems.get_static(settings)
-            if static == 0:
-                logger.info('CMEMS static data downloaded')
-            if type(static) == str:
-                logger.error(static)
-                sys.exit(static)
-        # subset downloaded static grid files to match downloaded CMEMS data
-        if settings['subset_static'] == True:
-            logger.info('CMEMS subset static data requested: subsetting now......')
-            subset_static = dl_cmems.subset_static(settings)
-            if subset_static == 0:
-                logger.info('CMEMS static data subset successfully')
-            if type(subset_static) == str:
-                logger.error(subset_static)
-                sys.exit(subset_static)
-
-        if settings['download_cmems'] == True:
-
-            logger.info('CMEMS Boundary data requested: starting download process....')
-
-            if settings['year_end'] - settings['year_000'] > 0:
-                date_min = str(settings['year_000'])+'-01-01'
-                date_max = str(settings['year_end'])+'-12-31'
-
-            elif settings['year_end'] - settings['year_000'] == 0:
-
-                days_mth = monthrange(settings['year_end'],settings['month_end'])
-                date_min = str(settings['year_000'])+'-'+str(settings['month_000']).zfill(2)+'-01'
-                date_max = str(settings['year_end'])+'-'+str(settings['month_end']).zfill(2)+'-'+str(days_mth[1])
-
-            elif settings['year_end'] - settings['year_000'] < 0:
-                error_msg = 'end date before start date please ammend bdy file'
-                logger.error(error_msg)
-                sys.exit(error_msg)
-            else:
-                logger.warning('unable to parse dates..... using demo date November 2017')
-                date_min = '2017-11-01'
-                date_max = '2017-11-30'
-            # check to see if MOTU client is installed
-            chk = dl_cmems.chk_motu()
-
-            if chk == 1:
-                error_msg = 'motuclient not installed, please install by running $ pip install motuclient'
-                logger.error(error_msg)
-                sys.exit(error_msg)
-            if type(chk) == str:
-                logger.info('version '+chk+' of motuclient is installed')
-            else:
-                error_msg = 'unable to parse MOTU check'
-                logger.error(error_msg)
-                sys.exit(error_msg)
-            # download request for CMEMS data, try whole time interval first.
-            logger.info('starting CMES download now (this can take a while)...')
-
-            dl = dl_cmems.request_cmems(settings, date_min, date_max)
-            if dl == 0:
-                logger.info('CMES data downloaded successfully')
-            if type(dl) == str:
-                logger.error(dl)
-                sys.exit(dl)
-            if dl == 1:
-                # if the request is too large try monthly intervals
-                logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
-                mnth_dl = dl_cmems.MWD_request_cmems(settings,date_min,date_max,'M')
-                if mnth_dl == 0:
-                    logger.info('CMEMS monthly request successful')
-                if type(mnth_dl) == str:
-                    sys.exit(mnth_dl)
-                if mnth_dl == 1:
-                    # if the request is too large try weekly intervals
-                    logger.warning('CMEMS request still too large, trying weekly downloads...(this will take longer...)')
-                    wk_dl = dl_cmems.MWD_request_cmems(settings,date_min,date_max,'W')
-                    if wk_dl == 0:
-                        logger.info('CMEMS weekly request successful')
-                    if type(wk_dl) ==str:
-                        sys.exit(wk_dl)
-                    if wk_dl == 1:
-                        # if the request is too large try daily intervals.
-                        logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
-                        dy_dl = dl_cmems.MWD_request_cmems(settings, date_min,date_max,'D')
-                        if dy_dl == 0:
-                            logger.info('CMEMS daily request successful')
-                        # if the request is still too large then smaller domain is required.
-                        if dy_dl == str:
-                            sys.exit(dy_dl)
-            # remove size check XML files that are no longer needed.
-            try:
-                for f in glob.glob(settings['cmems_dir'] + "*.xml"):
-                    os.remove(f)
-            except OSError:
-                logger.info('no xml files found to remove, please check input directory.')
-                pass
-            logger.info('removed size check xml files successfully')
-
-        if settings['download_cmems'] == False:
-            logger.info('no new data from CMEMS requested.......')
 
     SourceCoord = source_coord.SourceCoord()
     DstCoord    = dst_coord.DstCoord()
