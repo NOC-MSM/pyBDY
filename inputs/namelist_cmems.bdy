@@ -56,7 +56,7 @@
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
    ln_download_static       = .false.
    ln_subset_static         = .false.
-   nn_num_restart           = 2
+   nn_num_retry             = 2 ! how many times to retry CMEMS download after non critical errors?
 !------------------------------------------------------------------------------
 !  CMEMS MOTU Configuration (for Boundary Data)
 !------------------------------------------------------------------------------
@@ -72,7 +72,6 @@
    sn_ftp_server            = 'nrt.cmems-du.eu'
    sn_static_dir            = '/Core/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/global-analysis-forecast-phy-001-024-statics'
    sn_static_filenames      = 'GLO-MFC_001_024_coordinates.nc GLO-MFC_001_024_mask_bathy.nc GLO-MFC_001_024_mdt.nc'
-   sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS static files
    sn_cdo_loc               = '/opt/local/bin/cdo' ! location of cdo executable can be found by running "where cdo"
 !------------------------------------------------------------------------------
 !  CMEMS Extent Configuration
@@ -115,9 +114,9 @@
 !  Time information
 !------------------------------------------------------------------------------
     nn_year_000     = 2017        !  year start
-    nn_year_end     = 2018        !  year end
+    nn_year_end     = 2017        !  year end
     nn_month_000    = 01          !  month start (default = 1 is years>1)
-    nn_month_end    = 04        !  month end (default = 12 is years>1)
+    nn_month_end    = 03       !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
 	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'

@@ -104,7 +104,7 @@ def download_cmems(setup_filepath=0):
     Setup = setup.Setup(setup_filepath)  # default settings file
     settings = Setup.settings
     if settings['download_static'] == True:
-        for re in range(settings['num_restart']):
+        for re in range(settings['num_retry']):
             logger.info('CMEMS Static data requested: downloading static data now.... (this may take awhile)')
             static = dl_cmems.get_static(settings)
             if static == 0:
@@ -113,9 +113,9 @@ def download_cmems(setup_filepath=0):
             if type(static) == str:
                 err_chk = dl_cmems.err_parse(static,'FTP')
                 if err_chk == 0:
-                    logger.info('retrying FTP download....restart number '+str(re+1)+' of '+str(settings['num_restart']) )
-                    if re == (settings['num_restart']-1):
-                        logger.critical('reached restart limit defined in BDY file, exiting now')
+                    logger.info('retrying FTP download....retry number '+str(re+1)+' of '+str(settings['num_retry']) )
+                    if re == (settings['num_retry']-1):
+                        logger.critical('reached retry limit defined in BDY file, exiting now')
                         logger.critical(static)
                         dl_cmems.clean_up(settings)
                         sys.exit(static)
@@ -177,7 +177,7 @@ def download_cmems(setup_filepath=0):
             dl_cmems.clean_up(settings)
             sys.exit(error_msg)
         # download request for CMEMS data, try whole time interval first.
-        for re in range(settings['num_restart']):
+        for re in range(settings['num_retry']):
             logger.info('starting CMES download now (this can take a while)...')
             dl = dl_cmems.request_cmems(settings, date_min, date_max)
             if dl == 0:
@@ -187,15 +187,15 @@ def download_cmems(setup_filepath=0):
             if type(dl) == str:
             # check error message against logged errors
                 err_chk = dl_cmems.err_parse(dl,'MOTU')
-            # error is known and restarting is likely to work
+            # error is known and retry is likely to work
                 if err_chk == 0:
-                    logger.info('retrying CMEMS download....restart number '+str(re+1)+' of '+str(settings['num_restart']) )
-                    if re == (settings['num_restart']-1):
-                        logger.critical('reached restart limit defined in BDY file, exiting now')
+                    logger.info('retrying CMEMS download....retry number '+str(re+1)+' of '+str(settings['num_retry']) )
+                    if re == (settings['num_retry']-1):
+                        logger.critical('reached retry limit defined in BDY file, exiting now')
                         logger.critical(dl)
                         dl_cmems.clean_up(settings)
                         sys.exit(dl)
-            # error is known and restarting is likely to not work
+            # error is known and retry is likely to not work
                 if err_chk == 1:
                     dl_cmems.clean_up(settings)
                     sys.exit(dl)
@@ -205,7 +205,7 @@ def download_cmems(setup_filepath=0):
                     sys.exit(dl)
         if dl == 1:
             # if the request is too large try monthly intervals
-            for re in range(settings['num_restart']):
+            for re in range(settings['num_retry']):
                 logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
                 mnth_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'M')
                 if mnth_dl == 0:
@@ -214,9 +214,9 @@ def download_cmems(setup_filepath=0):
                 if type(mnth_dl) == str:
                     err_chk = dl_cmems.err_parse(mnth_dl,'MOTU')
                     if err_chk == 0:
-                        logger.info('retrying CMEMS download....restart number '+str(re+1)+' of '+str(settings['num_restart']) )
-                        if re == (settings['num_restart']-1):
-                            logger.critical('reached restart limit defined in BDY file, exiting now')
+                        logger.info('retrying CMEMS download....retry number '+str(re+1)+' of '+str(settings['num_retry']) )
+                        if re == (settings['num_retry']-1):
+                            logger.critical('reached retry limit defined in BDY file, exiting now')
                             logger.critical(mnth_dl)
                             dl_cmems.clean_up(settings)
                             sys.exit(mnth_dl)
@@ -228,7 +228,7 @@ def download_cmems(setup_filepath=0):
                         sys.exit(mnth_dl)
                 if mnth_dl == 1:
                     # if the request is too large try weekly intervals
-                    for re in range(settings['num_restart']):
+                    for re in range(settings['num_retry']):
                         logger.warning('CMEMS request still too large, trying weekly downloads...(this will take longer...)')
                         wk_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'W')
                         if wk_dl == 0:
@@ -237,9 +237,9 @@ def download_cmems(setup_filepath=0):
                         if type(wk_dl) == str:
                             err_chk = dl_cmems.err_parse(wk_dl,'MOTU')
                             if err_chk == 0:
-                                logger.info('retrying CMEMS download....restart number ' + str(re + 1) + ' of ' + str(settings['num_restart']))
-                                if re == (settings['num_restart'] - 1):
-                                    logger.critical('reached restart limit defined in BDY file, exiting now')
+                                logger.info('retrying CMEMS download....retry number ' + str(re + 1) + ' of ' + str(settings['num_retry']))
+                                if re == (settings['num_retry'] - 1):
+                                    logger.critical('reached retry limit defined in BDY file, exiting now')
                                     logger.critical(wk_dl)
                                     dl_cmems.clean_up(settings)
                                     sys.exit(wk_dl)
@@ -251,7 +251,7 @@ def download_cmems(setup_filepath=0):
                                 sys.exit(wk_dl)
                     if wk_dl == 1:
                     # if the request is too large try daily intervals.
-                        for re in range(settings['num_restart']):
+                        for re in range(settings['num_retry']):
                             logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
                             dy_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'D')
                             if dy_dl == 0:
@@ -262,9 +262,9 @@ def download_cmems(setup_filepath=0):
                                 # perform error check for retry
                                 err_chk = dl_cmems.err_parse(dy_dl,'MOTU')
                                 if err_chk == 0:
-                                    logger.info('retrying CMEMS download....restart number ' + str(re + 1) + ' of ' + str(settings['num_restart']))
-                                    if re == (settings['num_restart'] - 1):
-                                        logger.critical('reached restart limit defined in BDY file, exiting now')
+                                    logger.info('retrying CMEMS download....retry number ' + str(re + 1) + ' of ' + str(settings['num_retry']))
+                                    if re == (settings['num_retry'] - 1):
+                                        logger.critical('reached retry limit defined in BDY file, exiting now')
                                         logger.critical(dy_dl)
                                         dl_cmems.clean_up(settings)
                                         sys.exit(dy_dl)

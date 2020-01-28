@@ -163,8 +163,8 @@ def MWD_request_cmems(args,date_min,date_max,F):
                 logger.error(dy_dl)
                 return dy_dl
 
-    if (not F == 'M' or not F == 'W' or not F == 'D'):
-        time_int_err = 'incorrect character used to define time download interval please use M, W or D'
+    if not any('M W D' in F):
+        time_int_err = 'incorrect string used to define time download interval please use M, W or D'
         logger.error(time_int_err)
         return time_int_err
 
