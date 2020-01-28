@@ -6,7 +6,9 @@ so make sure it is written correctly.
 '''
 
 # errors that are worth retrying download, e,g, error in netcdfwriter finish
-MOTU_retry = {'004-27': 'Error in NetcdfWriter finish'}
+MOTU_retry = {'004-27': 'Error in NetcdfWriter finish',
+              'Errno 60': '[Errno 60] Operation timed out',
+              }
 # errors that are not worth retrying e.g. cmems network is down
 MOTU_critical = {'50': 'Network Down'}
 # FTP specific errors
