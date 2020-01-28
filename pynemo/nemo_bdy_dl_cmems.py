@@ -16,7 +16,7 @@ import os
 #local imports
 from pynemo.utils import cmems_errors as errors
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('CMEMS Downloader')
 
 '''
 This function checks to see if the MOTU client is installed on the PyNEMO python environment. If it is not installed

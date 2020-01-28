@@ -8,6 +8,7 @@ so make sure it is written correctly.
 # errors that are worth retrying download, e,g, error in netcdfwriter finish
 MOTU_retry = {'004-27': 'Error in NetcdfWriter finish',
               'Errno 60': '[Errno 60] Operation timed out',
+              'Excp 11': 'Execution failed: [Excp 11] "Dataset retrival incomplete.'
               }
 # errors that are not worth retrying e.g. cmems network is down
 MOTU_critical = {'50': 'Network Down'}
