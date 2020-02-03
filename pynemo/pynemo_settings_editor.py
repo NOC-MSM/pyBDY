@@ -18,7 +18,7 @@ def open_settings_window(fname):
     it will open a dialog box where users can edit the parameters"""
     app = QtWidgets.QApplication(sys.argv)
     if fname is None:
-        fname = QtGui.QFileDialog.getOpenFileName(None, 'Open file')
+        fname = QtWidgets.QFileDialog.getOpenFileName(None, 'Open file')
 
     setup = nemo_bdy_setup.Setup(fname)#'../../data/namelisttest.bdy')
     ex = InputWindow(setup)

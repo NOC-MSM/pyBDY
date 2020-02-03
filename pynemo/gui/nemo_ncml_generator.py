@@ -6,13 +6,13 @@ Created on 6 Aug 2015
 import logging
 import os
 import xml.etree.ElementTree as ET
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSlot
 from . import nemo_ncml_tab_widget
 from thredds_crawler.crawl import Crawl
 
-class Ncml_generator(QtGui.QDialog):
+class Ncml_generator(QtWidgets.QDialog):
     '''
     Gui editor to capture user input for the purpose of generating NCML representation of pynemo source datasets.
     '''
@@ -37,28 +37,28 @@ class Ncml_generator(QtGui.QDialog):
         
         
     def initUI(self):
-        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 11))
+        QtWidgets.QToolTip.setFont(QtGui.QFont('SansSerif', 11))
         '''
         vbox is the top container
         '''
         #the 
-        vbox = QtGui.QVBoxLayout(self)
+        vbox = QtWidgets.QVBoxLayout(self)
         vbox.setSpacing(10)
         vbox.setContentsMargins(10, 10, 5, 5)
         
         '''
         top panel for output file
         '''
-        top_outfile_label = QtGui.QLabel(str('Output filename').encode('utf-8'))
-        self.top_outfile_name = QtGui.QLineEdit()    #location is pre-defined
+        top_outfile_label = QtWidgets.QLabel(str('Output filename').encode('utf-8'))
+        self.top_outfile_name = QtWidgets.QLineEdit()    #location is pre-defined
         self.top_outfile_name.setToolTip(str('Define output file').encode('utf-8'))
         self.top_outfile_name.returnPressed.connect(self.get_fname_input)
         
-        top_outfile_button = QtGui.QPushButton(str('Select file').encode('utf-8'))
+        top_outfile_button = QtWidgets.QPushButton(str('Select file').encode('utf-8'))
         top_outfile_button.clicked.connect(self.get_fname)
         
-        top_grpBox = QtGui.QGroupBox(str('Define output file').encode('utf-8'), None)
-        top_grid = QtGui.QGridLayout(top_grpBox)
+        top_grpBox = QtWidgets.QGroupBox(str('Define output file').encode('utf-8'), None)
+        top_grid = QtWidgets.QGridLayout(top_grpBox)
         top_grid.setVerticalSpacing(5)
         top_grid.setHorizontalSpacing(10)
         top_grid.addWidget(top_outfile_label, 1, 0)
@@ -68,7 +68,7 @@ class Ncml_generator(QtGui.QDialog):
         '''
         middle panel for tab folder
         '''
-        self.tabWidget = QtGui.QTabWidget()
+        self.tabWidget = QtWidgets.QTabWidget()
         self.tracer_tab = nemo_ncml_tab_widget.Ncml_tab(str("Tracer").encode('utf-8'))
         self.tracer_tab.setEnabled(False)
         self.dynamic_tab = nemo_ncml_tab_widget.Ncml_tab(str("Dynamics").encode('utf-8'))
@@ -93,12 +93,12 @@ class Ncml_generator(QtGui.QDialog):
         '''
         button bar
         '''
-        go_btn = QtGui.QPushButton(str('Generate').encode('utf-8'))
+        go_btn = QtWidgets.QPushButton(str('Generate').encode('utf-8'))
         go_btn.setToolTip(str('Add all variable definitions before generating NcML file.').encode('utf-8'))
-        cancel_btn = QtGui.QPushButton(str('Cancel').encode('utf-8'))
-        enable_btn = QtGui.QPushButton(str('Enable Tab').encode('utf-8'))
+        cancel_btn = QtWidgets.QPushButton(str('Cancel').encode('utf-8'))
+        enable_btn = QtWidgets.QPushButton(str('Enable Tab').encode('utf-8'))
         #layout button bar        
-        btn_hBox = QtGui.QHBoxLayout(None)
+        btn_hBox = QtWidgets.QHBoxLayout(None)
         btn_hBox.setMargin(5)
         btn_hBox.setSpacing(10)
         btn_hBox.setAlignment(QtCore.Qt.AlignRight)
@@ -119,7 +119,7 @@ class Ncml_generator(QtGui.QDialog):
         vbox.addLayout(btn_hBox)
         
         #self.setLayout(grp_box)        
-        self.setWindowIcon(QtGui.QIcon('/Users/jdha/anaconda/lib/python2.7/site-packages/pynemo-0.2-py2.7.egg/pynemo/gui/nemo_icon.png'))    #doesn't work       
+        self.setWindowIcon(QtWidgets.QIcon('/Users/jdha/anaconda/lib/python2.7/site-packages/pynemo-0.2-py2.7.egg/pynemo/gui/nemo_icon.png'))    #doesn't work       
         self.setWindowTitle(str("PyNEMO NcML Generator").encode('utf-8'))
         self.resize(650,300)
         
@@ -137,7 +137,7 @@ class Ncml_generator(QtGui.QDialog):
         # When you call getOpenFileName, a file picker dialog is created
         # and if the user selects a file, it's path is returned, and if not
         # (ie, the user cancels the operation) None is returned
-        fname = QtGui.QFileDialog.getSaveFileName(self, 'Select output file', '', selectedFilter='*.ncml')
+        fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Select output file', '', selectedFilter='*.ncml')
         if fname:
             self.filename = fname #returns a QString
             self.top_outfile_name.setText(str(fname))
@@ -180,14 +180,14 @@ class Ncml_generator(QtGui.QDialog):
         #validate output file
         if self.filename is None or self.filename == "":
             if self.top_outfile_name.text() is None or self.top_outfile_name.text() == "":
-                QtGui.QMessageBox.critical(self, str('Something is wrong').encode('utf-8'), str('No output file specified!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.critical(self, str('Something is wrong').encode('utf-8'), str('No output file specified!').encode('utf-8'), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 return
             else:
                 self.filename = self.top_outfile_name.text()
             
         if(os.path.exists(os.path.dirname(str(self.filename)))) == False:
             #if os.path.dirname(os.path.dirname(os.path.exists(os.path.normpath(str(self.filename))))) == False:
-            QtGui.QMessageBox.critical(self, str('Something is wrong').encode('utf-8'), str('Invalid output directory!  Cannot generate file!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(self, str('Something is wrong').encode('utf-8'), str('Invalid output directory!  Cannot generate file!').encode('utf-8'), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
             #print 'invalid target directory!  Cannot generate.'
             return
             
@@ -201,7 +201,7 @@ class Ncml_generator(QtGui.QDialog):
                self.tracer_tab.vosaline.src != "" :
                 tabsList.extend([self.tracer_tab.votemper, self.tracer_tab.vosaline])
             else:
-                QtGui.QMessageBox.information(self, str('Something is wrong').encode('utf-8'), str('Not all the variables under the tracer tab have been defined!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, str('Something is wrong').encode('utf-8'), str('Not all the variables under the tracer tab have been defined!').encode('utf-8'), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
 
         if self.ice_tab.isEnabled() is True:
@@ -210,7 +210,7 @@ class Ncml_generator(QtGui.QDialog):
                self.ice_tab.isnowthi.src != "" :
                 tabsList.extend([self.ice_tab.iicethic, self.ice_tab.ileadfra, self.ice_tab.isnowthi])
             else:
-                QtGui.QMessageBox.information(self, str('Something is wrong').encode('utf-8'), str('Not all the variables under the ice tab have been defined!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, str('Something is wrong').encode('utf-8'), str('Not all the variables under the ice tab have been defined!').encode('utf-8'), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
         if self.dynamic_tab.isEnabled() is True:
             if self.dynamic_tab.vozocrtx.src != ""  and \
@@ -218,7 +218,7 @@ class Ncml_generator(QtGui.QDialog):
                self.dynamic_tab.sossheig.src != "" :
                 tabsList.extend([self.dynamic_tab.vozocrtx, self.dynamic_tab.vomecrty, self.dynamic_tab.sossheig])
             else:
-                QtGui.QMessageBox.information(self, str('Something is wrong').encode('utf-8'), str('Not all the variables under the dynamics tab have been defined!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, str('Something is wrong').encode('utf-8'), str('Not all the variables under the dynamics tab have been defined!').encode('utf-8'), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
         if self.grid_tab.isEnabled() is True:
             if self.grid_tab.gdept.src != ""    and \
@@ -229,14 +229,14 @@ class Ncml_generator(QtGui.QDialog):
                self.grid_tab.e3v.src != "" :
                 tabsList.extend([self.grid_tab.gdept, self.grid_tab.gdepw, self.grid_tab.mbathy, self.grid_tab.e3t, self.grid_tab.e3u, self.grid_tab.e3v])
             else:
-                QtGui.QMessageBox.information(self, str('Something is wrong').encode('utf-8'), str('Not all the variables under the grid tab have been defined!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, str('Something is wrong').encode('utf-8'), str('Not all the variables under the grid tab have been defined!').encode('utf-8'), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
         try:
             self.generateNcML(tabsList) #go ahead and do it
         except:
             raise
 
-        QtGui.QMessageBox.information(self, str('Success.').encode('utf-8'), str('NcML file generated.').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+        QtWidgets.QMessageBox.information(self, str('Success.').encode('utf-8'), str('NcML file generated.').encode('utf-8'), QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
     '''
     Function to generates the NcML text and write it to the user defined output file

@@ -5,11 +5,11 @@ Created on 2 Jul 2015
 '''
 import logging
 import os
-from PyQt5 import QtGui
+from PyQt5 import QtGui, QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtCore import pyqtSlot
 
-class Ncml_tab(QtGui.QWidget):
+class Ncml_tab(QtWidgets.QWidget):
     '''
     tab contents to define child aggregation
     '''
