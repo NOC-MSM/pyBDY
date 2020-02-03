@@ -102,8 +102,8 @@ class Boundary:
         bdy_i = np.transpose(bdy_i, (1, 2, 0))
         bdy_i = np.reshape(bdy_i, 
                  (bdy_i.shape[0],bdy_i.shape[1]*bdy_i.shape[2]))
-        bdy_r = bdy_r.flatten(1)
-
+        bdy_r = bdy_r.flatten('F')
+        
         ##   Remove duplicate and open sea points  ##
         
         bdy_i, bdy_r = self._remove_duplicate_points(bdy_i, bdy_r)

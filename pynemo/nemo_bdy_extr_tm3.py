@@ -280,8 +280,8 @@ class Extract:
             ind[p, :] = ind[p, dist_ind[p, :]]
 
         if self.key_vec:
-            self.gcos = self.gcos.flatten(1)[ind].reshape(ind.shape, order='F')
-            self.gsin = self.gsin.flatten(1)[ind].reshape(ind.shape, order='F')
+            self.gcos = self.gcos.flatten('F')[ind].reshape(ind.shape, order='F')
+            self.gsin = self.gsin.flatten('F')[ind].reshape(ind.shape, order='F')
 
         sc_ind = {}
         sc_ind['ind'] = ind
@@ -571,11 +571,11 @@ class Extract:
                 for dep in range(sc_z_len):
                     tmp_arr = [None, None]
                     # Consider squeezing
-                    tmp_arr[0] = sc_array[0][0,dep,:,:].flatten(1) #[:,:,dep]
+                    tmp_arr[0] = sc_array[0][0,dep,:,:].flatten('F') #[:,:,dep]
                     if not self.key_vec:
                         sc_bdy[vn, dep, :, :] = self._flat_ref(tmp_arr[0], ind)
                     else:
-                        tmp_arr[1] = sc_array[1][0,dep,:,:].flatten(1) #[:,:,dep]
+                        tmp_arr[1] = sc_array[1][0,dep,:,:].flatten('F') #[:,:,dep]
                         # Include in the collapse the rotation from the
                         # grid to real zonal direction, ie ij -> e
                         sc_bdy[vn, dep, :] = (tmp_arr[0][ind[:]] * self.gcos -
@@ -669,11 +669,11 @@ class Extract:
                 # Apply 1-2-1 filter along bdy pts using NN ind self.id_121
                 if self.first:
                     tmp_valid = np.invert(np.isnan(
-                                            dst_bdy.flatten(1)[self.id_121]))
+                                            dst_bdy.flatten('F')[self.id_121]))
                     # Finished first run operations
                     self.first = False
 
-                dst_bdy = (np.nansum(dst_bdy.flatten(1)[self.id_121] * 
+                dst_bdy = (np.nansum(dst_bdy.flatten('F')[self.id_121] * 
                            self.tmp_filt, 2) / np.sum(self.tmp_filt *
                            tmp_valid, 2))
                 # Set land pts to zero
@@ -688,7 +688,7 @@ class Extract:
                 # If we have depth dimension
                 if not self.isslab:
                     # If all else fails fill down using deepest pt
-                    dst_bdy = dst_bdy.flatten(1)
+                    dst_bdy = dst_bdy.flatten('F')
                     dst_bdy += ((dst_bdy == 0) *
                                 dst_bdy[data_ind].repeat(sc_z_len))
                     # Weighted averaged on new vertical grid
@@ -732,7 +732,7 @@ class Extract:
         alpha -- input array
         beta -- index array 
         """
-        return alpha.flatten(1)[beta.flatten(1)].reshape(
+        return alpha.flatten('F')[beta.flatten('F')].reshape(
                                                    beta.shape, order='F')
 
     # Convert numeric date from source to dest

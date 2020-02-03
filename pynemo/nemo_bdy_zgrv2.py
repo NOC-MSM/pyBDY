@@ -101,7 +101,7 @@ class Depth:
             wshapes = []
             wshapes.append(wrk1.shape)
             wshapes.append(wrk2.shape)
-            wrk1, wrk2 = wrk1.flatten(1), wrk2.flatten(1)
+            wrk1, wrk2 = wrk1.flatten('F'), wrk2.flatten('F')
 
             self.zpoints['t'][k,:]  = wrk1[t_ind]
             self.zpoints['wt'][k,:] = wrk2[t_ind]
