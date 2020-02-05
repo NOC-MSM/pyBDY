@@ -28,8 +28,8 @@ class Ncml_tab(QtWidgets.QWidget):
         
         
     def initUI(self):  
-        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 11))
-        self.varStackedWidget = QtGui.QStackedWidget()                   
+        QtWidgets.QToolTip.setFont(QtGui.QFont('SansSerif', 11))
+        self.varStackedWidget = QtWidgets.QStackedWidget()                   
         #variable chooser combobox
         combo_vars = []
         if(self.var == str("Tracer").encode('utf-8')):
@@ -82,7 +82,7 @@ class Ncml_tab(QtWidgets.QWidget):
             vars = ['nitrate','silicate'] #nitrate, silicate
         self.varStackedWidget.setCurrentIndex(0)  #we rely on the stacked tab index to be the same as the combo box 
         #combo box     
-        self.var_combo = QtGui.QComboBox()
+        self.var_combo = QtWidgets.QComboBox()
         self.var_combo.addItems(combo_vars)
         self.var_combo.setEditable(False)
         self.var_combo.setCurrentIndex(0)
@@ -90,20 +90,20 @@ class Ncml_tab(QtWidgets.QWidget):
         self.var_combo.currentIndexChanged.connect(lambda var_name = self.var : self.src_combo_changed(var_name))
         self.var_combo.currentIndexChanged.connect(self.setWidgetStack)
         #label
-        var_label = QtGui.QLabel(str('Variable').encode('utf-8'))
+        var_label = QtWidgets.QLabel('Variable')
         #set layout
-        stacked_hBox = QtGui.QHBoxLayout()
-        stacked_hBox.setMargin(5)
+        stacked_hBox = QtWidgets.QHBoxLayout()
+        stacked_hBox.setContentsMargins(5, 5, 5, 5)
         stacked_hBox.setSpacing(50) # spacing between items
         stacked_hBox.setAlignment(QtCore.Qt.AlignLeft)
         stacked_hBox.addWidget(var_label)
         stacked_hBox.addWidget(self.var_combo)
         #
-        vBoxLayout = QtGui.QVBoxLayout()        
+        vBoxLayout = QtWidgets.QVBoxLayout()        
         vBoxLayout.addLayout(stacked_hBox)
         vBoxLayout.addWidget(self.varStackedWidget)
         #
-        grp_box = QtGui.QGroupBox(None)
+        grp_box = QtWidgets.QGroupBox(None)
         grp_box.setLayout(vBoxLayout)
                         
         '''
@@ -115,24 +115,24 @@ class Ncml_tab(QtWidgets.QWidget):
         button bar
         '''
         # reset button
-        reset_btn = QtGui.QPushButton(str('Reset').encode('utf-8'))
-        reset_btn.setToolTip(str('Reset fields to previously saved values').encode('utf-8'))
-        add_btn = QtGui.QPushButton(str('Add').encode('utf-8')) 
+        reset_btn = QtWidgets.QPushButton('Reset')
+        reset_btn.setToolTip('Reset fields to previously saved values')
+        add_btn = QtWidgets.QPushButton('Add') 
         add_btn.setDefault(True)
-        add_btn.setToolTip(str('Add the current definition to the NcML').encode('utf-8'))
+        add_btn.setToolTip('Add the current definition to the NcML')
         #connect up with events
         reset_btn.clicked.connect(self.reset_tab)
         add_btn.clicked.connect(self.add_tab)
        
-        btn_hBox = QtGui.QHBoxLayout(None)
-        btn_hBox.setMargin(5)
+        btn_hBox = QtWidgets.QHBoxLayout(None)
+        btn_hBox.setContentsMargins(5, 5, 5, 5)
         btn_hBox.setSpacing(10)
         btn_hBox.setAlignment(QtCore.Qt.AlignCenter)
         btn_hBox.addWidget(reset_btn)
         btn_hBox.addWidget(add_btn)
         
         #build the contents         
-        vbox = QtGui.QVBoxLayout(self)
+        vbox = QtWidgets.QVBoxLayout(self)
         vbox.setSpacing(10)
         vbox.setContentsMargins(10, 10, 5, 5)
         vbox.addWidget(grp_box)
