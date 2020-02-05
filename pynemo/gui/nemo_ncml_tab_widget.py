@@ -32,45 +32,45 @@ class Ncml_tab(QtWidgets.QWidget):
         self.varStackedWidget = QtWidgets.QStackedWidget()                   
         #variable chooser combobox
         combo_vars = []
-        if(self.var == str("Tracer").encode('utf-8')):
-            combo_vars = [str('temperature').encode('utf-8'),str('salinity').encode('utf-8')] #votemper, vosaline
-            self.votemper = ncml_variable(str('temperature').encode('utf-8'),'votemper')
-            self.vosaline = ncml_variable(str('salinity').encode('utf-8'),'vosaline')
+        if(self.var == "Tracer"):
+            combo_vars = ['temperature','salinity'] #votemper, vosaline
+            self.votemper = ncml_variable('temperature','votemper')
+            self.vosaline = ncml_variable('salinity','vosaline')
             self.varStackedWidget.addWidget(self._addStackWidget("votemper"))
             self.varStackedWidget.addWidget(self._addStackWidget("vosaline"))
             #debug
 #            print 'Tracer has ' + str(self.varStackedWidget.count())
-        elif(self.var == str("Ice").encode('utf-8')):
-            combo_vars = [str('ice thickness').encode('utf-8'),str('leads fraction').encode('utf-8'),str('snow thickness').encode('utf-8')] #'iicethic,ileadfra,isnowthi
-            self.iicethic = ncml_variable(str('ice_thickness').encode('utf-8'),'iicethic')
-            self.ileadfra = ncml_variable(str('leads_fraction').encode('utf-8'),'ileadfra')
-            self.isnowthi = ncml_variable(str('snow_thickness').encode('utf-8'),'isnowthi')
+        elif(self.var == "Ice"):
+            combo_vars = ['ice thickness','leads fraction','snow thickness'] #'iicethic,ileadfra,isnowthi
+            self.iicethic = ncml_variable('ice_thickness','iicethic')
+            self.ileadfra = ncml_variable('leads_fraction','ileadfra')
+            self.isnowthi = ncml_variable('snow_thickness','isnowthi')
             self.varStackedWidget.addWidget(self._addStackWidget("iicethic"))
             self.varStackedWidget.addWidget(self._addStackWidget("ileadfra"))
             self.varStackedWidget.addWidget(self._addStackWidget("isnowthi"))
 #            print 'Ice has ' + str(self.varStackedWidget.count())
-        elif(self.var == str("Dynamics").encode('utf-8')):
-            combo_vars = [str('zonal velocity').encode('utf-8'), str('meridian velocity').encode('utf-8'), str('sea surface height').encode('utf-8')] #vozocrtx, vomecrty, sossheig
-            self.vozocrtx = ncml_variable(str('zonal_velocity').encode('utf-8'),'vozocrtx')
-            self.vomecrty = ncml_variable(str('meridian_velocity').encode('utf-8'),'vomecrty')
-            self.sossheig = ncml_variable(str('sea_surface_height').encode('utf-8'),'sossheig')
+        elif(self.var == "Dynamics"):
+            combo_vars = ['zonal velocity', 'meridian velocity', 'sea surface height'] #vozocrtx, vomecrty, sossheig
+            self.vozocrtx = ncml_variable('zonal_velocity','vozocrtx')
+            self.vomecrty = ncml_variable('meridian_velocity','vomecrty')
+            self.sossheig = ncml_variable('sea_surface_height','sossheig')
             self.varStackedWidget.addWidget(self._addStackWidget("vozocrtx"))
             self.varStackedWidget.addWidget(self._addStackWidget("vomecrty"))
             self.varStackedWidget.addWidget(self._addStackWidget("sossheig"))
 #            print 'Dynamics has ' + str(self.varStackedWidget.count())
-        elif(self.var == str("Grid").encode('utf-8')):
-            combo_vars = [str('depth at T points').encode('utf-8'), 
-                          str('depth at W points').encode('utf-8'), 
-                          str('number of wet levels').encode('utf-8'), 
-                          str('vertical scale factor at T points').encode('utf-8'), 
-                          str('vertical scale factor at U points').encode('utf-8'), 
-                          str('vertical scale factor at V points').encode('utf-8')] #gdept,gdepw,mbathy
-            self.gdept = ncml_variable(str('depth_at_t_points').encode('utf-8'),'gdept')
-            self.gdepw = ncml_variable(str('depth_at_w_points').encode('utf-8'),'gdepw')
-            self.mbathy = ncml_variable(str('number_of_wet_levels').encode('utf-8'),'mbathy')
-            self.e3t = ncml_variable(str('vertical_scale_factors_at_t_points').encode('utf-8'),'e3t')
-            self.e3u = ncml_variable(str('vertical_scale_factors_at_u_points').encode('utf-8'),'e3u')
-            self.e3v = ncml_variable(str('vertical_scale_factors_at_v_points').encode('utf-8'),'e3v')
+        elif(self.var == "Grid"):
+            combo_vars = ['depth at T points', 
+                          'depth at W points', 
+                          'number of wet levels', 
+                          'vertical scale factor at T points', 
+                          'vertical scale factor at U points', 
+                          'vertical scale factor at V points'] #gdept,gdepw,mbathy
+            self.gdept = ncml_variable('depth_at_t_points','gdept')
+            self.gdepw = ncml_variable('depth_at_w_points','gdepw')
+            self.mbathy = ncml_variable('number_of_wet_levels','mbathy')
+            self.e3t = ncml_variable('vertical_scale_factors_at_t_points','e3t')
+            self.e3u = ncml_variable('vertical_scale_factors_at_u_points','e3u')
+            self.e3v = ncml_variable('vertical_scale_factors_at_v_points','e3v')
             self.varStackedWidget.addWidget(self._addStackWidget("gdept"))
             self.varStackedWidget.addWidget(self._addStackWidget("gdepw"))
             self.varStackedWidget.addWidget(self._addStackWidget("mbathy"))
@@ -141,30 +141,30 @@ class Ncml_tab(QtWidgets.QWidget):
     create the stacked widget for each nemo variable
     '''    
     def _addStackWidget(self, old_name=""):
-        self.varWidget = QtGui.QWidget()
+        self.varWidget = QtWidgets.QWidget()
         #self.varWidget.setObjectName(objName)
-        varLayout = QtGui.QGridLayout()
+        varLayout = QtWidgets.QGridLayout()
         varLayout.setSpacing(20)
                
         #labels
-        src_label = QtGui.QLabel(str('Source directory*').encode('utf-8'))  
-        cbox_label = QtGui.QLabel(str('Includes subdirs').encode('utf-8'))
-        regex_label = QtGui.QLabel(str('Regular expression').encode('utf-8'))
-        old_name_label = QtGui.QLabel(str('Existing variable name*').encode('utf-8'))        
+        src_label = QtWidgets.QLabel('Source directory*')  
+        cbox_label = QtWidgets.QLabel('Includes subdirs')
+        regex_label = QtWidgets.QLabel('Regular expression')
+        old_name_label = QtWidgets.QLabel('Existing variable name*')        
         #input textboxs
-        self.varWidget.src_tedit = QtGui.QLineEdit()       # input widgets need to be attached to the stacked widget itself 
-        self.varWidget.src_tedit.setToolTip(str('either remote OPeNDAP server or local file absolute path').encode('utf-8'))
+        self.varWidget.src_tedit = QtWidgets.QLineEdit()       # input widgets need to be attached to the stacked widget itself 
+        self.varWidget.src_tedit.setToolTip('either remote OPeNDAP server or local file absolute path')
         self.varWidget.src_tedit.returnPressed.connect(self.src_tedit_edited)
         
         
-        self.varWidget.cbox = QtGui.QCheckBox()
+        self.varWidget.cbox = QtWidgets.QCheckBox()
         self.varWidget.cbox.setCheckable(True)
         self.varWidget.cbox.setChecked(False)
-        self.varWidget.cbox.setToolTip(str('includes subdirectories').encode('utf-8'))
-        self.varWidget.regex_tedit = QtGui.QLineEdit()
-        self.varWidget.regex_tedit.setToolTip(str('see http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/ncml/AnnotatedSchema4.html#regexp').encode('utf-8'))                
-        self.varWidget.old_name_tedit = QtGui.QLineEdit()
-        self.varWidget.old_name_tedit.setToolTip(str('variable name in data file').encode('utf-8'))
+        self.varWidget.cbox.setToolTip('includes subdirectories')
+        self.varWidget.regex_tedit = QtWidgets.QLineEdit()
+        self.varWidget.regex_tedit.setToolTip('see http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/ncml/AnnotatedSchema4.html#regexp')
+        self.varWidget.old_name_tedit = QtWidgets.QLineEdit()
+        self.varWidget.old_name_tedit.setToolTip('variable name in data file')
         self.varWidget.old_name_tedit.setText(old_name)
         
         varLayout.addWidget(src_label, 1, 0, 1, 1)
@@ -201,10 +201,10 @@ class Ncml_tab(QtWidgets.QWidget):
         #validate the input now
         if not str(src_tedit_input).startswith('http'): 
             if not os.path.isabs(src_tedit_input): #assumes local file
-                QtGui.QMessageBox.critical(self, str('Something is wrong').encode('utf-8'), str('source directory must be an absolute path!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.critical(self, 'Something is wrong', 'source directory must be an absolute path!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 self.varStackedWidget.currentWidget().src_tedit.clear()
             if not os.path.exists(src_tedit_input) :
-                QtGui.QMessageBox.critical(self, str('Something is wrong').encode('utf-8'), str('source directory does not exist!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.critical(self, 'Something is wrong', 'source directory does not exist!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 self.varStackedWidget.currentWidget().src_tedit.clear()   
     '''
     reset button pushed callback.  The widgets are reset to default values
@@ -213,34 +213,34 @@ class Ncml_tab(QtWidgets.QWidget):
     def reset_tab(self):        
         #current screen value is not saved until the add button is pressed
         #reset only reset the screen values, not the cached values        
-        if self.var_combo.currentText() == str("temperature").encode('utf-8'):
+        if self.var_combo.currentText() == "temperature":
 #            print 'reset button is pushed, temperature ....'
             self.resetValues(self.votemper)
-        elif self.var_combo.currentText() == str("salinity").encode('utf-8'):
+        elif self.var_combo.currentText() == "salinity":
             self.resetValues(self.vosaline)
-        elif self.var_combo.currentText() == str("ice thickness").encode('utf-8'):
+        elif self.var_combo.currentText() == "ice thickness":
             self.resetValues(self.iicethic)
-        elif self.var_combo.currentText() == str("leads fraction").encode('utf-8'):
+        elif self.var_combo.currentText() == "leads fraction":
             self.resetValues(self.ileadfra)
-        elif self.var_combo.currentText() == str("snow thickness").encode('utf-8'):
+        elif self.var_combo.currentText() == "snow thickness":
             self.resetValues(self.isnowthi)
-        elif self.var_combo.currentText() == str("zonal velocity").encode('utf-8'):
+        elif self.var_combo.currentText() == "zonal velocity":
             self.resetValues(self.vozocrtx) 
-        elif self.var_combo.currentText() == str("meridian velocity").encode('utf-8'):
+        elif self.var_combo.currentText() == "meridian velocity":
             self.resetValues(self.vomecrty)
-        elif self.var_combo.currentText() == str("sea surface height").encode('utf-8'):
-            self.resetValues(self.sossheig)   
-        elif self.var_combo.currentText() == str("depth at T points").encode('utf-8'):
+        elif self.var_combo.currentText() == "sea surface height":
+            self.resetValues(self.sossheig)  
+        elif self.var_combo.currentText() == "depth at T points":
             self.resetValues(self.gdept)   
-        elif self.var_combo.currentText() == str("depth at W points").encode('utf-8'):
+        elif self.var_combo.currentText() == "depth at W points":
             self.resetValues(self.gdepw)   
-        elif self.var_combo.currentText() == str("number of wet levels").encode('utf-8'):
+        elif self.var_combo.currentText() == "number of wet levels":
             self.resetValues(self.mbathy)   
-        elif self.var_combo.currentText() == str("vertical scale factor at T points").encode('utf-8'):
+        elif self.var_combo.currentText() == "vertical scale factor at T points":
             self.resetValues(self.e3t)   
-        elif self.var_combo.currentText() == str("vertical scale factor at U points").encode('utf-8'):
+        elif self.var_combo.currentText() == "vertical scale factor at U points":
             self.resetValues(self.e3u)   
-        elif self.var_combo.currentText() == str("vertical scale factor at V points").encode('utf-8'):
+        elif self.var_combo.currentText() == "vertical scale factor at V points":
             self.resetValues(self.e3v)   
             
     '''
@@ -270,7 +270,7 @@ class Ncml_tab(QtWidgets.QWidget):
         #first validate the src tab is not null
         if(self.varStackedWidget.currentWidget().src_tedit.text() is None or self.varStackedWidget.currentWidget().src_tedit.text() == '' or               
            self.varStackedWidget.currentWidget().old_name_tedit.text() is None or self.varStackedWidget.currentWidget().old_name_tedit.text() == ''):
-                QtGui.QMessageBox.critical(self, str('Something is wrong').encode('utf-8'), str('source directory and existing variable name cannot be blank!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.critical(self, 'Something is wrong', 'source directory and existing variable name cannot be blank!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
         else:
             '''        
             if not str(target).startsWith(unicode('http').encode('utf-8')):
@@ -283,10 +283,10 @@ class Ncml_tab(QtWidgets.QWidget):
             # be in the same directory.
 
 
-            if(self.var == str("Tracer").encode('utf-8')):                
-                if (self.var_combo.currentText() == str("temperature").encode('utf-8')):            
+            if(self.var == "Tracer"):                
+                if (self.var_combo.currentText() == "temperature"):            
                     if(self._sameValues(self.votemper)):
-                        QtGui.QMessageBox.information(self, 'For information', 'No changes have been made!', QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:   
                         self.votemper.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.votemper.old_name = self.varStackedWidget.currentWidget().old_name_tedit.text()
@@ -297,7 +297,7 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.votemper.regex = ''    #blank it over    
                 else: # can only be salinity
                     if(self._sameValues(self.vosaline)):
-                        QtGui.QMessageBox.information(self, 'For information', 'No changes have been made!', QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.vosaline.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.vosaline.old_name = self.varStackedWidget.currentWidget().old_name_tedit.text()
@@ -312,10 +312,10 @@ class Ncml_tab(QtWidgets.QWidget):
                 if self.vosaline.src == '':
                     self.vosaline.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                     self.varStackedWidget.widget(1).src_tedit.setText(self.varStackedWidget.currentWidget().src_tedit.text())
-            elif(self.var == str('Ice').encode('utf-8')): #iicethic,ileadfra,isnowthi
-                if (self.var_combo.currentText() == str("ice thickness").encode('utf-8')):            
+            elif(self.var == 'Ice'): #iicethic,ileadfra,isnowthi
+                if (self.var_combo.currentText() == "ice thickness"):            
                     if(self._sameValues(self.iicethic)):
-                        QtGui.QMessageBox.information(self, 'For information', 'No changes have been made!', QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.iicethic.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.iicethic.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -324,9 +324,9 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.iicethic.regex = self.varStackedWidget.currentWidget().regex_tedit.text() 
                         else:
                             self.iicethic.regex = ''                       
-                elif(self.var_combo.currentText() == str("leads fraction").encode('utf-8')): 
+                elif(self.var_combo.currentText() == "leads fraction"): 
                     if(self._sameValues(self.ileadfra)):
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.ileadfra.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.ileadfra.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -337,7 +337,7 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.ileadfra.regex = ''
                 else:
                     if(self._sameValues(self.isnowthi)): #snow thickness
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.isnowthi.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.isnowthi.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -355,10 +355,10 @@ class Ncml_tab(QtWidgets.QWidget):
                 if self.isnowthi.src == '':
                     self.isnowthi.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                     self.varStackedWidget.widget(2).src_tedit.setText(self.varStackedWidget.currentWidget().src_tedit.text())
-            elif(self.var == str("Dynamics").encode('utf-8')):
-                if (self.var_combo.currentText() == str("zonal velocity").encode('utf-8')):            
+            elif(self.var == "Dynamics"):
+                if (self.var_combo.currentText() == "zonal velocity"):            
                     if(self._sameValues(self.vozocrtx)):
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.vozocrtx.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.vozocrtx.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -367,9 +367,9 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.vozocrtx.regex = self.varStackedWidget.currentWidget().regex_tedit.text()
                         else:
                             self.vozocrtx.regex = ''
-                elif(self.var_combo.currentText() == str('meridian velocity').encode('utf-8')): 
+                elif(self.var_combo.currentText() == 'meridian velocity'): 
                     if(self._sameValues(self.vomecrty)):
-                        QtGui.QMessageBox.information(self, 'For information', 'No changes have been made!', QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else: 
                         self.vomecrty.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.vomecrty.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -378,9 +378,9 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.vomecrty.regex = self.varStackedWidget.currentWidget().regex_tedit.text()
                         else:
                             self.vomecrty.regex = ''
-                elif(self.var_combo.currentText() == str('sea surface height').encode('utf-8')):      
+                elif(self.var_combo.currentText() == 'sea surface height'):      
                     if(self._sameValues(self.sossheig)): #sea surface height
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.sossheig.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.sossheig.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -398,10 +398,10 @@ class Ncml_tab(QtWidgets.QWidget):
                 if self.sossheig.src == '':
                     self.sossheig.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                     self.varStackedWidget.widget(2).src_tedit.setText(self.varStackedWidget.currentWidget().src_tedit.text())
-            elif(self.var == str("Grid").encode('utf-8')):
-                if (self.var_combo.currentText() == str("depth at T points").encode('utf-8')):            
+            elif(self.var == "Grid"):
+                if (self.var_combo.currentText() == "depth at T points"):            
                     if(self._sameValues(self.gdept)):
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.gdept.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.gdept.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -410,9 +410,9 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.gdept.regex = self.varStackedWidget.currentWidget().regex_tedit.text()
                         else:
                             self.gdept.regex = ''
-                elif(self.var_combo.currentText() == str('depth at W points').encode('utf-8')): 
+                elif(self.var_combo.currentText() == 'depth at W points'): 
                     if(self._sameValues(self.gdepw)):
-                        QtGui.QMessageBox.information(self, 'For information', 'No changes have been made!', QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else: 
                         self.gdepw.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.gdepw.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -421,9 +421,9 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.gdepw.regex = self.varStackedWidget.currentWidget().regex_tedit.text()
                         else:
                             self.gdepw.regex = ''
-                elif(self.var_combo.currentText() == str('number of wet levels').encode('utf-8')):      
+                elif(self.var_combo.currentText() == 'number of wet levels'):      
                     if(self._sameValues(self.mbathy)): #sea surface height
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.mbathy.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.mbathy.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -432,9 +432,9 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.mbathy.regex = self.varStackedWidget.currentWidget().regex_tedit.text()  
                         else:
                             self.mbathy.regex = ''
-                elif(self.var_combo.currentText() == str('vertical scale factor at T points').encode('utf-8')):      
+                elif(self.var_combo.currentText() == 'vertical scale factor at T points'):      
                     if(self._sameValues(self.e3t)): #sea surface height
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.e3t.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.e3t.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -443,9 +443,9 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.e3t.regex = self.varStackedWidget.currentWidget().regex_tedit.text()  
                         else:
                             self.e3t.regex = ''
-                elif(self.var_combo.currentText() == str('vertical scale factor at U points').encode('utf-8')):      
+                elif(self.var_combo.currentText() == 'vertical scale factor at U points'):      
                     if(self._sameValues(self.e3u)): #sea surface height
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.e3u.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.e3u.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
@@ -454,9 +454,9 @@ class Ncml_tab(QtWidgets.QWidget):
                             self.e3u.regex = self.varStackedWidget.currentWidget().regex_tedit.text()  
                         else:
                             self.e3u.regex = ''
-                elif(self.var_combo.currentText() == str('vertical scale factor at V points').encode('utf-8')):      
+                elif(self.var_combo.currentText() == 'vertical scale factor at V points'):      
                     if(self._sameValues(self.e3v)): #sea surface height
-                        QtGui.QMessageBox.information(self, str('For information').encode('utf-8'), str('No changes have been made!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                        QtWidgets.QMessageBox.information(self, 'For information', 'No changes have been made!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                     else:
                         self.e3v.src = self._convertSrc(self.varStackedWidget.currentWidget().src_tedit.text())
                         self.e3v.subdirs = self.varStackedWidget.currentWidget().cbox.isChecked()
