@@ -28,6 +28,7 @@ ln_tra = boundary conditions for T and S
 ln_ice = ice boundary condition
 nn_rimwidth = width of the relaxation zone
 ln_tide = if .true. : produce bdy tidal conditions
+sn_tide_model  = 'FES'
 clname(0) = constituent name
 ln_trans = 
 nn_year_000 = year start

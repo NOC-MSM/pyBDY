@@ -29,7 +29,7 @@ class SourceTime:
 
         dir_list.sort()
             
-        return filter(None, dir_list)
+        return [_f for _f in dir_list if _f]
     
     # Returns list of dicts of date/time info
     # I assume there is only one date per file

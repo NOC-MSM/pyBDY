@@ -153,7 +153,7 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
     lon_ob = np.ravel(lon,order='F')[np.ravel(ob,order='F')]
     
     
-    print lat_ob, lon_ob
+    print(lat_ob, lon_ob)
     len_lat = len(lat[:,0])
     len_lon = len(lon[0,:])
     lat_lon_index = np.nonzero( np.logical_and(lat == lat_ob[0], lon == lon_ob[0]))    
@@ -172,19 +172,19 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
            i_e = i_0 + 2
         lat_slice = slice(max(lat_lon_index[0],0),min(lat_lon_index[0]+1+1,len_lat))
         lon_slice = slice(max(lat_lon_index[1],0),min(lat_lon_index[1]+1+1,len_lon))   
-        print 'method2', lon_slice, lat_slice
+        print('method2', lon_slice, lat_slice)
         lat_slice = slice(j_0,j_e)
         lon_slice = slice(i_0,i_e)
-        print 'method1', lon_slice, lat_slice
+        print('method1', lon_slice, lat_slice)
         lat_pts = lat[lat_slice, lon_slice]
         lon_pts = lon[lat_slice, lon_slice]
-        print lat_pts, lon_pts
-        print lat_lon_index[0], lat_lon_index[1] 
-        print len_lon, len_lat, lat_lon_index[0], lat_lon_index[1]
+        print(lat_pts, lon_pts)
+        print(lat_lon_index[0], lat_lon_index[1]) 
+        print(len_lon, len_lat, lat_lon_index[0], lat_lon_index[1])
         dy,py=seawater.dist(lat_pts[:,0], lon_pts[:,0])
         dx,px=seawater.dist(lat_pts[0,:], lon_pts[0,:])
         r = np.rint(np.ceil(dr/np.amax([dx,dy])))
-        print dx, dy, r
+        print(dx, dy, r)
         lat_slice = slice(max(lat_lon_index[0]-r,0),min(lat_lon_index[0]+r+1,len_lat))
         lon_slice = slice(max(lat_lon_index[1]-r,0),min(lat_lon_index[1]+r+1,len_lon))   
         lat_pts = lat[lat_slice, lon_slice]
@@ -194,8 +194,8 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
         lon_pts = np.ravel(lon_pts)
         # NOTE: seawater package calculates the distance from point to the next point in the array
         # that is the reason to insert reference point before every point
-        lat_pts = np.insert(lat_pts,range(0,len(lat_pts)), lat_ob[idx])
-        lon_pts = np.insert(lon_pts,range(0,len(lon_pts)), lon_ob[idx])
+        lat_pts = np.insert(lat_pts,list(range(0,len(lat_pts))), lat_ob[idx])
+        lon_pts = np.insert(lon_pts,list(range(0,len(lon_pts))), lon_ob[idx])
         distance_pts = seawater.dist(lat_pts, lon_pts)
         #distances repeat themselves so only pick every alternative distance
         distance_pts = distance_pts[0][::2]
@@ -230,19 +230,19 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
            i_e = i_0 + 2
         lat_slice = slice(max(lat_lon_index[0],0),min(lat_lon_index[0]+1+1,len_lat))
         lon_slice = slice(max(lat_lon_index[1],0),min(lat_lon_index[1]+1+1,len_lon))   
-        print 'method2', lon_slice, lat_slice
+        print('method2', lon_slice, lat_slice)
         lat_slice = slice(j_0,j_e)
         lon_slice = slice(i_0,i_e)
-        print 'method1', lon_slice, lat_slice
+        print('method1', lon_slice, lat_slice)
         lat_pts = lat[lat_slice, lon_slice]
         lon_pts = lon[lat_slice, lon_slice]
-        print lat_pts, lon_pts
-        print lat_lon_index[0], lat_lon_index[1] 
-        print len_lon, len_lat, lat_lon_index[0], lat_lon_index[1]
+        print(lat_pts, lon_pts)
+        print(lat_lon_index[0], lat_lon_index[1]) 
+        print(len_lon, len_lat, lat_lon_index[0], lat_lon_index[1])
         dy,py=seawater.dist(lat_pts[:,0], lon_pts[:,0])
         dx,px=seawater.dist(lat_pts[0,:], lon_pts[0,:])
         r = np.rint(np.ceil(dr/np.amax([dx,dy])))
-        print dx, dy, r
+        print(dx, dy, r)
         lat_slice = slice(max(lat_lon_index[0]-r,0),min(lat_lon_index[0]+r+1,len_lat))
         lon_slice = slice(max(lat_lon_index[1]-r,0),min(lat_lon_index[1]+r+1,len_lon))   
         lat_pts = lat[lat_slice, lon_slice]
@@ -252,8 +252,8 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
         lon_pts = np.ravel(lon_pts)
         # NOTE: seawater package calculates the distance from point to the next point in the array
         # that is the reason to insert reference point before every point
-        lat_pts = np.insert(lat_pts,range(0,len(lat_pts)), lat_lb[idx])
-        lon_pts = np.insert(lon_pts,range(0,len(lon_pts)), lon_lb[idx])
+        lat_pts = np.insert(lat_pts,list(range(0,len(lat_pts))), lat_lb[idx])
+        lon_pts = np.insert(lon_pts,list(range(0,len(lon_pts))), lon_lb[idx])
         distance_pts = seawater.dist(lat_pts, lon_pts)
         #distances repeat themselves so only pick every alternative distance
         distance_pts = distance_pts[0][::2]

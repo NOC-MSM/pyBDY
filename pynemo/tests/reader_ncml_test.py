@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
         testfile = os.path.join(testpath, "testremote.ncml")
         sd = Reader(testfile,0).grid
         dataset = Data2(sd.dataset,"time_counter")
-        self.assertEquals(len(dataset), 8, "There should 8 datasets")
+        self.assertEqual(len(dataset), 8, "There should 8 datasets")
     
     def testVariable(self):
         init_jnius()
@@ -80,11 +80,11 @@ class Test(unittest.TestCase):
         testpath, file_name = os.path.split(__file__)
         testfile = os.path.join(testpath, "testremote.ncml")
         repo = Reader(testfile,0)
-        self.assertEquals(len(repo['t'].time_counter), 8, "Time counter should be 8")
-        self.assertEquals(repo['t'].time_counter[0], 691416000, "The first time value doesn't match")
+        self.assertEqual(len(repo['t'].time_counter), 8, "Time counter should be 8")
+        self.assertEqual(repo['t'].time_counter[0], 691416000, "The first time value doesn't match")
         repo = Reader(testfile,100)
-        self.assertEquals(len(repo['t'].time_counter), 8, "Time counter should be 8")
-        self.assertEquals(repo['t'].time_counter[0], 691416100, "The first time value doesn't match")
+        self.assertEqual(len(repo['t'].time_counter), 8, "Time counter should be 8")
+        self.assertEqual(repo['t'].time_counter[0], 691416100, "The first time value doesn't match")
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

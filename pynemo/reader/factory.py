@@ -15,13 +15,13 @@ from netCDF4 import Dataset
 
 def GetReader(uri, t_adjust, reader_type=None):
     if reader_type is None:
-        print uri
+        print(uri)
         if uri.endswith(".ncml"):
             reader_type = "NcML"
         elif os.path.isdir(uri):
             reader_type = "Directory"
         else:
-            print "Error input should be a NcML file or URL or a Local directory"
+            print("Error input should be a NcML file or URL or a Local directory")
             return None
     if reader_type == "NcML":
         return NcMLReader(uri,t_adjust)

@@ -74,7 +74,7 @@ def bdy_sections(nbidta,nbjdta,nbrdta,rw):
     count = 0
     flag = 0
     mark = 0
-    source_tree = sp.cKDTree(zip(outer_rim_i, outer_rim_j)) 
+    source_tree = sp.cKDTree(list(zip(outer_rim_i, outer_rim_j))) 
     id_order = np.ones((nbdy,), dtype=np.int)*source_tree.n
     id_order[count] = 0 # use index 0 as the starting point 
     count += 1
@@ -85,8 +85,8 @@ def bdy_sections(nbidta,nbjdta,nbrdta,rw):
 
     while count <= nbdy:
         
-        lcl_pt = zip([outer_rim_i[id_order[count-1]]],
-                     [outer_rim_j[id_order[count-1]]])
+        lcl_pt = list(zip([outer_rim_i[id_order[count-1]]],
+                     [outer_rim_j[id_order[count-1]]]))
         junk, an_id = source_tree.query(lcl_pt, k=3, distance_upper_bound=1.1)
         
         if an_id[0,1] in id_order:
@@ -127,4 +127,29 @@ def bdy_transport():
     Keyword arguments:
     """
     raise NotImplementedError
+
+def dist(self, x, y):
+     """
+     Return the distance between two points.
+     """
+     d = x-y
+     return np.sqrt(np.dot(d, d))
     
+def dist_point_to_segment(p, s0, s1):
+     """
+     Get the distance of a point to a segment.
+       *p*, *s0*, *s1* are *xy* sequences
+     This algorithm from
+     http://geomalgorithms.com/a02-_lines.html
+     """
+     v = s1 - s0
+     w = p - s0
+     c1 = np.dot(w, v)
+     if c1 <= 0:
+         return dist(p, s0)
+     c2 = np.dot(v, v)
+     if c2 <= c1:
+         return dist(p, s1)
+     b = c1 / c2
+     pb = s0 + b * v
+     return dist(p, pb)

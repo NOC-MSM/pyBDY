@@ -10,7 +10,7 @@ import string
 import logging
 import numpy as np
 import jnius_config
-from netCDF4 import netcdftime
+from cftime import utime 
 ncmlpath, file_name = os.path.split(__file__)
 ncmlpath = os.path.join(ncmlpath, "jars", "netcdfAll-4.6.jar") 
 jnius_config.set_classpath('.',ncmlpath)
@@ -22,7 +22,7 @@ try:
         proxy_port = proxylist[1]        
         jnius_config.add_options('-Dhttp.proxyHost='+proxy_host,'-Dhttp.proxyPort='+proxy_port)
 except:
-    print "Didn't find a proxy environment variable"
+    print("Didn't find a proxy environment variable")
 NetcdfDataset = None
 NcMLReader = None
 Section = None
@@ -37,7 +37,7 @@ try:
         Section = autoclass('ucar.ma2.Section')
     init_jnius()
 except ImportError:
-    print 'Warning: Please make sure pyjnius is installed and jvm.dll/libjvm.so/libjvm.dylib is in the path'
+    print('Warning: Please make sure pyjnius is installed and jvm.dll/libjvm.so/libjvm.dylib is in the path')
 
 time_counter_const = "time_counter"
 class Reader(object):
@@ -78,7 +78,7 @@ class Reader(object):
         grid.time_counter = timevar[:]+t_adjust
         grid.date_counter = []
         for index in range(0,len(grid.time_counter)):            
-            grid.date_counter.append(netcdftime.utime(grid.units,
+            grid.date_counter.append(utime(grid.units,
                                                       grid.calendar).num2date(grid.time_counter[index])) 
 
     def close(self):

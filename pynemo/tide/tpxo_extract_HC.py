@@ -18,21 +18,21 @@ class TpxoExtract(object):
         """initialises the Extract of tide information from the netcdf
            Tidal files"""
 	# Set tide model
-	tide_model = 'TPXO'
+        tide_model = 'TPXO'
 
-	if tide_model == 'TPXO':  # Define stuff to generalise Tide model
-	   hRe_name = 'hRe'
-	   hIm_name = 'hIm'
-	   lon_z_name = 'lon_z'
-	   lat_z_name = 'lat_z'	
+        if tide_model == 'TPXO':  # Define stuff to generalise Tide model
+           hRe_name = 'hRe'
+           hIm_name = 'hIm'
+           lon_z_name = 'lon_z'
+           lat_z_name = 'lat_z'	
            URe_name = 'URe'
-	   UIm_name = 'UIm'
-	   lon_u_name = 'lon_u'
-	   lat_u_name = 'lat_u'
+           UIm_name = 'UIm'
+           lon_u_name = 'lon_u'
+           lat_u_name = 'lat_u'
            VRe_name = 'VRe'
-	   VIm_name = 'VIm'
-	   lon_v_name = 'lon_v'
-	   lat_v_name = 'lat_v'
+           VIm_name = 'VIm'
+           lon_v_name = 'lon_v'
+           lat_v_name = 'lat_v'
            mz_name = 'mz'
            mu_name = 'mu'
            mv_name = 'mv'
@@ -52,18 +52,11 @@ class TpxoExtract(object):
            self.cons = []
            for ncon in range(self.height_dataset.variables['con'].shape[0]):
               self.cons.append(self.height_dataset.variables['con'][ncon, :].tostring().strip())
-
-
-
-
-	elif tide_model == 'FES':
-	   constituents = ['2N2','EPS2','J1','K1','K2','L2','LA2','M2','M3','M4','M6','M8','MF','MKS2','MM','MN4','MS4','MSF','MSQM','MTM','MU2','N2','N4','NU2','O1','P1','Q1','R2','S1','S2','S4','SA','SSA','T2']
-           print 'did not actually code stuff for FES in this routine. Though that would be ideal. Instead put it in fes_extract_HC.py'
-    
-
-
-   	else:
-	   print 'Don''t know that tide model'
+        elif tide_model == 'FES':
+           constituents = ['2N2','EPS2','J1','K1','K2','L2','LA2','M2','M3','M4','M6','M8','MF','MKS2','MM','MN4','MS4','MSF','MSQM','MTM','MU2','N2','N4','NU2','O1','P1','Q1','R2','S1','S2','S4','SA','SSA','T2']
+           print('did not actually code stuff for FES in this routine. Though that would be ideal. Instead put it in fes_extract_HC.py')
+        else:
+           print('Don''t know that tide model')
 
         # Wrap coordinates in longitude if the domain is global
         glob = 0
@@ -130,7 +123,7 @@ class TpxoExtract(object):
                                                                VRe_name, VIm_name, lon_v_name, lat_v_name,
                                                                lon, lat, depth, maskname=mv_name)
         else:
-            print 'Unknown grid_type'
+            print('Unknown grid_type')
             return
 
     def interpolate_constituents(self, nc_dataset, real_var_name, img_var_name, lon_var_name,
@@ -221,7 +214,7 @@ def bilinear_interpolation(lon, lat, data, lon_new, lat_new):
 #    n = lon.size
 #    m = lat.size
     if lon.size != data.shape[0] or lat.size != data.shape[1]:
-        print 'Check Dimensions'
+        print('Check Dimensions')
         return np.NaN
     if glob == 1:
         lon = np.concatenate(([lon[0] - 2 * lon_resolution, lon[0] - lon_resolution, ],

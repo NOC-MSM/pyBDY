@@ -13,7 +13,7 @@
 # cd_type: define the nature of pt2d grid points
 
 import numpy as np
-from reader.factory import GetFile
+from .reader.factory import GetFile
 import logging
 #     pylint: disable=E1101
 

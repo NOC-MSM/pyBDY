@@ -34,7 +34,7 @@ $Last commit on:$
 import time
 import logging
 import numpy as np
-from PyQt4.QtGui import QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 
 #Local imports
 from pynemo import pynemo_settings_editor
@@ -245,13 +245,13 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                       'values in input bdy file')
         return
     
-    yrs = range(yr_000, yr_end+1)
+    yrs = list(range(yr_000, yr_end+1))
     
     if yr_end - yr_000 >= 1:
-        if range(mn_000, mn_end+1) < 12:
+        if list(range(mn_000, mn_end+1)) < 12:
             logger.info('Warning: All months will be extracted as the number '+
                         'of years is greater than 1')
-        mns = range(1,13)
+        mns = list(range(1,13))
     else:
         mn_000 = settings['month_000']
         mn_end = settings['month_end']
@@ -259,7 +259,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             logging.error('Please check the nn_month_000 and nn_month_end '+
                           'values in input bdy file')
             return
-        mns = range(mn_000, mn_end+1)
+        mns = list(range(mn_000, mn_end+1))
     
     # Enter the loop for each year and month extraction
     
@@ -312,7 +312,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     
     # Initialise the mapping indices for each grid 
     
-    for key, val in emap.items():
+    for key, val in list(emap.items()):
         
         extract_obj[key] = extract.Extract(Setup.settings, 
                                            SourceCoord, DstCoord,
@@ -325,7 +325,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         
     for year in yrs:
         for month in mns:
-            for key, val in emap.items():
+            for key, val in list(emap.items()):
                 
                 # Extract the data for a given month and year
                 
@@ -380,7 +380,7 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
         const_name = setup_var.settings['clname'][tide_con]
         const_name = const_name.replace("'", "").upper()
 
-        for key,val in tmap.items():
+        for key,val in list(tmap.items()):
             
             fout_tide = setup_var.settings['dst_dir']+             \
                         setup_var.settings['fn']+                  \
