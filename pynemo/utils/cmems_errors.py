@@ -11,7 +11,7 @@ MOTU_retry = {'004-27': 'Error in NetcdfWriter finish',
               'Excp 11': 'Execution failed: [Excp 11] "Dataset retrival incomplete.'
               }
 # errors that are not worth retrying e.g. cmems network is down
-MOTU_critical = {'50': 'Network Down'}
+MOTU_critical = {'Errno 50': 'Network Down'}
 # FTP specific errors
 FTP_retry = {'999': 'add ftp retry errors here' }
 FTP_critical = {'999': 'add ftp critical errors here' }
