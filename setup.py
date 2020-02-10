@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 from codecs import open
-from os import path
+from os import path, environ
 
 here = path.abspath(path.dirname(__file__))
 
@@ -16,10 +16,10 @@ setup(
       long_description = long_description,
       
       #The project's main homepage
-      url = 'https://github.com/jdha/PyNEMO',
+      url = 'https://github.com/NOC-MSM/PyNEMO',
       
       #Author details
-      author='James Harle, Srikanth Nagella, Shirley Crompton',
+      author='James Harle, John Kazimierz Farey, Srikanth Nagella, Shirley Crompton, Tom Prime',
       author_email='jdha@noc.ac.uk',
       
       #Choose your license
@@ -33,14 +33,14 @@ setup(
                    'License :: OSI Approved :: GPL License',
                    
                    #Specify the python versions supported
-                   'Programming Language :: Python :: 2.7'
+                   'Programming Language :: Python :: 3.7'
                    ],
       
       keywords='Oceanography, NEMO',
       
       packages=['pynemo','pynemo.tests','pynemo.gui','pynemo.utils','pynemo.tide','pynemo.reader'],
       
-      install_requires=['netCDF4>=1.1.9','scipy','numpy','matplotlib', 'basemap', 'thredds_crawler', 'seawater'],
+      install_requires=['netCDF4','scipy','numpy','matplotlib', 'basemap', 'thredds_crawler', 'seawater'],
       
       include_package_data=True,
       #The data files that needs to be included in packaging
@@ -48,7 +48,7 @@ setup(
                     
                     },
       #If files are needs outside the installed packages
-      data_files=[],
+      data_files=[(path.join(environ['CONDA_PREFIX'], 'share/proj/epsg'), ['pynemo/share/epsg'])],
       
       entry_points={
                     'console_scripts':[
