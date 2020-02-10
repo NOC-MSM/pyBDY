@@ -77,7 +77,9 @@ With the following command being required to set the environment variable::
 
 The conda environment creation command has not yet been tested. The yml document (can be opened using text editor) gives a list of all the modules and their versions that are required for PyNEMO so a environment can be constructed using this document as reference (or if you use pip!)
 
-**Update** conda environment yaml file has been tested (and works!) on a Macbook Pro 2015 and iMac 2013 running Anaconda 3.7 and Miniconda 3.7 respectively. 
+**Update** conda environment yaml file has been tested (and works!) on a Macbook Pro 2015 and iMac 2013 running Anaconda 3.7 and Miniconda 3.7 respectively. May need to set::
+
+    export JAVA_HOME="$(/usr/libexec/java_home -v 1.8)"
 
 Contribution guidelines
 -----------------------
