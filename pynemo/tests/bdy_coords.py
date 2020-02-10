@@ -12,6 +12,7 @@
 from time import clock
 import numpy as np
 import logging
+import importlib
 
 #local imports
 from pynemo import nemo_bdy_setup as setup
@@ -25,7 +26,7 @@ from pynemo import pynemo_settings_editor
 from pynemo.utils import Constants
 
 from pynemo.gui.nemo_bdy_mask import Mask as Mask_File
-from PyQt4.QtGui import QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 #import pickle
 
 
@@ -60,7 +61,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     logger.info('Done Mask')
 
     DstCoord.bdy_msk = bdy_msk == 1
-    reload(gen_grid)
+    importlib.reload(gen_grid)
     start = clock()
     logger.info('start bdy_t')
     grid_t = gen_grid.Boundary(bdy_msk, settings, 't')
@@ -91,7 +92,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     bdy_ind = {'t': grid_t, 'u': grid_u, 'v': grid_v, 'f': grid_f}
 
-    for k in bdy_ind.keys():
+    for k in list(bdy_ind.keys()):
         logger.info('bdy_ind %s %s %s', k, bdy_ind[k].bdy_i.shape, bdy_ind[k].bdy_r.shape)
 
     start = clock()
@@ -143,7 +144,7 @@ def _get_mask(Setup, mask_gui):
                 mask.apply_border_mask(Constants.DEFAULT_MASK_PIXELS)
                 bdy_msk = mask.data
         except ValueError: # why is this except here? as there is an else: statement TODO
-            print 'something wrong?'
+            print ('something wrong?')
             return
     if np.amin(bdy_msk) == 0:
         # Mask is not set throw a warning message and set border to 1px.
