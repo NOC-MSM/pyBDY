@@ -6,13 +6,14 @@ Editor for namelist.bdy file
 # pylint: disable=E1103
 # pylint: disable=no-name-in-module
 # pylint: disable=E1002
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import pyqtSignal, Qt, QRect, QPoint
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import pyqtSignal, Qt, QRect, QPoint
 
 import ast
-from PyQt4.QtGui import QMessageBox, QRegion, QIcon, QToolTip, QCursor
+from PyQt5.QtGui import QRegion, QIcon, QCursor
+from PyQt5.QtWidgets import QMessageBox, QToolTip
 
-class NameListEditor(QtGui.QWidget):
+class NameListEditor(QtWidgets.QWidget):
     '''
     This class creates a gui for the Namelist file options
     '''
@@ -34,25 +35,25 @@ class NameListEditor(QtGui.QWidget):
         '''
         Initialises the UI components of the GUI
         '''
-        client = QtGui.QWidget(self)
+        client = QtWidgets.QWidget(self)
         # Create the Layout to Grid
-        grid = QtGui.QGridLayout()
+        grid = QtWidgets.QGridLayout()
 
         # Loop through the settings and create widgets for each setting
         index = 0
         for setting in self.settings:
             # initialises setting Widget
-            label = QtGui.QLabel(setting)
-            qlabel = QtGui.QPushButton("")
-            qlabel.setIcon(self.style().standardIcon(QtGui.QStyle.SP_MessageBoxQuestion))
+            label = QtWidgets.QLabel(setting)
+            qlabel = QtWidgets.QPushButton("")
+            qlabel.setIcon(self.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxQuestion))
             if type(self.settings[setting]).__name__ in ['str', 'float', 'double',
                                                          'int', 'time', 'dict']:
-                text = QtGui.QLineEdit(self)
+                text = QtWidgets.QLineEdit(self)
                 text.setText(str(self.settings[setting]))
                 text.textChanged.connect(lambda value=setting,\
                                          var_name=setting: self.label_changed(value, var_name))
-                if self.bool_settings.has_key(setting):
-                    chkbox = QtGui.QCheckBox(self)
+                if setting in self.bool_settings:
+                    chkbox = QtWidgets.QCheckBox(self)
                     chkbox.setChecked(self.bool_settings[setting])
                     chkbox.stateChanged.connect(lambda value=setting,\
                                                 var_name=setting:\
@@ -60,7 +61,7 @@ class NameListEditor(QtGui.QWidget):
                     grid.addWidget(chkbox, index, 0)
 
             elif type(self.settings[setting]).__name__ == 'bool':
-                text = QtGui.QComboBox(self)
+                text = QtWidgets.QComboBox(self)
                 text.insertItem(0, 'True')
                 text.insertItem(1, 'False')
                 if self.settings[setting]:
@@ -83,22 +84,22 @@ class NameListEditor(QtGui.QWidget):
 
         client.setLayout(grid)
         #scrollbars
-        scroll_area = QtGui.QScrollArea(self)
+        scroll_area = QtWidgets.QScrollArea(self)
         #scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         scroll_area.setWidget(client)
 
         #save cancel buttons
-        btn_widget = QtGui.QWidget(self)
-        hbox_layout = QtGui.QHBoxLayout(self)      
-        btn_save = QtGui.QPushButton('Save')
+        btn_widget = QtWidgets.QWidget(self)
+        hbox_layout = QtWidgets.QHBoxLayout(self)      
+        btn_save = QtWidgets.QPushButton('Save')
         btn_save.clicked.connect(self._btn_save_callback)
-        self.btn_cancel = QtGui.QPushButton('Close')
+        self.btn_cancel = QtWidgets.QPushButton('Close')
         self.btn_cancel.clicked.connect(self._btn_cancel_callback)
         hbox_layout.addWidget(btn_save)
         hbox_layout.addWidget(self.btn_cancel)
         btn_widget.setLayout(hbox_layout)
 
-        box_layout = QtGui.QVBoxLayout(self)
+        box_layout = QtWidgets.QVBoxLayout(self)
         box_layout.addWidget(scroll_area)
         box_layout.addWidget(btn_widget)
         btn_widget.setMaximumWidth(400)
@@ -109,7 +110,7 @@ class NameListEditor(QtGui.QWidget):
 
     def label_changed(self, value, name):
         """ callback when the text is changed in the text box"""
-        self.new_settings[name] = unicode(value).encode('utf_8')
+        self.new_settings[name] = str(value).encode('utf_8')
 
     def combo_index_changed(self, value, name):
         """ callback when the True/False drop down for the settings which has boolean value
@@ -153,7 +154,7 @@ class NameListEditor(QtGui.QWidget):
         try:
             self.mask_settings_update.emit(float(self.settings['mask_max_depth']), float(self.settings['mask_shelfbreak_dist']))
         except KeyError:
-            print 'Set the mask setting mask_max_depth and mask_shelfbreak_dist'
+            print('Set the mask setting mask_max_depth and mask_shelfbreak_dist')
             
         if self.bool_settings['mask_file']:
             self.bathymetry_update.emit(self.settings['bathy'],self.settings['mask_file'])

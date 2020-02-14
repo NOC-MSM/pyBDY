@@ -6,13 +6,13 @@ Created on 6 Aug 2015
 import logging
 import os
 import xml.etree.ElementTree as ET
-from PyQt4 import QtGui
-from PyQt4 import QtCore
-from PyQt4.QtCore import pyqtSlot
-import nemo_ncml_tab_widget
+from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSlot
+from . import nemo_ncml_tab_widget
 from thredds_crawler.crawl import Crawl
 
-class Ncml_generator(QtGui.QDialog):
+class Ncml_generator(QtWidgets.QDialog):
     '''
     Gui editor to capture user input for the purpose of generating NCML representation of pynemo source datasets.
     '''
@@ -30,35 +30,35 @@ class Ncml_generator(QtGui.QDialog):
             self.baseFile = os.path.join(testpath,'base.ncml')
         else:
             self.baseFile = basefile
-            print 'ncml baseFile : ', str(self.baseFile)
+            print('ncml baseFile : ', str(self.baseFile))
         
         self.filename = None # store the output file pointer      
         self.initUI()
         
         
     def initUI(self):
-        QtGui.QToolTip.setFont(QtGui.QFont('SansSerif', 11))
+        QtWidgets.QToolTip.setFont(QtGui.QFont('SansSerif', 11))
         '''
         vbox is the top container
         '''
         #the 
-        vbox = QtGui.QVBoxLayout(self)
+        vbox = QtWidgets.QVBoxLayout(self)
         vbox.setSpacing(10)
         vbox.setContentsMargins(10, 10, 5, 5)
         
         '''
         top panel for output file
         '''
-        top_outfile_label = QtGui.QLabel(unicode('Output filename').encode('utf-8'))
-        self.top_outfile_name = QtGui.QLineEdit()    #location is pre-defined
-        self.top_outfile_name.setToolTip(unicode('Define output file').encode('utf-8'))
+        top_outfile_label = QtWidgets.QLabel('Output filename')
+        self.top_outfile_name = QtWidgets.QLineEdit()    #location is pre-defined
+        self.top_outfile_name.setToolTip('Define output file')
         self.top_outfile_name.returnPressed.connect(self.get_fname_input)
         
-        top_outfile_button = QtGui.QPushButton(unicode('Select file').encode('utf-8'))
+        top_outfile_button = QtWidgets.QPushButton('Select file')
         top_outfile_button.clicked.connect(self.get_fname)
         
-        top_grpBox = QtGui.QGroupBox(unicode('Define output file').encode('utf-8'), None)
-        top_grid = QtGui.QGridLayout(top_grpBox)
+        top_grpBox = QtWidgets.QGroupBox('Define output file', None)
+        top_grid = QtWidgets.QGridLayout(top_grpBox)
         top_grid.setVerticalSpacing(5)
         top_grid.setHorizontalSpacing(10)
         top_grid.addWidget(top_outfile_label, 1, 0)
@@ -68,23 +68,23 @@ class Ncml_generator(QtGui.QDialog):
         '''
         middle panel for tab folder
         '''
-        self.tabWidget = QtGui.QTabWidget()
-        self.tracer_tab = nemo_ncml_tab_widget.Ncml_tab(unicode("Tracer").encode('utf-8'))
+        self.tabWidget = QtWidgets.QTabWidget()
+        self.tracer_tab = nemo_ncml_tab_widget.Ncml_tab("Tracer")
         self.tracer_tab.setEnabled(False)
-        self.dynamic_tab = nemo_ncml_tab_widget.Ncml_tab(unicode("Dynamics").encode('utf-8'))
+        self.dynamic_tab = nemo_ncml_tab_widget.Ncml_tab("Dynamics")
         self.dynamic_tab.setEnabled(False)
-        self.ice_tab = nemo_ncml_tab_widget.Ncml_tab(unicode("Ice").encode('utf-8'))
+        self.ice_tab = nemo_ncml_tab_widget.Ncml_tab("Ice")
         self.ice_tab.setEnabled(False)
-        self.ecosys_tab = nemo_ncml_tab_widget.Ncml_tab(unicode("Ecosystem").encode('utf-8'))
+        self.ecosys_tab = nemo_ncml_tab_widget.Ncml_tab("Ecosystem")
         self.ecosys_tab.setEnabled(False)
-        self.grid_tab = nemo_ncml_tab_widget.Ncml_tab(unicode("Grid").encode('utf-8'))
+        self.grid_tab = nemo_ncml_tab_widget.Ncml_tab("Grid")
         self.grid_tab.setEnabled(False)
                 
-        self.tabWidget.addTab(self.tracer_tab, unicode("Tracer").encode('utf-8'))
-        self.tabWidget.addTab(self.dynamic_tab, unicode("Dynamics").encode('utf-8'))
-        self.tabWidget.addTab(self.ice_tab, unicode("Ice").encode('utf-8'))
-        self.tabWidget.addTab(self.ecosys_tab, unicode("Ecosystem").encode('utf-8')) # should be disabled
-        self.tabWidget.addTab(self.grid_tab, unicode("Grid").encode('utf-8')) # should be disabled
+        self.tabWidget.addTab(self.tracer_tab, "Tracer")
+        self.tabWidget.addTab(self.dynamic_tab, "Dynamics")
+        self.tabWidget.addTab(self.ice_tab, "Ice")
+        self.tabWidget.addTab(self.ecosys_tab, "Ecosystem") # should be disabled
+        self.tabWidget.addTab(self.grid_tab, "Grid") # should be disabled
         self.tabWidget.setMovable(False)
 #        if self.tabWidget.widget(self.tabWidget.currentIndex()).isEnabled() is True:
         
@@ -93,13 +93,13 @@ class Ncml_generator(QtGui.QDialog):
         '''
         button bar
         '''
-        go_btn = QtGui.QPushButton(unicode('Generate').encode('utf-8'))
-        go_btn.setToolTip(unicode('Add all variable definitions before generating NcML file.').encode('utf-8'))
-        cancel_btn = QtGui.QPushButton(unicode('Cancel').encode('utf-8'))
-        enable_btn = QtGui.QPushButton(unicode('Enable Tab').encode('utf-8'))
+        go_btn = QtWidgets.QPushButton('Generate')
+        go_btn.setToolTip('Add all variable definitions before generating NcML file.')
+        cancel_btn = QtWidgets.QPushButton('Cancel')
+        enable_btn = QtWidgets.QPushButton('Enable Tab')
         #layout button bar        
-        btn_hBox = QtGui.QHBoxLayout(None)
-        btn_hBox.setMargin(5)
+        btn_hBox = QtWidgets.QHBoxLayout(None)
+        btn_hBox.setContentsMargins(5, 5, 5, 5)
         btn_hBox.setSpacing(10)
         btn_hBox.setAlignment(QtCore.Qt.AlignRight)
         btn_hBox.addWidget(enable_btn)
@@ -120,7 +120,7 @@ class Ncml_generator(QtGui.QDialog):
         
         #self.setLayout(grp_box)        
         self.setWindowIcon(QtGui.QIcon('/Users/jdha/anaconda/lib/python2.7/site-packages/pynemo-0.2-py2.7.egg/pynemo/gui/nemo_icon.png'))    #doesn't work       
-        self.setWindowTitle(unicode("PyNEMO NcML Generator").encode('utf-8'))
+        self.setWindowTitle("PyNEMO NcML Generator")
         self.resize(650,300)
         
         #has to change the default focus to stop the output file QTextedit to trigger the widget in focus when enter is pressed.  Not sure why this happens???
@@ -137,7 +137,7 @@ class Ncml_generator(QtGui.QDialog):
         # When you call getOpenFileName, a file picker dialog is created
         # and if the user selects a file, it's path is returned, and if not
         # (ie, the user cancels the operation) None is returned
-        fname = QtGui.QFileDialog.getSaveFileName(self, 'Select output file', '', selectedFilter='*.ncml')
+        fname = QtWidgets.QFileDialog.getSaveFileName(self, 'Select output file', '', selectedFilter='*.ncml')
         if fname:
             self.filename = fname #returns a QString
             self.top_outfile_name.setText(str(fname))
@@ -155,9 +155,9 @@ class Ncml_generator(QtGui.QDialog):
     @pyqtSlot()
     def enable_btn_update(self, enable_btn):
         if self.tabWidget.widget(self.tabWidget.currentIndex()).isEnabled() is True:
-            enable_btn.setText(unicode('Disable Tab').encode('utf-8'))
+            enable_btn.setText('Disable Tab')
         else:
-            enable_btn.setText(unicode('Enable Tab').encode('utf-8'))
+            enable_btn.setText('Enable Tab')
     '''
     call back to handle the generate button pressed
     '''
@@ -167,10 +167,10 @@ class Ncml_generator(QtGui.QDialog):
         #validate output file
         if self.tabWidget.widget(self.tabWidget.currentIndex()).isEnabled() is True:
             self.tabWidget.widget(self.tabWidget.currentIndex()).setEnabled(False)
-            enable_btn.setText(unicode('Enable Tab').encode('utf-8'))
+            enable_btn.setText('Enable Tab')
         else:
             self.tabWidget.widget(self.tabWidget.currentIndex()).setEnabled(True)
-            enable_btn.setText(unicode('Disable Tab').encode('utf-8'))
+            enable_btn.setText('Disable Tab')
 
     '''
     call back to handle the generate button pressed
@@ -180,14 +180,14 @@ class Ncml_generator(QtGui.QDialog):
         #validate output file
         if self.filename is None or self.filename == "":
             if self.top_outfile_name.text() is None or self.top_outfile_name.text() == "":
-                QtGui.QMessageBox.critical(self, unicode('Something is wrong').encode('utf-8'), unicode('No output file specified!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.critical(self, 'Something is wrong', 'No output file specified!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
                 return
             else:
                 self.filename = self.top_outfile_name.text()
             
         if(os.path.exists(os.path.dirname(str(self.filename)))) == False:
             #if os.path.dirname(os.path.dirname(os.path.exists(os.path.normpath(str(self.filename))))) == False:
-            QtGui.QMessageBox.critical(self, unicode('Something is wrong').encode('utf-8'), unicode('Invalid output directory!  Cannot generate file!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(self, 'Something is wrong', 'Invalid output directory!  Cannot generate file!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
             #print 'invalid target directory!  Cannot generate.'
             return
             
@@ -201,7 +201,7 @@ class Ncml_generator(QtGui.QDialog):
                self.tracer_tab.vosaline.src != "" :
                 tabsList.extend([self.tracer_tab.votemper, self.tracer_tab.vosaline])
             else:
-                QtGui.QMessageBox.information(self, unicode('Something is wrong').encode('utf-8'), unicode('Not all the variables under the tracer tab have been defined!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, 'Something is wrong', 'Not all the variables under the tracer tab have been defined!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
 
         if self.ice_tab.isEnabled() is True:
@@ -210,7 +210,7 @@ class Ncml_generator(QtGui.QDialog):
                self.ice_tab.isnowthi.src != "" :
                 tabsList.extend([self.ice_tab.iicethic, self.ice_tab.ileadfra, self.ice_tab.isnowthi])
             else:
-                QtGui.QMessageBox.information(self, unicode('Something is wrong').encode('utf-8'), unicode('Not all the variables under the ice tab have been defined!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, 'Something is wrong', 'Not all the variables under the ice tab have been defined!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
         if self.dynamic_tab.isEnabled() is True:
             if self.dynamic_tab.vozocrtx.src != ""  and \
@@ -218,7 +218,7 @@ class Ncml_generator(QtGui.QDialog):
                self.dynamic_tab.sossheig.src != "" :
                 tabsList.extend([self.dynamic_tab.vozocrtx, self.dynamic_tab.vomecrty, self.dynamic_tab.sossheig])
             else:
-                QtGui.QMessageBox.information(self, unicode('Something is wrong').encode('utf-8'), unicode('Not all the variables under the dynamics tab have been defined!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, 'Something is wrong', 'Not all the variables under the dynamics tab have been defined!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
         if self.grid_tab.isEnabled() is True:
             if self.grid_tab.gdept.src != ""    and \
@@ -229,14 +229,14 @@ class Ncml_generator(QtGui.QDialog):
                self.grid_tab.e3v.src != "" :
                 tabsList.extend([self.grid_tab.gdept, self.grid_tab.gdepw, self.grid_tab.mbathy, self.grid_tab.e3t, self.grid_tab.e3u, self.grid_tab.e3v])
             else:
-                QtGui.QMessageBox.information(self, unicode('Something is wrong').encode('utf-8'), unicode('Not all the variables under the grid tab have been defined!').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+                QtWidgets.QMessageBox.information(self, 'Something is wrong', 'Not all the variables under the grid tab have been defined!', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
         try:
             self.generateNcML(tabsList) #go ahead and do it
         except:
             raise
 
-        QtGui.QMessageBox.information(self, unicode('Success.').encode('utf-8'), unicode('NcML file generated.').encode('utf-8'), QtGui.QMessageBox.Ok, QtGui.QMessageBox.Ok)
+        QtWidgets.QMessageBox.information(self, 'Success.', 'NcML file generated.', QtWidgets.QMessageBox.Ok, QtWidgets.QMessageBox.Ok)
 
     '''
     Function to generates the NcML text and write it to the user defined output file
@@ -248,68 +248,68 @@ class Ncml_generator(QtGui.QDialog):
         self.root = self.tree.getroot()
         #create a netcdf element for each tab variable
         for tab in tabsList:
-            netcdfE = ET.Element(ns+unicode('netcdf').encode('utf-8')) #src directory is converted to the correct format when added/
+            netcdfE = ET.Element(ns+'netcdf') #src directory is converted to the correct format when added/
             if str(tab.src).startswith("http:") or str(tab.src).startswith("https:"):
                 #Its url so use thredds crawler to get the urls
                 urls = self.url_trawler(tab.src,str(tab.regex))
-                aggE = ET.Element(ns+unicode('aggregation').encode('utf-8'), name=unicode(str(tab.name)).encode('utf-8'), type=unicode('joinExisting').encode('utf-8'), dimName=unicode('time_counter').encode('utf-8')) #tab.name already encoded                
+                aggE = ET.Element(ns+'aggregation', name=str(tab.name), type='joinExisting', dimName='time_counter') #tab.name already encoded                
                 for nc_url in urls:
-                    tcNetcdf = ET.Element(ns+unicode('netcdf').encode('utf-8'), location=unicode(str(nc_url)).encode('utf-8'))
+                    tcNetcdf = ET.Element(ns+'netcdf', location=str(nc_url))
                     aggE.append(tcNetcdf)
                 netcdfE.append(aggE)
             else:
-                scanE = ET.Element(ns+unicode('scan').encode('utf-8'), location=unicode(str(tab.src)).encode('utf-8'), regExp=unicode(str(tab.regex)).encode('utf-8'))
+                scanE = ET.Element(ns+'scan', location=str(tab.src), regExp=str(tab.regex))
                 if tab.subdirs == True:
-                    scanE.set(unicode('subdirs').encode('utf-8'), unicode('true').encode('utf-8'))
-                aggE = ET.Element(ns+unicode('aggregation').encode('utf-8'), name=unicode(str(tab.name)).encode('utf-8'), type=unicode('joinExisting').encode('utf-8'), dimName=unicode('time_counter').encode('utf-8')) #tab.name already encoded
+                    scanE.set('subdirs', 'true')
+                aggE = ET.Element(ns+'aggregation', name=str(tab.name), type='joinExisting', dimName='time_counter') #tab.name already encoded
                 aggE.append(scanE)
                 netcdfE.append(aggE)
             self.root[0].append(netcdfE)    #add the new netcdf element to the top aggregation 
             
             #deal with variable name change TODO put this into a loop?
             if tab.old_name is not None and tab.old_name != "":
-                vname = unicode('variable').encode('utf-8')
+                vname = 'variable'
                 #v is None          
-                if tab.name == unicode('temperature').encode('utf-8') and tab.old_name != unicode('votemper').encode('utf-8'):
+                if tab.name == 'temperature' and tab.old_name != 'votemper':
                     v = ET.Element(ns+vname, name='votemper', orgName = str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('salinity').encode('utf-8') and tab.old_name != unicode('vosaline').encode('utf-8'):
+                elif tab.name == 'salinity' and tab.old_name != 'vosaline':
                     v = ET.Element(ns+vname, name='vosaline', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('ice_thickness').encode('utf-8') and tab.old_name != unicode('iicethic').encode('utf-8'):
+                elif tab.name == 'ice_thickness' and tab.old_name != 'iicethic':
                     v = ET.Element(ns+vname, name='iicethic', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('leads_fraction').encode('utf-8') and tab.old_name != unicode('ileadfra').encode('utf-8'):
+                elif tab.name == 'leads_fraction' and tab.old_name != 'ileadfra':
                     v = ET.Element(ns+vname, name='ileadfra', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('snow_thickness').encode('utf-8') and tab.old_name != unicode('isnowthi').encode('utf-8'):
+                elif tab.name == 'snow_thickness' and tab.old_name != 'isnowthi':
                     v = ET.Element(ns+vname, name='isnowthi', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('zonal_velocity').encode('utf-8') and tab.old_name != unicode('vozocrtx').encode('utf-8'):
+                elif tab.name == 'zonal_velocity' and tab.old_name != 'vozocrtx':
                     v = ET.Element(ns+vname, name='vozocrtx', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('meridian_velocity').encode('utf-8') and tab.old_name != unicode('vomecrty').encode('utf-8'):
+                elif tab.name == 'meridian_velocity' and tab.old_name != 'vomecrty':
                     v = ET.Element(ns+vname, name='vomecrty', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('sea_surface_height').encode('utf-8') and tab.old_name != unicode('sossheig').encode('utf-8'):
+                elif tab.name == 'sea_surface_height' and tab.old_name != 'sossheig':
                     v = ET.Element(ns+vname, name='sossheig', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('depth_at_t_points').encode('utf-8') and tab.old_name != unicode('gdept').encode('utf-8'):
+                elif tab.name == 'depth_at_t_points' and tab.old_name != 'gdept':
                     v = ET.Element(ns+vname, name='gdept', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('depth_at_w_points').encode('utf-8') and tab.old_name != unicode('gdepw').encode('utf-8'):
+                elif tab.name == 'depth_at_w_points' and tab.old_name != 'gdepw':
                     v = ET.Element(ns+vname, name='gdepw', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('number_of_wet_levels').encode('utf-8') and tab.old_name != unicode('mbathy').encode('utf-8'):
+                elif tab.name == 'number_of_wet_levels' and tab.old_name != 'mbathy':
                     v = ET.Element(ns+vname, name='mbathy', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('vertical_scale_factors_at_t_points').encode('utf-8') and tab.old_name != unicode('e3t').encode('utf-8'):
+                elif tab.name == 'vertical_scale_factors_at_t_points' and tab.old_name != 'e3t':
                     v = ET.Element(ns+vname, name='e3t', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('vertical_scale_factors_at_u_points').encode('utf-8') and tab.old_name != unicode('e3u').encode('utf-8'):
+                elif tab.name == 'vertical_scale_factors_at_u_points' and tab.old_name != 'e3u':
                     v = ET.Element(ns+vname, name='e3u', orgName =  str(tab.old_name))
                     self.root.append(v)
-                elif tab.name == unicode('vertical_scale_factors_at_v_points').encode('utf-8') and tab.old_name != unicode('e3v').encode('utf-8'):
+                elif tab.name == 'vertical_scale_factors_at_v_points' and tab.old_name != 'e3v':
                     v = ET.Element(ns+vname, name='e3v', orgName =  str(tab.old_name))
                     self.root.append(v)
                    
@@ -317,7 +317,8 @@ class Ncml_generator(QtGui.QDialog):
         try:
             self.indent(self.root, 0)   #24Aug15 format the xml for pretty printing
             self.tree.write(self.filename, encoding='utf-8')
-        except IOError as (errno, strerror):
+        except IOError as xxx_todo_changeme:
+            (errno, strerror) = xxx_todo_changeme.args
             self.logger.error("I/O error({0}): {1}".format(errno, strerror))
         except:
             self.logger.error('Error generating ncml file')
@@ -331,9 +332,9 @@ class Ncml_generator(QtGui.QDialog):
             parser = ET.XMLParser(encoding="utf-8")
             tree = ET.parse(self.baseFile, parser=parser)
             return tree
-        except ET.ParseError, v:
+        except ET.ParseError as v:
                 row, column = v.position
-                print "error on row", row, "column", column, ":", v
+                print("error on row", row, "column", column, ":", v)
                 
     '''
     Function to format xml.  Based on code provided by http://effbot.org/zone/element-lib

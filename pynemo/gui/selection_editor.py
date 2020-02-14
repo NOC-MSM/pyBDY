@@ -9,7 +9,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from matplotlib.artist import Artist
-from matplotlib.mlab import dist_point_to_segment
+from pynemo.utils.nemo_bdy_lib import dist_point_to_segment
 from matplotlib.widgets import RectangleSelector
 
 
@@ -58,12 +58,12 @@ class PolygonEditor(object):
             self.reset_line()
             self.reset_polygon()
         elif self.xy_values.shape[0] <= 2: # point or line for 1 or 2 points
-            xval, yval = zip(*self.xy_values)
+            xval, yval = list(zip(*self.xy_values))
             if self.line == None:
                 self.line = Line2D(xval, yval, marker='o', markerfacecolor='r', animated=True)
                 self.axis.add_line(self.line)
             else:
-                self.line.set_data(zip(*self.xy_values))
+                self.line.set_data(list(zip(*self.xy_values)))
             self.reset_polygon()
         else: # more than 2 points if polygon is not created then creates one and draws
             if self.polygon == None:
@@ -72,7 +72,7 @@ class PolygonEditor(object):
                 self.axis.add_patch(self.polygon)
             else:
                 self.polygon.xy = self.xy_values
-            self.line.set_data(zip(*self.xy_values))
+            self.line.set_data(list(zip(*self.xy_values)))
         self.draw_callback(None)
         self.canvas.draw()
 

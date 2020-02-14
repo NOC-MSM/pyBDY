@@ -45,7 +45,7 @@ class Test(unittest.TestCase):
         
         #test
         setup = Setup('test.bdy')
-        self.assertEquals(setup.settings,{'nonambigious':True},"Didn't recognize valid setting")
+        self.assertEqual(setup.settings,{'nonambigious':True},"Didn't recognize valid setting")
         
         #delete file
         os.remove('test.bdy')                
@@ -64,12 +64,12 @@ class Test(unittest.TestCase):
                 
         #test
         setup = Setup('test.bdy')
-        print setup.settings
-        self.assertEquals(setup.settings['nonambigious'],False,"Didn't recognize logical setting")
-        self.assertEquals(setup.settings['floatval'],10.9,"Didn't recognize rn value in setting")
-        self.assertEquals(setup.settings['floatval2'],20.9,"Didn't recongnize nn value in setting")
-        self.assertEquals(setup.settings['stringval'],'coordinates.nc',"Didn't recognize cn string value in setting")
-        self.assertEquals(setup.settings['stringval2'],'gregorian',"Didn't recognize sn string value in setting")
+        print(setup.settings)
+        self.assertEqual(setup.settings['nonambigious'],False,"Didn't recognize logical setting")
+        self.assertEqual(setup.settings['floatval'],10.9,"Didn't recognize rn value in setting")
+        self.assertEqual(setup.settings['floatval2'],20.9,"Didn't recongnize nn value in setting")
+        self.assertEqual(setup.settings['stringval'],'coordinates.nc',"Didn't recognize cn string value in setting")
+        self.assertEqual(setup.settings['stringval2'],'gregorian',"Didn't recognize sn string value in setting")
         
         #delete file
         os.remove('test.bdy')

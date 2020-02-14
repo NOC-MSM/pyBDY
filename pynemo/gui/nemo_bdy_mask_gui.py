@@ -10,15 +10,15 @@ from mpl_toolkits.basemap import Basemap, cm
 import numpy as np
 from .selection_editor import PolygonEditor, BoxEditor
 import os.path
-from PyQt4.QtCore import pyqtSignal, pyqtSlot, Qt
-from nemo_bdy_mask import Mask
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
+from .nemo_bdy_mask import Mask
 import logging
-from PyQt4.QtGui import QSizePolicy
+from PyQt5.QtWidgets import QSizePolicy
 from matplotlib.colors import Normalize
 
 mask_alpha = 0.3
 
-from PyQt4 import QtGui
+from PyQt5 import QtGui, QtWidgets
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.path import Path
@@ -26,7 +26,7 @@ from matplotlib.transforms import Bbox
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 # pylint: disable=E1002
-class MatplotlibWidget(QtGui.QWidget):
+class MatplotlibWidget(QtWidgets.QWidget):
     """This class is a QWidget for pyNEMO mask plot"""
     min_depth = 200.0
     shelfbreak_dist = 200.0
@@ -34,7 +34,7 @@ class MatplotlibWidget(QtGui.QWidget):
     def __init__(self, parent=None, mask=None, min_depth = 200.0, shelfbreak_dist = 200.0,*args, **kwargs):
         """ Initialises the mask, matplot and the navigation toolbar """
         super(MatplotlibWidget, self).__init__(parent)
-        #QtGui.QWidget.__init__(self, parent)
+        #QtWidgets.QWidget.__init__(self, parent)
         self.figure = Figure(*args, **kwargs)
         self.canvas = FigureCanvas(self.figure)
         self.mask = mask
@@ -51,7 +51,7 @@ class MatplotlibWidget(QtGui.QWidget):
         self.toolbar.drawing_tool.connect(self.drawing_tool_callback)
         self.axes = self.figure.add_subplot(111)
         self.cbar = None
-        layout = QtGui.QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas)
         self.setLayout(layout)
@@ -126,7 +126,7 @@ class MatplotlibWidget(QtGui.QWidget):
                 x = np.arange(0, self.mask.lon.shape[0])
                 y = np.arange(0, self.mask.lon.shape[1])
                 x_vals, y_vals = np.meshgrid(y, x)
-                grid = zip(x_vals.ravel(), y_vals.ravel())
+                grid = list(zip(x_vals.ravel(), y_vals.ravel()))
                 
                 self._drawing_tool.polygon.set_linewidth(1.0)
                 p_path = Path(self._drawing_tool.polygon.xy)
@@ -146,7 +146,7 @@ class MatplotlibWidget(QtGui.QWidget):
                 x = np.arange(0, self.mask.lon.shape[0])
                 y = np.arange(0, self.mask.lon.shape[1])
                 x_vals, y_vals = np.meshgrid(y, x)
-                grid = zip(x_vals.ravel(), y_vals.ravel()) #check for the index
+                grid = list(zip(x_vals.ravel(), y_vals.ravel())) #check for the index
 
                 self._drawing_tool.polygon.set_linewidth(1.0)
                 p_path = Path(self._drawing_tool.polygon.xy)

@@ -13,7 +13,7 @@ import numpy as np
 import logging
 
 #Local Imports
-from utils.nemo_bdy_lib import sub2ind
+from .utils.nemo_bdy_lib import sub2ind
 
 class Boundary:
     # Bearings for overlays
@@ -102,8 +102,8 @@ class Boundary:
         bdy_i = np.transpose(bdy_i, (1, 2, 0))
         bdy_i = np.reshape(bdy_i, 
                  (bdy_i.shape[0],bdy_i.shape[1]*bdy_i.shape[2]))
-        bdy_r = bdy_r.flatten(1)
-
+        bdy_r = bdy_r.flatten('F')
+        
         ##   Remove duplicate and open sea points  ##
         
         bdy_i, bdy_r = self._remove_duplicate_points(bdy_i, bdy_r)
@@ -210,11 +210,11 @@ class Boundary:
         t -- input 2D array
         """ 
         sh = np.shape(t)
-	if (len(sh)> 2) or (sh[0] ==0) or (sh[1] == 0):
-	    print 'Warning: Shape of expected 2D array:', sh
+        if (len(sh)> 2) or (sh[0] ==0) or (sh[1] == 0):
+           print('Warning: Shape of expected 2D array:', sh)
         tlist = t.tolist()
         sortt = []
-        indx = zip(*sorted([(val, i) for i,val in enumerate(tlist)]))[1]
+        indx = list(zip(*sorted([(val, i) for i,val in enumerate(tlist)])))[1]
         indx = np.array(indx)
         for i in indx:
             sortt.append(tlist[i])
@@ -224,7 +224,7 @@ class Boundary:
                 indx[i] = -1
         # all the rows are identical, set the first as the unique row
         if sortt[0] == sortt[-1]:
-	    indx[0] = 0
+            indx[0] = 0
 			        
         return indx[indx != -1]
 

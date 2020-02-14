@@ -77,8 +77,8 @@ class Extract:
         nb.close() # Close Bathymetry file
 
         # Find nearest neighbours on the source grid to each dst bdy point
-        source_tree = sp.cKDTree(zip(lon, lat))
-        dst_pts = zip(dst_lon, dst_lat)
+        source_tree = sp.cKDTree(list(zip(lon, lat)))
+        dst_pts = list(zip(dst_lon, dst_lat))
         nn_dist, self.nn_id = source_tree.query(dst_pts, k=4, eps=0, p=2, 
                                                 distance_upper_bound=0.5)
         
@@ -106,7 +106,7 @@ class Extract:
         # Need to identify missing points and throw a warning and set values to zero
         
         mv = np.sum(self.wei,axis=1) == 0
-        print '##WARNING## There are', np.sum(mv), 'missing values, these will be set to ZERO'
+        print('##WARNING## There are', np.sum(mv), 'missing values, these will be set to ZERO')
         
     def extract_con(self, con):        
         
@@ -150,7 +150,7 @@ class Extract:
         else:
             
             # throw some warning
-            print '##WARNING## Missing constituent values will be set to ZERO'
+            print('##WARNING## Missing constituent values will be set to ZERO')
         
             self.harm_Im[con] = np.zeros(self.nn_id[:,0].size)
             self.harm_Re[con] = np.zeros(self.nn_id[:,0].size)

@@ -23,13 +23,13 @@ def write_data_to_file(filename, variable_name, data):
 
     if variable_name in three_dim_variables:
         if len(count) == 3:
-            count += (1L, )
+            count += (1, )
         ncid.variables[variable_name][:, :, :, :] = np.reshape(data, count)[:, :, :, :]
     elif variable_name in two_dim_variables:
         if len(count) == 2:
-            count += (1L, )
+            count += (1, )
         elif len(count) == 1:
-            count += (1L, 1L, )
+            count += (1, 1, )
         ncid.variables[variable_name][:, :, :] = np.reshape(data, count)[:, :, :]
     elif variable_name == 'time_counter':
         ncid.variables[variable_name][:] = data[:]

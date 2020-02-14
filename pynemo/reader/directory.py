@@ -5,7 +5,7 @@ This is an abstraction for the data repository
 from os import listdir
 import numpy as np
 from netCDF4 import Dataset
-from netCDF4 import netcdftime
+from cftime import utime 
 import copy
 import logging
 class Reader(object):
@@ -50,7 +50,7 @@ class Reader(object):
                 dir_list[i] = self.directory + dir_list[i]
 
         dir_list.sort()
-        return filter(None, dir_list)
+        return [_f for _f in dir_list if _f]
 
     def _delta_time_interval(self, time1, time2):
         """ Get the difference between the two times in days and hours"""
@@ -74,7 +74,7 @@ class Reader(object):
                 x = [filename, index]
                 group.data_list.append(x)
                 group.time_counter.append(varid[index]+t_adjust)
-                group.date_counter.append(netcdftime.utime(varid.units,
+                group.date_counter.append(utime(varid.units,
                                                            varid.calendar).num2date(varid[index]+t_adjust))
             group.units = varid.units
             group.calendar = varid.calendar
@@ -94,7 +94,7 @@ class Reader(object):
         error"""
         days = set()
         hrs = set()
-        for grid_type in self.grid_source_data.keys():
+        for grid_type in list(self.grid_source_data.keys()):
             day, hr = self._delta_time_interval(self.grid_source_data[grid_type].time_counter[0],
                                                 self.grid_source_data[grid_type].time_counter[1])
             days.add(day)

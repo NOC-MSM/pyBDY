@@ -23,8 +23,8 @@ class Test(unittest.TestCase):
         self.lon,self.lat = np.meshgrid(self.lon, self.lat)
         #gcoms_break_depth.gcoms_boundary_masks(self.bathy, -1, 0)
         
-        print self.bathy.shape
-        print self.bathy
+        print(self.bathy.shape)
+        print(self.bathy)
         pass
 
 
@@ -39,10 +39,10 @@ class Test(unittest.TestCase):
         self.bathy[self.bathy>=0] = 0
         self.bathy = self.bathy*-1        
         tmp  = gcoms_break_depth.polcoms_select_domain(self.bathy, self.lat, self.lon, roi, 200)
-        self.assertEquals(tmp[32,0],1,"Set the break select correctly")
-        self.assertEquals(tmp[40,0],1,"Set the break select correctly 40")        
-        self.assertEquals(tmp[50,0],1,"Set the break select correctly 50")        
-        self.assertEquals(tmp[60,0],1,"Set the break select correctly 60")        
+        self.assertEqual(tmp[32,0],1,"Set the break select correctly")
+        self.assertEqual(tmp[40,0],1,"Set the break select correctly 40")        
+        self.assertEqual(tmp[50,0],1,"Set the break select correctly 50")        
+        self.assertEqual(tmp[60,0],1,"Set the break select correctly 60")        
                 
     def testGcomsBreakDepth(self):
         r = 18        

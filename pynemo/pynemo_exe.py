@@ -5,7 +5,7 @@ Entry for the project
 '''
 
 import sys, getopt
-import profile
+from . import profile
 import logging
 import cProfile
 
@@ -21,14 +21,14 @@ def main():
     try:
         opts, dummy_args = getopt.getopt(sys.argv[1:], "hs:g", ["help","setup=","mask_gui"])
     except getopt.GetoptError:
-        print "usage: pynemo -g -s <namelist.bdy> "
+        print("usage: pynemo -g -s <namelist.bdy> ")
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == "-h":
-            print "usage: pynemo [-g] -s <namelist.bdy> "
-            print "       -g (optional) will open settings editor before extracting the data"
-            print "       -s <bdy filename> file to use"
+            print("usage: pynemo [-g] -s <namelist.bdy> ")
+            print("       -g (optional) will open settings editor before extracting the data")
+            print("       -s <bdy filename> file to use")
             sys.exit()
         elif opt in ("-s", "--setup"):
             setup_file = arg
@@ -36,7 +36,7 @@ def main():
             mask_gui = True
 
     if setup_file == "":
-        print "usage: pynemo [-g] -s <namelist.bdy> "
+        print("usage: pynemo [-g] -s <namelist.bdy> ")
         sys.exit(2)
 
     #Logger
@@ -44,7 +44,7 @@ def main():
     t0 = time.time()
     cProfile.runctx("f(x, y)",{'f': profile.process_bdy, 'x': setup_file, 'y': mask_gui}, {}, 'pynemo_stats')
     t1 = time.time()
-    print "Execution Time: %s" % (t1-t0)
+    print("Execution Time: %s" % (t1-t0))
     
 if __name__ == "__main__":
     main()
