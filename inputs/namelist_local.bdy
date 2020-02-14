@@ -40,7 +40,7 @@
 !------------------------------------------------------------------------------
 !  I/O 
 !------------------------------------------------------------------------------
-   sn_src_dir = '/Users/jdha/Projects/GitHub/PyNEMO3/inputs/src_data_local.ncml' ! src_files/'
+   sn_src_dir = '/Users/jdha/Projects/GitHub/PyNEMO/inputs/src_data_local.ncml' ! src_files/'
    sn_dst_dir = './outputs'
    sn_fn      = 'NNA_R12'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
