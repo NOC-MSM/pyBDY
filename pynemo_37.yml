@@ -1,0 +1,16 @@
+name: pynemo3
+channels:
+  - defaults
+dependencies:
+  - basemap=1.2.0
+  - netcdf4=1.5.3
+  - pyqt=5.9.2
+  - scipy=1.2.1
+  - python=3.7.6
+  - pip=20.0.2
+  - pip:
+    - idna==2.9
+    - lxml==4.5.0
+    - pyjnius==1.2.1
+    - seawater==3.3.4
+    - thredds-crawler==1.5.4
