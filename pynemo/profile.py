@@ -35,6 +35,8 @@ import time
 import logging
 import numpy as np
 from PyQt5.QtWidgets import QMessageBox
+from calendar import monthrange
+import sys
 
 #Local imports
 from pynemo import pynemo_settings_editor
@@ -54,6 +56,7 @@ from pynemo.tide import nemo_bdy_tide3 as tide
 from pynemo.tide import nemo_bdy_tide_ncgen
 from pynemo.utils import Constants
 from pynemo.gui.nemo_bdy_mask import Mask as Mask_File
+from pynemo import nemo_bdy_dl_cmems as dl_cmems
 
 class Grid(object):
     """ 
@@ -70,6 +73,213 @@ class Grid(object):
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='nrct.log', level=logging.INFO)
+
+# define a Handler which writes INFO messages or higher to the sys.stderr
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+# set a format which is simpler for console use
+formatter = logging.Formatter('%(name)-12s: %(levelname)-8s %(message)s')
+# tell the handler to use this format
+console.setFormatter(formatter)
+# add the handler to the root logger
+logging.getLogger('').addHandler(console)
+
+def download_cmems(setup_filepath=0):
+    '''
+    CMEMS download function.
+
+    This is the main script to download CMEMS data, it has been removed from core PyNEMO function
+    to handle issues with downloading better e.g. connection issues etc.
+
+    Input options are handled in the same NEMO style namelist that the main script uses.
+
+
+    :param setup_filepath:
+    :param mask_gui:
+    :return:
+    '''
+    logger.info('Start CMEMS download Logging: ' + time.asctime())
+    logger.info('============================================')
+
+    Setup = setup.Setup(setup_filepath)  # default settings file
+    settings = Setup.settings
+    if settings['download_static'] == True:
+        for re in range(settings['num_retry']):
+            logger.info('CMEMS Static data requested: downloading static data now.... (this may take awhile)')
+            static = dl_cmems.get_static(settings)
+            if static == 0:
+                logger.info('CMEMS static data downloaded')
+                break
+            if type(static) == str:
+                err_chk = dl_cmems.err_parse(static,'FTP')
+                if err_chk == 0:
+                    logger.info('retrying FTP download....retry number '+str(re+1)+' of '+str(settings['num_retry']) )
+                    if re == (settings['num_retry']-1):
+                        logger.critical('reached retry limit defined in BDY file, exiting now')
+                        logger.critical(static)
+                        dl_cmems.clean_up(settings)
+                        sys.exit(static)
+                if err_chk == 1:
+                    dl_cmems.clean_up(settings)
+                    sys.exit(static)
+                if err_chk == 2:
+                    dl_cmems.clean_up(settings)
+                    sys.exit(static)
+        dl_cmems.clean_up(settings)
+    # subset downloaded static grid files to match downloaded CMEMS data
+    if settings['subset_static'] == True:
+        logger.info('CMEMS subset static data requested: subsetting now......')
+        subset_static = dl_cmems.subset_static(settings)
+        if subset_static == 0:
+            logger.info('CMEMS static data subset successfully')
+        if type(subset_static) == str:
+            logger.error(subset_static)
+            dl_cmems.clean_up(settings)
+            sys.exit(subset_static)
+        dl_cmems.clean_up(settings)
+
+    if settings['download_cmems'] == True:
+
+        logger.info('CMEMS Boundary data requested: starting download process....')
+
+        if settings['year_end'] - settings['year_000'] > 0:
+            date_min = str(settings['year_000']) + '-01-01'
+            date_max = str(settings['year_end']) + '-12-31'
+
+        elif settings['year_end'] - settings['year_000'] == 0:
+
+            days_mth = monthrange(settings['year_end'], settings['month_end'])
+            date_min = str(settings['year_000']) + '-' + str(settings['month_000']).zfill(2) + '-01'
+            date_max = str(settings['year_end']) + '-' + str(settings['month_end']).zfill(2) + '-' + str(
+                days_mth[1])
+
+        elif settings['year_end'] - settings['year_000'] < 0:
+            error_msg = 'end date before start date please ammend bdy file'
+            logger.error(error_msg)
+            dl_cmems.clean_up(settings)
+            sys.exit(error_msg)
+        else:
+            logger.warning('unable to parse dates..... using demo date November 2017')
+            date_min = '2017-11-01'
+            date_max = '2017-11-30'
+        # check to see if MOTU client is installed
+        chk = dl_cmems.chk_motu()
+        if chk == 1:
+            error_msg = 'motuclient not installed, please install by running $ pip install motuclient'
+            logger.error(error_msg)
+            dl_cmems.clean_up(settings)
+            sys.exit(error_msg)
+        if type(chk) == str:
+            logger.info('version ' + chk + ' of motuclient is installed')
+        else:
+            error_msg = 'unable to parse MOTU check'
+            logger.error(error_msg)
+            dl_cmems.clean_up(settings)
+            sys.exit(error_msg)
+        # download request for CMEMS data, try whole time interval first.
+        for re in range(settings['num_retry']):
+            logger.info('starting CMES download now (this can take a while)...')
+            dl = dl_cmems.request_cmems(settings, date_min, date_max)
+            if dl == 0:
+                logger.info('CMES data downloaded successfully')
+                break
+            # a string return means MOTU has return an error
+            if type(dl) == str:
+            # check error message against logged errors
+                err_chk = dl_cmems.err_parse(dl,'MOTU')
+            # error is known and retry is likely to work
+                if err_chk == 0:
+                    logger.info('retrying CMEMS download....retry number '+str(re+1)+' of '+str(settings['num_retry']) )
+                    if re == (settings['num_retry']-1):
+                        logger.critical('reached retry limit defined in BDY file, exiting now')
+                        logger.critical(dl)
+                        dl_cmems.clean_up(settings)
+                        sys.exit(dl)
+            # error is known and retry is likely to not work
+                if err_chk == 1:
+                    dl_cmems.clean_up(settings)
+                    sys.exit(dl)
+            # error is not logged, add to error file.
+                if err_chk == 2:
+                    dl_cmems.clean_up(settings)
+                    sys.exit(dl)
+        if dl == 1:
+            # if the request is too large try monthly intervals
+            for re in range(settings['num_retry']):
+                logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
+                mnth_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'M')
+                if mnth_dl == 0:
+                    logger.info('CMEMS monthly request successful')
+                    break
+                if type(mnth_dl) == str:
+                    err_chk = dl_cmems.err_parse(mnth_dl,'MOTU')
+                    if err_chk == 0:
+                        logger.info('retrying CMEMS download....retry number '+str(re+1)+' of '+str(settings['num_retry']) )
+                        if re == (settings['num_retry']-1):
+                            logger.critical('reached retry limit defined in BDY file, exiting now')
+                            logger.critical(mnth_dl)
+                            dl_cmems.clean_up(settings)
+                            sys.exit(mnth_dl)
+                    if err_chk == 1:
+                        dl_cmems.clean_up(settings)
+                        sys.exit(mnth_dl)
+                    if err_chk == 2:
+                        dl_cmems.clean_up(settings)
+                        sys.exit(mnth_dl)
+                if mnth_dl == 1:
+                    # if the request is too large try weekly intervals
+                    for re in range(settings['num_retry']):
+                        logger.warning('CMEMS request still too large, trying weekly downloads...(this will take longer...)')
+                        wk_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'W')
+                        if wk_dl == 0:
+                            logger.info('CMEMS weekly request successful')
+                            break
+                        if type(wk_dl) == str:
+                            err_chk = dl_cmems.err_parse(wk_dl,'MOTU')
+                            if err_chk == 0:
+                                logger.info('retrying CMEMS download....retry number ' + str(re + 1) + ' of ' + str(settings['num_retry']))
+                                if re == (settings['num_retry'] - 1):
+                                    logger.critical('reached retry limit defined in BDY file, exiting now')
+                                    logger.critical(wk_dl)
+                                    dl_cmems.clean_up(settings)
+                                    sys.exit(wk_dl)
+                            if err_chk == 1:
+                                dl_cmems.clean_up(settings)
+                                sys.exit(wk_dl)
+                            if err_chk == 2:
+                                dl_cmems.clean_up(settings)
+                                sys.exit(wk_dl)
+                    if wk_dl == 1:
+                    # if the request is too large try daily intervals.
+                        for re in range(settings['num_retry']):
+                            logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
+                            dy_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'D')
+                            if dy_dl == 0:
+                                logger.info('CMEMS daily request successful')
+                                break
+                            # if the request is still too large then smaller domain is required.
+                            if dy_dl == str:
+                                # perform error check for retry
+                                err_chk = dl_cmems.err_parse(dy_dl,'MOTU')
+                                if err_chk == 0:
+                                    logger.info('retrying CMEMS download....retry number ' + str(re + 1) + ' of ' + str(settings['num_retry']))
+                                    if re == (settings['num_retry'] - 1):
+                                        logger.critical('reached retry limit defined in BDY file, exiting now')
+                                        logger.critical(dy_dl)
+                                        dl_cmems.clean_up(settings)
+                                        sys.exit(dy_dl)
+                                if err_chk == 1:
+                                    dl_cmems.clean_up(settings)
+                                    sys.exit(dy_dl)
+                                if err_chk == 2:
+                                    dl_cmems.clean_up(settings)
+                                    sys.exit(dy_dl)
+# end of messy if statements to split requests into months, weeks and days as needed.
+        dl_cmems.clean_up(settings)
+
+    logger.info('End CMEMS download: ' + time.asctime())
+    logger.info('==========================================')
+
 
 def process_bdy(setup_filepath=0, mask_gui=False):
     """ 
@@ -131,7 +341,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     
     logger.info('Gathering grid information')
     nc = GetFile(settings['src_zgr'])
-    SourceCoord.zt = np.squeeze(nc['gdept_0'][:])
+    try:
+        SourceCoord.zt = np.squeeze(nc['gdept_0'][:])
+    except:
+        SourceCoord.zt = np.squeeze(nc['depth'][:])
     nc.close()
 
     # Define z at t/u/v points
@@ -153,10 +366,19 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     logger.info('Depths defined')
     
     # Gather vorizontal grid information
-
+    # TODO: Sort generic grid variables (define in bdy file?)
     nc = GetFile(settings['src_hgr'])
-    SourceCoord.lon = nc['glamt'][:,:]
-    SourceCoord.lat = nc['gphit'][:,:]
+
+    try:
+        SourceCoord.lon = nc['glamt'][:,:]
+        SourceCoord.lat = nc['gphit'][:,:]
+    except:
+        SourceCoord.lon = nc['longitude'][:]
+        SourceCoord.lat = nc['latitude'][:]
+        # expand lat and lon 1D arrays into 2D array matching nav_lat nav_lon
+        SourceCoord.lon = np.tile(SourceCoord.lon, (np.shape(SourceCoord.lat)[0], 1))
+        SourceCoord.lat = np.tile(SourceCoord.lat, (np.shape(SourceCoord.lon)[1], 1))
+        SourceCoord.lat = np.rot90(SourceCoord.lat)
     
     try: # if they are masked array convert them to normal arrays
         SourceCoord.lon = SourceCoord.lon.filled()
@@ -276,8 +498,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     grd  = [  't',  'u',  'v']
     pair = [ None, 'uv', 'uv'] # TODO: devolve this to the namelist?
     
-    # TODO: The following is a temporary stop gap to assign variables. In 
-    # future we need a slicker way of determining the variables to extract. 
+    # TODO: The following is a temporary stop gap to assign variables for both CMEMS downloads
+    #  and existing variable names. In future we need a slicker way of determining the variables to extract.
     # Perhaps by scraping the .ncml file - this way biogeochemical tracers
     # can be included in the ln_tra = .true. option without having to
     # explicitly declaring them.
@@ -285,19 +507,51 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     var_in = {}
     for g in range(len(grd)):
         var_in[grd[g]] = []
-        
-    if ln_tra:
-        var_in['t'].extend(['votemper', 'vosaline'])
-        
-    if ln_dyn2d or ln_dyn3d:
-        var_in['u'].extend(['vozocrtx', 'vomecrty'])
-        var_in['v'].extend(['vozocrtx', 'vomecrty'])
-    
-    if ln_dyn2d:
-        var_in['t'].extend(['sossheig'])
-        
-    if ln_ice:
-        var_in['t'].extend(['ice1', 'ice2', 'ice3'])
+    if 'use_cmems' in settings:
+        if settings['use_cmems'] == True:
+            logger.info('using CMEMS variable names......')
+            if ln_tra:
+                var_in['t'].extend(['thetao'])  # ,'so'])
+
+            if ln_dyn2d or ln_dyn3d:
+                var_in['u'].extend(['uo'])
+                var_in['v'].extend(['vo'])
+
+            if ln_dyn2d:
+                var_in['t'].extend(['zos'])
+
+            if ln_ice:
+                var_in['t'].extend(['siconc', 'sithick'])
+
+        if settings['use_cmems'] == False:
+            logger.info('using existing PyNEMO variable names.....')
+            if ln_tra:
+                var_in['t'].extend(['votemper', 'vosaline'])
+
+            if ln_dyn2d or ln_dyn3d:
+                var_in['u'].extend(['vozocrtx', 'vomecrty'])
+                var_in['v'].extend(['vozocrtx', 'vomecrty'])
+
+            if ln_dyn2d:
+                var_in['t'].extend(['sossheig'])
+
+            if ln_ice:
+                var_in['t'].extend(['ice1', 'ice2', 'ice3'])
+
+    if 'use_cmems' not in settings:
+        logger.info('using existing PyNEMO variable names.....')
+        if ln_tra:
+            var_in['t'].extend(['votemper', 'vosaline'])
+
+        if ln_dyn2d or ln_dyn3d:
+            var_in['u'].extend(['vozocrtx', 'vomecrty'])
+            var_in['v'].extend(['vozocrtx', 'vomecrty'])
+
+        if ln_dyn2d:
+            var_in['t'].extend(['sossheig'])
+
+        if ln_ice:
+            var_in['t'].extend(['ice1', 'ice2', 'ice3'])
     
     # As variables are associated with grd there must be a filename attached
     # to each variable

@@ -12,11 +12,14 @@ from matplotlib.patches import Polygon
 def nemo_bdy_order(fname):
     """
     Determine the ordering and breaks in BDY files to aid plotting.
+
     This function takes the i/j coordinates from BDY files and orders them sequentially
     making it easier to visualise sections along the open boundary. Breaks in the open
     boundary are also determined (i.e. where the distance between two points > 2**0.5)
+
     Args:
         fname     (str) : filename of BDY file
+
     Returns:
         bdy_ind   (dict): re-ordered indices
         bdy_dst   (dict): distance (in model coords) between points
@@ -123,11 +126,14 @@ def nemo_bdy_order(fname):
 def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
     """
     Determine the ordering and breaks in BDY files to aid plotting.
+
     This function takes the i/j coordinates from BDY files and orders them sequentially
     making it easier to visualise sections along the open boundary. Breaks in the open
     boundary are also determined (i.e. where the distance between two points > 2**0.5)
+
     Args:
         fname     (str) : filename of BDY file
+
     Returns:
         bdy_ind   (dict): re-ordered indices
         bdy_dst   (dict): distance (in model coords) between points
@@ -252,8 +258,9 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
 
     return f
 
-fname = '/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y1979m11.nc'
+fname = '/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y2017m11.nc'
+print(fname)
 ind, dst, brk = nemo_bdy_order(fname)
-f = plot_bdy(fname, ind, dst, brk, 'votemper', 0, 0)
+f = plot_bdy(fname, ind, dst, brk, 'thetao', 0, 0)
 
 plt.show()

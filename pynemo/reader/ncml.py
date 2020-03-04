@@ -39,7 +39,19 @@ try:
 except ImportError:
     print('Warning: Please make sure pyjnius is installed and jvm.dll/libjvm.so/libjvm.dylib is in the path')
 
-time_counter_const = "time_counter"
+import sys
+from pynemo import nemo_bdy_setup as setup
+Setup = setup.Setup(sys.argv[2]) # default settings file
+settings = Setup.settings
+if 'use_cmems' in settings:
+    if settings['use_cmems'] == True:
+        time_counter_const = "time"
+    if settings['use_cmems'] == False:
+        time_counter_const = "time_counter"
+if 'use_cmems' not in settings:
+    time_counter_const = "time_counter"
+del settings, Setup
+
 class Reader(object):
     """ This class is the high level of object for the NCML reader, from here using grid type
     will return the grid data
