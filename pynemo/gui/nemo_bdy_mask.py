@@ -68,15 +68,32 @@ class Mask(object):
             self.bathymetry_file = str(bathy_file)
             #open the bathymetry file
             self.bathy_nc = Dataset(self.bathymetry_file)
-            self.lon = np.asarray(self.bathy_nc.variables['nav_lon'])
-            self.lat = np.asarray(self.bathy_nc.variables['nav_lat'])
-            self.bathy_data = self.bathy_nc.variables['Bathymetry'][:,:]
+            try:
+                self.lon = np.asarray(self.bathy_nc.variables['nav_lon'])
+                self.lat = np.asarray(self.bathy_nc.variables['nav_lat'])
+            except:
+                self.lon = np.asarray(self.bathy_nc.variables['lon'])
+                self.lat = np.asarray(self.bathy_nc.variables['lat'])
+                # expand lat and lon 1D arrays into 2D array matching nav_lat nav_lon
+                self.lon = np.tile(self.lon, (np.shape(self.lat)[0], 1))
+                self.lat = np.tile(self.lat, (np.shape(self.lon)[1], 1))
+                self.lat = np.rot90(self.lat)
+
+            try:
+                self.bathy_data = self.bathy_nc.variables['Bathymetry'][:,:]
+            except:
+                self.bathy_data = self.bathy_nc.variables['deptho'][:,:]
             try: #check if units exists otherwise unknown. TODO
                 self.data_units = self.bathy_nc.variables['Bathymetry'].units
-            except AttributeError:
-                self.data_units = "unknown"
+            except:
+                self.data_units = self.bathy_nc.variables['deptho'].units
+#            except AttributeError:
+#                self.data_units = "unknown"
             if self.data is None:
-                self.data = self.bathy_nc.variables['Bathymetry']
+                try:
+                    self.data = self.bathy_nc.variables['Bathymetry']
+                except:
+                    self.data = self.bathy_nc.variables['deptho']
                 self.data = np.asarray(self.data[:, :])
                 self.data = np.around((self.data + .5).clip(0, 1))
                 #apply default 1px border

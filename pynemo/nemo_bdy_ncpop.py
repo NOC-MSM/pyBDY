@@ -19,7 +19,7 @@ def write_data_to_file(filename, variable_name, data):
     count = data.shape
 
     three_dim_variables = ['votemper', 'vosaline', 'N1p', 'N3n', 'N5s','thetao','so']
-    two_dim_variables = ['sossheig', 'vobtcrtx', 'vobtcrty', 'iicethic', 'ileadfra', 'isnowthi']
+    two_dim_variables = ['sossheig', 'vobtcrtx', 'vobtcrty', 'iicethic', 'ileadfra', 'isnowthi','zos']
 
     if variable_name in three_dim_variables:
         if len(count) == 3:

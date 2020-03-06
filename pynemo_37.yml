@@ -9,9 +9,11 @@ dependencies:
   - python=3.7.6
   - pip=20.0.2
   - pandas=1.0.1
+  - pytest=5.3.5
   - pip:
     - idna==2.9
     - lxml==4.5.0
     - pyjnius==1.2.1
     - seawater==3.3.4
     - thredds-crawler==1.5.4
+    - motuclient==1.8.4
