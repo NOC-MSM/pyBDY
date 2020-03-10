@@ -161,7 +161,7 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
                 try:
                     gdep = np.squeeze(rootgrp.variables['depthv'][:, :, :])
                 except KeyError:
-                    print 'depth variable not found'
+                    print ('depth variable not found')
 
     rootgrp.close()
 

@@ -30,12 +30,12 @@
 !------------------------------------------------------------------------------
 !  grid information 
 !------------------------------------------------------------------------------
-   sn_src_hgr = '/Users/thopri/Projects/PyNEMO/inputs/subset_coordinates.nc'
-   sn_src_zgr = '/Users/thopri/Projects/PyNEMO/inputs/subset_coordinates.nc'
-   sn_dst_hgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/mesh_hgr_zps.nc'
-   sn_dst_zgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/mesh_zgr_zps.nc'
-   sn_src_msk = '/Users/thopri/Projects/PyNEMO/inputs/subset_bathy.nc'
-   sn_bathy   = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/NNA_R12_bathy_meter_bench.nc'
+   sn_src_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/src_coordinates.nc'
+   sn_src_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/src_coordinates.nc'
+   sn_dst_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/dst_hgr_zps.nc'
+   sn_dst_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/dst_zgr_zps.nc'
+   sn_src_msk = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/src_bathy.nc'
+   sn_bathy   = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/dst_bathy.nc'
 
 !------------------------------------------------------------------------------
 !  I/O 
