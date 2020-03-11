@@ -82,10 +82,10 @@ def plot_grids(lat_in,lon_in,new_lat,new_lon,src_lat,src_lon):
 
 def _main():
     #Source Coords
-    dx = 2000 # units in km
-    dy = 2000 # units in Km
-    jpi = 10
-    jpj = 10
+    dx = 1000 # units in km
+    dy = 1000 # units in Km
+    jpi = 15
+    jpj = 15
     zoffx = 0
     zoffy = 0
     jpk = 10
@@ -104,10 +104,10 @@ def _main():
     #Dst Coords
     dx = 100 # units in km
     dy = 100 # units in Km
-    jpi = 90
-    jpj = 90
-    zoffx = 0
-    zoffy = 0
+    jpi = 100
+    jpj = 100
+    zoffx = 20
+    zoffy = 20
     jpk = 10
     max_dep = 100
     min_dep = 10
@@ -124,7 +124,7 @@ def _main():
     # set rotation and origin point
     rot = 45
     theta = radians(rot)
-    origin = (zoffx,zoffy)
+    origin = (7,7)
 
 
     new_lat,new_lon = rotate_around_point(grid_h2['latt'],grid_h2['lont'],theta,origin)
