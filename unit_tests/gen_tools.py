@@ -450,3 +450,47 @@ def plot_grids(lat_in,lon_in,new_lat,new_lon,off_lat,off_lon,src_lat,src_lon):
     plt.subplots_adjust(left=0.01, right=1, top=0.9, bottom=0.05,wspace=0.01)
 
     plt.show()
+
+def write_parameter(fileout, grid_h,grid_z,params):
+    '''
+    Writes out a
+
+    Args:
+
+    Returns:
+    '''
+
+    #TODO: implement multiple parameters using dicts.
+
+    # Open pointer to netcdf file
+    dataset = Dataset(fileout, 'w', format='NETCDF4_CLASSIC')
+
+    # Get input size and create appropriate dimensions
+    # TODO: add some sort of error handling
+    nx, ny, nz = np.shape(grid_z['e3t'])
+    dataset.createDimension('x', nx)
+    dataset.createDimension('y', ny)
+    dataset.createDimension('z', nz)
+
+    # Create Variables
+    longitude = dataset.createVariable('longitude', np.float32, ('y', 'x'))
+    latitude = dataset.createVariable('latitude', np.float32, ('y', 'x'))
+    depth = dataset.createVariable('depth', np.float32, 'z')
+    longitude.units, longitude.long_name = 'km', 'X'
+    latitude.units, latitude.long_name = 'km', 'Y'
+    depth.units, depth.long_name = 'm', 'Z'
+    # Populate file with input data
+    longitude[:, :] = grid_h['lont'].T
+    latitude[:, :] = grid_h['latt'].T
+    depth[:] = grid_z['dept_1d']
+
+    parameter = dataset.createVariable(str(params['name']), np.float64, ('z', 'y', 'x'))
+    parameter.units, parameter.long_name = str(params['units']), str(params['longname'])
+    value_fill = np.ones(np.shape(grid_z['e3t']))
+    value_fill = value_fill*params['const_value']
+    parameter[:, :, :] = value_fill.T
+
+    # Close off pointer
+    dataset.close()
+
+    return 0

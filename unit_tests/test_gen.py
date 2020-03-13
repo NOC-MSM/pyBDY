@@ -101,6 +101,11 @@ def _main():
     # close data files
     #ds.close()
     #src.close()
+    out_fname = 'unit_tests/test_data/output_boundary.nc'
+    params = {'name':'thetao','const_value':15.0,'longname':'temperature','units':'degreesC'}
+    boundary = gt.write_parameter(out_fname,grid_h1,grid_z1,params)
+    if boundary == 0:
+        print('Success!')
 
 if __name__ == '__main__':
     _main()
