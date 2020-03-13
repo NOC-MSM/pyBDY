@@ -9,6 +9,13 @@ example grid set up
 
 import numpy as np
 from netCDF4 import Dataset
+from math import cos,sin,radians
+import numpy as np
+#import xarray as xr
+import matplotlib.pyplot as plt
+from math import radians
+#import cartopy
+#import cartopy.crs as ccrs
 
 def set_hgrid(dx, dy, jpi, jpj, zoffx=0, zoffy=0,sf=1):
     if sf > 1:
@@ -23,10 +30,6 @@ def set_hgrid(dx, dy, jpi, jpj, zoffx=0, zoffy=0,sf=1):
     latv = np.zeros((jpi, jpj))
     lonf = np.zeros((jpi, jpj))
     latf = np.zeros((jpi, jpj))
-
-
-
-
 
     for i in range(0, jpi):
         lont[i, :] = zoffx * dx * 1.e-3 + dx * 1.e-3 * np.float(i)
@@ -382,3 +385,68 @@ def write_domcfg(fileout, ln_zco, ln_zps, ln_sco, ln_isfcav, jperio, bat,
 
     # Close off pointer
     dataset.close()
+
+def rotate_around_point(lat_in,lon_in, radians , origin=(0, 0)):
+    """Rotate a point around a given point.
+    """
+    # create empty lat and lon arrays that match input
+    new_lon = np.zeros(np.shape(lon_in))
+    new_lat = np.zeros(np.shape(lat_in))
+    # extract origin lat and lon as offset
+    offset_lat, offset_lon = origin
+    cos_rad = cos(radians)
+    sin_rad = sin(radians)
+    # cycle through lat and lon arrays and calcule new lat and lon values based on rotation
+    # and origin values
+    for indx in range(np.shape(lat_in)[0]):
+        for indy in range(np.shape(lon_in)[1]):
+            adjusted_lat = (lat_in[indx,indy] - offset_lat)
+            adjusted_lon = (lon_in[indx,indy] - offset_lon)
+            new_lat[indx,indy] = offset_lat + cos_rad * adjusted_lat + -sin_rad * adjusted_lon
+            new_lon[indx,indy] = offset_lon + sin_rad * adjusted_lat + cos_rad * adjusted_lon
+
+    return new_lat, new_lon
+
+def plot_grids(lat_in,lon_in,new_lat,new_lon,off_lat,off_lon,src_lat,src_lon):
+
+    # define lat and lon extents (define in future using input values?)
+    #maxlat = 72
+    #minlat = 32
+    #maxlon = 18
+    #minlon = -28
+
+    plt.figure(figsize=[18, 18])  # a new figure window
+
+    ax = plt.subplot(221)#, projection=ccrs.PlateCarree())  # specify (nrows, ncols, axnum)
+    #ax.set_extent([minlon,maxlon,minlat,maxlat],crs=ccrs.PlateCarree()) #set extent
+    #ax.set_title('Original Grid', fontsize=20,y=1.05) #set title
+    #ax.add_feature(cartopy.feature.LAND, zorder=0)  # add land polygon
+    #ax.add_feature(cartopy.feature.COASTLINE, zorder=10)  # add coastline polyline
+    #gl = ax.gridlines(crs=ccrs.PlateCarree(), linewidth=2, color='black', alpha=0.5, linestyle='--', draw_labels=True)
+
+    ax1 = plt.subplot(222)#, projection=ccrs.PlateCarree())  # specify (nrows, ncols, axnum)
+    #ax1.set_extent([minlon,maxlon,minlat,maxlat],crs=ccrs.PlateCarree()) #set extent
+    #ax1.set_title('Rotated Grid', fontsize=20,y=1.05) #set title
+    #ax1.add_feature(cartopy.feature.LAND, zorder=0)  # add land polygon
+    #ax1.add_feature(cartopy.feature.COASTLINE, zorder=10)  # add coastline polyline
+    #gl1 = ax1.gridlines(crs=ccrs.PlateCarree(), linewidth=2, color='black', alpha=0.5, linestyle='--', draw_labels=True)
+
+    # tile 1D lat and lon to 2D arrays for plotting (src lat and lon only)
+    #src_lon = np.tile(src_lon, (np.shape(src_lat)[0], 1))
+    #src_lat = np.tile(src_lat, (np.shape(src_lon)[1], 1))
+    #src_lat = np.rot90(src_lat)
+
+    ax2 = plt.subplot(223)
+    ax3 = plt.subplot(224)
+
+    # plot lat and lon for all grids
+    ax.plot(lon_in, lat_in, color='blue', marker='.', linestyle="")
+    ax.plot(src_lon,src_lat, color='green', marker='o', linestyle="")
+    ax1.plot(new_lon,new_lat, color='red', marker='.', linestyle="")
+    ax1.plot(src_lon,src_lat, color='green',marker='o',linestyle="")
+    ax2.plot(off_lon,off_lat, color='yellow',marker='.',linestyle="")
+    ax2.plot(src_lon, src_lat, color='green', marker='o', linestyle="")
+    # tweak margins of subplots as tight layout doesn't work
+    plt.subplots_adjust(left=0.01, right=1, top=0.9, bottom=0.05,wspace=0.01)
+
+    plt.show()
