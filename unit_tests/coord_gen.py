@@ -10,7 +10,10 @@ example grid set up
 import numpy as np
 from netCDF4 import Dataset
 
-def set_hgrid(dx, dy, jpi, jpj, zoffx, zoffy):
+def set_hgrid(dx, dy, jpi, jpj, zoffx=0, zoffy=0,sf=1):
+    if sf > 1:
+        jpi = int(jpj - (jpi/sf))+1
+        jpj = int(jpj -(jpj/sf))+1
     # Set grid positions [km]
     latt = np.zeros((jpi, jpj))
     lont = np.zeros((jpi, jpj))
@@ -20,6 +23,10 @@ def set_hgrid(dx, dy, jpi, jpj, zoffx, zoffy):
     latv = np.zeros((jpi, jpj))
     lonf = np.zeros((jpi, jpj))
     latf = np.zeros((jpi, jpj))
+
+
+
+
 
     for i in range(0, jpi):
         lont[i, :] = zoffx * dx * 1.e-3 + dx * 1.e-3 * np.float(i)
