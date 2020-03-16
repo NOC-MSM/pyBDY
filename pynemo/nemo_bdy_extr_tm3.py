@@ -831,7 +831,7 @@ class Extract:
         
         del_t = time_counter[1] - time_counter[0]
         dstep = 86400 / np.int(del_t)
-      
+        dstep = int(dstep)
         # TODO: put in a test to check all deltaT are the same otherwise throw 
         # an exception
     

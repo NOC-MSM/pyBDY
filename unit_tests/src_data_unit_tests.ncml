@@ -5,12 +5,6 @@
         <ns0:scan location="file://Users/thopri/Projects/PyNEMO/unit_tests/test_data/" regExp=".*T\.nc$" />
       </ns0:aggregation>
     </ns0:netcdf>
-    <ns0:netcdf>
-      <ns0:aggregation dimName="time" name="sea_surface_height" type="joinExisting">
-        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/unit_tests/test_data/" regExp=".*T\.nc$" />
-      </ns0:aggregation>
-    </ns0:netcdf>
   </ns0:aggregation>
   <ns0:variable name="thetao" orgName="thetao" />
-  <ns0:variable name="zos" orgName="zos" />
 </ns0:netcdf>

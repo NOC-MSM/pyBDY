@@ -280,7 +280,7 @@ class Variable(object):
             attr = dvar.findAttributeIgnoreCase(attr_name)
             if attr is not None:
                 retval = attr.getValue(0)            
-            return retval
+                return retval
         except KeyError:
             self.logger.error('Cannot find the requested variable '+self.variable)
         return None  

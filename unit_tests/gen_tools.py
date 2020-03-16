@@ -2,20 +2,17 @@
 """
 Created on Wed Mar 11 11:16:57 2020
 
-example grid set up
+unit test grid generation tools
 
-@author: jdha
+@author: thopri and jdha (for example code)
+
 """
-
-import numpy as np
 from netCDF4 import Dataset
 from math import cos,sin,radians
 import numpy as np
-#import xarray as xr
 import matplotlib.pyplot as plt
 from math import radians
-#import cartopy
-#import cartopy.crs as ccrs
+
 
 def set_hgrid(dx, dy, jpi, jpj, zoffx=0, zoffy=0,sf=1):
     if sf > 1:
@@ -79,6 +76,8 @@ def set_zgrid(grid_h,jpk,max_dep,min_dep,z_dim):
     dept_1d = np.linspace(min_dep,max_dep,jpk)
     e3t_1d = np.linspace(1.0,z_dim,jpk)
     e3w_1d = np.linspace(1.0,z_dim,jpk)
+    gdept_0 = np.linspace(min_dep,max_dep,jpk)
+    gdepw_0 = np.linspace(min_dep,max_dep,jpk)
 
     e3t = np.zeros((jpi, jpj, len(e3t_1d)))
     e3u = np.zeros((jpi, jpj, len(e3t_1d)))
@@ -87,6 +86,8 @@ def set_zgrid(grid_h,jpk,max_dep,min_dep,z_dim):
     e3f = np.zeros((jpi, jpj, len(e3t_1d)))
     e3uw = np.zeros((jpi, jpj, len(e3t_1d)))
     e3vw = np.zeros((jpi, jpj, len(e3t_1d)))
+    gdept = np.zeros((jpi,jpj,len(gdept_0)))
+    gdepw = np.zeros((jpi,jpj,len(gdepw_0)))
 
     e3t[:] = e3t_1d
     e3u[:] = e3t_1d
@@ -95,9 +96,11 @@ def set_zgrid(grid_h,jpk,max_dep,min_dep,z_dim):
     e3f[:] = e3t_1d
     e3uw[:] = e3t_1d
     e3vw[:] = e3t_1d
+    gdept[:] = gdept_0
+    gdepw[:] = gdepw_0
 
     grid_z = {'dept_1d':dept_1d,'e3t_1d':e3t_1d,'e3w_1d':e3w_1d,'e3t':e3t,'e3u':e3u,'e3v':e3v,'e3w':e3w,'e3f':e3f, \
-              'e3uw':e3uw,'e3vw':e3vw}
+              'e3uw':e3uw,'e3vw':e3vw,'gdept_0':gdept_0,'gdept':gdept,'gdepw_0':gdepw_0,'gdepw':gdepw}
 
     return grid_z
 
@@ -121,33 +124,37 @@ def write_coord_H(fileout, grid_h):
     # Get input size and create appropriate dimensions
     # TODO: add some sort of error handling
     nx, ny = np.shape(grid_h['lont'])
+    nt = 1
     dataset.createDimension('x', nx)
     dataset.createDimension('y', ny)
+    dataset.createDimension('t', nt)
 
     # Create Variables
     nav_lon = dataset.createVariable('nav_lon', np.float32, ('y', 'x'))
     nav_lat = dataset.createVariable('nav_lat', np.float32, ('y', 'x'))
+    time_counter = dataset.createVariable('time_counter',np.float32,('t'))
 
-    glamt = dataset.createVariable('glamt', np.float64, ('y', 'x'))
-    glamu = dataset.createVariable('glamu', np.float64, ('y', 'x'))
-    glamv = dataset.createVariable('glamv', np.float64, ('y', 'x'))
-    glamf = dataset.createVariable('glamf', np.float64, ('y', 'x'))
-    gphit = dataset.createVariable('gphit', np.float64, ('y', 'x'))
-    gphiu = dataset.createVariable('gphiu', np.float64, ('y', 'x'))
-    gphiv = dataset.createVariable('gphiv', np.float64, ('y', 'x'))
-    gphif = dataset.createVariable('gphif', np.float64, ('y', 'x'))
+    glamt = dataset.createVariable('glamt', np.float64, ('t','y', 'x'))
+    glamu = dataset.createVariable('glamu', np.float64, ('t','y', 'x'))
+    glamv = dataset.createVariable('glamv', np.float64, ('t','y', 'x'))
+    glamf = dataset.createVariable('glamf', np.float64, ('t','y', 'x'))
+    gphit = dataset.createVariable('gphit', np.float64, ('t','y', 'x'))
+    gphiu = dataset.createVariable('gphiu', np.float64, ('t','y', 'x'))
+    gphiv = dataset.createVariable('gphiv', np.float64, ('t','y', 'x'))
+    gphif = dataset.createVariable('gphif', np.float64, ('t','y', 'x'))
 
-    ge1t = dataset.createVariable('e1t', np.float64, ('y', 'x'))
-    ge1u = dataset.createVariable('e1u', np.float64, ('y', 'x'))
-    ge1v = dataset.createVariable('e1v', np.float64, ('y', 'x'))
-    ge1f = dataset.createVariable('e1f', np.float64, ('y', 'x'))
-    ge2t = dataset.createVariable('e2t', np.float64, ('y', 'x'))
-    ge2u = dataset.createVariable('e2u', np.float64, ('y', 'x'))
-    ge2v = dataset.createVariable('e2v', np.float64, ('y', 'x'))
-    ge2f = dataset.createVariable('e2f', np.float64, ('y', 'x'))
+    ge1t = dataset.createVariable('e1t', np.float64, ('t','y', 'x'))
+    ge1u = dataset.createVariable('e1u', np.float64, ('t','y', 'x'))
+    ge1v = dataset.createVariable('e1v', np.float64, ('t','y', 'x'))
+    ge1f = dataset.createVariable('e1f', np.float64, ('t','y', 'x'))
+    ge2t = dataset.createVariable('e2t', np.float64, ('t','y', 'x'))
+    ge2u = dataset.createVariable('e2u', np.float64, ('t','y', 'x'))
+    ge2v = dataset.createVariable('e2v', np.float64, ('t','y', 'x'))
+    ge2f = dataset.createVariable('e2f', np.float64, ('t','y', 'x'))
 
     nav_lon.units, nav_lon.long_name = 'km', 'X'
     nav_lat.units, nav_lat.long_name = 'km', 'Y'
+    time_counter.units, time_counter.long_name = 'seconds','time_counter'
 
     # Populate file with input data
     # TODO: do we need to transpose?
@@ -192,29 +199,38 @@ def write_coord_Z(fileout, grid_h,grid_z):
     # Get input size and create appropriate dimensions
     # TODO: add some sort of error handling
     nx, ny, nz = np.shape(grid_z['e3t'])
+    nt = 1
     dataset.createDimension('x', nx)
     dataset.createDimension('y', ny)
     dataset.createDimension('z', nz)
+    dataset.createDimension('t', nt)
 
 
     # Create Variables
     nav_lon = dataset.createVariable('nav_lon', np.float32, ('y', 'x'))
     nav_lat = dataset.createVariable('nav_lat', np.float32, ('y', 'x'))
     nav_lev = dataset.createVariable('nav_lev', np.float32, 'z')
+    time_counter = dataset.createVariable('time_counter', np.float32, ('t'))
 
-    ge3t1d = dataset.createVariable('e3t_1d', np.float64, 'z')
-    ge3w1d = dataset.createVariable('e3w_1d', np.float64, 'z')
-    gbat = dataset.createVariable('mbathy', np.float64, ('y', 'x'))
-    ge3t = dataset.createVariable('e3t', np.float64, ('z','y', 'x'))
-    ge3u = dataset.createVariable('e3u', np.float64, ('z','y', 'x'))
-    ge3v = dataset.createVariable('e3v', np.float64, ('z','y', 'x'))
-    ge3f = dataset.createVariable('e3f', np.float64, ('z','y', 'x'))
-    ge3uw = dataset.createVariable('e3uw', np.float64, ('z', 'y', 'x'))
-    ge3vw = dataset.createVariable('e3vw', np.float64, ('z', 'y', 'x'))
+    ge3t1d = dataset.createVariable('e3t_0', np.float64, ('t','z'))
+    ge3w1d = dataset.createVariable('e3w_0', np.float64, ('t','z'))
+    gdept_0 = dataset.createVariable('gdept_0', np.float64, ('t','z'))
+    gdepw_0 = dataset.createVariable('gdepw_0', np.float64, ('t','z'))
+    gbat = dataset.createVariable('mbathy', np.float64, ('t','y', 'x'))
+    ge3t = dataset.createVariable('e3t', np.float64, ('t','z','y', 'x'))
+    ge3u = dataset.createVariable('e3u', np.float64, ('t','z','y', 'x'))
+    ge3v = dataset.createVariable('e3v', np.float64, ('t','z','y', 'x'))
+    ge3w = dataset.createVariable('e3w', np.float64, ('t', 'z', 'y', 'x'))
+    ge3f = dataset.createVariable('e3f', np.float64, ('t','z','y', 'x'))
+    ge3uw = dataset.createVariable('e3uw', np.float64, ('t','z', 'y', 'x'))
+    ge3vw = dataset.createVariable('e3vw', np.float64, ('t','z', 'y', 'x'))
+    gdept = dataset.createVariable('gdept', np.float64, ('t','z', 'y', 'x'))
+    gdepw = dataset.createVariable('gdepw', np.float64, ('t','z', 'y', 'x'))
 
     nav_lon.units, nav_lon.long_name = 'km', 'X'
     nav_lat.units, nav_lat.long_name = 'km', 'Y'
     nav_lev.units, nav_lev.long_name = 'm', 'Z'
+    time_counter.units, time_counter.long_name = 'seconds', 'time_counter'
 
     # Populate file with input data
     # TODO: do we need to transpose?
@@ -226,12 +242,17 @@ def write_coord_Z(fileout, grid_h,grid_z):
     ge3u[:, :, :] = grid_z['e3u'].T
     ge3v[:, :, :] = grid_z['e3v'].T
     ge3f[:, :, :] = grid_z['e3f'].T
+    ge3w[:, :, :] = grid_z['e3w'].T
     ge3uw[:, :, :] = grid_z['e3uw'].T
     ge3vw[:, :, :] = grid_z['e3vw'].T
 
     ge3t1d[:] = grid_z['e3t_1d']
     ge3w1d[:] = grid_z['e3w_1d']
     gbat[:,:] = grid_h['batt'].T
+    gdept[:,:,:] = grid_z['gdept'].T
+    gdept_0[:] = grid_z['gdept_0']
+    gdepw[:,:,:] = grid_z['gdepw'].T
+    gdepw_0[:] = grid_z['gdepw_0']
 
 
     # Close off pointer
@@ -446,10 +467,72 @@ def plot_grids(lat_in,lon_in,new_lat,new_lon,off_lat,off_lon,src_lat,src_lon):
     ax1.plot(src_lon,src_lat, color='green',marker='o',linestyle="")
     ax2.plot(off_lon,off_lat, color='yellow',marker='.',linestyle="")
     ax2.plot(src_lon, src_lat, color='green', marker='o', linestyle="")
-    # tweak margins of subplots as tight layout doesn't work
+    # tweak margins of subplots as tight layout doesn't work for some reason?
     plt.subplots_adjust(left=0.01, right=1, top=0.9, bottom=0.05,wspace=0.01)
 
     plt.show()
+
+def write_mask(fileout,grid_h,grid_z):
+    '''
+    Writes out a
+
+    Args:
+
+    Returns:
+    '''
+    # Open pointer to netcdf file
+    dataset = Dataset(fileout, 'w', format='NETCDF4_CLASSIC')
+
+    # Get input size and create appropriate dimensions
+    # TODO: add some sort of error handling
+    nt = 1
+    nx, ny, nz = np.shape(grid_z['e3t'])
+    dataset.createDimension('x', nx)
+    dataset.createDimension('y', ny)
+    dataset.createDimension('z', nz)
+    dataset.createDimension('t', nt)
+    # Create Variables
+    nav_lon = dataset.createVariable('nav_lon', np.float32, ('y', 'x'))
+    nav_lat = dataset.createVariable('nav_lat', np.float32, ('y', 'x'))
+    nav_lev = dataset.createVariable('nav_lev', np.float32, 'z')
+    time_counter = dataset.createVariable('time_counter', np.float32, ('t'))
+
+    fmaskutil = dataset.createVariable('fmaskutil', np.float64, ('t','y', 'x'))
+    tmaskutil = dataset.createVariable('tmaskutil', np.float64, ('t','y', 'x'))
+    umaskutil = dataset.createVariable('umaskutil', np.float64, ('t','y', 'x'))
+    vmaskutil = dataset.createVariable('vmaskutil', np.float64, ('t','y', 'x'))
+
+    fmask = dataset.createVariable('fmask', np.float64, ('t','z','y', 'x'))
+    tmask = dataset.createVariable('tmask', np.float64, ('t','z','y', 'x'))
+    umask = dataset.createVariable('umask', np.float64, ('t','z','y', 'x'))
+    vmask = dataset.createVariable('vmask', np.float64, ('t','z','y', 'x'))
+
+    nav_lon.units, nav_lon.long_name = 'km', 'X'
+    nav_lat.units, nav_lat.long_name = 'km', 'Y'
+    nav_lev.units, nav_lev.long_name = 'm', 'Z'
+    time_counter.units, time_counter.long_name = 'seconds', 'time_counter'
+
+    # Populate file with input data
+    # TODO: do we need to transpose?
+    nav_lon[:, :] = grid_h['lont'].T
+    nav_lat[:, :] = grid_h['latt'].T
+    nav_lev[:] = grid_z['dept_1d']
+
+    threeD_mask = np.zeros(np.shape(grid_z['e3t']))
+    twoD_mask = np.zeros(np.shape(grid_h['e1t']))
+
+    fmask[:,:,:] = threeD_mask.T
+    fmaskutil[:,:] = twoD_mask.T
+    tmask[:,:,:] = threeD_mask.T
+    tmaskutil[:,:] = twoD_mask.T
+    umask[:,:,:] = threeD_mask.T
+    umaskutil[:,:] = twoD_mask.T
+    vmask[:,:,:] = threeD_mask.T
+    vmaskutil[:,:] = twoD_mask.T
+
+    dataset.close()
+
+    return 0
 
 def write_parameter(fileout, grid_h,grid_z,params):
     '''
@@ -460,31 +543,41 @@ def write_parameter(fileout, grid_h,grid_z,params):
     Returns:
     '''
 
-    #TODO: implement multiple parameters using dicts.
+    #TODO: implement multiple parameters using params dict.
 
     # Open pointer to netcdf file
     dataset = Dataset(fileout, 'w', format='NETCDF4_CLASSIC')
 
     # Get input size and create appropriate dimensions
     # TODO: add some sort of error handling
+    nt = 2
     nx, ny, nz = np.shape(grid_z['e3t'])
     dataset.createDimension('x', nx)
     dataset.createDimension('y', ny)
     dataset.createDimension('z', nz)
+    dataset.createDimension('time', nt)
+
 
     # Create Variables
     longitude = dataset.createVariable('longitude', np.float32, ('y', 'x'))
     latitude = dataset.createVariable('latitude', np.float32, ('y', 'x'))
     depth = dataset.createVariable('depth', np.float32, 'z')
+    time_counter = dataset.createVariable('time', np.float32, ('time'))
     longitude.units, longitude.long_name = 'km', 'X'
     latitude.units, latitude.long_name = 'km', 'Y'
     depth.units, depth.long_name = 'm', 'Z'
+    time_counter.units = 'hours since 1950-01-01 00:00:00'
+    time_counter.long_name = 'Time (hours since 1950-01-01)'
+    time_counter.axis = 'T'
+    time_counter._CoordinateAxisType = "Time"
+    time_counter.calendar = 'gregorian'
+    time_counter.standard_name = 'time'
     # Populate file with input data
     longitude[:, :] = grid_h['lont'].T
     latitude[:, :] = grid_h['latt'].T
     depth[:] = grid_z['dept_1d']
-
-    parameter = dataset.createVariable(str(params['name']), np.float64, ('z', 'y', 'x'))
+    time_counter[:] = (587340.00,588060.00)
+    parameter = dataset.createVariable(str(params['name']), np.float64, ('time','z', 'y', 'x'))
     parameter.units, parameter.long_name = str(params['units']), str(params['longname'])
     value_fill = np.ones(np.shape(grid_z['e3t']))
     value_fill = value_fill*params['const_value']
@@ -492,5 +585,42 @@ def write_parameter(fileout, grid_h,grid_z,params):
 
     # Close off pointer
     dataset.close()
+    return 0
 
+def write_bathy(fileout, grid_h,grid_z):
+    '''
+    Writes out a
+
+    Args:
+
+    Returns:
+    '''
+    # Open pointer to netcdf file
+    dataset = Dataset(fileout, 'w', format='NETCDF4_CLASSIC')
+
+    # Get input size and create appropriate dimensions
+    # TODO: add some sort of error handling
+    nx, ny = np.shape(grid_h['e1t'])
+    dataset.createDimension('x', nx)
+    dataset.createDimension('y', ny)
+
+
+    # Create Variables
+    nav_lon = dataset.createVariable('nav_lon', np.float32, ('y', 'x'))
+
+    nav_lat = dataset.createVariable('nav_lat', np.float32, ('y', 'x'))
+    nav_lon.units, nav_lon.long_name = 'km', 'X'
+    nav_lat.units, nav_lat.long_name = 'km', 'Y'
+
+    Bathymetry = dataset.createVariable('Bathymetry', np.float64,('y','x'))
+    Bathymetry.units,Bathymetry.long_name = 'meters','Median depth by area'
+    nav_lon[:, :] = grid_h['lont'].T
+    nav_lat[:, :] = grid_h['latt'].T
+
+    Bathy = np.ones((nx,ny))
+    Bathy = Bathy * grid_z['dept_1d'][-1]
+
+    Bathymetry[:,:] = Bathy
+
+    dataset.close()
     return 0

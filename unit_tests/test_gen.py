@@ -90,21 +90,27 @@ def _main():
     if write_coord_H + write_coord_Z == 0:
         print("Success!")
 
-
     # plot orginal, rotatated and source lat and lon
     gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
                grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
-    # save new lat lon to dataset
-    #ds.nav_lat.values[:], ds.nav_lon.values[:] = new_lat,new_lon
-    # save dataset to netcdf
-    #ds.to_netcdf('unit_tests/test_data/rot_'+str(rot)+'_dst_hgr_zps.nc')
-    # close data files
-    #ds.close()
-    #src.close()
-    out_fname = 'unit_tests/test_data/output_boundary.nc'
+
+    # write bathy files (constant bathy)
+    bathy_fname = 'unit_tests/test_data/dst_bathy.nc'
+    bathy = gt.write_bathy(bathy_fname,grid_h2,grid_z2)
+    if bathy == 0:
+        print('Success!')
+
+    # write boundary files (constant parameters)
+    out_fname = 'unit_tests/test_data/output_boundary_T.nc'
     params = {'name':'thetao','const_value':15.0,'longname':'temperature','units':'degreesC'}
     boundary = gt.write_parameter(out_fname,grid_h1,grid_z1,params)
     if boundary == 0:
+        print('Success!')
+
+    #write_mask
+    mask_fname = 'unit_tests/test_data/mask.nc'
+    mask = gt.write_mask(mask_fname,grid_h1,grid_z1)
+    if mask == 0:
         print('Success!')
 
 if __name__ == '__main__':

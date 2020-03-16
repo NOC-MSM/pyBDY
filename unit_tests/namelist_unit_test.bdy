@@ -30,11 +30,11 @@
 !------------------------------------------------------------------------------
 !  grid information 
 !------------------------------------------------------------------------------
-   sn_src_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/src_coordinates.nc'
-   sn_src_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/src_coordinates.nc'
-   sn_dst_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/dst_hgr_zps.nc'
-   sn_dst_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/dst_zgr_zps.nc'
-   sn_src_msk = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/src_bathy.nc'
+   sn_src_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_src_hgr_zps.nc'
+   sn_src_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_src_zgr_zps.nc'
+   sn_dst_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_dst_hgr_zps.nc'
+   sn_dst_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_dst_zgr_zps.nc'
+   sn_src_msk = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/mask.nc'
    sn_bathy   = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/dst_bathy.nc'
 
 !------------------------------------------------------------------------------
