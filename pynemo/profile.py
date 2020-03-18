@@ -505,7 +505,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         if settings['use_cmems'] == True:
             logger.info('using CMEMS variable names......')
             if ln_tra:
-                var_in['t'].extend(['thetao'])  # ,'so'])
+                var_in['t'].extend(['thetao'])
+                var_in['t'].extend(['so'])
 
             if ln_dyn2d or ln_dyn3d:
                 var_in['u'].extend(['uo'])

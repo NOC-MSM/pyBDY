@@ -33,16 +33,16 @@ def test_temp():
         assert abs(temp_[temp_ != 0.0].max() - 15) <= 0.001
         assert abs(temp_[temp_ != 0.0].min() - 15) <= 0.001
 
-#def test_salinty():
-#    test_files = glob.glob('unit_tests/test_outputs/unit_test*')
-#    for t in test_files:
-#        results = Dataset(t)  # open results
-#        sal = results['so'][:]
-#        results.close()
-#        sal_ = np.ma.masked_array(sal,sal == -32767.0)
-#        assert abs(sal_[sal_!=0.0].mean() - 35) <= 0.001
-#        assert abs(sal_[sal_ != 0.0].max() - 35) <= 0.001
-#        assert abs(sal_[sal_ != 0.0].min() - 35) <= 0.001
+def test_salinty():
+    test_files = glob.glob('unit_tests/test_outputs/unit_test*')
+    for t in test_files:
+        results = Dataset(t)  # open results
+        sal = results['so'][:]
+        results.close()
+        sal_ = np.ma.masked_array(sal,sal == -32767.0)
+        assert abs(sal_[sal_!=0.0].mean() - 35) <= 0.001
+        assert abs(sal_[sal_ != 0.0].max() - 35) <= 0.001
+        assert abs(sal_[sal_ != 0.0].min() - 35) <= 0.001
 
 # clean up test I/O
 files = glob.glob('unit_tests/test_outputs/*')

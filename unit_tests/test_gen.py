@@ -105,7 +105,9 @@ def _main():
 
     # write boundary files (constant parameters)
     out_fname = 'unit_tests/test_data/output_boundary_T.nc'
-    params = {'name':'thetao','const_value':15.0,'longname':'temperature','units':'degreesC'}
+    params = {'param1': {'name':'thetao','const_value':15.0,'longname':'temperature','units':'degreesC'},
+              'param2': {'name':'so','const_value':35.0,'longname':'salinity','units':'PSU'}
+              }
     boundary = gt.write_parameter(out_fname,grid_h1,grid_z1,params)
     if boundary == 0:
         print('Success!')

@@ -557,7 +557,6 @@ def write_parameter(fileout, grid_h,grid_z,params):
     dataset.createDimension('z', nz)
     dataset.createDimension('time', nt)
 
-
     # Create Variables
     longitude = dataset.createVariable('longitude', np.float32, ('y', 'x'))
     latitude = dataset.createVariable('latitude', np.float32, ('y', 'x'))
@@ -577,11 +576,12 @@ def write_parameter(fileout, grid_h,grid_z,params):
     latitude[:, :] = grid_h['latt'].T
     depth[:] = grid_z['dept_1d']
     time_counter[:] = np.linspace(587340.00,588060.00,31)
-    parameter = dataset.createVariable(str(params['name']), np.float64, ('time','z', 'y', 'x'))
-    parameter.units, parameter.long_name = str(params['units']), str(params['longname'])
-    value_fill = np.ones(np.shape(grid_z['e3t']))
-    value_fill = value_fill*params['const_value']
-    parameter[:, :, :] = value_fill.T
+    for key in params:
+        parameter = dataset.createVariable(str(params[key]['name']), np.float64, ('time','z', 'y', 'x'))
+        parameter.units, parameter.long_name = str(params[key]['units']), str(params[key]['longname'])
+        value_fill = np.ones(np.shape(grid_z['e3t']))
+        value_fill = value_fill*params[key]['const_value']
+        parameter[:, :, :] = value_fill.T
 
     # Close off pointer
     dataset.close()
