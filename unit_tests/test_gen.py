@@ -48,7 +48,10 @@ def _main():
     grid_z2 = gt.set_zgrid(grid_h2,jpk,max_dep,min_dep,z_end_dim)
     write_coord_H = gt.write_coord_H(h_fname,grid_h2)
     write_coord_Z = gt.write_coord_Z(z_fname,grid_h2,grid_z2)
-    if write_coord_H + write_coord_Z == 0:
+    # write bathy files (constant bathy)
+    bathy_fname = 'unit_tests/test_data/test_dst_bathy.nc'
+    bathy = gt.write_bathy(bathy_fname,grid_h2,grid_z2)
+    if write_coord_H + write_coord_Z + bathy == 0:
         print("Success!")
 
     # set rotation and origin point
@@ -66,7 +69,10 @@ def _main():
     grid_rot['latf'], grid_rot['lonf'] = gt.rotate_around_point(grid_h2['latf'], grid_h2['lonf'], theta, origin)
     write_coord_H = gt.write_coord_H(rot_h_fname,grid_rot)
     write_coord_Z = gt.write_coord_Z(rot_z_fname,grid_rot,grid_z2)
-    if write_coord_H + write_coord_Z == 0:
+    # write bathy files (constant bathy)
+    bathy_fname = 'unit_tests/test_data/test_rot_dst_bathy.nc'
+    bathy = gt.write_bathy(bathy_fname,grid_rot,grid_z2)
+    if write_coord_H + write_coord_Z + bathy == 0:
         print("Success!")
 
     # offset grid
@@ -81,24 +87,21 @@ def _main():
     min_dep = 10
     z_end_dim = 1
     sf = 10
-    h_fname = 'unit_tests/test_data/test_dst_offset_hgr_zps.nc'
-    z_fname = 'unit_tests/test_data/test_dst_offset_zgr_zps.nc'
+    h_fname = 'unit_tests/test_data/test_offset_dst_hgr_zps.nc'
+    z_fname = 'unit_tests/test_data/test_offset_dst_zgr_zps.nc'
     grid_h3 = gt.set_hgrid(dx,dy,jpi,jpj,zoffx,zoffy,sf)
     grid_z3 = gt.set_zgrid(grid_h2,jpk,max_dep,min_dep,z_end_dim)
     write_coord_H = gt.write_coord_H(h_fname,grid_h3)
     write_coord_Z = gt.write_coord_Z(z_fname,grid_h3,grid_z3)
-    if write_coord_H + write_coord_Z == 0:
+    # write bathy files (constant bathy)
+    bathy_fname = 'unit_tests/test_data/test_offset_dst_bathy.nc'
+    bathy = gt.write_bathy(bathy_fname,grid_h3,grid_z3)
+    if write_coord_H + write_coord_Z + bathy == 0:
         print("Success!")
 
     # plot orginal, rotatated and source lat and lon
     gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
                grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
-
-    # write bathy files (constant bathy)
-    bathy_fname = 'unit_tests/test_data/dst_bathy.nc'
-    bathy = gt.write_bathy(bathy_fname,grid_h2,grid_z2)
-    if bathy == 0:
-        print('Success!')
 
     # write boundary files (constant parameters)
     out_fname = 'unit_tests/test_data/output_boundary_T.nc'
@@ -112,6 +115,8 @@ def _main():
     mask = gt.write_mask(mask_fname,grid_h1,grid_z1)
     if mask == 0:
         print('Success!')
+
+    return 0
 
 if __name__ == '__main__':
     _main()

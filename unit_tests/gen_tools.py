@@ -518,8 +518,8 @@ def write_mask(fileout,grid_h,grid_z):
     nav_lat[:, :] = grid_h['latt'].T
     nav_lev[:] = grid_z['dept_1d']
 
-    threeD_mask = np.zeros(np.shape(grid_z['e3t']))
-    twoD_mask = np.zeros(np.shape(grid_h['e1t']))
+    threeD_mask = np.ones(np.shape(grid_z['e3t']))
+    twoD_mask = np.ones(np.shape(grid_h['e1t']))
 
     fmask[:,:,:] = threeD_mask.T
     fmaskutil[:,:] = twoD_mask.T
@@ -550,7 +550,7 @@ def write_parameter(fileout, grid_h,grid_z,params):
 
     # Get input size and create appropriate dimensions
     # TODO: add some sort of error handling
-    nt = 2
+    nt = 31
     nx, ny, nz = np.shape(grid_z['e3t'])
     dataset.createDimension('x', nx)
     dataset.createDimension('y', ny)
@@ -576,7 +576,7 @@ def write_parameter(fileout, grid_h,grid_z,params):
     longitude[:, :] = grid_h['lont'].T
     latitude[:, :] = grid_h['latt'].T
     depth[:] = grid_z['dept_1d']
-    time_counter[:] = (587340.00,588060.00)
+    time_counter[:] = np.linspace(587340.00,588060.00,31)
     parameter = dataset.createVariable(str(params['name']), np.float64, ('time','z', 'y', 'x'))
     parameter.units, parameter.long_name = str(params['units']), str(params['longname'])
     value_fill = np.ones(np.shape(grid_z['e3t']))

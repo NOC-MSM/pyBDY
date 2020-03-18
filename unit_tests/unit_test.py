@@ -9,11 +9,19 @@ import numpy as np
 import glob
 import os
 
-def test_run():
-    stdout, stderr = Popen(['pynemo','-s','unit_tests/namelist_unit_test.bdy'], stdout=PIPE, stderr=PIPE,
-                           universal_newlines=True).communicate()
-    assert 'Execution Time' in stdout
+# generate test data by import test gen script and executing main function
+import unit_tests.test_gen as tg
+gen_data = tg._main()
+if gen_data != 0:
+    raise Exception('DONT PANIC: Input data generation failed')
 
+# run PyNEMO with test data
+stdout, stderr = Popen(['pynemo', '-s', 'unit_tests/namelist_unit_test.bdy'], stdout=PIPE, stderr=PIPE,
+                       universal_newlines=True).communicate()
+if 'Execution Time' not in stdout:
+    raise Exception('DONT PANIC: Test Run Failed')
+
+# perform tests
 def test_temp():
     test_files = glob.glob('unit_tests/test_outputs/unit_test*')
     for t in test_files:
@@ -36,10 +44,18 @@ def test_temp():
 #        assert abs(sal_[sal_ != 0.0].max() - 35) <= 0.001
 #        assert abs(sal_[sal_ != 0.0].min() - 35) <= 0.001
 
-def test_rm_output():
-    files = glob.glob('unit_tests/test_outputs/*')
-    for f in files:
-        os.remove(f)
-    files = glob.glob('unit_tests/test_outputs/*')
-    assert len(files) == 0
+# clean up test I/O
+files = glob.glob('unit_tests/test_outputs/*')
+for f in files:
+    os.remove(f)
+files = glob.glob('unit_tests/test_outputs/*')
+if len(files) != 0:
+    raise Exception('DONT PANIC: output folder not cleaned')
+
+files = glob.glob('unit_tests/test_data/*')
+for f in files:
+    os.remove(f)
+files = glob.glob('unit_tests/test_data/*')
+if len(files) != 0:
+    raise Exception('DONT PANIC: input folder not cleaned')
 
