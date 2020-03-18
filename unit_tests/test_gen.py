@@ -100,8 +100,8 @@ def _main():
         print("Success!")
 
     # plot orginal, rotatated and source lat and lon
-    gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
-               grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
+    #gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
+    #           grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
 
     # write boundary files (constant parameters)
     out_fname = 'unit_tests/test_data/output_boundary_T.nc'

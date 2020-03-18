@@ -32,17 +32,17 @@
 !------------------------------------------------------------------------------
    sn_src_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_src_hgr_zps.nc'
    sn_src_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_src_zgr_zps.nc'
-   sn_dst_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_dst_hgr_zps.nc'
-   sn_dst_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_dst_zgr_zps.nc'
+   sn_dst_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_rot_dst_hgr_zps.nc'
+   sn_dst_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_rot_dst_zgr_zps.nc'
    sn_src_msk = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/mask.nc'
-   sn_bathy   = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_dst_bathy.nc'
+   sn_bathy   = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_rot_dst_bathy.nc'
 
 !------------------------------------------------------------------------------
 !  I/O 
 !------------------------------------------------------------------------------
    sn_src_dir = '/Users/thopri/Projects/PyNEMO/unit_tests/src_data_unit_tests.ncml' ! src_files/'
    sn_dst_dir = '/Users/thopri/Projects/PyNEMO/unit_tests/test_outputs'
-   sn_fn      = 'unit_test'             ! prefix for output files
+   sn_fn      = 'unit_test_rotated'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
    sn_dst_metainfo = 'Unit Test Data'

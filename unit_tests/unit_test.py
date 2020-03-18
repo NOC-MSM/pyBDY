@@ -15,11 +15,18 @@ gen_data = tg._main()
 if gen_data != 0:
     raise Exception('DONT PANIC: Input data generation failed')
 
+# TODO: run different bdy files or change bdy file for different grid types for testing.
+
 # run PyNEMO with test data
-stdout, stderr = Popen(['pynemo', '-s', 'unit_tests/namelist_unit_test.bdy'], stdout=PIPE, stderr=PIPE,
+namelist_files = glob.glob('unit_tests/namelist*')
+for n in namelist_files:
+    stdout, stderr = Popen(['pynemo', '-s', n], stdout=PIPE, stderr=PIPE,
                        universal_newlines=True).communicate()
 if 'Execution Time' not in stdout:
     raise Exception('DONT PANIC: Test Run Failed')
+
+# TODO: Learn about parameterising the tests so that different parameters can be checked
+#       with same code. Rather than having similar test functions repeated.
 
 # perform tests
 def test_temp():
