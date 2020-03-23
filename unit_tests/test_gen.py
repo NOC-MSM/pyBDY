@@ -15,8 +15,8 @@ def _main():
     #Source Coords
     dx = 1000 # units in km
     dy = 1000 # units in Km
-    jpi = 15
-    jpj = 15
+    jpi = 16
+    jpj = 16
     jpk = 10
     max_dep = 100
     min_dep = 10
@@ -28,15 +28,15 @@ def _main():
     write_coord_H = gt.write_coord_H(h_fname,grid_h1)
     write_coord_Z = gt.write_coord_Z(z_fname,grid_h1,grid_z1)
     if write_coord_H + write_coord_Z == 0:
-        print("Success!")
+        print("Parent grid generation successful!")
 
     #Dst Coords
     dx = 100 # units in km
     dy = 100 # units in Km
     jpi = 100
     jpj = 100
-    zoffx = 20
-    zoffy = 20
+    zoffx = 30
+    zoffy = 30
     jpk = 10
     max_dep = 100
     min_dep = 10
@@ -52,12 +52,12 @@ def _main():
     bathy_fname = 'unit_tests/test_data/test_dst_bathy.nc'
     bathy = gt.write_bathy(bathy_fname,grid_h2,grid_z2)
     if write_coord_H + write_coord_Z + bathy == 0:
-        print("Success!")
+        print("Org child grid generation successful!")
 
     # set rotation and origin point
     rot = 45
     theta = gt.radians(rot)
-    origin = (7,7)
+    origin = (8,8)
 
     # rotate grid
     rot_h_fname = 'unit_tests/test_data/test_rot_dst_hgr_zps.nc'
@@ -73,7 +73,7 @@ def _main():
     bathy_fname = 'unit_tests/test_data/test_rot_dst_bathy.nc'
     bathy = gt.write_bathy(bathy_fname,grid_rot,grid_z2)
     if write_coord_H + write_coord_Z + bathy == 0:
-        print("Success!")
+        print("Rotated child grid generation Successful!")
 
     # offset grid
     dx = 100 # units in km
@@ -97,26 +97,27 @@ def _main():
     bathy_fname = 'unit_tests/test_data/test_offset_dst_bathy.nc'
     bathy = gt.write_bathy(bathy_fname,grid_h3,grid_z3)
     if write_coord_H + write_coord_Z + bathy == 0:
-        print("Success!")
+        print("Offset child grid gneration successful!")
 
     # plot orginal, rotatated and source lat and lon
-    #gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
-    #           grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
+    gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
+               grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
 
     # write boundary files (constant parameters)
     out_fname = 'unit_tests/test_data/output_boundary_T.nc'
     params = {'param1': {'name':'thetao','const_value':15.0,'longname':'temperature','units':'degreesC'},
               'param2': {'name':'so','const_value':35.0,'longname':'salinity','units':'PSU'}
               }
+    # TODO: This needs to be adapted for parameters that are not on the T grid.
     boundary = gt.write_parameter(out_fname,grid_h1,grid_z1,params)
     if boundary == 0:
-        print('Success!')
+        print('Boundary file generation successful!')
 
     #write_mask
     mask_fname = 'unit_tests/test_data/mask.nc'
     mask = gt.write_mask(mask_fname,grid_h1,grid_z1)
     if mask == 0:
-        print('Success!')
+        print('Mask file generation successful!')
 
     return 0
 

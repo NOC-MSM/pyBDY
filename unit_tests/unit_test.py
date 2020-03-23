@@ -10,20 +10,24 @@ import glob
 import os
 
 # generate test data by import test gen script and executing main function
+# TODO: Maybe simplify this, as this import imports other scripts and is abit clunky.
 import unit_tests.test_gen as tg
 gen_data = tg._main()
+# if a non zero is return than the grid and data generation has failed.
 if gen_data != 0:
-    raise Exception('DONT PANIC: Input data generation failed')
-
-# TODO: run different bdy files or change bdy file for different grid types for testing.
+    raise Exception('DONT PANIC: Input grid and boundary data generation failed')
 
 # run PyNEMO with test data
+# generate list of namelist.bdy files to run
 namelist_files = glob.glob('unit_tests/namelist*')
 for n in namelist_files:
+    # run each of the namelist files
     stdout, stderr = Popen(['pynemo', '-s', n], stdout=PIPE, stderr=PIPE,
                        universal_newlines=True).communicate()
-if 'Execution Time' not in stdout:
-    raise Exception('DONT PANIC: Test Run Failed')
+    # check to see if PyNEMO ran correctly, no execution time in stdout is indication of this.
+    if 'Execution Time' not in stdout:
+        print(stderr)
+        raise Exception('DONT PANIC: Test Run '+str(n)+'  Failed')
 
 # TODO: Learn about parameterising the tests so that different parameters can be checked
 #       with same code. Rather than having similar test functions repeated.
