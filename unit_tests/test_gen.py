@@ -80,8 +80,8 @@ def _main():
     dy = 100 # units in Km
     jpi = 100
     jpj = 100
-    zoffx = 25
-    zoffy = 25
+    zoffx = 35
+    zoffy = 35
     jpk = 10
     max_dep = 100
     min_dep = 10
@@ -100,17 +100,24 @@ def _main():
         print("Offset child grid gneration successful!")
 
     # plot orginal, rotatated and source lat and lon
-    gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
-               grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
+    #gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
+    #           grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
 
     # write boundary files (constant parameters)
-    out_fname = 'unit_tests/test_data/output_boundary_T.nc'
-    params = {'param1': {'name':'thetao','const_value':15.0,'longname':'temperature','units':'degreesC'},
-              'param2': {'name':'so','const_value':35.0,'longname':'salinity','units':'PSU'}
+    out_fname = 'unit_tests/test_data/output_boundary' #drop file extension
+    params_t = {'param1': {'name':'thetao','const_value':15.0,'longname':'temperature','units':'degreesC'},
+              'param2': {'name':'so','const_value':35.0,'longname':'salinity','units':'PSU'},
+              'param3': {'name': 'zos', 'const_value': 1.0, 'longname': 'sea surface height', 'units': 'metres'}
+              }
+    params_u = {'param1': {'name':'uo','const_value':0.5,'longname':'Zonal current','units':'ms-1'}
+              }
+    params_v = {'param1': {'name':'vo','const_value':0.5,'longname':'Meridional current','units':'ms-1'}
               }
     # TODO: This needs to be adapted for parameters that are not on the T grid.
-    boundary = gt.write_parameter(out_fname,grid_h1,grid_z1,params)
-    if boundary == 0:
+    boundary_T = gt.write_parameter(out_fname,grid_h1,grid_z1,params_t,'t')
+    boundary_U = gt.write_parameter(out_fname, grid_h1, grid_z1, params_u, 'u')
+    boundary_V = gt.write_parameter(out_fname, grid_h1, grid_z1, params_v, 'v')
+    if boundary_T + boundary_U + boundary_V == 0:
         print('Boundary file generation successful!')
 
     #write_mask

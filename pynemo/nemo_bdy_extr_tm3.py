@@ -275,6 +275,8 @@ class Extract:
         dist_merid = diff_lon_rv * np.cos(dst_lat_rep * np.pi / 180)
         dist_zonal = sc_lat_rv[ind_rv] - dst_lat_rep
 
+        # TODO: would a greater circle distance function be better here?
+
         dist_tot = np.power((np.power(dist_merid, 2) +
                              np.power(dist_zonal, 2)), 0.5)
         dist_tot = dist_tot.reshape(ind.shape, order='F').T

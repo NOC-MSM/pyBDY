@@ -534,7 +534,7 @@ def write_mask(fileout,grid_h,grid_z):
 
     return 0
 
-def write_parameter(fileout, grid_h,grid_z,params):
+def write_parameter(fileout, grid_h,grid_z,params,grid):
     '''
     Writes out a
 
@@ -543,10 +543,8 @@ def write_parameter(fileout, grid_h,grid_z,params):
     Returns:
     '''
 
-    #TODO: implement multiple parameters using params dict.
-
     # Open pointer to netcdf file
-    dataset = Dataset(fileout, 'w', format='NETCDF4_CLASSIC')
+    dataset = Dataset(fileout+'_'+grid.upper()+'.nc', 'w', format='NETCDF4_CLASSIC')
 
     # Get input size and create appropriate dimensions
     # TODO: add some sort of error handling
@@ -560,7 +558,7 @@ def write_parameter(fileout, grid_h,grid_z,params):
     # Create Variables
     longitude = dataset.createVariable('longitude', np.float32, ('y', 'x'))
     latitude = dataset.createVariable('latitude', np.float32, ('y', 'x'))
-    depth = dataset.createVariable('depth', np.float32, 'z')
+    depth = dataset.createVariable('depth'+grid, np.float32, 'z')
     time_counter = dataset.createVariable('time', np.float32, ('time'))
     longitude.units, longitude.long_name = 'km', 'X'
     latitude.units, latitude.long_name = 'km', 'Y'
