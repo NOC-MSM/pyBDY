@@ -59,6 +59,9 @@ def test_salinty():
         assert abs(sal_[sal_ != 0.0].max() - 35) <= 0.001
         assert abs(sal_[sal_ != 0.0].min() - 35) <= 0.001
 
+# TODO: add in checking so that settings in the bdy file are checked to see if
+#  U and V and SSH tests are required. e.g. ln_dyn2d is set to true.
+
 def test_ssh():
     test_files = glob.glob('unit_tests/test_outputs/*bdyT*')
     if len(test_files) == 0:

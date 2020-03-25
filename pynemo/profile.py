@@ -97,6 +97,8 @@ def download_cmems(setup_filepath=0):
 
     Setup = setup.Setup(setup_filepath)  # default settings file
     settings = Setup.settings
+    if settings['download_static'] == False:
+        logger.info('CMEMS static data download not requested')
     if settings['download_static'] == True:
         for re in range(settings['num_retry']):
             logger.info('CMEMS Static data requested: downloading static data now.... (this may take awhile)')
@@ -121,6 +123,8 @@ def download_cmems(setup_filepath=0):
                     sys.exit(static)
         dl_cmems.clean_up(settings)
     # subset downloaded static grid files to match downloaded CMEMS data
+    if settings['subset_static'] == False:
+        logger.info('CMEMS subset static data not requested')
     if settings['subset_static'] == True:
         logger.info('CMEMS subset static data requested: subsetting now......')
         subset_static = dl_cmems.subset_static(settings)
@@ -131,6 +135,9 @@ def download_cmems(setup_filepath=0):
             dl_cmems.clean_up(settings)
             sys.exit(subset_static)
         dl_cmems.clean_up(settings)
+
+    if settings['download_cmems'] == False:
+        logger.info('CMEMS Boundary data download not requested')
 
     if settings['download_cmems'] == True:
 
