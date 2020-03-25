@@ -30,17 +30,17 @@
 !------------------------------------------------------------------------------
 !  grid information 
 !------------------------------------------------------------------------------
-   sn_src_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_src_hgr_zps.nc'
-   sn_src_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_src_zgr_zps.nc'
-   sn_dst_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_offset_dst_hgr_zps.nc'
-   sn_dst_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_offset_dst_zgr_zps.nc'
-   sn_src_msk = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/mask.nc'
-   sn_bathy   = '/Users/thopri/Projects/PyNEMO/unit_tests/test_data/test_offset_dst_bathy.nc'
+   sn_src_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/test_src_hgr_zps.nc'
+   sn_src_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/test_src_zgr_zps.nc'
+   sn_dst_hgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/test_offset_dst_hgr_zps.nc'
+   sn_dst_zgr = '/Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/test_offset_dst_zgr_zps.nc'
+   sn_src_msk = '/Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/mask.nc'
+   sn_bathy   = '/Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/test_offset_dst_bathy.nc'
 
 !------------------------------------------------------------------------------
 !  I/O 
 !------------------------------------------------------------------------------
-   sn_src_dir = '/Users/thopri/Projects/PyNEMO/unit_tests/src_data_unit_tests.ncml' ! src_files/'
+   sn_src_dir = '/Users/thopri/Projects/PyNEMO/unit_tests/unit_tests.ncml' ! src_files/'
    sn_dst_dir = '/Users/thopri/Projects/PyNEMO/unit_tests/test_outputs'
    sn_fn      = 'unit_test_offset'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
@@ -61,7 +61,7 @@
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file 
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .false.              !  boundary conditions for 
+    ln_dyn2d       = .true.              !  boundary conditions for
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for 
                                           !  baroclinic velocities

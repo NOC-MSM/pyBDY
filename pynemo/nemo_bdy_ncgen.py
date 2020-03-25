@@ -240,7 +240,7 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd, va
 
         ncid.close()
 
-    if var_nam[0] == 'thetao' or var_nam[0] == 'so':
+    if var_nam[0] == 'thetao' or var_nam[0] == 'so' or var_nam[0] == 'uo' or var_nam[0] == 'vo':
         logging.info('CMEMS variables identified, using default CMEMS variables.....')
         gridNames = ['T', 'I', 'U', 'V', 'E', 'Z'] # All possible grids
 
@@ -286,6 +286,7 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd, va
             vartmpID = ncid.createVariable('thetao', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
                                           fill_value=fv)
             varsalID = ncid.createVariable('so', 'f4', ('time_counter', 'z', 'yb', 'xb', ), fill_value=fv)
+            varsshID = ncid.createVariable('zos', 'f4', ('time_counter', 'z', 'yb', 'xb',), fill_value=fv)
             if grd == 'I':
                 varildID = ncid.createVariable('ileadfra', 'f4', ('time_counter', 'yb', 'xb',),
                                                fill_value=fv)
@@ -297,16 +298,16 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd, va
             varztID = ncid.createVariable('depthu', 'f4', ('z', 'yb', 'xb', ), fill_value=fv)
             varbtuID = ncid.createVariable('vobtcrtx', 'f4', ('time_counter', 'yb', 'xb', ),
                                            fill_value=fv)
-            vartouID = ncid.createVariable('vozocrtx', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+            vartouID = ncid.createVariable('uo', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
                                            fill_value=fv)
         elif grd == 'V':
             varztID = ncid.createVariable('depthv', 'f4', ('z', 'yb', 'xb', ))
             varbtvID = ncid.createVariable('vobtcrty', 'f4', ('time_counter', 'yb', 'xb', ),
                                            fill_value=fv)
-            vartovID = ncid.createVariable('vomecrty', 'f4', ('time_counter', 'z', 'yb', 'xb',),
+            vartovID = ncid.createVariable('vo', 'f4', ('time_counter', 'z', 'yb', 'xb',),
                                            fill_value=fv)
         elif grd == 'Z':
-            varsshID = ncid.createVariable('sossheig', 'f4', ('time_counter', 'yb', 'xb', ),
+            varsshID = ncid.createVariable('zos', 'f4', ('time_counter', 'yb', 'xb', ),
                                            fill_value=fv)
             varmskID = ncid.createVariable('bdy_msk', 'f4', ('y', 'x', ), fill_value=fv)
         else:

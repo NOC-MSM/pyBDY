@@ -894,12 +894,12 @@ class Extract:
             
 #        for v in self.variables:
         for v in self.var_nam:
-            if self.settings['dyn2d']: # Calculate depth averaged velocity
-                tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
-                tmp_var = np.reshape(self.d_bdy[v][year]['data'][:,:,:], tile_dz.shape)
-                tmp_var = np.nansum(tmp_var * tile_dz, 2) /np.nansum(tile_dz, 2)
-            else: # Replace NaNs with specified fill value
-                tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:,:,:]),
+            #if self.settings['dyn2d']: # Calculate depth averaged velocity
+            #    tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
+            #    tmp_var = np.reshape(self.d_bdy[v][year]['data'][:,:,:], tile_dz.shape)
+            #    tmp_var = np.nansum(tmp_var * tile_dz, 2) /np.nansum(tile_dz, 2)
+            #else: # Replace NaNs with specified fill value
+            tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:,:,:]),
                                             self.settings['fv'], 
                                             self.d_bdy[v][year]['data'][:,:,:])
                

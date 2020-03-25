@@ -490,8 +490,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     
     emap = {}
     grd  = [  't',  'u',  'v']
-    pair = [ None, 'uv', 'uv'] # TODO: devolve this to the namelist?
-    
+    #pair = [ None, 'uv', 'uv'] # TODO: devolve this to the namelist?
+    pair = [None, None, None]
     # TODO: The following is a temporary stop gap to assign variables for both CMEMS downloads
     #  and existing variable names. In future we need a slicker way of determining the variables to extract.
     # Perhaps by scraping the .ncml file - this way biogeochemical tracers

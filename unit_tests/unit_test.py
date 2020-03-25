@@ -34,7 +34,9 @@ for n in namelist_files:
 
 # perform tests
 def test_temp():
-    test_files = glob.glob('unit_tests/test_outputs/unit_test*')
+    test_files = glob.glob('unit_tests/test_outputs/*bdyT*')
+    if len(test_files) == 0:
+        raise Exception('DONT PANIC: no temperature test files found')
     for t in test_files:
         results = Dataset(t) # open results
         temp = results['thetao'][:]
@@ -45,7 +47,9 @@ def test_temp():
         assert abs(temp_[temp_ != 0.0].min() - 15) <= 0.001
 
 def test_salinty():
-    test_files = glob.glob('unit_tests/test_outputs/unit_test*')
+    test_files = glob.glob('unit_tests/test_outputs/*bdyT*')
+    if len(test_files) == 0:
+        raise Exception('DONT PANIC: no salinity test files found')
     for t in test_files:
         results = Dataset(t)  # open results
         sal = results['so'][:]
@@ -55,18 +59,57 @@ def test_salinty():
         assert abs(sal_[sal_ != 0.0].max() - 35) <= 0.001
         assert abs(sal_[sal_ != 0.0].min() - 35) <= 0.001
 
+def test_ssh():
+    test_files = glob.glob('unit_tests/test_outputs/*bdyT*')
+    if len(test_files) == 0:
+        raise Exception('DONT PANIC: no SSH test files found')
+    for t in test_files:
+        results = Dataset(t)  # open results
+        ssh = results['zos'][:]
+        results.close()
+        ssh_ = np.ma.masked_array(ssh,ssh == -32767.0)
+        assert abs(ssh_[ssh_!=0.0].mean() - 1.0) <= 0.001
+        assert abs(ssh_[ssh_ != 0.0].max() - 1.0) <= 0.001
+        assert abs(ssh_[ssh_ != 0.0].min() - 1.0) <= 0.001
+
+def test_U():
+    test_files = glob.glob('unit_tests/test_outputs/*bdyU*')
+    if len(test_files) == 0:
+        raise Exception('DONT PANIC: no U current test files found')
+    for t in test_files:
+        results = Dataset(t)  # open results
+        U = results['uo'][:]
+        results.close()
+        U_ = np.ma.masked_array(U,U == -32767.0)
+        assert abs(U_[U_!=0.0].mean() - 0.5) <= 0.001
+        assert abs(U_[U_ != 0.0].max() - 0.5) <= 0.001
+        assert abs(U_[U_ != 0.0].min() - 0.5) <= 0.001
+
+def test_V():
+    test_files = glob.glob('unit_tests/test_outputs/*bdyV*')
+    if len(test_files) == 0:
+        raise Exception('DONT PANIC: no V current test files found')
+    for t in test_files:
+        results = Dataset(t)  # open results
+        V = results['vo'][:]
+        results.close()
+        V_ = np.ma.masked_array(V,V == -32767.0)
+        assert abs(V_[V_!=0.0].mean() - 0.5) <= 0.001
+        assert abs(V_[V_ != 0.0].max() - 0.5) <= 0.001
+        assert abs(V_[V_ != 0.0].min() - 0.5) <= 0.001
+
 # clean up test I/O
-files = glob.glob('unit_tests/test_outputs/*')
-for f in files:
-    os.remove(f)
-files = glob.glob('unit_tests/test_outputs/*')
-if len(files) != 0:
-    raise Exception('DONT PANIC: output folder not cleaned')
+def test_rm_out():
+    files = glob.glob('unit_tests/test_outputs/*')
+    for f in files:
+        os.remove(f)
+    files = glob.glob('unit_tests/test_outputs/*')
+    assert len(files) == 0
 
-files = glob.glob('unit_tests/test_data/*')
-for f in files:
-    os.remove(f)
-files = glob.glob('unit_tests/test_data/*')
-if len(files) != 0:
-    raise Exception('DONT PANIC: input folder not cleaned')
 
+def test_rm_in():
+    files = glob.glob('unit_tests/test_inputs/*')
+    for f in files:
+        os.remove(f)
+    files = glob.glob('unit_tests/test_inputs/*')
+    assert len(files) == 0
