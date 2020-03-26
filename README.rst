@@ -21,15 +21,15 @@ Steps to take to install PyNEMO, creating a specific conda virtual environment i
 - Create conda environment for PyNEMO::
 
     $ cd to/PyNEMO/directory
-    $ conda env create -f environment_pynemo.yml
+    $ conda env create -f pynemo_37.yml
 
 - Activate the new virtual environment::
 
-   $ source activate pynemo_env
+   $ source activate pynemo3
 
-- Install Jave JRE (outside scope of this readme) and link libjvm.dylib to LD_LIBRARY_PATH variable::
+- Install Jave JDK (outside scope of this readme) and link Java Home to conda environment::
 
-    $ export LD_LIBRARY_PATH=/path/to/java/library/folder/containing/libjvm.dylib:$LD_LIBARY_PATH # see notes below
+    $ export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-13.0.2.jdk/Contents/Home # see notes below
 
 - Install PyNEMO::
   
@@ -39,45 +39,39 @@ Steps to take to install PyNEMO, creating a specific conda virtual environment i
 
 This should result in PyNEMO being installed in the virtual environment, and can be checked by entering::  
 
-    $ pynemo -v
+    $ pynemo -h
 
 Resulting in a help usage prompt::
  
-    $ usage: pynemo -g -s <namelist.bdy> 
+    $ usage: pynemo [-g] -s -d <namelist.bdy>
+       -g (optional) will open settings editor before extracting the data
+       -s <bdy filename> file to use
+       -d (optional) will download CMEMS data using provided bdy file
 
 The virtual environment can be deactivated to return you to the normal prompt by typing::  
     
-$ conda deactivate
+    $ conda deactivate
+
 To reactivate, the following needs to be typed::
 
-    $ source activate pynemo_env
+    $ source activate pynemo3
 
 
 To use PyNEMO, the following command is entered: (the example will run an benchmarking test)::
 
     $ pynemo -s /path/to/namelist/file (e.g. PyNEMO/inputs/namelist_remote.bdy)
 
-**Additional NOTES** 
+Other commands include -d which downloads the specified CMEMS data in the namelist bdy file.::
 
-For Macbook Pro 2015, macOS Mojave and Java SDK 13 and JRE 8 the following path for the libjvm library should be correct:: 
+    $ pynemo -d /PyNEMO/inputs/namelist_cmems.bdy
 
-    /Library/Java/JavaVirtualMachines/jdk-13.0.1.jdk/Contents/Home/lib/server
+**Additional NOTES**
 
-Resulting in the following command: (this will be different for different java versions and operating systems)::
+The above path for Java Home was valid for a Macbook Pro 2015 with macOS Catalina and Java SDK 13.0.2
+however for different java versions, operating systems etc this may be different
 
-    $ export LD_LIBRARY_PATH=/Library/Java/JavaVirtualMachines/jdk-13.0.1.jdk/Contents/Home/lib/server:$LD_LIBRARY_PATH
+The conda environment yaml file has been tested with Miniconda 3.7 and found to install the enironment correctly.
 
-For an iMac 2013, macOS Catalina and JRE 8 only the followinng path was found to be correct::
-    
-   /Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/server
-   
-With the following command being required to set the environment variable::
-
-    $ export LD_LIBRARY_PATH=/Library/Internet\ Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/lib/server:$LD_LIBRARY_PATH
-
-The conda environment creation command has not yet been tested. The yml document (can be opened using text editor) gives a list of all the modules and their versions that are required for PyNEMO so a environment can be constructed using this document as reference (or if you use pip!)
-
-**Update** conda environment yaml file has been tested (and works!) on a Macbook Pro 2015 and iMac 2013 running Anaconda 3.7 and Miniconda 3.7 respectively. 
 
 Contribution guidelines
 -----------------------
@@ -100,6 +94,16 @@ The PyNEMO module can be tested using the bench marking namelist bdy file in the
 .. image:: /screenshots/example_bdy_coords.png
   :width: 800
   :alt: Example BDY coords output
+
+Unit Tests
+-------------------
+
+To test operation of the PyNEMO module, running the PyTest script in the unit tests folder will perform a range tests on different child grids,
+checking the interpolation of the source data on to the child grid. To do this the following command is required::
+
+    $ pytest -q unit_tests/unit_test.py
+
+The command should be run from the main PyNEMO directory to enable modules to be imported correctly.
 
 Who do I talk to?
 -----------------

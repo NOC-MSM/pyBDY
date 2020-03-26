@@ -2,22 +2,22 @@
   <ns0:aggregation type="union">
     <ns0:netcdf>
       <ns0:aggregation dimName="time" name="temperature" type="joinExisting">
-        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/" regExp=".*T\.nc$" />
+        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/pynemo/unit_tests/test_inputs/" regExp=".*T\.nc$" />
       </ns0:aggregation>
     </ns0:netcdf>
     <ns0:netcdf>
       <ns0:aggregation dimName="time" name="zonal_velocity" type="joinExisting">
-        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/" regExp=".*U\.nc$" />
+        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/pynemo/unit_tests/test_inputs/" regExp=".*U\.nc$" />
       </ns0:aggregation>
     </ns0:netcdf>
     <ns0:netcdf>
       <ns0:aggregation dimName="time" name="meridian_velocity" type="joinExisting">
-        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/" regExp=".*V\.nc$" />
+        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/pynemo/unit_tests/test_inputs/" regExp=".*V\.nc$" />
       </ns0:aggregation>
     </ns0:netcdf>
     <ns0:netcdf>
       <ns0:aggregation dimName="time" name="sea_surface_height" type="joinExisting">
-        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/unit_tests/test_inputs/" regExp=".*T\.nc$" />
+        <ns0:scan location="file://Users/thopri/Projects/PyNEMO/pynemo/unit_tests/test_inputs/" regExp=".*T\.nc$" />
       </ns0:aggregation>
     </ns0:netcdf>
   </ns0:aggregation>

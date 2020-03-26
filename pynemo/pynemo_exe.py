@@ -18,7 +18,7 @@ def main():
     setup_file = ''
     mask_gui = False
     try:
-        opts, dummy_args = getopt.getopt(sys.argv[1:], "hsdg", ["help", "setup=", "download_cmems=", "mask_gui"])
+        opts, dummy_args = getopt.getopt(sys.argv[1:], "hs:dg", ["help", "setup=", "download_cmems=", "mask_gui"])
     except getopt.GetoptError:
         print("usage: pynemo -g -s -d <namelist.bdy> ")
         sys.exit(2)
@@ -41,6 +41,7 @@ def main():
             t1 = time.time()
             print("CMEMS download time: %s" % (t1 - t0))
             sys.exit(0)
+
     if setup_file == "":
         print("usage: pynemo [-g] -s <namelist.bdy> ")
         sys.exit(2)
