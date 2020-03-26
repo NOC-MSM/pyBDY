@@ -98,12 +98,13 @@ The PyNEMO module can be tested using the bench marking namelist bdy file in the
 Unit Tests
 -------------------
 
-To test operation of the PyNEMO module, running the PyTest script in the unit tests folder will perform a range tests on different child grids,
-checking the interpolation of the source data on to the child grid. To do this the following command is required::
+To test operation of the PyNEMO module, running the PyTest script in the unit tests folder will perform a range of tests on different child grids,
+e.g. checking the interpolation of the source data on to the child grid. To do this the following command is required::
 
-    $ pytest -q unit_tests/unit_test.py
+    $ pytest -q pynemo/unit_test.py
 
-The command should be run from the main PyNEMO directory to enable modules to be imported correctly.
+Currently **(26/03/2020)** there are 7 tests that cover checking the interpolation results of different child grids. The input data is generated as part of the
+test and is removed afterwards. The number of tests will be increased in the future to cover more PyNEMO functionality.
 
 Who do I talk to?
 -----------------
@@ -114,5 +115,6 @@ Who do I talk to?
 
 * Other community or team contact
 
+  thopri
 
 For more information regarding the use and development of PyNEMO see: [PyNEMO Wiki](https://github.com/jdha/PyNEMO/wiki)

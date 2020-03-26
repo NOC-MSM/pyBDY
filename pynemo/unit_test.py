@@ -8,6 +8,7 @@ from netCDF4 import Dataset
 import numpy as np
 import glob
 import os
+from pynemo.unit_tests import UT_config as config
 
 # generate test data by import test gen script and executing main function
 # TODO: Maybe simplify this, as this import imports other scripts and is abit clunky.
@@ -19,7 +20,7 @@ if gen_data != 0:
 
 # run PyNEMO with test data
 # generate list of namelist.bdy files to run
-namelist_files = glob.glob('pynemo/unit_tests/namelist*')
+namelist_files = glob.glob(config.unit_dir+'namelist*')
 for n in namelist_files:
     # run each of the namelist files
     stdout, stderr = Popen(['pynemo', '-s', n], stdout=PIPE, stderr=PIPE,
@@ -34,7 +35,7 @@ for n in namelist_files:
 
 # perform tests
 def test_temp():
-    test_files = glob.glob('pynemo/unit_tests/test_outputs/*bdyT*')
+    test_files = glob.glob(config.output_dir+'*bdyT*')
     if len(test_files) == 0:
         raise Exception('DONT PANIC: no temperature test files found')
     for t in test_files:
@@ -47,7 +48,7 @@ def test_temp():
         assert abs(temp_[temp_ != 0.0].min() - 15) <= 0.001
 
 def test_salinty():
-    test_files = glob.glob('pynemo/unit_tests/test_outputs/*bdyT*')
+    test_files = glob.glob(config.output_dir+'*bdyT*')
     if len(test_files) == 0:
         raise Exception('DONT PANIC: no salinity test files found')
     for t in test_files:
@@ -63,7 +64,7 @@ def test_salinty():
 #  U and V and SSH tests are required. e.g. ln_dyn2d is set to true.
 
 def test_ssh():
-    test_files = glob.glob('pynemo/unit_tests/test_outputs/*bdyT*')
+    test_files = glob.glob(config.output_dir+'*bdyT*')
     if len(test_files) == 0:
         raise Exception('DONT PANIC: no SSH test files found')
     for t in test_files:
@@ -76,7 +77,7 @@ def test_ssh():
         assert abs(ssh_[ssh_ != 0.0].min() - 1.0) <= 0.001
 
 def test_U():
-    test_files = glob.glob('pynemo/unit_tests/test_outputs/*bdyU*')
+    test_files = glob.glob(config.output_dir+'*bdyU*')
     if len(test_files) == 0:
         raise Exception('DONT PANIC: no U current test files found')
     for t in test_files:
@@ -89,7 +90,7 @@ def test_U():
         assert abs(U_[U_ != 0.0].min() - 0.5) <= 0.001
 
 def test_V():
-    test_files = glob.glob('pynemo/unit_tests/test_outputs/*bdyV*')
+    test_files = glob.glob(config.output_dir+'*bdyV*')
     if len(test_files) == 0:
         raise Exception('DONT PANIC: no V current test files found')
     for t in test_files:
@@ -103,16 +104,16 @@ def test_V():
 
 # clean up test I/O
 def test_rm_out():
-    files = glob.glob('pynemo/unit_tests/test_outputs/*')
+    files = glob.glob(config.output_dir+'*')
     for f in files:
         os.remove(f)
-    files = glob.glob('pynemo/unit_tests/test_outputs/*')
+    files = glob.glob(config.output_dir+'*')
     assert len(files) == 0
 
 
 def test_rm_in():
-    files = glob.glob('pynemo/unit_tests/test_inputs/*')
+    files = glob.glob(config.output_dir+'*')
     for f in files:
         os.remove(f)
-    files = glob.glob('pynemo/unit_tests/test_inputs/*')
+    files = glob.glob(config.output_dir+'*')
     assert len(files) == 0
