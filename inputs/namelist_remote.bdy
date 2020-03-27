@@ -56,7 +56,7 @@
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file 
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .true.              !  boundary conditions for
+    ln_dyn2d       = .false.              !  boundary conditions for
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for 
                                           !  baroclinic velocities
