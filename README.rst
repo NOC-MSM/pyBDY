@@ -64,13 +64,26 @@ Other commands include -d which downloads the specified CMEMS data in the nameli
 
     $ pynemo -d /PyNEMO/inputs/namelist_cmems.bdy
 
+To use the CMEMS download service an account needs to be created at http://marine.copernicus.eu/services-portfolio/access-to-products/
+Once created the user name and password need to be added to PyNEMO. To do this a file with the name CMEMS_cred.py in the utils folder
+needs to be created with two defined strings one called user and the other called pwd to define the user name and password.::
+
+    $ touch pynemo/utils/CMEMS_cred.py
+    $ vim pynemo/utils/CMEMS_cred.py
+    press i
+    user='username'
+    pwd='password'
+    press esc and then :q
+
+**IMPORTANT** This will create a py file in the right place with the parameters required to download CMEMS, the password is stored as plain text so please
+do not reuse any existing password!
+
 **Additional NOTES**
 
 The above path for Java Home was valid for a Macbook Pro 2015 with macOS Catalina and Java SDK 13.0.2
 however for different java versions, operating systems etc this may be different
 
 The conda environment yaml file has been tested with Miniconda 3.7 and found to install the enironment correctly.
-
 
 Contribution guidelines
 -----------------------
@@ -100,7 +113,9 @@ Unit Tests
 To test operation of the PyNEMO module, running the PyTest script in the unit tests folder will perform a range of tests on different child grids,
 e.g. checking the interpolation of the source data on to the child grid. To do this the following command is required::
 
-    $ pytest -q pynemo/unit_test.py
+    $ pytest -q pynemo/pynemo_unit_test.py
+
+The results of the test will show if all tests pass or the errors that result from failed tests.
 
 Currently **(26/03/2020)** there are 7 tests that cover checking the interpolation results of different child grids. The input data is generated as part of the
 test and is removed afterwards. The number of tests will be increased in the future to cover more PyNEMO functionality.

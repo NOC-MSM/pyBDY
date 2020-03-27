@@ -4,7 +4,7 @@ Set of functions to download CMEMS files using FTP (for static mask data) and MO
 
 """
 # import modules
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, CalledProcessError
 import xml.etree.ElementTree as ET
 import logging
 import ftplib
@@ -16,8 +16,8 @@ import os
 #local imports
 from pynemo.utils import cmems_errors as errors
 
-logger = logging.getLogger('CMEMS Downloader')
-
+logger = logging.getLogger(__name__)
+# TODO: Fix double spacing issue on CMEMS download log entries.
 '''
 This function checks to see if the MOTU client is installed on the PyNEMO python environment. If it is not installed
 error code 1 is returned . If it is installed the version number of the installed client is returned as a string
@@ -48,8 +48,8 @@ def get_static(args):
     try:
         from pynemo.utils import CMEMS_cred
     except ImportError:
-        logger.error('Unable to import CMEMS creditials, see Readme for instructions on adding to PyNEMO')
-        return 'Unable to import credintials file'
+        logger.error('Unable to import CMEMS credentials, see Readme for instructions on adding to PyNEMO')
+        return 'Unable to import credential file, have you created one?'
     try:
         ftp = ftplib.FTP(host=args['ftp_server'], user=CMEMS_cred.user, passwd=CMEMS_cred.pwd)
     except ftplib.error_temp:
@@ -247,21 +247,18 @@ def request_cmems(args, date_min, date_max):
         with open(args['cmems_config'], 'w') as file:
             file.write(filedata)
 
-        stdout,stderr = Popen(['motuclient', '--size','--config-file', args['cmems_config']], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
-        stdout = stdout.strip()
-        stderr = stderr.strip()
+        with Popen(['motuclient', '--size','--config-file', args['cmems_config']], stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+            for line in p.stdout:
+                line = line.replace("[ INFO]", "")
+                logger.info(line)
+                if 'Error' in line:
+                    return 'Error found in CMEMS download report, please check downloaded data'
+                if 'Done' in line:
+                    logger.info('download of request xml file for variable ' + ' '.join(grids[key]) + ' successful')
+        if p.returncode != 0:
+            return str(p.returncode)
+
         logger.info('checking size of request for variables '+' '.join(grids[key]))
-
-        if 'ERROR' in stdout:
-            idx = stdout.find('ERROR')
-            return stdout[idx-1:-1]
-
-        if 'Done' in stdout:
-            logger.info('download of request xml file for variable ' + ' '.join(grids[key]) + ' successful')
-
-        if len(stderr) > 0:
-            return stderr
-
         xml = locs[key]+args['dl_prefix']+'_'+str(date_min)+'_'+str(date_max)+'_'+str(key)+ '.xml'
         try:
             root = ET.parse(xml).getroot()
@@ -272,19 +269,17 @@ def request_cmems(args, date_min, date_max):
 
         if 'OK' in root.attrib['msg']:
             logger.info('request valid, downloading now......')
-            stdout,stderr = Popen(['motuclient', '--config-file', args['cmems_config']], stdout=PIPE, stderr=PIPE, universal_newlines=True).communicate()
-            stdout = stdout.strip()
-            stderr = stderr.strip()
 
-            if 'ERROR' in stdout:
-                idx = stdout.find('ERROR')
-                return stdout[idx:-1]
-
-            if 'Done' in stdout:
-                logger.info('downloading of variables '+' '.join(grids[key])+' successful')
-
-            if len(stderr) > 0:
-                return stderr
+            with Popen(['motuclient', '--config-file', args['cmems_config']], stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+                for line in p.stdout:
+                    line = line.replace("[ INFO]", "")
+                    logger.info(line)
+                    if 'Error' in line:
+                        return 'Error found in CMEMS download report, please check downloaded data'
+                    if 'Done' in line:
+                        logger.info('download of request xml file for variable ' + ' '.join(grids[key]) + ' successful')
+            if p.returncode != 0:
+                return str(p.returncode)
 
         elif 'too big' in root.attrib['msg']:
             return 1

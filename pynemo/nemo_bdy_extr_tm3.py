@@ -847,7 +847,7 @@ class Extract:
                 try:
                     self.d_bdy[v][year]['data'] = intfn(np.arange(time_000, time_end, 86400))
                 except ValueError as e:
-                    logging.error('Value error in time_counter, does time horizon in data and bdy file match?')
+                    self.logger.error('Value error in time_counter, does time horizon in data and bdy file match?')
                     raise ValueError('Value error in time_counter, does time horizon in data and bdy file match?') from e
         else:
             for v in self.var_nam: 
@@ -857,7 +857,7 @@ class Extract:
                     try:
                         self.d_bdy[v].data[t::dstep, :, :] = intfn(np.arange(time_000,time_end, 86400))
                     except ValueError as e:
-                        logging.error('Value error in time_counter, does time horizon in data and bdy file match?')
+                        self.logger.error('Value error in time_counter, does time horizon in data and bdy file match?')
                         raise ValueError('Value error in time_counter, does time horizon in data and bdy file match?') from e
 
         self.time_counter = time_counter
