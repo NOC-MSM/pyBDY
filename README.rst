@@ -20,7 +20,7 @@ Steps to take to install PyNEMO, creating a specific conda virtual environment i
 - Install Conda, either Anaconda or Miniconda (outside scope of this readme)
 - Create conda environment for PyNEMO::
 
-    $ cd to/PyNEMO/directory
+    $ cd PyNEMO
     $ conda env create -f pynemo_37.yml
 
 - Activate the new virtual environment::
@@ -55,7 +55,6 @@ The virtual environment can be deactivated to return you to the normal prompt by
 To reactivate, the following needs to be typed::
 
     $ source activate pynemo3
-
 
 To use PyNEMO, the following command is entered: (the example will run an benchmarking test)::
 

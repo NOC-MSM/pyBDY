@@ -8,5 +8,7 @@ Config file for Unit test functions, file paths for I/O etc are defined here.
 input_dir = 'pynemo/unit_tests/test_inputs/'
 # test output directory
 output_dir = 'pynemo/unit_tests/test_outputs/'
-# unit test directory
-unit_dir = 'pynemo/unit_tests/'
+# namelist directory
+unit_dir = 'pynemo/unit_tests/namelists/'
+# plot grids
+plot_grids = False

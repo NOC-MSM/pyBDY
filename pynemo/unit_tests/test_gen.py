@@ -9,8 +9,7 @@ The source coordinate grid is also plotted (green).
 from pynemo.unit_tests import gen_tools as gt
 from pynemo.unit_tests import UT_config as config
 
-# TODO: remove hard coded file names and directories.
-# TODO: organise the variables better, (maybe in a single dict?)
+# TODO: organise the variables better, (maybe in a single dict or class?)
 
 def _main():
     #define directory for test input data for PyNEMO
@@ -101,10 +100,10 @@ def _main():
     bathy = gt.write_bathy(bathy_fname,grid_h3,grid_z3)
     if write_coord_H + write_coord_Z + bathy == 0:
         print("Offset child grid gneration successful!")
-
-    # plot orginal, rotatated and source lat and lon
-    #gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
-    #           grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
+    if config.plot_grids == True:
+        #plot orginal, rotatated and source lat and lon
+        gt.plot_grids(grid_h2['latt'],grid_h2['lont'],grid_rot['latt'],grid_rot['lont'],grid_h3['latt'], \
+                      grid_h3['lont'],grid_h1['latt'],grid_h1['lont'])
 
     # write boundary files (constant parameters)
     out_fname = config.input_dir+'output_boundary' #drop file extension
@@ -116,7 +115,7 @@ def _main():
               }
     params_v = {'param1': {'name':'vo','const_value':0.5,'longname':'Meridional current','units':'ms-1'}
               }
-    # TODO: This needs to be adapted for parameters that are not on the T grid.
+    # Define Grids using lowercase character string
     boundary_T = gt.write_parameter(out_fname,grid_h1,grid_z1,params_t,'t')
     boundary_U = gt.write_parameter(out_fname, grid_h1, grid_z1, params_u, 'u')
     boundary_V = gt.write_parameter(out_fname, grid_h1, grid_z1, params_v, 'v')
