@@ -74,10 +74,6 @@ class Grid(object):
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='nrct.log', level=logging.INFO)
 
-# define a Handler which writes INFO messages or higher to the sys.stderr
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-
 def download_cmems(setup_filepath=0):
     '''
     CMEMS download function.
@@ -92,6 +88,7 @@ def download_cmems(setup_filepath=0):
     :param mask_gui:
     :return:
     '''
+    logger.info('============================================')
     logger.info('Start CMEMS download Logging: ' + time.asctime())
     logger.info('============================================')
 
@@ -122,6 +119,7 @@ def download_cmems(setup_filepath=0):
                     dl_cmems.clean_up(settings)
                     sys.exit(static)
         dl_cmems.clean_up(settings)
+
     # subset downloaded static grid files to match downloaded CMEMS data
     if settings['subset_static'] == False:
         logger.info('CMEMS subset static data not requested')
@@ -277,9 +275,9 @@ def download_cmems(setup_filepath=0):
                                     sys.exit(dy_dl)
 # end of messy if statements to split requests into months, weeks and days as needed.
         dl_cmems.clean_up(settings)
-
+    logger.info('============================================')
     logger.info('End CMEMS download: ' + time.asctime())
-    logger.info('==========================================')
+    logger.info('============================================')
 
 
 def process_bdy(setup_filepath=0, mask_gui=False):
@@ -297,7 +295,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     """
     # Start Logger
-    
+    logger.info('============================================')
     logger.info('Start NRCT Logging: '+time.asctime())
     logger.info('============================================')
     

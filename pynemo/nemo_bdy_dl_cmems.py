@@ -11,6 +11,7 @@ import ftplib
 import re
 import pandas as pd
 from datetime import datetime
+from pathlib import Path
 import glob
 import os
 #local imports
@@ -18,6 +19,7 @@ from pynemo.utils import cmems_errors as errors
 
 logger = logging.getLogger(__name__)
 # TODO: Fix double spacing issue on CMEMS download log entries.
+# TODO: Add some sort of file check so CMEMS files that are already successfully downloaded aren't redownloaded
 '''
 This function checks to see if the MOTU client is installed on the PyNEMO python environment. If it is not installed
 error code 1 is returned . If it is installed the version number of the installed client is returned as a string
@@ -51,6 +53,7 @@ def get_static(args):
         logger.error('Unable to import CMEMS credentials, see Readme for instructions on adding to PyNEMO')
         return 'Unable to import credential file, have you created one?'
     try:
+        logger.info('connecting to FTP host......')
         ftp = ftplib.FTP(host=args['ftp_server'], user=CMEMS_cred.user, passwd=CMEMS_cred.pwd)
     except ftplib.error_temp:
         return 'temporary error in FTP connection, please try running PyNEMO again........'
@@ -64,10 +67,13 @@ def get_static(args):
     # TODO: add try excepts to handle issues with files being missing etc.
     # TODO: Check there is enough space to download as well.....
     # TODO: Handle timeouts etc as well......
+    logger.info('navigating to download directoy.......')
     ftp.cwd(args['static_dir'])
+    logger.info('generating download filename list......')
     filenames = args['static_filenames'].split(' ')
     for f in filenames:
         try:
+            logger.info('downloading '+f+' now......')
             ftp.retrbinary("RETR " + f, open(args['cmems_dir']+f, 'wb').write)
         except ftplib.error_temp:
             return 'temporary error in FTP download, please try running PyNEMO again........'
@@ -243,48 +249,55 @@ def request_cmems(args, date_min, date_max):
             filedata = filedata.replace('4Y4LMQLAKP10YFUE', ','.join(grids[key]))
             filedata = filedata.replace('QFCN2P56ZQSA7YNK', locs[key])
             filedata = filedata.replace('YSLTB459ZW0P84GE', args['dl_prefix']+'_'+str(date_min)+'_'+str(date_max)+'_'+str(key)+'.nc')
-    
-        with open(args['cmems_config'], 'w') as file:
-            file.write(filedata)
 
-        with Popen(['motuclient', '--size','--config-file', args['cmems_config']], stdout=PIPE, bufsize=1, universal_newlines=True) as p:
-            for line in p.stdout:
-                line = line.replace("[ INFO]", "")
-                logger.info(line)
-                if 'Error' in line:
-                    return 'Error found in CMEMS download report, please check downloaded data'
-                if 'Done' in line:
-                    logger.info('download of request xml file for variable ' + ' '.join(grids[key]) + ' successful')
-        if p.returncode != 0:
-            return str(p.returncode)
+            file_chk = Path(locs[key] + args['dl_prefix'] + '_' + str(date_min) + '_' + str(date_max) + '_' + str(key) + '.nc')
 
-        logger.info('checking size of request for variables '+' '.join(grids[key]))
-        xml = locs[key]+args['dl_prefix']+'_'+str(date_min)+'_'+str(date_max)+'_'+str(key)+ '.xml'
-        try:
-            root = ET.parse(xml).getroot()
-        except ET.ParseError:
-            return 'Parse Error in XML file, This generally occurs when CMEMS service is down and returns an unexpected XML.'
+            if file_chk.is_file() == True:
+                logger.warning('filename of download already exists, please check file is valid, skipping to next item......')
 
-        logger.info('size of request ' + root.attrib['size'])
+            if file_chk.is_file() == False:
 
-        if 'OK' in root.attrib['msg']:
-            logger.info('request valid, downloading now......')
+                with open(args['cmems_config'], 'w') as file:
+                    file.write(filedata)
 
-            with Popen(['motuclient', '--config-file', args['cmems_config']], stdout=PIPE, bufsize=1, universal_newlines=True) as p:
-                for line in p.stdout:
-                    line = line.replace("[ INFO]", "")
-                    logger.info(line)
-                    if 'Error' in line:
-                        return 'Error found in CMEMS download report, please check downloaded data'
-                    if 'Done' in line:
-                        logger.info('download of request xml file for variable ' + ' '.join(grids[key]) + ' successful')
-            if p.returncode != 0:
-                return str(p.returncode)
+                with Popen(['motuclient', '--size','--config-file', args['cmems_config']], stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+                    for line in p.stdout:
+                        line = line.replace("[ INFO]", "")
+                        logger.info(line)
+                        if 'Error' in line:
+                            return 'Error found in CMEMS download report, please check downloaded data'
+                        if 'Done' in line:
+                            logger.info('download of request xml file for variable ' + ' '.join(grids[key]) + ' successful')
+                if p.returncode != 0:
+                    return str(p.returncode)
 
-        elif 'too big' in root.attrib['msg']:
-            return 1
-        else:
-            return 'unable to determine if size request is valid (too big or not)'
+                logger.info('checking size of request for variables '+' '.join(grids[key]))
+                xml = locs[key]+args['dl_prefix']+'_'+str(date_min)+'_'+str(date_max)+'_'+str(key)+ '.xml'
+                try:
+                    root = ET.parse(xml).getroot()
+                except ET.ParseError:
+                    return 'Parse Error in XML file, This generally occurs when CMEMS service is down and returns an unexpected XML.'
+
+                logger.info('size of request ' + root.attrib['size']+'Kb')
+
+                if 'OK' in root.attrib['msg']:
+                    logger.info('request valid, downloading now......')
+
+                    with Popen(['motuclient', '--config-file', args['cmems_config']], stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+                        for line in p.stdout:
+                            line = line.replace("[ INFO]", "")
+                            logger.info(line)
+                            if 'Error' in line:
+                                return 'Error found in CMEMS download report, please check downloaded data'
+                            if 'Done' in line:
+                                logger.info('download of request data file for variable ' + ' '.join(grids[key]) + ' successful')
+                    if p.returncode != 0:
+                        return str(p.returncode)
+
+                elif 'too big' in root.attrib['msg']:
+                    return 1
+                else:
+                    return 'unable to determine if size request is valid (too big or not)'
 
     return 0
 
