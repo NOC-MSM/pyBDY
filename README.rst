@@ -78,6 +78,9 @@ needs to be created with two defined strings one called user and the other calle
 **IMPORTANT** This will create a py file in the right place with the parameters required to download CMEMS, the password is stored as plain text so please
 do not reuse any existing password!
 
+PyNEMO creates a log file be default, this provided info, warning and error messages. By default this is called nrct.log and is saved in the directory where pynemo is run from. (usually /PyNEMO)
+New runs are appended onto the end of the log file so it will periodically need to be delelted to reduce the size of the log.
+
 **Additional NOTES**
 
 The above path for Java Home was valid for a Macbook Pro 2015 with macOS Catalina and Java SDK 13.0.2

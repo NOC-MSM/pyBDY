@@ -288,7 +288,7 @@ def request_cmems(args, date_min, date_max):
                             line = line.replace("[ INFO]", "")
                             logger.info(line)
                             if 'Error' in line:
-                                return 'Error found in CMEMS download report, please check downloaded data'
+                                return line
                             if 'Done' in line:
                                 logger.info('download of request data file for variable ' + ' '.join(grids[key]) + ' successful')
                     if p.returncode != 0:
