@@ -8,6 +8,7 @@ Module to extract constituents for the input grid mapped onto output grid
 # pylint: disable=no-name-in-module
 import copy
 from . import tpxo_extract_HC
+from . import fes_extract_HC
 import numpy as np
 from netCDF4 import Dataset
 from pynemo import nemo_bdy_grid_angle
@@ -16,8 +17,8 @@ from pynemo.reader.factory import GetFile
 
 import logging
 
-def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
-    """ TPXO Global Tidal model interpolation including rotation grid"""
+def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
+    """ Global Tidal model interpolation including rotation grid"""
     key_transport = 0 # compute the velocities from transport
     numharm = len(comp)
     logger = logging.getLogger(__name__)
@@ -52,16 +53,25 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
+    if tide_model == 'tpxo':
+        tpxo_ux = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tpxo_vx = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
 
-    tpxo_ux = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-    tpxo_vx = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+        ampuX = tpxo_ux.amp
+        phauX = tpxo_ux.gph
+        ampvX = tpxo_vx.amp
+        phavX = tpxo_vx.gph
 
-    ampuX = tpxo_ux.amp
-    phauX = tpxo_ux.gph
-    ampvX = tpxo_vx.amp
-    phavX = tpxo_vx.gph
+    if tide_model == 'fes':
+        fes_uy = fes_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        fes_vy = fes_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
 
-    #check if ux data are missing
+        ampuY = fes_uy.amp
+        phauY = fes_uy.gph
+        ampvY = fes_vy.amp
+        phavY = fes_vy.gph
+
+        #check if ux data are missing
     ind = np.where((np.isnan(ampuX)) | (np.isnan(phauX)))
     if ind[0].size > 0:
         logger.warning('Missing zonal velocity along the x open boundary')
@@ -83,13 +93,23 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
-    tpxo_uy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-    tpxo_vy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+    if tide_model == 'tpxo':
+        tpxo_uy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tpxo_vy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
 
-    ampuY = tpxo_uy.amp
-    phauY = tpxo_uy.gph
-    ampvY = tpxo_vy.amp
-    phavY = tpxo_vy.gph
+        ampuY = tpxo_uy.amp
+        phauY = tpxo_uy.gph
+        ampvY = tpxo_vy.amp
+        phavY = tpxo_vy.gph
+
+    if tide_model == 'fes':
+        fes_uy = fes_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        fes_vy = fes_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+
+        ampuY = fes_uy.amp
+        phauY = fes_uy.gph
+        ampvY = fes_vy.amp
+        phavY = fes_vy.gph
 
     #check if ux data are missing
     ind = np.where((np.isnan(ampuY)) | (np.isnan(phauY)))

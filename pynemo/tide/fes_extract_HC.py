@@ -12,8 +12,8 @@ from netCDF4 import Dataset
 from scipy import interpolate
 import numpy as np
 
-class FESExtract(object):
-    """ This is TPXO model extract_hc.c implementation in python"""
+class FesExtract(object):
+    """ This is FES model extract_hc.c implementation in python adapted from tpxo_extract_HC.py"""
     def __init__(self, settings, lat, lon, grid_type):
         """initialises the Extract of tide information from the netcdf
            Tidal files"""
@@ -21,37 +21,69 @@ class FESExtract(object):
         tide_model = 'fes'
 
         if tide_model == 'fes':  # Define stuff to generalise Tide model
-           hRe_name = 'hRe'
-           hIm_name = 'hIm'
-           lon_z_name = 'lon_z'
-           lat_z_name = 'lat_z'	
-           URe_name = 'URe'
-           UIm_name = 'UIm'
-           lon_u_name = 'lon_u'
-           lat_u_name = 'lat_u'
-           VRe_name = 'VRe'
-           VIm_name = 'VIm'
-           lon_v_name = 'lon_v'
-           lat_v_name = 'lat_v'
-           mz_name = 'mz'
-           mu_name = 'mu'
-           mv_name = 'mv'
-           self.grid = Dataset(settings['tide_grid'])#../data/tide/grid_tpxo7.2.nc')
-           #read the height_dataset file
-           self.height_dataset = Dataset(settings['tide_h'])#../data/tide/h_tpxo7.2.nc')
-           #read the velocity_dataset file
-           self.velocity_dataset = Dataset(settings['tide_u'])#../data/tide/u_tpxo7.2.nc')
 
-           height_z = self.grid.variables['hz']
-           mask_z = self.grid.variables['mz']
-           lon_z = self.height_dataset.variables[lon_z_name][:, 0]
-           lat_z = self.height_dataset.variables[lat_z_name][0, :]
-           lon_resolution = lon_z[1] - lon_z[0]
-           data_in_km = 0 # added to maintain the reference to matlab tmd code
-           # Pull out the constituents that are avaibable
-           self.cons = []
-           for ncon in range(self.height_dataset.variables['con'].shape[0]):
-              self.cons.append(self.height_dataset.variables['con'][ncon, :].tostring().strip())
+            hRe_name = 'hRe'
+            hIm_name = 'hIm'
+            lon_z_name = 'lon'
+            lat_z_name = 'lat'
+            URe_name = 'URe'
+            UIm_name = 'UIm'
+            lon_u_name = 'lon'
+            lat_u_name = 'lat'
+            VRe_name = 'VRe'
+            VIm_name = 'VIm'
+            lon_v_name = 'lon'
+            lat_v_name = 'lat'
+            mz_name = 'mz'
+            mu_name = 'mu'
+            mv_name = 'mv'
+
+            #constituents = ['2N2', 'EPS2', 'J1', 'K1', 'K2', 'L2', 'LA2', 'M2', 'M3', 'M4', 'M6', 'M8', 'MF', 'MKS2',
+                            #'MM', 'MN4', 'MS4', 'MSF', 'MSQM', 'MTM', 'MU2', 'N2', 'N4', 'NU2', 'O1', 'P1', 'Q1', 'R2',
+                            #'S1', 'S2', 'S4', 'SA', 'SSA', 'T2']
+            constituents = ['M2','S2']
+
+            # extract lon and lat z data
+            lon_z = Dataset[settings['tide_fes']+constituents[0]+'_Z.nc'].variables['lon']
+            lat_z = Dataset[settings['tide_fes']+constituents[0]+'_Z.nc'].variabels['lat']
+            lon_resolution = lon_z[1] - lon_z[0]
+            data_in_km = 0 # added to maintain the reference to matlab tmd code
+            self.cons = constituents
+
+            #read and convert the height_dataset file to complex
+            for ncon in constituents:
+                amp = Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['amplitude'][:]
+                phase = Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['phase'][:]
+                hRe = amp*np.sin(phase)
+                hIm = amp*np.cos(phase)
+                self.height_dataset = {'hRe':hRe,'hIm':hIm}
+
+            #read and convert the velocity_dataset files to complex
+            for ncon in constituents:
+                amp = Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ua'][:]
+                phase = Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ug'][:]
+                URe = amp*np.sin(phase)
+                UIm = amp*np.cos(phase)
+                self.Uvelocity_dataset = {'URe':URe,'UIm':UIm}
+
+            for ncon in constituents:
+                amp = Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Va'][:]
+                phase = Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Vg'][:]
+                VRe = amp*np.sin(phase)
+                VIm = amp*np.cos(phase)
+                self.Vvelocity_dataset = {'VRe':VRe,'VIm':VIm}
+
+            # extract example amplitude grid and change NaNs to 0 (for land) and other values to 1 (for water)
+            mask_z = Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['amplitude'][:]
+            where_are_NaNs = np.isnan(mask_z)
+            where_no_NaNs = np.invert(np.isnan(mask_z))
+            mask_z[where_no_NaNs] = 1
+            mask_z[where_are_NaNs] = 0
+
+            # need to sort for FES
+            self.grid = Dataset(settings['tide_grid'])#../data/tide/grid_tpxo7.2.nc')
+            height_z = self.grid.variables['hz']
+
         else:
            print('Don''t know that tide model')
 

@@ -83,9 +83,12 @@
     nn_month_end    = 11          !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
-	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'
-	sn_tide_h      = './src_data/tide/h_tpxo7.2.nc'
-	sn_tide_u      = './src_data/tide/u_tpxo7.2.nc'
+    ! TPXO file locations
+	sn_tide_grid   = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/grid_tpxo7.2.nc'
+	sn_tide_h      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/h_tpxo7.2.nc'
+	sn_tide_u      = './Users/thopri/Projects/PyNEMO/DATA/TPXO/u_tpxo7.2.nc'
+	! location of FES data
+	sn_tide_fes      = '/Users/thopri/Projects/PyNEMO/DATA/FES/'
 	
 !------------------------------------------------------------------------------
 !  Additional parameters

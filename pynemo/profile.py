@@ -438,13 +438,15 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     if settings['tide']:
         if settings['tide_model']=='tpxo':
-            cons = tide.nemo_bdy_tpx7p2_rot(
+            cons = tide.nemo_bdy_tide_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
-                                                            settings['clname'])
+                                                            settings['clname'], settings['tide_model'])
         elif settings['tide_model']=='fes':
-            logger.error('Tidal model: %s, not yet implimented', 
+            cons = tide.nemo_bdy_tide_rot(
+                Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
+                                                            settings['clname'],settings['tide_model'])
+            logger.warning('Tidal model: %s, not yet properly implimented',
                          settings['tide_model'])
-            return
         else:
             logger.error('Tidal model: %s, not recognised', 
                          settings['tide_model'])
