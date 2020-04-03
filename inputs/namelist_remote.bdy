@@ -67,8 +67,8 @@
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
-    ln_tide        = .false.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'FES'                !  Name of tidal model (FES|TPXO)
+    ln_tide        = .true.              !  =T : produce bdy tidal conditions
+    sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'         
     clname(3)      = 'K2'        
@@ -86,7 +86,7 @@
     ! TPXO file locations
 	sn_tide_grid   = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/grid_tpxo7.2.nc'
 	sn_tide_h      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/h_tpxo7.2.nc'
-	sn_tide_u      = './Users/thopri/Projects/PyNEMO/DATA/TPXO/u_tpxo7.2.nc'
+	sn_tide_u      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/u_tpxo7.2.nc'
 	! location of FES data
 	sn_tide_fes      = '/Users/thopri/Projects/PyNEMO/DATA/FES/'
 	

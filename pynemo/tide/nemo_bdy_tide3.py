@@ -34,16 +34,27 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     #convert the dst_lon into TMD Conventions (0E/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
     #extract the surface elevation at each z-point
-    tpxo_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
+    if tide_model == 'tpxo':
+        tpxo_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
+    if tide_model == 'fes':
+        fes_z = fes_extract_HC.FesExtract(setup.settings,dst_lat,dst_lon,g_type)
+
     #convert back the z-longitudes into the usual conventions (-180E/+180E)
     dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0]-360.0
     #check if elevation data are missing
-    ind = np.where((np.isnan(tpxo_z.amp)) | (np.isnan(tpxo_z.gph)))
+    if tide_model == 'tpxo':
+        ind = np.where((np.isnan(tpxo_z.amp)) | (np.isnan(tpxo_z.gph)))
+    if tide_model == 'fes':
+        ind = np.where((np.isnan(fes_z.amp)) | (np.isnan(fes_z.gph)))
     if ind[0].size > 0:
         logger.warning('Missing elveation along the open boundary')
+    if tide_model == 'tpxo':
+        ampz = tpxo_z.amp
+        phaz = tpxo_z.gph
+    if tide_model == 'fes':
+        ampz = fes_z.amp
+        phaz = fes_z.gph
 
-    ampz = tpxo_z.amp
-    phaz = tpxo_z.gph
     ampz[ind] = 0.0
     phaz[ind] = 0.0
 
