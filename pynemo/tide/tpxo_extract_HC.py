@@ -12,7 +12,7 @@ from netCDF4 import Dataset
 from scipy import interpolate
 import numpy as np
 
-class TpxoExtract(object):
+class HcExtract(object):
     """ This is TPXO model extract_hc.c implementation in python"""
     def __init__(self, settings, lat, lon, grid_type):
         """initialises the Extract of tide information from the netcdf
@@ -51,7 +51,7 @@ class TpxoExtract(object):
            # Pull out the constituents that are avaibable
            self.cons = []
            for ncon in range(self.height_dataset.variables['con'].shape[0]):
-              self.cons.append(self.height_dataset.variables['con'][ncon, :].tostring().strip())
+              self.cons.append(self.height_dataset.variables['con'][ncon, :].tostring().strip().decode())
         elif tide_model == 'FES':
            constituents = ['2N2','EPS2','J1','K1','K2','L2','LA2','M2','M3','M4','M6','M8','MF','MKS2','MM','MN4','MS4','MSF','MSQM','MTM','MU2','N2','N4','NU2','O1','P1','Q1','R2','S1','S2','S4','SA','SSA','T2']
            print('did not actually code stuff for FES in this routine. Though that would be ideal. Instead put it in fes_extract_HC.py')

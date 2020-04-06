@@ -12,7 +12,7 @@ from netCDF4 import Dataset
 from scipy import interpolate
 import numpy as np
 
-class FesExtract(object):
+class HcExtract(object):
     """ This is FES model extract_hc.c implementation in python adapted from tpxo_extract_HC.py"""
     def __init__(self, settings, lat, lon, grid_type):
         """initialises the Extract of tide information from the netcdf
@@ -40,11 +40,13 @@ class FesExtract(object):
             #constituents = ['2N2', 'EPS2', 'J1', 'K1', 'K2', 'L2', 'LA2', 'M2', 'M3', 'M4', 'M6', 'M8', 'MF', 'MKS2',
                             #'MM', 'MN4', 'MS4', 'MSF', 'MSQM', 'MTM', 'MU2', 'N2', 'N4', 'NU2', 'O1', 'P1', 'Q1', 'R2',
                             #'S1', 'S2', 'S4', 'SA', 'SSA', 'T2']
-            self.constituents = ['M2','S2']
+            constituents = ['M2','S2']
+
+            self.cons = constituents
 
             # extract lon and lat z data
-            lon_z = np.array(Dataset(settings['tide_fes']+self.constituents[0]+'_Z.nc').variables['lon'])
-            lat_z = np.array(Dataset(settings['tide_fes']+self.constituents[0]+'_Z.nc').variables['lat'])
+            lon_z = np.array(Dataset(settings['tide_fes']+constituents[0]+'_Z.nc').variables['lon'])
+            lat_z = np.array(Dataset(settings['tide_fes']+constituents[0]+'_Z.nc').variables['lat'])
             lon_resolution = lon_z[1] - lon_z[0]
             data_in_km = 0 # added to maintain the reference to matlab tmd code
 
@@ -55,21 +57,21 @@ class FesExtract(object):
             self.mask_dataset = {}
 
             # extract example amplitude grid for Z, U and V and change NaNs to 0 (for land) and other values to 1 (for water)
-            mask_z = np.array(np.rot90(Dataset(settings['tide_fes']+self.constituents[0]+'_Z.nc').variables['amplitude'][:]))
+            mask_z = np.array(np.rot90(Dataset(settings['tide_fes']+constituents[0]+'_Z.nc').variables['amplitude'][:]))
             where_are_NaNs = np.isnan(mask_z)
             where_no_NaNs = np.invert(np.isnan(mask_z))
             mask_z[where_no_NaNs] = 1
             mask_z[where_are_NaNs] = 0
             self.mask_dataset[mz_name] = mask_z
 
-            mask_u = np.array(np.rot90(Dataset(settings['tide_fes']+self.constituents[0]+'_U.nc').variables['Ua'][:]))
+            mask_u = np.array(np.rot90(Dataset(settings['tide_fes']+constituents[0]+'_U.nc').variables['Ua'][:]))
             where_are_NaNs = np.isnan(mask_u)
             where_no_NaNs = np.invert(np.isnan(mask_u))
             mask_u[where_no_NaNs] = 1
             mask_u[where_are_NaNs] = 0
             self.mask_dataset[mu_name] = mask_u
 
-            mask_v = np.array(np.rot90(Dataset(settings['tide_fes']+self.constituents[0]+'_V.nc').variables['Va'][:]))
+            mask_v = np.array(np.rot90(Dataset(settings['tide_fes']+constituents[0]+'_V.nc').variables['Va'][:]))
             where_are_NaNs = np.isnan(mask_v)
             where_no_NaNs = np.invert(np.isnan(mask_v))
             mask_v[where_no_NaNs] = 1
@@ -77,33 +79,33 @@ class FesExtract(object):
             self.mask_dataset[mv_name] = mask_v
 
             #read and convert the height_dataset file to complex and store in dicts
-            for ncon in range(len(self.constituents)):
-                amp = np.array(np.rot90(Dataset(settings['tide_fes']+str(self.constituents[ncon])+'_Z.nc').variables['amplitude'][:]))
-                phase = np.array(np.rot90(Dataset(settings['tide_fes']+self.constituents[ncon]+'_Z.nc').variables['phase'][:]))
-                lat_z = np.array(Dataset(settings['tide_fes']+self.constituents[ncon]+'_Z.nc').variables['lat'][:])
-                lon_z = np.array(Dataset(settings['tide_fes']+self.constituents[ncon]+'_Z.nc').variables['lon'][:])
+            for ncon in range(len(constituents)):
+                amp = np.array(np.rot90(Dataset(settings['tide_fes']+str(constituents[ncon])+'_Z.nc').variables['amplitude'][:]))
+                phase = np.array(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['phase'][:]))
+                lat_z = np.array(Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['lat'][:])
+                lon_z = np.array(Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['lon'][:])
                 hRe = amp*np.sin(phase)
                 hIm = amp*np.cos(phase)
-                self.height_dataset[self.constituents[ncon]] = {'lat_z':lat_z,'lon_z':lon_z,'hRe':hRe,'hIm':hIm}
+                self.height_dataset[constituents[ncon]] = {'lat_z':lat_z,'lon_z':lon_z,'hRe':hRe,'hIm':hIm}
 
             #read and convert the velocity_dataset files to complex
-            for ncon in range(len(self.constituents)):
-                amp = np.array(np.rot90(Dataset(settings['tide_fes']+self.constituents[ncon]+'_U.nc').variables['Ua'][:]))
-                phase = np.array(np.rot90(Dataset(settings['tide_fes']+self.constituents[ncon]+'_U.nc').variables['Ug'][:]))
-                lat_u = np.array(Dataset(settings['tide_fes']+self.constituents[ncon]+'_U.nc').variables['lat'][:])
-                lon_u = np.array(Dataset(settings['tide_fes']+self.constituents[ncon]+'_U.nc').variables['lon'][:])
+            for ncon in range(len(constituents)):
+                amp = np.array(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ua'][:]))
+                phase = np.array(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ug'][:]))
+                lat_u = np.array(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['lat'][:])
+                lon_u = np.array(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['lon'][:])
                 URe = amp*np.sin(phase)
                 UIm = amp*np.cos(phase)
-                self.Uvelocity_dataset[self.constituents[ncon]] = {'lat_u':lat_u,'lon_u':lon_u,'URe':URe,'UIm':UIm}
+                self.Uvelocity_dataset[constituents[ncon]] = {'lat_u':lat_u,'lon_u':lon_u,'URe':URe,'UIm':UIm}
 
-            for ncon in range(len(self.constituents)):
-                amp = np.array(np.rot90(Dataset(settings['tide_fes']+self.constituents[ncon]+'_V.nc').variables['Va'][:]))
-                phase = np.array(np.rot90(Dataset(settings['tide_fes']+self.constituents[ncon]+'_V.nc').variables['Vg'][:]))
-                lat_v = np.array(Dataset(settings['tide_fes']+self.constituents[ncon]+'_V.nc').variables['lat'][:])
-                lon_v = np.array(Dataset(settings['tide_fes']+self.constituents[ncon]+'_V.nc').variables['lon'][:])
+            for ncon in range(len(constituents)):
+                amp = np.array(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Va'][:]))
+                phase = np.array(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Vg'][:]))
+                lat_v = np.array(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['lat'][:])
+                lon_v = np.array(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['lon'][:])
                 VRe = amp*np.sin(phase)
                 VIm = amp*np.cos(phase)
-                self.Vvelocity_dataset[self.constituents[ncon]] = {'lat_v':lat_v,'lon_v':lon_v,'VRe':VRe,'VIm':VIm}
+                self.Vvelocity_dataset[constituents[ncon]] = {'lat_v':lat_v,'lon_v':lon_v,'VRe':VRe,'VIm':VIm}
 
 
             # open grid variables these are resampled TPXO parameters so may not work correctly.
@@ -169,11 +171,11 @@ class FesExtract(object):
                                                                hRe_name, hIm_name, lon_z_name, lat_z_name,
 							       lon, lat, maskname=mz_name)
         elif grid_type == 'u':
-            self.amp, self.gph = self.interpolate_constituents(self.velocity_dataset,
+            self.amp, self.gph = self.interpolate_constituents(self.Uvelocity_dataset,
                                                                URe_name, UIm_name, lon_u_name, lat_u_name,
                                                                lon, lat, depth, maskname=mu_name)
         elif grid_type == 'v':
-            self.amp, self.gph = self.interpolate_constituents(self.velocity_dataset,
+            self.amp, self.gph = self.interpolate_constituents(self.Vvelocity_dataset,
                                                                VRe_name, VIm_name, lon_v_name, lat_v_name,
                                                                lon, lat, depth, maskname=mv_name)
         else:
@@ -183,13 +185,16 @@ class FesExtract(object):
     def interpolate_constituents(self, nc_dataset, real_var_name, img_var_name, lon_var_name,
                                  lat_var_name, lon, lat, height_data=None, maskname=None):
         """ Interpolates the tidal constituents along the given lat lon coordinates """
-        amp = np.zeros((len(nc_dataset), nc_dataset[list(nc_dataset)[0]]['lon_z'].shape[0]))
-        gph = np.zeros((len(nc_dataset), nc_dataset[list(nc_dataset)[0]]['lon_z'].shape[0]))
+        amp = np.zeros((len(nc_dataset), lon.shape[0]))
+        gph = np.zeros((len(nc_dataset), lon.shape[0]))
 
-        data = np.array(np.ravel(nc_dataset['M2'][real_var_name]), dtype=complex)
-        data.imag = np.array(np.ravel(nc_dataset['M2'][img_var_name]))
+        # TODO: need to sort multiple HC, at the momemnt it uses M2 for every harmonic
 
-        data = data.reshape(nc_dataset['M2'][real_var_name].shape)
+        data = np.array((nc_dataset['M2'][real_var_name]), dtype=complex)
+        data.imag = np.array((nc_dataset['M2'][img_var_name]))
+        # add extra dim to be compatable with adapted code that expects a list of HC
+        data = np.expand_dims(data,axis=0)
+        #data = data.reshape(1,nc_dataset['M2'][real_var_name].shape)
         # data[data==0] = np.NaN
 
         # Lat Lon values
@@ -220,7 +225,7 @@ class FesExtract(object):
         maskedpoints = interpolate.interpn((x_values, y_values), mask, lonlat)
 
         data_temp = np.zeros((data.shape[0], lon.shape[0], 2, ))
-        #check at same point in TPXO extract HC script.
+        #check at same point in TPXO extract HC sc
         for cons_index in range(data.shape[0]):
             #interpolate real values
             data_temp[cons_index, :, 0] = interpolate_data(x_values, y_values,

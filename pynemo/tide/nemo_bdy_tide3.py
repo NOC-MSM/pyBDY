@@ -31,13 +31,17 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     nbdyu = len(Grid_U.bdy_i)
     nbdyv = len(Grid_V.bdy_i)
 
+    # TODO: change from if statement defining HC extract to string passed that defines HC extract script
+    #   e.g. pass 'tpxo' for tpxo_extract_HC.py or 'fes' fro fes_extract_HC.py. This will make easier to add new
+    #   databases of HC
+
     #convert the dst_lon into TMD Conventions (0E/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
     #extract the surface elevation at each z-point
     if tide_model == 'tpxo':
-        tpxo_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
+        tpxo_z = tpxo_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, g_type)
     if tide_model == 'fes':
-        fes_z = fes_extract_HC.FesExtract(setup.settings,dst_lat,dst_lon,g_type)
+        fes_z = fes_extract_HC.HcExtract(setup.settings,dst_lat,dst_lon,g_type)
 
     #convert back the z-longitudes into the usual conventions (-180E/+180E)
     dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0]-360.0
@@ -65,8 +69,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
     if tide_model == 'tpxo':
-        tpxo_ux = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-        tpxo_vx = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+        tpxo_ux = tpxo_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tpxo_vx = tpxo_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
 
         ampuX = tpxo_ux.amp
         phauX = tpxo_ux.gph
@@ -74,13 +78,13 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
         phavX = tpxo_vx.gph
 
     if tide_model == 'fes':
-        fes_uy = fes_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-        fes_vy = fes_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+        fes_ux = fes_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        fes_vx = fes_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
 
-        ampuY = fes_uy.amp
-        phauY = fes_uy.gph
-        ampvY = fes_vy.amp
-        phavY = fes_vy.gph
+        ampuX = fes_ux.amp
+        phauX = fes_ux.gph
+        ampvX = fes_vx.amp
+        phavX = fes_vx.gph
 
         #check if ux data are missing
     ind = np.where((np.isnan(ampuX)) | (np.isnan(phauX)))
@@ -105,8 +109,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
     if tide_model == 'tpxo':
-        tpxo_uy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-        tpxo_vy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+        tpxo_uy = tpxo_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tpxo_vy = tpxo_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
 
         ampuY = tpxo_uy.amp
         phauY = tpxo_uy.gph
@@ -114,8 +118,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
         phavY = tpxo_vy.gph
 
     if tide_model == 'fes':
-        fes_uy = fes_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-        fes_vy = fes_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+        fes_uy = fes_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        fes_vy = fes_extract_HC.HcExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
 
         ampuY = fes_uy.amp
         phauY = fes_uy.gph
@@ -208,7 +212,12 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     cosvY = np.zeros((numharm, nbdyv))
     sinvY = np.zeros((numharm, nbdyv))
 
-    compindx = constituents_index(tpxo_z.cons, comp)
+    if tide_model == 'tpxo':
+        compindx = constituents_index(tpxo_z.cons, comp)
+
+    if tide_model == 'fes':
+        compindx = constituents_index(fes_z.cons, comp)
+
     for h in range(0, numharm):
         c = int(compindx[h])
         if c != -1:
