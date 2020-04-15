@@ -36,9 +36,11 @@ def CreateBDYTideNetcdfFile(filename, N,I,J,h,fv,grd):
         varz1ID = ncid.createVariable('z1','f4',('yb','xb',),fill_value=fv)
         varz2ID = ncid.createVariable('z2','f4',('yb','xb',),fill_value=fv)
     elif grd == 'U':
+        varmskID = ncid.createVariable('bdy_msk', 'f4', ('y', 'x',), fill_value=fv)
         varu1ID = ncid.createVariable('u1','f4',('yb','xb',),fill_value=fv)
         varu2ID = ncid.createVariable('u2','f4',('yb','xb',),fill_value=fv)
     elif grd == 'V':
+        varmskID = ncid.createVariable('bdy_msk', 'f4', ('y', 'x',), fill_value=fv)
         varv1ID = ncid.createVariable('v1','f4',('yb','xb',),fill_value=fv)
         varv2ID = ncid.createVariable('v2','f4',('yb','xb',),fill_value=fv)
     else :

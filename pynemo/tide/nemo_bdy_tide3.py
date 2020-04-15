@@ -288,7 +288,10 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     sinv = rot_rep(sinuY, sinvY, 'v', 'en to j', dst_gcos, dst_gsin)
 
     #return the values
-    return cosz, sinz, cosu, sinu, cosv, sinv
+    cons = {}
+    cons['cos'] = {'z':cosz,'u':cosu,'v':cosv}
+    cons['sin'] = {'z':sinz,'u':sinu,'v':sinv}
+    return cons
 
 
 def constituents_index(constituents, inputcons):
