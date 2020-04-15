@@ -68,7 +68,7 @@
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
     ln_tide        = .true.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
+    sn_tide_model  = 'tpxo'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
     ln_trans       = .true.               !  interpolate transport rather than

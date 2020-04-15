@@ -229,7 +229,6 @@ class HcExtract(object):
         maskedpoints = interpolate.interpn((x_values, y_values), mask, lonlat)
 
         data_temp = np.zeros((data.shape[0], lon.shape[0], 2, ))
-        #check at same point in TPXO extract HC sc
         for cons_index in range(data.shape[0]):
             #interpolate real values
             data_temp[cons_index, :, 0] = interpolate_data(x_values, y_values,
