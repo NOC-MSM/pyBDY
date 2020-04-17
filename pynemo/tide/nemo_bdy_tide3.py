@@ -28,8 +28,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     dst_lat = DC.bdy_lonlat[g_type]['lat'][Grid_T.bdy_r == 0]
 
     #nbdyz = len(Grid_T.bdy_i)
-    nbdyu = len(Grid_U.bdy_i)
-    nbdyv = len(Grid_V.bdy_i)
+    nbdyu = len(np.where(Grid_U.bdy_r == 0)[0])
+    nbdyv = len(np.where(Grid_V.bdy_r == 0)[0])
 
     # TODO: change from if statement defining HC extract to string passed that defines HC extract script
     #   e.g. pass 'tpxo' for tpxo_extract_HC.py or 'fes' fro fes_extract_HC.py. This will make easier to add new
@@ -257,11 +257,14 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     dst_gsin = grid_angles.sinval
 
     #retain only boundary points rotation information
-    tmp_gcos = np.zeros(Grid_U.bdy_i.shape[0])
-    tmp_gsin = np.zeros(Grid_U.bdy_i.shape[0])
-    for index in range(Grid_U.bdy_i.shape[0]):
-        tmp_gcos[index] = dst_gcos[Grid_U.bdy_i[index, 1], Grid_U.bdy_i[index, 0]]
-        tmp_gsin[index] = dst_gsin[Grid_U.bdy_i[index, 1], Grid_U.bdy_i[index, 0]]
+    tmp_gcos = np.zeros(len(np.where(Grid_U.bdy_r == 0)[0]))
+    tmp_gsin = np.zeros(len(np.where(Grid_U.bdy_r == 0)[0]))
+
+    bdy_r_in_i = Grid_U.bdy_i[Grid_U.bdy_r == 0]
+
+    for index in range(len(np.where(Grid_U.bdy_r == 0)[0])):
+        tmp_gcos[index] = dst_gcos[bdy_r_in_i[index, 1], bdy_r_in_i[index, 0]]
+        tmp_gsin[index] = dst_gsin[bdy_r_in_i[index, 1], bdy_r_in_i[index, 0]]
     dst_gcos = tmp_gcos
     dst_gsin = tmp_gsin
 
@@ -276,11 +279,14 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     dst_gsin = grid_angles.sinval
 
     #retain only boundary points rotation information
-    tmp_gcos = np.zeros(Grid_V.bdy_i.shape[0])
-    tmp_gsin = np.zeros(Grid_V.bdy_i.shape[0])
-    for index in range(Grid_V.bdy_i.shape[0]):
-        tmp_gcos[index] = dst_gcos[Grid_V.bdy_i[index, 1], Grid_V.bdy_i[index, 0]]
-        tmp_gsin[index] = dst_gsin[Grid_V.bdy_i[index, 1], Grid_V.bdy_i[index, 0]]
+    tmp_gcos = np.zeros(len(np.where(Grid_V.bdy_r == 0)[0]))
+    tmp_gsin = np.zeros(len(np.where(Grid_V.bdy_r == 0)[0]))
+
+    bdy_r_in_i = Grid_V.bdy_i[Grid_V.bdy_r == 0]
+
+    for index in range(len(np.where(Grid_V.bdy_r == 0)[0])):
+        tmp_gcos[index] = dst_gcos[bdy_r_in_i[index, 1], bdy_r_in_i[index, 0]]
+        tmp_gsin[index] = dst_gsin[bdy_r_in_i[index, 1], bdy_r_in_i[index, 0]]
     dst_gcos = tmp_gcos
     dst_gsin = tmp_gsin
 
