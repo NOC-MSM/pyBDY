@@ -40,7 +40,7 @@ class HcExtract(object):
             #constituents = ['2N2', 'EPS2', 'J1', 'K1', 'K2', 'L2', 'LA2', 'M2', 'M3', 'M4', 'M6', 'M8', 'MF', 'MKS2',
                             #'MM', 'MN4', 'MS4', 'MSF', 'MSQM', 'MTM', 'MU2', 'N2', 'N4', 'NU2', 'O1', 'P1', 'Q1', 'R2',
                             #'S1', 'S2', 'S4', 'SA', 'SSA', 'T2']
-            constituents = ['M2','S2']
+            constituents = ['M2','S2','O1','K1','N2']
 
             self.cons = constituents
             self.mask_dataset = {}
@@ -192,8 +192,8 @@ class HcExtract(object):
     def interpolate_constituents(self, nc_dataset, real_var_name, img_var_name, lon_var_name,
                                  lat_var_name, lon, lat, height_data=None, maskname=None):
         """ Interpolates the tidal constituents along the given lat lon coordinates """
-        amp = np.zeros((len(nc_dataset), lon.shape[0]))
-        gph = np.zeros((len(nc_dataset), lon.shape[0]))
+        amp = np.zeros((len(nc_dataset[2]), lon.shape[0]))
+        gph = np.zeros((len(nc_dataset[2]), lon.shape[0]))
 
         data = np.array(np.ravel(nc_dataset[2]), dtype=complex)
         data.imag = np.array(np.ravel(nc_dataset[3]))

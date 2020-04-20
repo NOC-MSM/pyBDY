@@ -71,6 +71,9 @@
     sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
+    clname(3)      = 'O1'
+    clname(4)      = 'K1'
+    clname(5)      = 'N2'
     ln_trans       = .false.               !  interpolate transport rather than
                                           !  velocities
 !------------------------------------------------------------------------------

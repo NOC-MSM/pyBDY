@@ -86,7 +86,7 @@ New runs are appended onto the end of the log file so it will periodically need 
 The above path for Java Home was valid for a Macbook Pro 2015 with macOS Catalina and Java SDK 13.0.2
 however for different java versions, operating systems etc this may be different
 
-The conda environment yaml file has been tested with Miniconda 3.7 and found to install the enironment correctly.
+The conda environment yaml file has been tested with miniconda 3.7 and found to install the environment correctly.
 
 Contribution guidelines
 -----------------------
@@ -116,7 +116,7 @@ Unit Tests
 To test operation of the PyNEMO module, running the PyTest script in the unit tests folder will perform a range of tests on different child grids,
 e.g. checking the interpolation of the source data on to the child grid. To do this the following command is required::
 
-    $ pytest -q pynemo/pynemo_unit_test.py
+    $ pytest -v pynemo/pynemo_unit_test.py
 
 The results of the test will show if all tests pass or the errors that result from failed tests.
 
