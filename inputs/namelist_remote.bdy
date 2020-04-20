@@ -75,7 +75,7 @@
     clname(4)      = 'K1'
     clname(5)      = 'N2'
     ln_trans       = .false.               !  interpolate transport rather than
-                                          !  velocities
+                                           !  velocities
 !------------------------------------------------------------------------------
 !  Time information
 !------------------------------------------------------------------------------

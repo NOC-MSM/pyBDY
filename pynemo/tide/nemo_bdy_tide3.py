@@ -2,6 +2,7 @@
 Module to extract constituents for the input grid mapped onto output grid
 
 @author: Mr. Srikanth Nagella
+@author: thopri
 '''
 
 # pylint: disable=E1103

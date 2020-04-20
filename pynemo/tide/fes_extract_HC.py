@@ -37,10 +37,12 @@ class HcExtract(object):
             mu_name = 'mask_u'
             mv_name = 'mask_v'
 
-            #constituents = ['2N2', 'EPS2', 'J1', 'K1', 'K2', 'L2', 'LA2', 'M2', 'M3', 'M4', 'M6', 'M8', 'MF', 'MKS2',
-                            #'MM', 'MN4', 'MS4', 'MSF', 'MSQM', 'MTM', 'MU2', 'N2', 'N4', 'NU2', 'O1', 'P1', 'Q1', 'R2',
-                            #'S1', 'S2', 'S4', 'SA', 'SSA', 'T2']
-            constituents = ['M2','S2','O1','K1','N2']
+            # create list of HC using namelist file as reference
+            constituents = list(settings['clname'].values())
+            # clean strings in list and change to upper case if not already
+            for i in range(len(constituents)):
+                constituents[i] = constituents[i].strip("',/\n")
+                constituents[i] = constituents[i].upper()
 
             self.cons = constituents
             self.mask_dataset = {}
