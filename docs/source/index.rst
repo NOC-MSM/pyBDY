@@ -10,6 +10,8 @@ Contents:
    installation
    usage
    ncml_generator_usage
+   tides
+   CMEMS_downloader_usage
    examples
    troubleshooting
 

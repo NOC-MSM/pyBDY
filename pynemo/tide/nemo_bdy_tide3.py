@@ -20,6 +20,8 @@ import logging
 
 def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp,tide_model):
     """ Global Tidal model interpolation including rotation grid"""
+    # set tide model string to lowercase if not already
+    tide_model = tide_model.lower()
     key_transport = 0 # compute the velocities from transport
     numharm = len(comp)
     logger = logging.getLogger(__name__)
