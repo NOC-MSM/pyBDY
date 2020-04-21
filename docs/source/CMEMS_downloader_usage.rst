@@ -124,7 +124,7 @@ Extent configuration
 ---------------------
 
 Finally the last box, this is where the extent to download is configured, it is up to the user to decide but it is suggested this
-is at least 1 degree wider than the destination configuration. The depth range to request is also defined here. This information can
+is at least 1 degree wider than the destination or child configuration. The depth range to request is also defined here. This information can
 be extracted from the CMEMS catalogue. Once set for a given configuration this will not need to be edited.
 
 

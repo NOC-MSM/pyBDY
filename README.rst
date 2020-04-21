@@ -1,10 +1,11 @@
 PyNEMO
 ======
 
-To be updated soon. This work springboards from the `PyNEMO Project <http://pynemo.readthedocs.io/en/latest/index.html/>`_.
+Full documentation here.
 
 What is this repository for?
 ----------------------------
+PyNEMO boundary generation toolbox for NEMO ocean model.
 
 How do I get set up?
 --------------------
