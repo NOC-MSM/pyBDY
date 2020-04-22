@@ -11,6 +11,9 @@ import logging
 # Logging set to info
 logging.basicConfig(level=logging.INFO)
 import time
+from yaspin import yaspin
+from yaspin.spinners import Spinners
+
 def main():
     """ Main function which checks the command line parameters and
         passes them to the profile module for processing """
@@ -37,7 +40,8 @@ def main():
         elif opt in ("-d", "--download_cmems"):
             setup_file = arg
             t0 = time.time()
-            profile.download_cmems(setup_file)
+            with yaspin(Spinners.earth, text='PyNEMO is running'):
+                profile.download_cmems(setup_file)
             t1 = time.time()
             print("CMEMS download time: %s" % (t1 - t0))
             sys.exit(0)
@@ -49,7 +53,8 @@ def main():
     #Logger
     #logger = logging.getLogger(__name__)
     t0 = time.time()
-    profile.process_bdy(setup_file, mask_gui)
+    with yaspin(Spinners.earth, text='PyNEMO is running'):
+        profile.process_bdy(setup_file, mask_gui)
     t1 = time.time()
     print("Execution Time: %s" % (t1-t0))
     

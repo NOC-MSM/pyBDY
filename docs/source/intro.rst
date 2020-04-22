@@ -18,4 +18,7 @@ algorithm. The idea behind this targetted method is that it provides a generic
 method of interpolation for any flavour of ocean model in order to set up a
 regional NEMO model configuration.  At present (alpha release) the tools do not
 contain many options, but those that exist are accessed either through a NEMO style
-namelist or a convient GUI. 
+namelist or a convient GUI.
+
+PyNEMO has been updated to include integration with CMEMS data repository and the ability to produce tidal boundaries
+using TPXO or FES2014 as boundary input.

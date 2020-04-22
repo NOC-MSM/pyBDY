@@ -52,10 +52,10 @@
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
    ln_use_cmems             = .true.
-   ln_download_cmems        = .true.
+   ln_download_cmems        = .false.
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
-   ln_download_static       = .false.
-   ln_subset_static         = .false.
+   ln_download_static       = .true.
+   ln_subset_static         = .true.
    nn_num_retry             = 4 ! how many times to retry CMEMS download after non critical errors?
 !------------------------------------------------------------------------------
 !  CMEMS MOTU Configuration (for Boundary Data)

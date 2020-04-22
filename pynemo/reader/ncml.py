@@ -14,6 +14,7 @@ from cftime import utime
 ncmlpath, file_name = os.path.split(__file__)
 ncmlpath = os.path.join(ncmlpath, "jars", "netcdfAll-4.6.jar") 
 jnius_config.set_classpath('.',ncmlpath)
+logger = logging.getLogger(__name__)
 try:
     if os.environ['http_proxy'] is not None:
         #split the proxy name and port
@@ -22,7 +23,7 @@ try:
         proxy_port = proxylist[1]        
         jnius_config.add_options('-Dhttp.proxyHost='+proxy_host,'-Dhttp.proxyPort='+proxy_port)
 except:
-    print("Didn't find a proxy environment variable")
+    logger.info("Didn't find a proxy environment variable")
 NetcdfDataset = None
 NcMLReader = None
 Section = None

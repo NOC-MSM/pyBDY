@@ -1,6 +1,9 @@
 Troubleshooting
 ===============
 
+**Always** check the PyNEMO log file. This is usually saved in the working directory of PyNEMO as nrct.log. It gives helpful information
+which may help to diagnose issues. E.g. ValueErrors that are result of a THREDDS server being down and unable to provide data files.
+
 1. pyNEMO crashing in MacOSX (Yosemite)?
 
 *  Downgrade the scipy package to 0.15
