@@ -40,7 +40,7 @@ def main():
         elif opt in ("-d", "--download_cmems"):
             setup_file = arg
             t0 = time.time()
-            with yaspin(Spinners.earth, text='PyNEMO is running'):
+            with yaspin(Spinners.earth, text='Download CMEMS function is running'):
                 profile.download_cmems(setup_file)
             t1 = time.time()
             print("CMEMS download time: %s" % (t1 - t0))

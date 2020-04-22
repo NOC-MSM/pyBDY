@@ -11,6 +11,7 @@ Ported from Matlab code by James Harle
 #External Imports
 import numpy as np
 import logging
+import sys
 
 #Local Imports
 from .utils.nemo_bdy_lib import sub2ind
@@ -74,7 +75,10 @@ class Boundary:
                     bdy_msk[grid_ind] = fval
 
         # Create padded array for overlays
-        msk = np.pad(bdy_msk,((1,1),(1,1)), 'constant', constant_values=(-1))
+        try:
+            msk = np.pad(bdy_msk,((1,1),(1,1)), 'constant', constant_values=(-1))
+        except ValueError:
+            raise Exception('the ValueError above is commonly due to PyNEMO not finding the bathymetry/mask file')
         # create index arrays of I and J coords
         igrid, jgrid = np.meshgrid(np.arange(bdy_msk.shape[1]), np.arange(bdy_msk.shape[0]))
 
