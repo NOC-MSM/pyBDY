@@ -1,4 +1,4 @@
-name: pynemo3
+name: pynemo3_tst
 channels:
   - defaults
 dependencies:
@@ -20,3 +20,4 @@ dependencies:
     - motuclient==1.8.4
     - sphinx==3.0.2
     - sphinx-rtd-theme==0.4.3
+    - yaspin==0.16.0

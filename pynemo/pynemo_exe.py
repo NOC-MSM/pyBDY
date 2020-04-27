@@ -40,7 +40,7 @@ def main():
         elif opt in ("-d", "--download_cmems"):
             setup_file = arg
             t0 = time.time()
-            with yaspin(Spinners.earth, text='Download CMEMS function is running'):
+            with yaspin(Spinners.earth, text='PyNEMO: download CMEMS data is running'):
                 profile.download_cmems(setup_file)
             t1 = time.time()
             print("CMEMS download time: %s" % (t1 - t0))
@@ -53,7 +53,7 @@ def main():
     #Logger
     #logger = logging.getLogger(__name__)
     t0 = time.time()
-    with yaspin(Spinners.earth, text='PyNEMO is running'):
+    with yaspin(Spinners.earth, text='PyNEMO: boundary generation is running'):
         profile.process_bdy(setup_file, mask_gui)
     t1 = time.time()
     print("Execution Time: %s" % (t1-t0))

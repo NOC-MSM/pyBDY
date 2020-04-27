@@ -17,7 +17,7 @@ from pynemo.tests import bdy_coords as bdc
 
 bdc.process_bdy('/Users/thopri/Projects/PyNEMO/inputs/namelist_cmems.bdy',False)
 
-rootgrp = Dataset('/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y2017m11.nc', "r", format="NETCDF4")
+rootgrp = Dataset('/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y1979m11.nc', "r", format="NETCDF4")
 bdy_msk = np.squeeze(rootgrp.variables['bdy_msk'][:]) - 1
 bdy_lon = np.squeeze(rootgrp.variables['nav_lon'][:])
 bdy_lat = np.squeeze(rootgrp.variables['nav_lat'][:])
