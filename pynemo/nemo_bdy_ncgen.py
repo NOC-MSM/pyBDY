@@ -14,7 +14,8 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd, va
     """ This method creates a template of bdy netcdf files. A common for
     T, I, U, V, E grid types.
     """
-    if var_nam == 'tide_data' or var_nam[0] == 'votemper' or var_nam[0] == 'vosaline':
+    var_nams = ['tide_data','votemper','vosaline','vozocrtx','vomecrty','vobtcrty','vomecrty']
+    if var_nam[0] in var_nams:
         logging.info('benchmark variables identified, using original variable names.......')
         gridNames = ['T', 'I', 'U', 'V', 'E', 'Z'] # All possible grids
 
@@ -239,8 +240,8 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd, va
             logging.error('Unknown Grid')
 
         ncid.close()
-
-    if var_nam[0] == 'thetao' or var_nam[0] == 'so' or var_nam[0] == 'uo' or var_nam[0] == 'vo':
+    var_nams = ['thetao','so','zos','uo','vo']
+    if var_nam[0] in var_nams:
         logging.info('CMEMS variables identified, using default CMEMS variables.....')
         gridNames = ['T', 'I', 'U', 'V', 'E', 'Z'] # All possible grids
 

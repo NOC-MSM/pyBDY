@@ -58,7 +58,7 @@
                                           !  (if ln_mask_file=.TRUE.)
     ln_dyn2d       = .false.              !  boundary conditions for
                                           !  barotropic fields
-    ln_dyn3d       = .false.              !  boundary conditions for 
+    ln_dyn3d       = .true.              !  boundary conditions for
                                           !  baroclinic velocities
     ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition   
@@ -68,7 +68,7 @@
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
     ln_tide        = .true.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'tpxo'                !  Name of tidal model (fes|tpxo)
+    sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
     clname(3)      = 'O1'

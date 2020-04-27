@@ -10,12 +10,13 @@ import os
 from pynemo.reader.ncml import Reader as NcMLReader
 from pynemo.reader.ncml import NcMLFile
 from pynemo.reader.directory import Reader as DirectoryReader
+import logging
 
 from netCDF4 import Dataset
-
+logger = logging.getLogger(__name__)
 def GetReader(uri, t_adjust, reader_type=None):
     if reader_type is None:
-        print(uri)
+        logger.info(uri)
         if uri.endswith(".ncml"):
             reader_type = "NcML"
         elif os.path.isdir(uri):

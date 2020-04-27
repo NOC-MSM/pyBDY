@@ -531,8 +531,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 var_in['t'].extend(['votemper', 'vosaline'])
 
             if ln_dyn2d or ln_dyn3d:
-                var_in['u'].extend(['vozocrtx', 'vomecrty'])
-                var_in['v'].extend(['vozocrtx', 'vomecrty'])
+                var_in['u'].extend(['vozocrtx'])
+                var_in['v'].extend(['vomecrty'])
 
             if ln_dyn2d:
                 var_in['t'].extend(['sossheig'])
@@ -546,8 +546,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             var_in['t'].extend(['votemper', 'vosaline'])
 
         if ln_dyn2d or ln_dyn3d:
-            var_in['u'].extend(['vozocrtx', 'vomecrty'])
-            var_in['v'].extend(['vozocrtx', 'vomecrty'])
+            var_in['u'].extend(['vozocrtx'])
+            var_in['v'].extend(['vomecrty'])
 
         if ln_dyn2d:
             var_in['t'].extend(['sossheig'])
