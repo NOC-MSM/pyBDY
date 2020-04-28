@@ -52,10 +52,10 @@
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
    ln_use_cmems             = .true.
-   ln_download_cmems        = .false.
+   ln_download_cmems        = .true.
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
-   ln_download_static       = .true.
-   ln_subset_static         = .true.
+   ln_download_static       = .false.
+   ln_subset_static         = .false.
    nn_num_retry             = 4 ! how many times to retry CMEMS download after non critical errors?
 !------------------------------------------------------------------------------
 !  CMEMS MOTU Configuration (for Boundary Data)
@@ -94,7 +94,7 @@
                                           !  (if ln_mask_file=.TRUE.)
     ln_dyn2d       = .false.              !  boundary conditions for 
                                           !  barotropic fields
-    ln_dyn3d       = .false.              !  boundary conditions for 
+    ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
     ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition   
@@ -104,11 +104,13 @@
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
     ln_tide        = .false.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'FES'                !  Name of tidal model (FES|TPXO)
+    sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
-    clname(2)      = 'S2'         
-    clname(3)      = 'K2'        
-    ln_trans       = .true.               !  interpolate transport rather than
+    clname(2)      = 'S2'
+    clname(3)      = 'O1'
+    clname(4)      = 'K1'
+    clname(5)      = 'N2'
+    ln_trans       = .false.               !  interpolate transport rather than
                                           !  velocities
 !------------------------------------------------------------------------------
 !  Time information
@@ -119,9 +121,12 @@
     nn_month_end    = 03       !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
-	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'
-	sn_tide_h      = './src_data/tide/h_tpxo7.2.nc'
-	sn_tide_u      = './src_data/tide/u_tpxo7.2.nc'
+    ! TPXO file locations
+	sn_tide_grid   = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/grid_tpxo7.2.nc'
+	sn_tide_h      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/h_tpxo7.2.nc'
+	sn_tide_u      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/u_tpxo7.2.nc'
+	! location of FES data
+	sn_tide_fes      = '/Users/thopri/Projects/PyNEMO/DATA/FES/'
 	
 !------------------------------------------------------------------------------
 !  Additional parameters

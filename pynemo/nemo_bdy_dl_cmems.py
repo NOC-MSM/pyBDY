@@ -19,7 +19,6 @@ from pynemo.utils import cmems_errors as errors
 
 logger = logging.getLogger(__name__)
 # TODO: Fix double spacing issue on CMEMS download log entries.
-# TODO: Add some sort of file check so CMEMS files that are already successfully downloaded aren't redownloaded
 '''
 This function checks to see if the MOTU client is installed on the PyNEMO python environment. If it is not installed
 error code 1 is returned . If it is installed the version number of the installed client is returned as a string

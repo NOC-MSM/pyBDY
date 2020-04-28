@@ -58,17 +58,17 @@
                                           !  (if ln_mask_file=.TRUE.)
     ln_dyn2d       = .false.              !  boundary conditions for
                                           !  barotropic fields
-    ln_dyn3d       = .true.              !  boundary conditions for
+    ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
     ln_tra         = .true.               !  boundary conditions for T and S
-    ln_ice         = .false.              !  ice boundary condition   
+    ln_ice         = .false.              !  ice boundary condition
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
     ln_tide        = .true.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
+    sn_tide_model  = 'tpxo'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
     clname(3)      = 'O1'
@@ -86,9 +86,9 @@
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
     ! TPXO file locations
-	sn_tide_grid   = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/grid_tpxo9.nc'
-	sn_tide_h      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/h_tpxo9.v2a.nc'
-	sn_tide_u      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/u_tpxo9.v2a.nc'
+	sn_tide_grid   = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/grid_tpxo7.2.nc'
+	sn_tide_h      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/h_tpxo7.2.nc'
+	sn_tide_u      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/u_tpxo7.2.nc'
 	! location of FES data
 	sn_tide_fes      = '/Users/thopri/Projects/PyNEMO/DATA/FES/'
 	

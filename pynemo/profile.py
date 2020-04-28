@@ -202,9 +202,8 @@ def download_cmems(setup_filepath=0):
                 if err_chk == 2:
                     dl_cmems.clean_up(settings)
                     sys.exit(dl)
-        if dl == 1:
-            # if the request is too large try monthly intervals
-            for re in range(settings['num_retry']):
+            if dl == 1:
+                # if the request is too large try monthly intervals
                 logger.warning('CMEMS request too large, try monthly downloads...(this may take awhile)')
                 mnth_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'M')
                 if mnth_dl == 0:
@@ -227,52 +226,50 @@ def download_cmems(setup_filepath=0):
                         sys.exit(mnth_dl)
                 if mnth_dl == 1:
                     # if the request is too large try weekly intervals
-                    for re in range(settings['num_retry']):
-                        logger.warning('CMEMS request still too large, trying weekly downloads...(this will take longer...)')
-                        wk_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'W')
-                        if wk_dl == 0:
-                            logger.info('CMEMS weekly request successful')
+                    logger.warning('CMEMS request still too large, trying weekly downloads...(this will take longer...)')
+                    wk_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'W')
+                    if wk_dl == 0:
+                        logger.info('CMEMS weekly request successful')
+                        break
+                    if type(wk_dl) == str:
+                        err_chk = dl_cmems.err_parse(wk_dl,'MOTU')
+                        if err_chk == 0:
+                            logger.info('retrying CMEMS download....retry number ' + str(re + 1) + ' of ' + str(settings['num_retry']))
+                            if re == (settings['num_retry'] - 1):
+                                logger.critical('reached retry limit defined in BDY file, exiting now')
+                                logger.critical(wk_dl)
+                                dl_cmems.clean_up(settings)
+                                sys.exit(wk_dl)
+                        if err_chk == 1:
+                            dl_cmems.clean_up(settings)
+                            sys.exit(wk_dl)
+                        if err_chk == 2:
+                            dl_cmems.clean_up(settings)
+                            sys.exit(wk_dl)
+                    if wk_dl == 1:
+                        # if the request is too large try daily intervals.
+                        logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
+                        dy_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'D')
+                        if dy_dl == 0:
+                            logger.info('CMEMS daily request successful')
                             break
-                        if type(wk_dl) == str:
-                            err_chk = dl_cmems.err_parse(wk_dl,'MOTU')
+                        # if the request is still too large then smaller domain is required.
+                        if dy_dl == str:
+                            # perform error check for retry
+                            err_chk = dl_cmems.err_parse(dy_dl,'MOTU')
                             if err_chk == 0:
                                 logger.info('retrying CMEMS download....retry number ' + str(re + 1) + ' of ' + str(settings['num_retry']))
                                 if re == (settings['num_retry'] - 1):
                                     logger.critical('reached retry limit defined in BDY file, exiting now')
-                                    logger.critical(wk_dl)
+                                    logger.critical(dy_dl)
                                     dl_cmems.clean_up(settings)
-                                    sys.exit(wk_dl)
+                                    sys.exit(dy_dl)
                             if err_chk == 1:
                                 dl_cmems.clean_up(settings)
-                                sys.exit(wk_dl)
+                                sys.exit(dy_dl)
                             if err_chk == 2:
                                 dl_cmems.clean_up(settings)
-                                sys.exit(wk_dl)
-                    if wk_dl == 1:
-                    # if the request is too large try daily intervals.
-                        for re in range(settings['num_retry']):
-                            logger.warning('CMESM request STILL too large, trying daily downloads....(even longer.....)')
-                            dy_dl = dl_cmems.MWD_request_cmems(settings, date_min, date_max, 'D')
-                            if dy_dl == 0:
-                                logger.info('CMEMS daily request successful')
-                                break
-                            # if the request is still too large then smaller domain is required.
-                            if dy_dl == str:
-                                # perform error check for retry
-                                err_chk = dl_cmems.err_parse(dy_dl,'MOTU')
-                                if err_chk == 0:
-                                    logger.info('retrying CMEMS download....retry number ' + str(re + 1) + ' of ' + str(settings['num_retry']))
-                                    if re == (settings['num_retry'] - 1):
-                                        logger.critical('reached retry limit defined in BDY file, exiting now')
-                                        logger.critical(dy_dl)
-                                        dl_cmems.clean_up(settings)
-                                        sys.exit(dy_dl)
-                                if err_chk == 1:
-                                    dl_cmems.clean_up(settings)
-                                    sys.exit(dy_dl)
-                                if err_chk == 2:
-                                    dl_cmems.clean_up(settings)
-                                    sys.exit(dy_dl)
+                                sys.exit(dy_dl)
 # end of messy if statements to split requests into months, weeks and days as needed.
         dl_cmems.clean_up(settings)
     logger.info('============================================')
@@ -513,7 +510,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             logger.info('using CMEMS variable names......')
             if ln_tra:
                 var_in['t'].extend(['thetao'])
-                var_in['t'].extend(['so'])
+                #var_in['t'].extend(['so'])
 
             if ln_dyn2d or ln_dyn3d:
                 var_in['u'].extend(['uo'])
@@ -538,7 +535,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 var_in['t'].extend(['sossheig'])
 
             if ln_ice:
-                var_in['t'].extend(['ice1', 'ice2', 'ice3'])
+                var_in['t'].extend(['iicethic', 'ileadfra', 'isnowthi'])
 
     if 'use_cmems' not in settings:
         logger.info('using existing PyNEMO variable names.....')
@@ -553,7 +550,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             var_in['t'].extend(['sossheig'])
 
         if ln_ice:
-            var_in['t'].extend(['ice1', 'ice2', 'ice3'])
+            var_in['t'].extend(['iicethic', 'ileadfra', 'isnowthi'])
     
     # As variables are associated with grd there must be a filename attached
     # to each variable

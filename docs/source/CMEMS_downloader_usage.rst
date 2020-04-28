@@ -1,6 +1,11 @@
 CMEMS downloader usage
 =======================
 
+**IMPORTANT** The CMEMS downloader has only been tested with the GLOBAL_ANALYSIS_FORECAST_PHY_001_024 model and specifcally
+the hourly SSH and U V product. This also has temperature stored within it, but not salinity. Other models and products should work but are
+currently likely to need some changes to the code to cope with different variable names within the data. This will be fixed
+in a later release of PyNEMO that is able to handle different variable and tracer names.
+
 PyNEMO has a CMEMS downloading function incorporated within it, this will download a section of the CMEMS global model (more models to be added)
 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS' for the defined time period in the namelist file
 
