@@ -61,13 +61,13 @@ def nemo_bdy_order(fname):
         id_order[0,] = 0
         flag = False
         mark = 0
-        source_tree = sp.cKDTree(zip(nbi_tmp, nbj_tmp), balanced_tree=False, compact_nodes=False)
+        source_tree = sp.cKDTree(list(zip(nbi_tmp, nbj_tmp)), balanced_tree=False, compact_nodes=False)
 
         # order bdy entries
 
         while count < nbdy[r]:
 
-            nn_dist, nn_id = source_tree.query(zip(nbi_tmp[id_order[count - 1]], nbj_tmp[id_order[count - 1]]),
+            nn_dist, nn_id = source_tree.query(list(zip(nbi_tmp[id_order[count - 1]], nbj_tmp[id_order[count - 1]])),
                                                k=3, distance_upper_bound=2.9)
             if np.sum(id_order == nn_id[0, 1]) == 1:  # is the nearest point already in the list?
                 if np.sum(id_order == nn_id[0, 2]) == 1:  # is the 2nd nearest point already in the list?
@@ -207,19 +207,19 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
 
         # create a pseudo bathymetry from the depth data
 
-        bathy = np.zeros_like(coords)
-        mbath = np.sum(dta[n].mask == 0, axis=0)
+        #bathy = np.zeros_like(coords)
+        #mbath = np.sum(dta[n].mask == 0, axis=0)
 
-        for i in range(len(coords)):
-            bathy[i] = gdepw[mbath[i], i]
+        #for i in range(len(coords)):
+        #    bathy[i] = gdepw[mbath[i], i]
 
-        bathy_patch = Polygon(np.vstack((np.hstack((coords[0], coords, coords[-1])),
-                                         np.hstack((np.amax(bathy[:]), bathy, np.amax(bathy[:]))))).T,
-                              closed=True,
-                              facecolor=(0.8, 0.8, 0), alpha=0, edgecolor=None)
+        #bathy_patch = Polygon(np.vstack((np.hstack((coords[0], coords, coords[-1])),
+        #                                 np.hstack((np.amax(bathy[:]), bathy, np.amax(bathy[:]))))).T,
+        #                      closed=True,
+        #                      facecolor=(0.8, 0.8, 0), alpha=0, edgecolor=None)
 
         # Add patch to axes
-        ax[n].add_patch(bathy_patch)
+        #ax[n].add_patch(bathy_patch)
         ax[n].set_title('BDY points along section: ' + str(n))
         patches = []
         colors = []
@@ -248,17 +248,17 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
         #         plt.plot(x, y, 'k-', linewidth=0.1)
         #         plt.plot(coords[i], gdept[k, i], 'k.', markersize=1)
 
-        plt.plot(coords, bathy, '-', color=(0.4, 0, 0))
+        #plt.plot(coords, bathy, '-', color=(0.4, 0, 0))
         p = PatchCollection(patches, alpha=0.8, edgecolor='none')
         p.set_array(np.array(colors))
         ax[n].add_collection(p)
         f.colorbar(p, ax=ax[n])
-        ax[n].set_ylim((0, np.max(bathy)))
+        #ax[n].set_ylim((0, np.max(bathy)))
         ax[n].invert_yaxis()
 
     return f
 
-fname = '/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y2017m11.nc'
+fname = '/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y2017m01.nc'
 print(fname)
 ind, dst, brk = nemo_bdy_order(fname)
 f = plot_bdy(fname, ind, dst, brk, 'thetao', 0, 0)

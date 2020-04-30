@@ -52,7 +52,7 @@
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
    ln_use_cmems             = .true.
-   ln_download_cmems        = .true.
+   ln_download_cmems        = .false.
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
    ln_download_static       = .false.
    ln_subset_static         = .false.
@@ -103,7 +103,7 @@
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
-    ln_tide        = .false.              !  =T : produce bdy tidal conditions
+    ln_tide        = .true.              !  =T : produce bdy tidal conditions
     sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
