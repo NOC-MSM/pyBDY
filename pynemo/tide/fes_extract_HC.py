@@ -53,22 +53,21 @@ class HcExtract(object):
             lon_resolution = lon_z[1] - lon_z[0]
             data_in_km = 0 # added to maintain the reference to matlab tmd code
 
-            # extract example amplitude grid for Z, U and V and change NaNs to 1 (for land) and other values to 0 (for water)
+            # extract example amplitude grid for Z, U and V and change NaNs to 0 (for land) and other values to 1 (for water)
             mask_z = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[0]+'_Z.nc').variables['amplitude'][:])))
+            mask_z[mask_z != 18446744073709551616.00000] = 1
             mask_z[mask_z == 18446744073709551616.00000] = 0
-            mask_z[mask_z != 0] = 1
             self.mask_dataset[mz_name] = mask_z
 
             mask_u = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[0]+'_U.nc').variables['Ua'][:])))
+            mask_z[mask_z != 18446744073709551616.00000] = 1
             mask_u[mask_u == 18446744073709551616.00000] = 0
-            mask_u[mask_u != 0] = 1
             self.mask_dataset[mu_name] = mask_u
 
             mask_v = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[0]+'_V.nc').variables['Va'][:])))
+            mask_z[mask_z != 18446744073709551616.00000] = 1
             mask_v[mask_v == 18446744073709551616.00000] = 0
-            mask_v[mask_v != 0] = 1
             self.mask_dataset[mv_name] = mask_v
-
 
             #read and convert the height_dataset file to complex and store in dicts
             hRe = []
@@ -77,9 +76,12 @@ class HcExtract(object):
             lon_z = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_Z.nc').variables['lon'][:])
             for ncon in range(len(constituents)):
                 amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+str(constituents[ncon])+'_Z.nc').variables['amplitude'][:])))
+                # set fill values to zero
                 amp[amp == 18446744073709551616.00000] = 0
+                # convert to m from cm
                 amp = amp/100.00
                 phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['phase'][:])))
+                phase[phase == 18446744073709551616.00000] = 0
                 hRe.append(amp*np.sin(phase))
                 hIm.append(amp*np.cos(phase))
             hRe = np.stack(hRe)
@@ -93,9 +95,12 @@ class HcExtract(object):
             lon_u = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_U.nc').variables['lon'][:])
             for ncon in range(len(constituents)):
                 amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ua'][:])))
+                # set fill values to zero
                 amp[amp == 18446744073709551616.00000] = 0
+                # convert to cm from m
                 amp = amp/100.00
                 phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ug'][:])))
+                phase[phase == 18446744073709551616.00000] = 0
                 URe.append(amp*np.sin(phase))
                 UIm.append(amp*np.cos(phase))
             URe = np.stack(URe)
@@ -108,9 +113,12 @@ class HcExtract(object):
             lon_v = np.array(Dataset(settings['tide_fes'] + constituents[ncon] + '_V.nc').variables['lon'][:])
             for ncon in range(len(constituents)):
                 amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Va'][:])))
+                # set fill value to zero
                 amp[amp == 18446744073709551616.00000] = 0
+                # convert m to cm
                 amp = amp/100.00
                 phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Vg'][:])))
+                phase[phase == 18446744073709551616.00000] = 0
                 VRe.append(amp*np.sin(phase))
                 VIm.append(amp*np.cos(phase))
             VRe = np.stack(VRe)

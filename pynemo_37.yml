@@ -11,6 +11,7 @@ dependencies:
   - pandas=1.0.1
   - pytest=5.3.5
   - xarray=0.15.0
+  - xlsxwriter=1.2.8
   - pip:
     - idna==2.9
     - lxml==4.5.0
