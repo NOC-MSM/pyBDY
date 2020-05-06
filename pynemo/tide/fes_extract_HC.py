@@ -21,16 +21,16 @@ class HcExtract(object):
         tide_model = 'fes'
         if tide_model == 'fes':  # Define stuff to generalise Tide model
 
-            hRe_name = 'hRe'
-            hIm_name = 'hIm'
+            hRe_name = 'amp_stack'
+            hIm_name = 'pha_stack'
             lon_z_name = 'lon_z'
             lat_z_name = 'lat_z'
-            URe_name = 'URe'
-            UIm_name = 'UIm'
+            URe_name = 'amp_stack'
+            UIm_name = 'pha_stack'
             lon_u_name = 'lon_u'
             lat_u_name = 'lat_u'
-            VRe_name = 'VRe'
-            VIm_name = 'VIm'
+            VRe_name = 'amp_stack'
+            VIm_name = 'pha_stack'
             lon_v_name = 'lon_v'
             lat_v_name = 'lat_v'
             mz_name = 'mask_z'
@@ -60,18 +60,18 @@ class HcExtract(object):
             self.mask_dataset[mz_name] = mask_z
 
             mask_u = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[0]+'_U.nc').variables['Ua'][:])))
-            mask_z[mask_z != 18446744073709551616.00000] = 1
+            mask_u[mask_u != 18446744073709551616.00000] = 1
             mask_u[mask_u == 18446744073709551616.00000] = 0
             self.mask_dataset[mu_name] = mask_u
 
             mask_v = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[0]+'_V.nc').variables['Va'][:])))
-            mask_z[mask_z != 18446744073709551616.00000] = 1
+            mask_v[mask_v != 18446744073709551616.00000] = 1
             mask_v[mask_v == 18446744073709551616.00000] = 0
             self.mask_dataset[mv_name] = mask_v
 
             #read and convert the height_dataset file to complex and store in dicts
-            hRe = []
-            hIm = []
+            amp_stack = []
+            pha_stack = []
             lat_z = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_Z.nc').variables['lat'][:])
             lon_z = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_Z.nc').variables['lon'][:])
             for ncon in range(len(constituents)):
@@ -82,15 +82,17 @@ class HcExtract(object):
                 amp = amp/100.00
                 phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['phase'][:])))
                 phase[phase == 18446744073709551616.00000] = 0
-                hRe.append(amp*np.sin(phase))
-                hIm.append(amp*np.cos(phase))
-            hRe = np.stack(hRe)
-            hIm = np.stack(hIm)
-            self.height_dataset = [lon_z,lat_z,hRe,hIm]
+                # convert from -180-180 to 0-360
+                phase[phase < 0.0] = phase[phase < 0.0] + 360.0
+                amp_stack.append(amp)
+                pha_stack.append(phase)
+            amp_stack = np.stack(amp_stack)
+            pha_stack = np.stack(pha_stack)
+            self.height_dataset = [lon_z,lat_z,amp_stack,pha_stack]
 
             #read and convert the velocity_dataset files to complex
-            URe = []
-            UIm = []
+            amp_stack = []
+            pha_stack = []
             lat_u = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_U.nc').variables['lat'][:])
             lon_u = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_U.nc').variables['lon'][:])
             for ncon in range(len(constituents)):
@@ -101,14 +103,15 @@ class HcExtract(object):
                 amp = amp/100.00
                 phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ug'][:])))
                 phase[phase == 18446744073709551616.00000] = 0
-                URe.append(amp*np.sin(phase))
-                UIm.append(amp*np.cos(phase))
-            URe = np.stack(URe)
-            UIm = np.stack(UIm)
-            self.Uvelocity_dataset = [lon_u,lat_u,URe,UIm]
+                phase[phase < 0.0] = phase[phase < 0.0] + 360.0
+                amp_stack.append(amp)
+                pha_stack.append(phase)
+            amp_stack = np.stack(amp_stack)
+            pha_stack = np.stack(pha_stack)
+            self.Uvelocity_dataset = [lon_u,lat_u,amp_stack,pha_stack]
 
-            VRe = []
-            VIm = []
+            amp_stack = []
+            pha_stack = []
             lat_v = np.array(Dataset(settings['tide_fes'] + constituents[ncon] + '_V.nc').variables['lat'][:])
             lon_v = np.array(Dataset(settings['tide_fes'] + constituents[ncon] + '_V.nc').variables['lon'][:])
             for ncon in range(len(constituents)):
@@ -119,11 +122,12 @@ class HcExtract(object):
                 amp = amp/100.00
                 phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Vg'][:])))
                 phase[phase == 18446744073709551616.00000] = 0
-                VRe.append(amp*np.sin(phase))
-                VIm.append(amp*np.cos(phase))
-            VRe = np.stack(VRe)
-            VIm = np.stack(VIm)
-            self.Vvelocity_dataset = [lon_v,lat_v,VRe,VIm]
+                phase[phase < 0.0] = phase[phase < 0.0] + 360.0
+                amp_stack.append(amp)
+                pha_stack.append(phase)
+            amp_stack = np.stack(amp_stack)
+            pha_stack = np.stack(pha_stack)
+            self.Vvelocity_dataset = [lon_v,lat_v,amp_stack,pha_stack]
 
             # open grid variables these are resampled TPXO parameters so may not work correctly.
             self.grid = Dataset(settings['tide_fes']+'grid_fes.nc')
@@ -205,9 +209,10 @@ class HcExtract(object):
         amp = np.zeros((len(nc_dataset[2]), lon.shape[0]))
         gph = np.zeros((len(nc_dataset[2]), lon.shape[0]))
 
-        data = np.array(np.ravel(nc_dataset[2]), dtype=complex)
-        data.imag = np.array(np.ravel(nc_dataset[3]))
-        data = data.reshape(nc_dataset[2].shape)
+        data_amp = np.array(np.ravel(nc_dataset[2]))
+        data_pha = np.array(np.ravel(nc_dataset[3]))
+        data_amp = data_amp.reshape(nc_dataset[2].shape)
+        data_pha = data_pha.reshape(nc_dataset[2].shape)
         #data = data.reshape(1,nc_dataset['M2'][real_var_name].shape)
         # data[data==0] = np.NaN
 
@@ -238,29 +243,26 @@ class HcExtract(object):
         #interpolate the mask values
         maskedpoints = interpolate.interpn((x_values, y_values), mask, lonlat)
 
-        data_temp = np.zeros((data.shape[0], lon.shape[0], 2, ))
-        for cons_index in range(data.shape[0]):
+        data_temp_amp = np.zeros((data_amp.shape[0], lon.shape[0], 1, ))
+        data_temp_pha = np.zeros((data_pha.shape[0], lon.shape[0], 1,))
+        for cons_index in range(data_amp.shape[0]):
             #interpolate real values
-            data_temp[cons_index, :, 0] = interpolate_data(x_values, y_values,
-                                                                data[cons_index, :, :].real,
+            data_temp_amp[cons_index, :, 0] = interpolate_data(x_values, y_values,
+                                                                data_amp[cons_index, :, :],
                                                                 maskedpoints, lonlat)
             #interpolate imag values
-            data_temp[cons_index, :, 1] = interpolate_data(x_values, y_values,
-                                                                data[cons_index, :, :].imag,
+            data_temp_pha[cons_index, :, 0] = interpolate_data(x_values, y_values,
+                                                                data_pha[cons_index, :, :],
                                                                 maskedpoints, lonlat)
 
             #for velocity_dataset values
             if height_data is not None:
-                data_temp[cons_index, :, 0] = data_temp[cons_index, :, 0]/height_data*100
-                data_temp[cons_index, :, 1] = data_temp[cons_index, :, 1]/height_data*100
+                data_temp_amp[cons_index, :, 0] = data_temp_amp[cons_index, :, 0]/height_data*100
+                data_temp_pha[cons_index, :, 0] = data_temp_pha[cons_index, :, 0]/height_data*100
 
-            zcomplex = np.array(data_temp[cons_index, :, 0], dtype=complex)
-            zcomplex.imag = data_temp[cons_index, :, 1]
+            amp[cons_index, :] = data_temp_amp[cons_index, :, 0]
+            gph[cons_index, :] = data_temp_pha[cons_index, :, 0]
 
-            amp[cons_index, :] = np.absolute(zcomplex)
-            gph[cons_index, :] = np.arctan2(-1*zcomplex.imag, zcomplex.real)
-        gph = gph*180.0/np.pi
-        gph[gph < 0] = gph[gph < 0]+360.0
         return amp, gph
 
 def interpolate_data(lon, lat, data, mask, lonlat):
