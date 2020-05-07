@@ -54,6 +54,7 @@ from pynemo.reader.factory import GetFile
 from pynemo.reader import factory
 from pynemo.tide import nemo_bdy_tide3 as tide
 from pynemo.tide import nemo_bdy_tide_ncgen
+from pynemo.tests import nemo_tide_test as tt
 from pynemo.utils import Constants
 from pynemo.gui.nemo_bdy_mask import Mask as Mask_File
 from pynemo import nemo_bdy_dl_cmems as dl_cmems
@@ -437,13 +438,26 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         if settings['tide_model']=='tpxo':
             cons = tide.nemo_bdy_tide_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
-                                                            settings['clname'], settings['tide_model'])
+                                                               settings['clname'], settings['tide_model'])
+            if settings['tide_checker'] == True:
+                logger.info('tide checker starting now.....')
+                tt_test = tt.main(setup_filepath,settings['amp_thres'],settings['phase_thres'],settings['ref_model'])
+                if tt_test == 0:
+                    logger.info('tide checker ran successfully, check spreadsheet in output folder')
+                if tt_test !=0:
+                    logger.warning('error running tide checker')
+
         elif settings['tide_model']=='fes':
             cons = tide.nemo_bdy_tide_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
                                                             settings['clname'],settings['tide_model'])
-            logger.warning('Tidal model: %s, not yet properly implimented',
-                         settings['tide_model'])
+            if settings['tide_checker'] == True:
+                logger.info('tide checker starting now.....')
+                tt_test = tt.main(setup_filepath,settings['amp_thres'],settings['phase_thres'],settings['ref_model'])
+                if tt_test == 0:
+                    logger.info('tide checker ran successfully, check spreadsheet in output folder')
+                if tt_test !=0:
+                    logger.warning('error running tide checker')
         else:
             logger.error('Tidal model: %s, not recognised', 
                          settings['tide_model'])

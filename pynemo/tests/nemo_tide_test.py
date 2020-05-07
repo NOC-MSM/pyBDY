@@ -46,7 +46,7 @@ logging.basicConfig(filename='nrct.log', level=logging.INFO)
 
 # TODO: add TPXO read and subset functionality currently only uses FES as "truth"
 
-def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.25,phase_threshold=15.00,model_res=1/16,model='fes'):
+def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.25,phase_threshold=15.00,model='fes',model_res=1/16):
     logger.info('============================================')
     logger.info('Start Tide Test Logging: ' + time.asctime())
     logger.info('============================================')
@@ -85,7 +85,7 @@ def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.25,phase_t
                     logger.warning('Exceedance in thesholds detected, check spreadsheet in dst_dir')
                     error_log.to_excel(writer,sheet_name=error_log.name)
                 # close writer object and save excel spreadsheet
-                writer.save()
+        writer.save()
     # code runs here if TPXO is requested as reference this hasn't been written yet so raises exception
     elif model == 'tpxo':
         logger.info('using TPXO as reference.......')
@@ -129,11 +129,10 @@ def read_fes(fes_fname,grid):
         fes_amp = np.array(fes_tide.variables['amplitude'][:])
         fes_amp = fes_amp / 100
         fes_phase = np.array(fes_tide.variables['phase'][:])
-        fes_phase[fes_phase > 180.0] = fes_phase[fes_phase > 180.0] - 360.0
+
     if grid != 'Z':
         fes_amp = np.array(fes_tide.variables[grid+'a'][:])
         fes_phase = np.array(fes_tide.variables[grid+'g'][:])
-        fes_phase[fes_phase > 180.0] = fes_phase[fes_phase > 180.0] - 360.0
 
     fes_lat = fes_tide.variables['lat'][:]
     fes_lon = fes_tide.variables['lon'][:]
@@ -175,6 +174,7 @@ def compare_tides(pynemo_out,subset,amp_thres,phase_thres,model_res):
     exceed_sum = np.sum(exceed_lat+exceed_lon)
     if exceed_sum > 0:
         raise Exception('Dont Panic: Lat and/or Lon further away from model point than model resolution')
+
     # compare amp
     abs_amp = np.abs(pynemo_out['amp']-subset['amp'])
     abs_amp_thres = abs_amp > amp_thres
@@ -187,8 +187,16 @@ def compare_tides(pynemo_out,subset,amp_thres,phase_thres,model_res):
     err_ref_lons_amp = subset['lon'][abs_amp_thres].tolist()
 
     # compare phase
-    abs_ph = np.abs(pynemo_out['phase']-subset['phase'])
+    # change from -180-180 to 0to 360 for both pynemo and subset.
+    pynemo_out['phase'][pynemo_out['phase'] < 0.0] = pynemo_out['phase'][pynemo_out['phase'] < 0.0] + 360.0
+    subset['phase'][subset['phase'] < 0.0] = subset['phase'][subset['phase'] < 0.0] + 360.0
+    # compare phase angles between 0 and 360.
+    abs_ph = 180 - abs(abs(pynemo_out['phase'] - subset['phase']) - 180)
+    # values outside of 0 to 360  (such as erroneous fill values) end up negative
+    # so multiply by -1 to ensure they are identified as exceeding threshold
+    abs_ph[abs_ph < 0.0 ] = abs_ph[abs_ph < 0.0] *-1
     abs_ph_thres = abs_ph > phase_thres
+    
     err_pha = pynemo_out['phase'][abs_ph_thres[0,:]].tolist()
     err_pha_lats = pynemo_out['lat'][abs_ph_thres].tolist()
     err_pha_lons = pynemo_out['lon'][abs_ph_thres].tolist()

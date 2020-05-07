@@ -110,8 +110,11 @@
     !clname(3)      = 'O1'
     !clname(4)      = 'K1'
     !clname(5)      = 'N2'
-    ln_trans       = .false.               !  interpolate transport rather than
-                                          !  velocities
+    ln_trans       = .false.                !  interpolate transport rather than velocities
+    ln_tide_checker = .true.                ! run tide checker on PyNEMO tide output
+    sn_ref_model    = 'fes'                 ! which model to check output against (FES only)
+    nn_amp_thres    = 0.25                  ! amplitude thresold to compare against (m)
+    nn_phase_thres   = 20.0                 ! phase threshold to compare against (degrees)
 !------------------------------------------------------------------------------
 !  Time information
 !------------------------------------------------------------------------------
