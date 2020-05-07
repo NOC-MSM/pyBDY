@@ -46,7 +46,7 @@ logging.basicConfig(filename='nrct.log', level=logging.INFO)
 
 # TODO: add TPXO read and subset functionality currently only uses FES as "truth"
 
-def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.25,phase_threshold=10.00,model_res=1/16,model='fes'):
+def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.25,phase_threshold=15.00,model_res=1/16,model='fes'):
     logger.info('============================================')
     logger.info('Start Tide Test Logging: ' + time.asctime())
     logger.info('============================================')
