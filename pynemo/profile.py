@@ -439,6 +439,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             cons = tide.nemo_bdy_tide_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
                                                                settings['clname'], settings['tide_model'])
+            write_tidal_data(Setup, DstCoord, bdy_ind, settings['clname'], cons)
+
             if settings['tide_checker'] == True:
                 logger.info('tide checker starting now.....')
                 tt_test = tt.main(setup_filepath,settings['amp_thres'],settings['phase_thres'],settings['ref_model'])
@@ -451,6 +453,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             cons = tide.nemo_bdy_tide_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
                                                             settings['clname'],settings['tide_model'])
+            write_tidal_data(Setup, DstCoord, bdy_ind, settings['clname'], cons)
+
             if settings['tide_checker'] == True:
                 logger.info('tide checker starting now.....')
                 tt_test = tt.main(setup_filepath,settings['amp_thres'],settings['phase_thres'],settings['ref_model'])
@@ -462,8 +466,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             logger.error('Tidal model: %s, not recognised', 
                          settings['tide_model'])
             return
-            
-        write_tidal_data(Setup, DstCoord, bdy_ind, settings['clname'], cons)
 
     logger.info('Tidal constituents written to file')
     

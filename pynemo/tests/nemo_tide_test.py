@@ -127,12 +127,15 @@ def read_fes(fes_fname,grid):
     fes_tide = Dataset(fes_fname)
     if grid == 'Z':
         fes_amp = np.array(fes_tide.variables['amplitude'][:])
+        # convert to m
         fes_amp = fes_amp / 100
         fes_phase = np.array(fes_tide.variables['phase'][:])
 
     if grid != 'Z':
         fes_amp = np.array(fes_tide.variables[grid+'a'][:])
         fes_phase = np.array(fes_tide.variables[grid+'g'][:])
+        # convert to m/s
+        fes_amp = fes_amp/100
 
     fes_lat = fes_tide.variables['lat'][:]
     fes_lon = fes_tide.variables['lon'][:]

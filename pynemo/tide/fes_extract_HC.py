@@ -69,7 +69,7 @@ class HcExtract(object):
                     amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+str(constituents[ncon])+'_Z.nc').variables['amplitude'][:])))
                     # set fill values to zero
                     amp[amp == 18446744073709551616.00000] = 0
-                    # convert to m from cm
+                    # convert amp to m from cm
                     amp = amp/100.00
                     phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_Z.nc').variables['phase'][:])))
                     # set fill values to 0
@@ -96,7 +96,7 @@ class HcExtract(object):
                     amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ua'][:])))
                     # set fill values to zero
                     amp[amp == 18446744073709551616.00000] = 0
-                    # convert to cm from m
+                    # convert amp units to m/s
                     amp = amp/100.00
                     phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ug'][:])))
                     phase[phase == 18446744073709551616.00000] = 0
@@ -120,7 +120,7 @@ class HcExtract(object):
                     amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Va'][:])))
                     # set fill value to zero
                     amp[amp == 18446744073709551616.00000] = 0
-                    # convert m to cm
+                    # convert amp units to m/s
                     amp = amp/100.00
                     phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Vg'][:])))
                     phase[phase == 18446744073709551616.00000] = 0
@@ -253,11 +253,6 @@ class HcExtract(object):
             data_temp[cons_index, :, 1] = interpolate_data(x_values, y_values,
                                                                 data[cons_index, :, :].imag,
                                                                 maskedpoints, lonlat)
-
-            #for velocity_dataset values
-            #if height_data is not None:
-            #    data_temp[cons_index, :, 0] = data_temp[cons_index, :, 0]/height_data*100
-            #    data_temp[cons_index, :, 1] = data_temp[cons_index, :, 1]/height_data*100
 
             zcomplex = np.array(data_temp[cons_index, :, 0], dtype=complex)
             zcomplex.imag = data_temp[cons_index, :, 1]

@@ -106,10 +106,10 @@
     ln_tide        = .true.              !  =T : produce bdy tidal conditions
     sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
-    !clname(2)      = 'S2'
-    !clname(3)      = 'O1'
-    !clname(4)      = 'K1'
-    !clname(5)      = 'N2'
+    clname(2)      = 'S2'
+    clname(3)      = 'O1'
+    clname(4)      = 'K1'
+    clname(5)      = 'N2'
     ln_trans       = .false.                !  interpolate transport rather than velocities
     ln_tide_checker = .true.                ! run tide checker on PyNEMO tide output
     sn_ref_model    = 'fes'                 ! which model to check output against (FES only)
