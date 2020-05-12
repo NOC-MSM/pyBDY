@@ -443,7 +443,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
             if settings['tide_checker'] == True:
                 logger.info('tide checker starting now.....')
-                tt_test = tt.main(setup_filepath,settings['amp_thres'],settings['phase_thres'],settings['ref_model'])
+                tt_test = tt.main(setup_filepath,settings['amp_thres'],settings['ref_model'])
                 if tt_test == 0:
                     logger.info('tide checker ran successfully, check spreadsheet in output folder')
                 if tt_test !=0:
@@ -457,7 +457,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
             if settings['tide_checker'] == True:
                 logger.info('tide checker starting now.....')
-                tt_test = tt.main(setup_filepath,settings['amp_thres'],settings['phase_thres'],settings['ref_model'])
+                tt_test = tt.main(setup_filepath,settings['amp_thres'],settings['ref_model'])
                 if tt_test == 0:
                     logger.info('tide checker ran successfully, check spreadsheet in output folder')
                 if tt_test !=0:

@@ -133,6 +133,8 @@ class HcExtract(object):
             # open grid variables these are resampled TPXO parameters so may not work correctly.
             self.grid = Dataset(settings['tide_fes']+'grid_fes.nc')
             height_z = np.array(np.rot90(self.grid.variables['hz']))
+            # set fill values to zero
+            height_z[height_z <0.00] = 0.00
 
         else:
            print('Don''t know that tide model')
@@ -319,12 +321,10 @@ def bilinear_interpolation(lon, lat, data, lon_new, lat_new):
     data_copy = data.copy()
     data_copy[1:-1, 1:-1] = np.divide(height_temp, mask_temp)
     nonmask_index = np.where(mask == 1)
-    data_copy[nonmask_index] = data[nonmask_index]
-    data_copy[data_copy == 0] = np.NaN
+
     lonlat = np.concatenate((lon_new_copy, lat_new))
     lonlat = np.reshape(lonlat, (lon_new_copy.size, 2), order='F')
     result = interpolate.interpn((lon, lat), data_copy, lonlat)
-
     return result
 
 
