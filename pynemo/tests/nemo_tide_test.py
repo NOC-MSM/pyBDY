@@ -47,7 +47,7 @@ logging.basicConfig(filename='nrct.log', level=logging.INFO)
 
 # TODO: add TPXO read and subset functionality currently only uses FES as "truth"
 
-def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.25,model='fes',model_res=1/16):
+def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.1,model='fes',model_res=1/16):
     logger.info('============================================')
     logger.info('Start Tide Test Logging: ' + time.asctime())
     logger.info('============================================')
@@ -161,6 +161,7 @@ def subset_reference(pynemo_out, reference):
     idx_lon = idx_lon.astype(np.int64)
 
     amp_sub = reference['amp'][idx_lat, idx_lon]
+    # surpress warnings due to NaNmean
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=RuntimeWarning)
         for i in range(np.shape(amp_sub)[1]):
@@ -271,6 +272,7 @@ def compare_tides(pynemo_out,subset,amp_thres,model_res):
     exceed_sum = np.sum(exceed_lat+exceed_lon)
     if exceed_sum > 0:
         raise Exception('Dont Panic: Lat and/or Lon further away from model point than model resolution')
+    # surpress warnings as NaNs from averaging surrounding pixels can cause issues
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=RuntimeWarning)
         # compare amp
@@ -301,10 +303,12 @@ def compare_tides(pynemo_out,subset,amp_thres,model_res):
         abs_ph_thres = abs_ph > phase_thres
 
         err_pha = pynemo_out['phase'][abs_ph_thres[0,:]].tolist()
+        err_pha_amp = pynemo_out['amp'][abs_ph_thres].tolist()
         err_pha_lats = pynemo_out['lat'][abs_ph_thres].tolist()
         err_pha_lons = pynemo_out['lon'][abs_ph_thres].tolist()
 
         err_ref_pha = subset['phase'][abs_ph_thres].tolist()
+        err_ref_pha_amp = subset['amp'][abs_ph_thres].tolist()
         err_ref_lats_pha = subset['lat'][abs_ph_thres].tolist()
         err_ref_lons_pha = subset['lon'][abs_ph_thres].tolist()
 
@@ -312,9 +316,11 @@ def compare_tides(pynemo_out,subset,amp_thres,model_res):
         max_len = max(lerr_pha, lerr_amp)
         if not max_len == lerr_pha:
             err_pha.extend([''] * (max_len - lerr_pha))
+            err_pha_amp.extend([''] * (max_len - lerr_pha))
             err_pha_lats.extend([''] * (max_len - lerr_pha))
             err_pha_lons.extend([''] * (max_len - lerr_pha))
             err_ref_pha.extend([''] * (max_len - lerr_pha))
+            err_ref_pha_amp.extend([''] * (max_len - lerr_pha))
             err_ref_lats_pha.extend([''] * (max_len - lerr_pha))
             err_ref_lons_pha.extend([''] * (max_len - lerr_pha))
         if not max_len == lerr_amp:
@@ -334,7 +340,9 @@ def compare_tides(pynemo_out,subset,amp_thres,model_res):
                                 'phase_lat':err_pha_lats,
                                 'phase_lon':err_pha_lons,
                                 'phase':err_pha,
+                                'phase_amp':err_pha_amp,
                                 'ref_phase':err_ref_pha,
+                                'ref_phase_amp':err_ref_pha_amp,
                                 'ref_phase_lats':err_ref_lats_pha,
                                 'ref_phase_lons':err_ref_lons_pha
                                 })

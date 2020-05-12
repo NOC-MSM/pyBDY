@@ -107,13 +107,23 @@
     sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
-    clname(3)      = 'O1'
-    clname(4)      = 'K1'
-    clname(5)      = 'N2'
+    clname(3)      = 'N2'
+    clname(4)      = 'O1'
+    clname(5)      = 'K1'
+    !clname(6)      = 'K2'
+    !clname(7)      = 'L2'
+    !clname(8)      = 'NU2'
+    !clname(9)      = 'M4'
+    !clname(10)     = 'MS4'
+    !clname(11)     = 'Q1'
+    !clname(12)     = 'P1'
+    !clname(13)     = 'S1'
+    !clname(14)     = '2N2'
+    !clname(15)     = 'MU2'
     ln_trans       = .false.                !  interpolate transport rather than velocities
     ln_tide_checker = .true.                ! run tide checker on PyNEMO tide output
     sn_ref_model    = 'fes'                 ! which model to check output against (FES only)
-    nn_amp_thres    = 0.30                  ! amplitude thresold to compare against (m)
+    nn_amp_thres    = 0.10                  ! amplitude thresold to compare against (m)
 !------------------------------------------------------------------------------
 !  Time information
 !------------------------------------------------------------------------------
