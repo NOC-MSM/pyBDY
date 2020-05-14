@@ -48,8 +48,8 @@ class HcExtract(object):
             self.mask_dataset = {}
 
             # extract lon and lat z data
-            lon_z = np.array(Dataset(settings['tide_fes']+constituents[0]+'_Z.nc').variables['lon'])
-            lat_z = np.array(Dataset(settings['tide_fes']+constituents[0]+'_Z.nc').variables['lat'])
+            lon_z = np.array(Dataset(settings['tide_fes']+constituents[i]+'_Z.nc').variables['lon'])
+            lat_z = np.array(Dataset(settings['tide_fes']+constituents[i]+'_Z.nc').variables['lat'])
             lon_resolution = lon_z[1] - lon_z[0]
             data_in_km = 0 # added to maintain the reference to matlab tmd code
 
@@ -63,8 +63,8 @@ class HcExtract(object):
                 #read and convert the height_dataset file to complex and store in dicts
                 hRe = []
                 hIm = []
-                lat_z = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_Z.nc').variables['lat'][:])
-                lon_z = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_Z.nc').variables['lon'][:])
+                lat_z = np.array(Dataset(settings['tide_fes'] + constituents[i] + '_Z.nc').variables['lat'][:])
+                lon_z = np.array(Dataset(settings['tide_fes'] + constituents[i] + '_Z.nc').variables['lon'][:])
                 for ncon in range(len(constituents)):
                     amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+str(constituents[ncon])+'_Z.nc').variables['amplitude'][:])))
                     # set fill values to zero
@@ -90,14 +90,12 @@ class HcExtract(object):
 
                 URe = []
                 UIm = []
-                lat_u = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_U.nc').variables['lat'][:])
-                lon_u = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_U.nc').variables['lon'][:])
+                lat_u = np.array(Dataset(settings['tide_fes'] + constituents[i] + '_U.nc').variables['lat'][:])
+                lon_u = np.array(Dataset(settings['tide_fes'] + constituents[i] + '_U.nc').variables['lon'][:])
                 for ncon in range(len(constituents)):
                     amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ua'][:])))
                     # set fill values to zero
                     amp[amp == 18446744073709551616.00000] = 0
-                    # convert amp units to m/s
-                    amp = amp/100.00
                     phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_U.nc').variables['Ug'][:])))
                     phase[phase == 18446744073709551616.00000] = 0
                     URe.append(amp*np.cos(phase*(np.pi/180)))
@@ -114,14 +112,12 @@ class HcExtract(object):
 
                 VRe = []
                 VIm = []
-                lat_v = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_V.nc').variables['lat'][:])
-                lon_v = np.array(Dataset(settings['tide_fes'] + constituents[0] + '_V.nc').variables['lon'][:])
+                lat_v = np.array(Dataset(settings['tide_fes'] + constituents[i] + '_V.nc').variables['lat'][:])
+                lon_v = np.array(Dataset(settings['tide_fes'] + constituents[i] + '_V.nc').variables['lon'][:])
                 for ncon in range(len(constituents)):
                     amp = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Va'][:])))
                     # set fill value to zero
                     amp[amp == 18446744073709551616.00000] = 0
-                    # convert amp units to m/s
-                    amp = amp/100.00
                     phase = np.ma.MaskedArray.filled(np.flipud(np.rot90(Dataset(settings['tide_fes']+constituents[ncon]+'_V.nc').variables['Vg'][:])))
                     phase[phase == 18446744073709551616.00000] = 0
                     VRe.append(amp*np.cos(phase*(np.pi/180)))

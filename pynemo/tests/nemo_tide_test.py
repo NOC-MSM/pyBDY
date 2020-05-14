@@ -32,6 +32,15 @@ The script checks the Amplitude and Phase independently, so lat/lons for each ar
 a separate sheet in the spreadsheet. The name of the spreadsheet contains meta data showing thresholds and reference
 model used. Units for threshold are meters and degrees.
 
+Update: fill values for FES are commonly returned at coastlines, this is due to the nearest FES cell being land but PyNEMO
+will have interpolated data from the water. In instance the code checks the cells aroud the fill value and averages both
+amplitude and phase (using HsinG,HcosG) to act as a reference.
+
+Phase threshold is not longer required as it is applied using an function that references amplitude, the idea is that the
+threshold is low for high amplitudes, e.g. 5 degrees for 1.0m and high for low amplitudes 80 degrees for 0.01 m.
+
+Amplitudes at phase exceedance locataions are also returned to allow assessment of the impact, e.g. low amplitude low impact
+
 """
 from netCDF4 import Dataset
 import numpy as np
@@ -47,7 +56,7 @@ logging.basicConfig(filename='nrct.log', level=logging.INFO)
 
 # TODO: add TPXO read and subset functionality currently only uses FES as "truth"
 
-def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.1,model='fes',model_res=1/16):
+def main(bdy_file='inputs/namelist_cmems.bdy',model='fes'):
     logger.info('============================================')
     logger.info('Start Tide Test Logging: ' + time.asctime())
     logger.info('============================================')
@@ -60,7 +69,7 @@ def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.1,model='f
     if model == 'fes':
         logger.info('using FES as reference.......')
         # open writer object to write pandas dataframes to spreadsheet
-        writer = pd.ExcelWriter(settings['dst_dir'] + 'exceed_values_amp_thres-'+str(amplitude_threshold)+'_reference_model-'+str(model)+'.xlsx', engine='xlsxwriter')
+        writer = pd.ExcelWriter(settings['dst_dir'] + 'comparision_with_'+str(model)+'.xlsx', engine='xlsxwriter')
         for key in constituents:
             for j in range(len(grids)):
                 out_fname = settings['dst_dir']+settings['fn']+'_bdytide_'+constituents[key].strip("',/\n")+'_grd_'+grids[j]+'.nc'
@@ -74,7 +83,7 @@ def main(bdy_file='inputs/namelist_cmems.bdy',amplitude_threshold = 0.1,model='f
                 # subset FES to match PyNEMO list of lat lons
                 subset_fes = subset_reference(pynemo_out, fes)
                 # compare the two lists (or dicts really)
-                error_log = compare_tides(pynemo_out, subset_fes, amplitude_threshold, model_res)
+                error_log = compare_tides(pynemo_out, subset_fes)
                 # return differences above threshold as a Pandas Dataframe and name using HC and Grid
                 error_log.name = constituents[key].strip("',/\n") + grids[j]
                 # if the dataframe is empty (no exceedances) then discard dataframe and log the good news
@@ -150,6 +159,7 @@ def read_fes(fes_fname,grid):
     # subset FES dict from read_FES, this uses find_nearest to find nearest FES point using PyNEMO dict from extract_PyNEMO
     # It also converts FES amplitude from cm to m.
 def subset_reference(pynemo_out, reference):
+    model_res = np.abs(reference['lon'][0]-reference['lon'][1])
     idx_lat = np.zeros(np.shape(pynemo_out['lat']))
     for i in range(np.shape(pynemo_out['lat'])[1]):
         idx_lat[0, i] = find_nearest(reference['lat'], pynemo_out['lat'][0, i])
@@ -167,7 +177,7 @@ def subset_reference(pynemo_out, reference):
         for i in range(np.shape(amp_sub)[1]):
             # if a fill value in FES subset is found
             if amp_sub[0, i] == 184467436613926912.0000:
-                logger.warning('found fill value in FES subset, taking nanmean from surrounding points')
+                logger.warning('found fill value in FES subset, taking nanmean from surrounding amplitude points')
                 # if there are fill values surrounding subset fill value change these to NaN
                 if reference['amp'][idx_lat[0,i]+1, idx_lon[0,i]]== 184467436613926912.0000:
                     reference['amp'][idx_lat[0, i]+1, idx_lon[0, i]] = np.nan
@@ -187,7 +197,7 @@ def subset_reference(pynemo_out, reference):
                     reference['amp'][idx_lat[0, i]+1, idx_lon[0, i]-1] = np.nan
                 # nan mean surrounding points to replace fill value subset point
                 amp_sub[0,i] = np.nanmean([reference['amp'][idx_lat[0,i]+1, idx_lon[0,i]], \
-                               reference['amp'][idx_lat[0,i], idx_lon[0,i]+1], \
+                              reference['amp'][idx_lat[0,i], idx_lon[0,i]+1], \
                               reference['amp'][idx_lat[0,i]-1, idx_lon[0,i]], \
                               reference['amp'][idx_lat[0,i], idx_lon[0,i]-1], \
                               reference['amp'][idx_lat[0,i]+1, idx_lon[0,i]]+1, \
@@ -197,8 +207,10 @@ def subset_reference(pynemo_out, reference):
                                            ])
         phase_sub = reference['phase'][idx_lat, idx_lon]
         for i in range(np.shape(phase_sub)[1]):
+            # if a fill value in FES subset is found
             if phase_sub[0, i] == 18446744073709551616.0000:
-                logger.warning('found fill value in FES subset, taking nanmean value from surrounding points')
+                logger.warning('found fill value in FES subset, taking nanmean from surrounding phase points')
+                # if there are fill values surrounding subset fill value change these to NaN
                 if reference['phase'][idx_lat[0, i] + 1, idx_lon[0, i]] == 18446744073709551616.0000:
                     reference['phase'][idx_lat[0, i] + 1, idx_lon[0, i]] = np.nan
                 if reference['phase'][idx_lat[0, i], idx_lon[0, i] + 1] == 18446744073709551616.0000:
@@ -215,7 +227,7 @@ def subset_reference(pynemo_out, reference):
                     reference['phase'][idx_lat[0, i] - 1, idx_lon[0, i] + 1] = np.nan
                 if reference['phase'][idx_lat[0, i] + 1, idx_lon[0, i] - 1] == 18446744073709551616.0000:
                     reference['phase'][idx_lat[0, i] + 1, idx_lon[0, i] - 1] = np.nan
-
+                # calculate HcosG and then average
                 HcosG = np.nanmean([reference['amp'][idx_lat[0, i]+1, idx_lon[0, i]]*np.cos(
                              reference['phase'][idx_lat[0, i]+1, idx_lon[0, i]]*np.pi/180),
                          reference['amp'][idx_lat[0, i], idx_lon[0, i]+1] * np.cos(
@@ -233,7 +245,7 @@ def subset_reference(pynemo_out, reference):
                          reference['amp'][idx_lat[0, i]+1, idx_lon[0, i]-1] * np.cos(
                              reference['phase'][idx_lat[0, i]+1, idx_lon[0, i]-1] * np.pi / 180),
                          ])
-
+                # calculate HsinG and then average
                 HsinG = np.nanmean([reference['amp'][idx_lat[0, i]+1, idx_lon[0, i]]*np.sin(
                              reference['phase'][idx_lat[0, i]+1, idx_lon[0, i]]*np.pi/180),
                          reference['amp'][idx_lat[0, i], idx_lon[0, i]+1] * np.sin(
@@ -251,24 +263,24 @@ def subset_reference(pynemo_out, reference):
                          reference['amp'][idx_lat[0, i]+1, idx_lon[0, i]-1] * np.sin(
                              reference['phase'][idx_lat[0, i]+1, idx_lon[0, i]-1] * np.pi / 180),
                          ])
-
+                # convert back to phase
                 phase_sub[0,i] = np.arctan2(HsinG,HcosG)
 
     lat_sub = reference['lat'][idx_lat]
     lon_sub = reference['lon'][idx_lon]
-    subset = {'lat':lat_sub,'lon':lon_sub,'amp':amp_sub,'phase':phase_sub}
+    subset = {'lat':lat_sub,'lon':lon_sub,'amp':amp_sub,'phase':phase_sub,'model_res':model_res}
     return subset
 
     # takes pynemo extract dict, subset fes dict, and the thresholds and model res passed to main function.
     # returns a Pandas Dataframe with any PyNEMO values that exceed the nearest FES point by defined threshold
     # It also checks lats and lons are within the model reference resolution
     # i.e. ensure closest model reference point is used.
-def compare_tides(pynemo_out,subset,amp_thres,model_res):
+def compare_tides(pynemo_out,subset):
     # compare lat and lons
     diff_lat = np.abs(pynemo_out['lat']-subset['lat'])
     diff_lon = np.abs(pynemo_out['lon'] - subset['lon'])
-    exceed_lat = diff_lat > model_res
-    exceed_lon = diff_lon > model_res
+    exceed_lat = diff_lat > subset['model_res']
+    exceed_lon = diff_lon > subset['model_res']
     exceed_sum = np.sum(exceed_lat+exceed_lon)
     if exceed_sum > 0:
         raise Exception('Dont Panic: Lat and/or Lon further away from model point than model resolution')
@@ -276,8 +288,14 @@ def compare_tides(pynemo_out,subset,amp_thres,model_res):
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", category=RuntimeWarning)
         # compare amp
-        abs_amp = np.abs(pynemo_out['amp']-subset['amp'])
-        abs_amp_thres = abs_amp > amp_thres
+        abs_amp_diff = np.abs(pynemo_out['amp']-subset['amp'])
+        # calculate threshold in percentage terms
+        logger.info('percentage amplitude exceedance calculated using the following.....')
+        amp_percentage_exceed = 26.933 * subset['amp'] ** -0.396
+        logger.info('Percentage Exceedance = 26.933 * Reference Amplitude ^ -0.396')
+        # work out difference based on percentage and reference amplitude
+        percent_diff = (abs_amp_diff / pynemo_out['amp']) * 100
+        abs_amp_thres = percent_diff > amp_percentage_exceed
         err_amp = pynemo_out['amp'][abs_amp_thres].tolist()
         err_amp_lats = pynemo_out['lat'][abs_amp_thres].tolist()
         err_amp_lons = pynemo_out['lon'][abs_amp_thres].tolist()
@@ -297,7 +315,7 @@ def compare_tides(pynemo_out,subset,amp_thres,model_res):
         abs_ph[abs_ph < 0.0 ] = abs_ph[abs_ph < 0.0] *-1
         # calculate phase threshold based on amplitude and power relationship
         # as amplitude decreases the phase exceedance allowed increases.
-        logger.info('phase exccedance calculates using the following.....')
+        logger.info('phase exceedance calculated using the following.....')
         phase_thres = 5.052 * pynemo_out['amp'] ** -0.60
         logger.info('Exceedance = 5.052 * Amplitude ^ -0.60')
         abs_ph_thres = abs_ph > phase_thres
