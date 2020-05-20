@@ -72,8 +72,8 @@ class Mask(object):
                 self.lon = np.asarray(self.bathy_nc.variables['nav_lon'])
                 self.lat = np.asarray(self.bathy_nc.variables['nav_lat'])
             except:
-                self.lon = np.asarray(self.bathy_nc.variables['lon'])
-                self.lat = np.asarray(self.bathy_nc.variables['lat'])
+                self.lon = np.asarray(self.bathy_nc.variables['longitude'])
+                self.lat = np.asarray(self.bathy_nc.variables['latitude'])
                 # expand lat and lon 1D arrays into 2D array matching nav_lat nav_lon
                 self.lon = np.tile(self.lon, (np.shape(self.lat)[0], 1))
                 self.lat = np.tile(self.lat, (np.shape(self.lon)[1], 1))

@@ -90,7 +90,7 @@
     cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files 
                                           !  (if ln_coords_file=.TRUE.)
     ln_mask_file   = .false.              !  =T : read mask from file
-    cn_mask_file   = '/Users/thopri/Projects/PyNEMO/inputs/subset_mask.nc'            !  name of mask file
+    cn_mask_file   = 'mask.nc'            !  name of mask file
                                           !  (if ln_mask_file=.TRUE.)
     ln_dyn2d       = .false.              !  boundary conditions for 
                                           !  barotropic fields
