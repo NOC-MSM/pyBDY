@@ -3,6 +3,7 @@
 Set of functions to download CMEMS files using FTP (for static mask data) and MOTU (for subsetted variable data).
 
 """
+
 from netCDF4 import Dataset
 import re
 # list of datasets to check
@@ -13,8 +14,9 @@ datasets = [ "http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_data/
             ]
 
 # list of strings to catagorise variable names... each entry can have multiple entries.
-# NOTE list in each dict entry is in priority order so most likely parameter should be first, e.g. latitude
-# DOUBLE NOTE order in dict is also important as it can result in false ID's e.g. ice data for some reason has long name
+# NOTE list in each dict entry is in a specifc order where long names go first e.g. latitude is before lat. This is to
+# stop errors in selecting names. e.g. lat would also be valid for latitude and nav_lat so trying lat needs to be after those options
+# DOUBLE NOTE order of dicts in check list is also important as it can result in false ID's e.g. ice data for some reason has long name
 # sea surface height so if SSH is in dict before ice variables it will assign ice variable names to SSH.
 
 chk_list = {'temperature': ['temp'],
@@ -25,11 +27,13 @@ chk_list = {'temperature': ['temp'],
             'SSH': ['surface', 'sea'],
             'depth': ['depth'],
             'time': ['time', 'counter'],
-            'latitude': ['latitude', 'y', 'nav_lat'],
-            'longitude': ['longitude', 'x', 'nav_lon'],
+            'latitude': ['latitude', 'nav_lat','lat','y'],
+            'longitude': ['longitude','nav_lon','lon','x'],
             'depth': ['depth'],
-            'U': ['zonal', 'current'],
-            'V': ['meridional', 'current'],
+            'Ucomponent': ['zonal', 'current'],
+            'Vcomponent': ['meridional', 'current'],
+            'windstress-i':['i-axis'],
+            'windstress-j':['j-axis'],
             }
 
 # function to use regex to find if string is in variable name or if not check long name. Case of string is ignored
@@ -54,25 +58,29 @@ for dat in datasets:
     meta = F.variables
     dims = F.dimensions
     # create empty dict to save catagorised data
-    meta_dataset['dataset'+str(i)] = {}
-    meta_dataset['dataset'+str(i)]['var_names'] = {}
-    meta_dataset['dataset'+str(i)]['dim_names'] = {}
+    meta_dataset['dataset'+str(i+1)] = {}
+    meta_dataset['dataset'+str(i+1)]['var_names'] = {}
+    meta_dataset['dataset'+str(i+1)]['dim_names'] = {}
 
     # for all variable names, compare strings on chk list and write key to meta dict on first match
     for key in meta:
         for chk_key,chk in chk_list.items():
             var_match = data_chk(meta,chk,key)
             if var_match is not None:
-                meta_dataset['dataset'+str(i)]['var_names'][chk_key] = key
+                meta_dataset['dataset'+str(i+1)]['var_names'][chk_key] = key
                 break
+    if len(meta_dataset['dataset'+str(i+1)]['var_names']) != len(meta):
+        print('not all variables matched for dataset '+str(i+1))
 
     # for all dimension names, compare strings on chk list and write key to meta dict on first match
     for key in dims:
         for chk_key,chk in chk_list.items():
             dim_match = data_chk(dims,chk,key)
             if dim_match is not None:
-                meta_dataset['dataset'+str(i)]['dim_names'][chk_key] = key
+                meta_dataset['dataset'+str(i+1)]['dim_names'][chk_key] = key
                 break
+    if len(meta_dataset['dataset'+str(i+1)]['dim_names']) != len(dims):
+        print('not all dimensions matched for dataset '+str(i+1))
     i = i + 1
     # close netcdf file and print meta dict
     F.close()
