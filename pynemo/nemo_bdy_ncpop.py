@@ -18,8 +18,8 @@ def write_data_to_file(filename, variable_name, data):
     ncid = Dataset(filename, 'a', clobber=False, format='NETCDF4')
     count = data.shape
 
-    three_dim_variables = ['votemper', 'vosaline', 'N1p', 'N3n', 'N5s','thetao','so','uo','vo','vobtcrtx','vozocrtx','vobtcrty','vomecrty']
-    two_dim_variables = ['sossheig', 'iicethic', 'ileadfra', 'isnowthi','zos']
+    three_dim_variables = ['votemper', 'vosaline', 'N1p', 'N3n', 'N5s','vobtcrtx','vozocrtx','vobtcrty','vomecrty']
+    two_dim_variables = ['sossheig', 'iicethic', 'ileadfra', 'isnowthi']
 
     if variable_name in three_dim_variables:
         if len(count) == 3:

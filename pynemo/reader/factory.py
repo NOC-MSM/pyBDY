@@ -9,7 +9,7 @@ import os
 #Local Imports
 from pynemo.reader.ncml import Reader as NcMLReader
 from pynemo.reader.ncml import NcMLFile
-from pynemo.reader.directory import Reader as DirectoryReader
+#from pynemo.reader.directory import Reader as DirectoryReader
 import logging
 
 from netCDF4 import Dataset
@@ -20,14 +20,19 @@ def GetReader(uri, t_adjust, reader_type=None):
         if uri.endswith(".ncml"):
             reader_type = "NcML"
         elif os.path.isdir(uri):
-            reader_type = "Directory"
+            # directory reading directly is no longer supported please use NCML file to define directory
+            #reader_type = "Directory"
+            logger.error("Directory Reading is no longer supported without using NCML file to define location")
+            raise Exception("Directory Reading is no longer supported without using NCML file to define location")
         else:
-            print("Error input should be a NcML file or URL or a Local directory")
-            return None
+            logger.error("Error input: should be a NcML file")
+            raise Exception("Error input: should be a NcML file")
     if reader_type == "NcML":
         return NcMLReader(uri,t_adjust)
     else:
-        return DirectoryReader(uri, t_adjust)
+        logger.error("Directory Reading is no longer supported without using NCML file to define location")
+        raise Exception("Directory Reading is no longer supported without using NCML file to define location")
+        #return DirectoryReader(uri, t_adjust)
     
     
 class NetCDFFile(object):

@@ -1,6 +1,7 @@
 '''
 This is an abstraction for the data repository
 @author: Mr. Srikanth Nagella
+NOTE: this script is no longer used/supported by PyNEMO, reading directories for data files requires an NCML file.
 '''
 from os import listdir
 import numpy as np
