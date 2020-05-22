@@ -21,8 +21,10 @@
       </ns0:aggregation>
     </ns0:netcdf>
   </ns0:aggregation>
-  <ns0:variable name="thetao" orgName="thetao" />
-  <ns0:variable name="uo" orgName="uo" />
-  <ns0:variable name="vo" orgName="vo" />
-  <ns0:variable name="zos" orgName="zos" />
+  <ns0:variable name="votemper" orgName="thetao" />
+  <ns0:variable name="vozocrtx" orgName="uo" />
+  <ns0:variable name="vomecrty" orgName="vo" />
+  <ns0:variable name="sossheig" orgName="zos" />
+  <ns0:variable name="time_counter" orgName="time" />
+  <ns0:dimension name="time_counter" orgName="time" />
 </ns0:netcdf>

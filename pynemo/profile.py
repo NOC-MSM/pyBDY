@@ -521,53 +521,20 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     var_in = {}
     for g in range(len(grd)):
         var_in[grd[g]] = []
-    if 'use_cmems' in settings:
-        if settings['use_cmems'] == True:
-            logger.info('using CMEMS variable names......')
-            if ln_tra:
-                var_in['t'].extend(['thetao'])
-                #var_in['t'].extend(['so'])
 
-            if ln_dyn2d or ln_dyn3d:
-                var_in['u'].extend(['uo'])
-                var_in['v'].extend(['vo'])
+    if ln_tra:
+        var_in['t'].extend(['votemper']) #, 'vosaline'])
 
-            if ln_dyn2d:
-                var_in['t'].extend(['zos'])
+    if ln_dyn2d or ln_dyn3d:
+        var_in['u'].extend(['vozocrtx'])
+        var_in['v'].extend(['vomecrty'])
 
-            if ln_ice:
-                var_in['t'].extend(['siconc', 'sithick'])
+    if ln_dyn2d:
+        var_in['t'].extend(['sossheig'])
 
-        if settings['use_cmems'] == False:
-            logger.info('using existing PyNEMO variable names.....')
-            if ln_tra:
-                var_in['t'].extend(['votemper', 'vosaline'])
+    if ln_ice:
+        var_in['t'].extend(['iicethic', 'ileadfra', 'isnowthi'])
 
-            if ln_dyn2d or ln_dyn3d:
-                var_in['u'].extend(['vozocrtx'])
-                var_in['v'].extend(['vomecrty'])
-
-            if ln_dyn2d:
-                var_in['t'].extend(['sossheig'])
-
-            if ln_ice:
-                var_in['t'].extend(['iicethic', 'ileadfra', 'isnowthi'])
-
-    if 'use_cmems' not in settings:
-        logger.info('using existing PyNEMO variable names.....')
-        if ln_tra:
-            var_in['t'].extend(['votemper', 'vosaline'])
-
-        if ln_dyn2d or ln_dyn3d:
-            var_in['u'].extend(['vozocrtx'])
-            var_in['v'].extend(['vomecrty'])
-
-        if ln_dyn2d:
-            var_in['t'].extend(['sossheig'])
-
-        if ln_ice:
-            var_in['t'].extend(['iicethic', 'ileadfra', 'isnowthi'])
-    
     # As variables are associated with grd there must be a filename attached
     # to each variable
     

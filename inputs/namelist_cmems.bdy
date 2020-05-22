@@ -51,7 +51,6 @@
 !------------------------------------------------------------------------------
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
-   ln_use_cmems             = .true.
    ln_download_cmems        = .false.
    sn_cmems_dir             = '/Users/thopri/Projects/PyNEMO/inputs/' ! where to download CMEMS input files (static and variable)
    ln_download_static       = .false.
@@ -96,14 +95,14 @@
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
-    ln_tra         = .false.               !  boundary conditions for T and S
+    ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition   
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
-    ln_tide        = .true.              !  =T : produce bdy tidal conditions
+    ln_tide        = .false.              !  =T : produce bdy tidal conditions
     sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'

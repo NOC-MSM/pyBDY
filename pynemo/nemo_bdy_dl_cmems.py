@@ -16,6 +16,7 @@ import glob
 import os
 #local imports
 from pynemo.utils import cmems_errors as errors
+from pynemo.reader import factory
 
 logger = logging.getLogger(__name__)
 # TODO: Fix double spacing issue on CMEMS download log entries.

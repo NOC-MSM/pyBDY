@@ -7,7 +7,10 @@ Set of functions to download CMEMS files using FTP (for static mask data) and MO
 from netCDF4 import Dataset
 import re
 # list of datasets to check
-datasets = [ "http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_data/ORCA025-N206_19791101d05T.nc",
+datasets = [ "/Users/thopri/Projects/PyNEMO/inputs/subset_2017-01-01_2017-01-31_T.nc",
+             "/Users/thopri/Projects/PyNEMO/inputs/subset_2017-01-01_2017-01-31_U.nc",
+             "/Users/thopri/Projects/PyNEMO/inputs/subset_2017-01-01_2017-01-31_V.nc",
+             "http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_data/ORCA025-N206_19791101d05T.nc",
              "http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_data/ORCA025-N206_19791101d05U.nc",
              "http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_data/ORCA025-N206_19791101d05V.nc",
              "http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_data/ORCA025-N206_19791101d05I.nc"
@@ -27,13 +30,12 @@ chk_list = {'temperature': ['temp'],
             'SSH': ['surface', 'sea'],
             'depth': ['depth'],
             'time': ['time', 'counter'],
+            'Ucomponent': ['zonal', 'current', 'eastward', 'uo'],
+            'Vcomponent': ['meridional', 'current', 'northward', 'vo'],
+            'windstress-i': ['i-axis'],
+            'windstress-j': ['j-axis'],
             'latitude': ['latitude', 'nav_lat','lat','y'],
             'longitude': ['longitude','nav_lon','lon','x'],
-            'depth': ['depth'],
-            'Ucomponent': ['zonal', 'current'],
-            'Vcomponent': ['meridional', 'current'],
-            'windstress-i':['i-axis'],
-            'windstress-j':['j-axis'],
             }
 
 # function to use regex to find if string is in variable name or if not check long name. Case of string is ignored
@@ -42,11 +44,15 @@ def data_chk(data, str, key):
     for i in range(len(str)):
         try:
             chk = re.search(str[i], data[key].name, re.IGNORECASE)
+            if chk is not None:
+                return chk
             if chk is None:
                 chk = re.search(str[i], data[key].long_name, re.IGNORECASE)
-            return chk
+                if chk is not None:
+                    return chk
         except AttributeError:
             pass
+
 
 i = 0
 meta_dataset = {}
