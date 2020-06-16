@@ -213,7 +213,7 @@ def request_cmems(args, date_min, date_max):
 
     for n in range(num_var):
         F = root.getchildren()[0].getchildren()[n].getchildren()[0].getchildren()[0].attrib
-        var_name = root.getchildren()[n+1].attrib['name']
+        var_name = root.getchildren()[n+1].attrib['orgName']
         Type = root.getchildren()[0].getchildren()[n].getchildren()[0].attrib
         logger.info('Variable '+ str(n+1)+' is '+Type['name']+' (Variable name: '+var_name+')')
         r = re.findall('([A-Z])', F['regExp'])

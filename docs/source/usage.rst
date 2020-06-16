@@ -12,8 +12,12 @@ Boundary file generation
 ------------------------
 This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation. The bdy file
 is a plain text file containing key value pairs. Please look at the sample namelists in the github repository. They are
-stored in the inputs directory. There are three different examples, they all use the same child grid but ultilise different
-data sources. One uses local data, the other uses data hosted on a THREDDS server. The last one is configured to download
+stored in the inputs directory. PyNEMO now also requires an NCML file (Netcdf markup) that defines the variables and
+remaps their names so that they are compatable with PyNEMO. This is common with CMEMS runs as the variable names for tracers etc
+are different.
+
+There are three examples of ncml files in the inputs folder and they can also be created with the NCML GUI. They all use the same child grid
+but ultilise different data sources. One uses local data, the other uses data hosted on a THREDDS server. The last one is configured to download
 CMEMS data first and then run using the downloaded data. The namelist file shares common syntax with the NEMO simulation namelist input file.
 
 .. note:: Directory paths in bdy file can be relative or absolute.

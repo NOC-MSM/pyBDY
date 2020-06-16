@@ -76,7 +76,11 @@ The location of the NCML file is listed a string defining the source directory o
 defined here as "sn_dst_dir", **NOTE** if this directory does not exist it will need to be created and permissoned correctly
 for PyNEMO to run properly. The NCML file details the input files to agregate and what the variable names are. This file
 can be generated using the ncml_generator, with variable names found using the CMEMS catalogue. https://resources.marine.copernicus.eu/?option=com_csw&task=results
-For more information please read the ncml generator page. The example CMEMS.ncml file includes: temperature, SSH and U and V components of ocean currents.
+For more information please read the ncml generator page.
+
+**NOTE** A NCML file must be used and it also must use a regular expression. The CMEMS downloader uses this regular expression to determine what grid a
+given variable is part of e.g. temperature and salinity on the T grid. The example CMEMS.ncml file includes: an implementation of how to define
+temperature, SSH and U and V components of ocean currents.
 
 Firstly, the string "sn_fn" defines the prefix for the output files. The number "nn_fv" defines the fill value, and the number
 "nn_src_time_adj" defines the source time adjustment. The rest of the boxes are CMEMS specific.
@@ -112,7 +116,7 @@ product and prefix options. These define which CMEMS model and product to downlo
 the downloads. A catalogue of the CMEMS model and products can be found at https://resources.marine.copernicus.eu/?option=com_csw&task=results
 Currently PyNEMO has only been tested using the physical global forecast model although the downloader should be able to download
 other models and products, it has not been tested and their are known issues with other products that restrict seamless download.
-e.g. the NorthWest Atlantic model is not currently compatable due to differences in how the model variables are stored.
+e.g. the NorthWest Atlantic model is not currently compatible due to differences in how the model variables are stored.
 
 FTP Configuration for Static and Grid files
 --------------------------------------------
