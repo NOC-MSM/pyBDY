@@ -3,22 +3,28 @@ Usage
 There are four tools available in pyNEMO. These are "boundary file generation" where boundary data files are generated from a
 parent grid along the boundary of a child grid. Boundary data can comprise of tracers such as temperature and salinity. Or
 tidal data from global tide models. Sea surface height and ocean currents are also supported. PyNEMO now has an integrated
-CMEMS repository downloaded. Invoking this option will download data of interest for a region of interest. PyNEMO uses NCML
-files to define variable names and data location. this allows multiple netcdf input files to appear as one. This commonmly used
-on THREDDS servers but is also used locally for CMEMS boundary data input. The GUI allows this NCML files to be generated.
-Finally there is a settings editor that allows you to edit the pynemo configuration file (BDY file)
+CMEMS repository downloader. Invoking this option will download data of interest (as specified in NCML file) for a region of interest
+(as specified in BDY file). PyNEMO uses NCML files to define variable names and data location. this allows multiple netcdf input files
+to appear as one. This commonmly used on THREDDS servers but is also used locally for CMEMS boundary data input. The GUI allows this NCML
+files to be generated. Finally there is a settings editor that allows you to edit the pynemo configuration file (BDY file)
 
 Boundary file generation
 ------------------------
 This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation. The bdy file
 is a plain text file containing key value pairs. Please look at the sample namelists in the github repository. They are
-stored in the inputs directory. PyNEMO now also requires an NCML file (Netcdf markup) that defines the variables and
-remaps their names so that they are compatable with PyNEMO. This is common with CMEMS runs as the variable names for tracers etc
-are different.
+stored in the inputs directory.
 
-There are three examples of ncml files in the inputs folder and they can also be created with the NCML GUI. They all use the same child grid
-but ultilise different data sources. One uses local data, the other uses data hosted on a THREDDS server. The last one is configured to download
-CMEMS data first and then run using the downloaded data. The namelist file shares common syntax with the NEMO simulation namelist input file.
+PyNEMO now also requires an NCML file (Netcdf markup) that defines the variables and remaps their names so that they are
+compatable with PyNEMO. This is most commonly required with CMEMS runs as the variable names are different. In previous versions
+PyNEMO was able to scan a local directory for netcdf files, this is now no longer supported and an NCML file MUST be referenced
+in the bdy file.
+
+.. note:: PyNEMO now requires an NCML file as well as a BDY file to run, this can be adapted from the examples in the inputs
+          folder or generated using the NCML GUI.
+
+There are three examples of ncml files and they all use the same child grid but ultilise different data sources. One uses local data,
+the other uses data hosted on a THREDDS server. The last one is configured to download CMEMS data first and then run using the
+downloaded data. The namelist file shares common syntax with the NEMO simulation namelist input file.
 
 .. note:: Directory paths in bdy file can be relative or absolute.
           The application picks the relative path from the current working
