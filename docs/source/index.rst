@@ -1,4 +1,4 @@
-NRCT User Guide
+PyNEMO User Guide
 =================
 
 Contents:
