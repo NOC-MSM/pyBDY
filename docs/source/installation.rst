@@ -1,6 +1,6 @@
 Installation
 ============
-This page provides a guide to installing pyNEMO. 
+This page provides a guide to installing PyNEMO. 
 
 Dependencies
 ^^^^^^^^^^^^
@@ -49,6 +49,8 @@ Steps to take to install PyNEMO, creating a specific conda virtual environment i
 - Install Jave JDK (outside scope of this guide) and link Java Home to conda environment::
 
     $ export JAVA_HOME=/Library/Java/JavaVirtualMachines/jdk-13.0.2.jdk/Contents/Home # see notes below
+    
+    (Update needed here)
 
 **NOTE** this link has to be set everytime the enviornment is activated. It can be automated using the .bashrc file or by
 setting environment hooks in the conda activate and deactivate files.
