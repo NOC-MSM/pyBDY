@@ -81,14 +81,13 @@ class Mask(object):
 
             try:
                 self.bathy_data = self.bathy_nc.variables['Bathymetry'][:,:]
-            except:
-                self.bathy_data = self.bathy_nc.variables['deptho'][:,:]
-            try: #check if units exists otherwise unknown. TODO
                 self.data_units = self.bathy_nc.variables['Bathymetry'].units
-            except:
+            except KeyError:
+                self.bathy_data = self.bathy_nc.variables['deptho'][:,:]
                 self.data_units = self.bathy_nc.variables['deptho'].units
-#            except AttributeError:
-#                self.data_units = "unknown"
+            except AttributeError:
+                self.logger.warning('Bathymetry Units unknown....')
+                self.data_units = "unknown"
             if self.data is None:
                 try:
                     self.data = self.bathy_nc.variables['Bathymetry']
