@@ -93,16 +93,19 @@ class Mask(object):
                     self.data = self.bathy_nc.variables['Bathymetry']
                 except:
                     self.data = self.bathy_nc.variables['deptho']
+                if sum(self.data[:, 0]) + sum(self.data[0, :]) + sum(self.data[:, -1]) + sum(self.data[-1, :]) == 0:
+                    raise BaseException('zeros around boundaries of bathymetry is not supported by PyNEMO mask generator')
                 self.data = np.asarray(self.data[:, :])
                 self.data = np.around((self.data + .5).clip(0, 1))
                 #apply default 1px border
-                self.apply_border_mask(1)            
+                self.apply_border_mask(1)
         except KeyError:
             self.logger.error('Bathymetry file does not have Bathymetry variable')
             raise
         except (IOError, RuntimeError):
             self.logger.error('Cannot open bathymetry file '+self.bathymetry_file)
             raise
+
 
 
     def save_mask(self, mask_file):

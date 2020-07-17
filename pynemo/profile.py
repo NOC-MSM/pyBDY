@@ -694,6 +694,9 @@ def _get_mask(Setup, mask_gui):
                 mask = Mask_File(Setup.settings['bathy'])
                 mask.apply_border_mask(Constants.DEFAULT_MASK_PIXELS)
                 bdy_msk = mask.data
+        except BaseException:
+            raise Exception('PyNEMO mask generator does not support zeros along all '
+                            'boundaries please use valid bathymetry or mask file')
         except:
             return
     
