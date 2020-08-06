@@ -8,7 +8,9 @@ Netcdf writer for the bdy output
 # pylint: disable=no-name-in-module
 from netCDF4 import Dataset
 import numpy as np
-def write_data_to_file(filename, variable_name, data):
+from pynemo import nemo_ncml_parse as ncml_parse
+
+def write_data_to_file(filename, variable_name, data,ncml_out):
     """ Writes the data to the netcdf templete file.
     Keyword arguments:
     filename -- output filename
@@ -17,9 +19,10 @@ def write_data_to_file(filename, variable_name, data):
     """
     ncid = Dataset(filename, 'a', clobber=False, format='NETCDF4')
     count = data.shape
-
-    three_dim_variables = ['votemper', 'vosaline', 'N1p', 'N3n', 'N5s','vobtcrtx','vozocrtx','vobtcrty','vomecrty']
-    two_dim_variables = ['sossheig', 'iicethic', 'ileadfra', 'isnowthi']
+    time = ncml_parse.gen_dims_NCML(ncml_out,'time_counter')
+    var_list = ncml_parse.gen_var_list_NCML(ncml_out,time)
+    three_dim_variables = var_list['3D_vars'] #['votemper', 'vosaline', 'N1p', 'N3n', 'N5s','vobtcrtx','vozocrtx','vobtcrty','vomecrty']
+    two_dim_variables = var_list['2D_vars'] #['sossheig', 'iicethic', 'ileadfra', 'isnowthi']
 
     if variable_name in three_dim_variables:
         if len(count) == 3:

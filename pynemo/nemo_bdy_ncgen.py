@@ -9,13 +9,13 @@ Port of Matlab code of James Harle
 from netCDF4 import Dataset
 import datetime
 import logging
+from pynemo import nemo_ncml_parse as ncml_parse
 
-def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd, var_nam):
+def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd, var_nam,ncml_out):
     """ This method creates a template of bdy netcdf files. A common for
     T, I, U, V, E grid types.
     """
     gridNames = ['T', 'I', 'U', 'V', 'E', 'Z'] # All possible grids
-
     # Dimension Lengths
     xb_len = N
     yb_len = 1
@@ -28,210 +28,248 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd, va
 
     #define dimensions
     if grd in gridNames and grd != 'Z': # i.e grid NOT barotropic (Z)
-        dimztID = ncid.createDimension('z', depth_len)
+        z = ncml_parse.gen_dims_NCML(ncml_out,'z')
+        dimztID = ncid.createDimension(z, depth_len)
     else:
         logging.error('Grid tpye not known')
-    dimxbID = ncid.createDimension('xb', xb_len)
-    dimybID = ncid.createDimension('yb', yb_len)
-    dimxID = ncid.createDimension('x', x_len)
-    dimyID = ncid.createDimension('y', y_len)
-    dimtcID = ncid.createDimension('time_counter', None)
+    xb = ncml_parse.gen_dims_NCML(ncml_out, 'xb')
+    dimxbID = ncid.createDimension(xb, xb_len)
+    yb = ncml_parse.gen_dims_NCML(ncml_out,'yb')
+    dimybID = ncid.createDimension(yb, yb_len)
+    x = ncml_parse.gen_dims_NCML(ncml_out,'x')
+    dimxID = ncid.createDimension(x, x_len)
+    y = ncml_parse.gen_dims_NCML(ncml_out,'y')
+    dimyID = ncid.createDimension(y, y_len)
+    time_counter = ncml_parse.gen_dims_NCML(ncml_out,'time_counter')
+    dimtcID = ncid.createDimension(time_counter, None)
 
     #define variable
-    vartcID = ncid.createVariable('time_counter', 'f4', ('time_counter', ))
-    varlonID = ncid.createVariable('nav_lon', 'f4', ('y', 'x', ))
-    varlatID = ncid.createVariable('nav_lat', 'f4', ('y', 'x', ))
+    time_var = ncml_parse.gen_var_NCML(ncml_out,'time_counter')
+    vartcID = ncid.createVariable(time_var['name'], time_var['type'], (time_var['shape'][0], ))
+    lon_var = ncml_parse.gen_var_NCML(ncml_out,'nav_lon')
+    varlonID = ncid.createVariable(lon_var['name'], lon_var['type'], (lon_var['shape'][0], lon_var['shape'][1], ))
+    lat_var = ncml_parse.gen_var_NCML(ncml_out,'nav_lat')
+    varlatID = ncid.createVariable(lat_var['name'], lat_var['type'], (lat_var['shape'][0], lat_var['shape'][1], ))
 
     if grd in ['E']:
-        varztID = ncid.createVariable('deptht', 'f4', ('z', 'yb', 'xb', ))
-        varmskID = ncid.createVariable('bdy_msk', 'f4', ('y', 'x', ), fill_value=fv)
-        varN1pID = ncid.createVariable('N1p', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+        deptht = ncml_parse.gen_var_NCML(ncml_out,'deptht')
+        varztID = ncid.createVariable(deptht['name'], deptht['type'], (deptht['shape'][0], deptht['shape'][1], deptht['shape'][2], ))
+        bdy_msk = ncml_parse.gen_var_NCML(ncml_out,'bdy_msk')
+        varmskID = ncid.createVariable(bdy_msk['name'], bdy_msk['type'], (bdy_msk['shape'][0], bdy_msk['shape'][1], ), fill_value=fv)
+        N1p = ncml_parse.gen_var_NCML(ncml_out,'N1p')
+        varN1pID = ncid.createVariable(N1p['name'], N1p['type'], (N1p['shape'][0], N1p['shape'][1], N1p['shape'][2], N1p['shape'][3], ),
                                        fill_value=fv)
-        varN3nID = ncid.createVariable('N3n', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+        N3n = ncml_parse.gen_var_NCML(ncml_out,'N3n')
+        varN3nID = ncid.createVariable(N3n['name'], N3n['type'], (N3n['shape'][0], N3n['shape'][1], N3n['shape'][2], N3n['shape'][3], ),
                                        fill_value=fv)
-        varN5sID = ncid.createVariable('N5s', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+        N5s = ncml_parse.gen_var_NCML(ncml_out,'N5s')
+        varN5sID = ncid.createVariable(N5s['name'], N5s['type'], (N5s['shape'][0], N5s['shape'][0], N5s['shape'][0], N5s['shape'][0], ),
                                        fill_value=fv)
     elif grd in ['T', 'I']:
-        varztID = ncid.createVariable('deptht', 'f4', ('z', 'yb', 'xb', ))
-        varmskID = ncid.createVariable('bdy_msk', 'f4', ('y', 'x', ), fill_value=fv)
+        deptht = ncml_parse.gen_var_NCML(ncml_out, 'deptht')
+        varztID = ncid.createVariable(deptht['name'], deptht['type'],(deptht['shape'][0], deptht['shape'][1], deptht['shape'][2],))
+        bdy_msk = ncml_parse.gen_var_NCML(ncml_out, 'bdy_msk')
+        varmskID = ncid.createVariable(bdy_msk['name'], bdy_msk['type'], (bdy_msk['shape'][0], bdy_msk['shape'][1],),fill_value=fv)
         # TODO: generic variable name assignment
-        #vartmpID = ncid.createVariable('thetao', 'f4', ('time_counter', 'z', 'yb', 'xb', ),fill_value=fv)
-        vartmpID = ncid.createVariable('votemper', 'f4', ('time_counter', 'z', 'yb', 'xb', ), fill_value=fv)
-        varsalID = ncid.createVariable('vosaline', 'f4', ('time_counter', 'z', 'yb', 'xb', ), fill_value=fv)
-        #varsalID = ncid.createVariable('so', 'f4', ('time_counter', 'z', 'yb', 'xb', ), fill_value=fv)
+        temp_var = ncml_parse.gen_var_NCML(ncml_out,'votemper')
+        vartmpID = ncid.createVariable(temp_var['name'], temp_var['type'],
+                                       (temp_var['shape'][0], temp_var['shape'][1], temp_var['shape'][2], temp_var['shape'][3], ), fill_value=fv)
+        sal_var = ncml_parse.gen_var_NCML(ncml_out,'vosaline')
+        varsalID = ncid.createVariable(sal_var['name'], sal_var['type'],
+                                       (sal_var['shape'][0], sal_var['shape'][1], sal_var['shape'][2], sal_var['shape'][3], ), fill_value=fv)
+
         if grd == 'I':
-            varildID = ncid.createVariable('ileadfra', 'f4', ('time_counter', 'yb', 'xb',),
+            ileadfra = ncml_parse.gen_var_NCML(ncml_out,'ileadfra')
+            varildID = ncid.createVariable(ileadfra['name'], ileadfra['type'], (ileadfra['shape'][0], ileadfra['shape'][1], ileadfra['shape'][2],),
                                            fill_value=fv)
-            variicID = ncid.createVariable('iicethic', 'f4', ('time_counter', 'yb', 'xb',),
+            iicethic = ncml_parse.gen_var_NCML(ncml_out,'iicethic')
+            variicID = ncid.createVariable(iicethic['name'], iicethic['type'], (iicethic['shape'][0], iicethic['shape'][1], iicethic['shape'][2],),
                                            fill_value=fv)
-            varisnID = ncid.createVariable('isnowthi', 'f4', ('time_counter', 'yb', 'xb',),
+            isnowthi = ncml_parse.gen_var_NCML(ncml_out,'isnowthi')
+            varisnID = ncid.createVariable(isnowthi['name'], isnowthi['type'], (isnowthi['shape'][0], isnowthi['shape'][1], isnowthi['shape'][2],),
                                            fill_value=fv)
     elif grd == 'U':
-        varztID = ncid.createVariable('depthu', 'f4', ('z', 'yb', 'xb', ), fill_value=fv)
-        varbtuID = ncid.createVariable('vobtcrtx', 'f4', ('time_counter', 'yb', 'xb', ),
+        depthu = ncml_parse.gen_var_NCML(ncml_out,'depthu')
+        varztID = ncid.createVariable(depthu['name'], depthu['type'], (depthu['shape'][0], depthu['shape'][1], depthu['shape'][2], ), fill_value=fv)
+        vobtcrx = ncml_parse.gen_var_NCML(ncml_out,'vobtcrtx')
+        varbtuID = ncid.createVariable(vobtcrx['name'], vobtcrx['type'], (vobtcrx['shape'][0], vobtcrx['shape'][1], vobtcrx['shape'][2], ),
                                        fill_value=fv)
-        vartouID = ncid.createVariable('vozocrtx', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+        vozocrtx = ncml_parse.gen_var_NCML(ncml_out,'vozocrtx')
+        vartouID = ncid.createVariable(vozocrtx['name'], vozocrtx['type'],
+                                       (vozocrtx['shape'][0], vozocrtx['shape'][1], vozocrtx['shape'][2], vozocrtx['shape'][3], ),
                                        fill_value=fv)
     elif grd == 'V':
-        varztID = ncid.createVariable('depthv', 'f4', ('z', 'yb', 'xb', ))
-        varbtvID = ncid.createVariable('vobtcrty', 'f4', ('time_counter', 'yb', 'xb', ),
+        depthv = ncml_parse.gen_var_NCML(ncml_out, 'depthv')
+        varztID = ncid.createVariable(depthv['name'], depthv['type'], (depthv['shape'][0], depthv['shape'][1], depthv['shape'][2], ))
+        vobtcrty = ncml_parse.gen_var_NCML(ncml_out,'vobtcrty')
+        varbtvID = ncid.createVariable(vobtcrty['name'], vobtcrty['type'], (vobtcrty['shape'][0], vobtcrty['shape'][1], vobtcrty['shape'][2], ),
                                        fill_value=fv)
-        vartovID = ncid.createVariable('vomecrty', 'f4', ('time_counter', 'z', 'yb', 'xb',),
+        vomecrty = ncml_parse.gen_var_NCML(ncml_out,'vomecrty')
+        vartovID = ncid.createVariable(vomecrty['name'], vomecrty['type'],
+                                       (vomecrty['shape'][0], vomecrty['shape'][1], vomecrty['shape'][2], vomecrty['shape'][3],),
                                        fill_value=fv)
     elif grd == 'Z':
-        varsshID = ncid.createVariable('sossheig', 'f4', ('time_counter', 'yb', 'xb', ),
+        sossheig = ncml_parse.gen_var_NCML(ncml_out,'sossheig')
+        varsshID = ncid.createVariable(sossheig['name'], sossheig['type'], (sossheig['shape'][0], sossheig['shape'][1], sossheig['shape'][2], ),
                                        fill_value=fv)
-        varmskID = ncid.createVariable('bdy_msk', 'f4', ('y', 'x', ), fill_value=fv)
+        bdy_msk = ncml_parse.gen_var_NCML(ncml_out,'bdy_msk')
+        varmskID = ncid.createVariable(bdy_msk['name'], bdy_msk['type'], (bdy_msk['shape'][0], bdy_msk['shape'][1], ), fill_value=fv)
     else:
         logging.error("Unknow Grid input")
 
+    nbidta = ncml_parse.gen_var_NCML(ncml_out,'nbidta')
+    varnbiID = ncid.createVariable(nbidta['name'], nbidta['type'], (nbidta['shape'][0], nbidta['shape'][1], ))
+    nbjdta = ncml_parse.gen_var_NCML(ncml_out,'nbjdta')
+    varnbjID = ncid.createVariable(nbjdta['name'], nbjdta['type'], (nbjdta['shape'][0], nbjdta['shape'][1], ))
+    nbrdta = ncml_parse.gen_var_NCML(ncml_out, 'nbrdta')
+    varnbrID = ncid.createVariable(nbrdta['name'], nbrdta['type'], (nbrdta['shape'][0], nbrdta['shape'][1], ))
 
-    varnbiID = ncid.createVariable('nbidta', 'i4', ('yb', 'xb', ))
-    varnbjID = ncid.createVariable('nbjdta', 'i4', ('yb', 'xb', ))
-    varnbrID = ncid.createVariable('nbrdta', 'i4', ('yb', 'xb', ))
     #Global Attributes
     ncid.file_name = filename
     ncid.creation_date = str(datetime.datetime.now())
     ncid.rim_width = rw
     ncid.history = h
-    ncid.institution = 'National Oceanography Centre, Livepool, U.K.'
+    ncid.institution = ncml_parse.gen_attrib_NCML(ncml_out,'institution')
 
     #Time axis attributes
-    vartcID.axis = 'T'
-    vartcID.standard_name = 'time'
+    vartcID.axis = ncml_parse.gen_var_attrib_NCML(ncml_out,time_var['name'],'axis')
+    vartcID.standard_name = ncml_parse.gen_var_attrib_NCML(ncml_out,time_var['name'],'standard_name')
     vartcID.units = 'seconds since '+orig
-    vartcID.title = 'Time'
-    vartcID.long_name = 'Time axis'
+    vartcID.title = ncml_parse.gen_var_attrib_NCML(ncml_out,time_var['name'],'title')
+    vartcID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,time_var['name'],'long_name')
+    # TODO: should the bdy file or NCML file define what origin or calendar to use?
     vartcID.time_origin = orig
     vartcID.calendar = calendar
 
     #Longitude axis attributes
-    varlonID.axis = 'Longitude'
-    varlonID.short_name = 'nav_lon'
-    varlonID.units = 'degrees_east'
-    varlonID.long_name = 'Longitude'
+    varlonID.axis = ncml_parse.gen_var_attrib_NCML(ncml_out,lon_var['name'],'axis')
+    varlonID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,lon_var['name'],'short_name')
+    varlonID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,lon_var['name'],'units')
+    varlonID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,lon_var['name'],'long_name')
 
     #Latitude axis attributes
-    varlatID.axis = 'Latitude'
-    varlatID.short_name = 'nav_lat'
-    varlatID.units = 'degrees_east'
-    varlatID.long_name = 'Latitude'
+    varlatID.axis = ncml_parse.gen_var_attrib_NCML(ncml_out,lat_var['name'],'axis')
+    varlatID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,lat_var['name'],'short_name')
+    varlatID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,lat_var['name'],'units')
+    varlatID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,lat_var['name'],'long_name')
 
     #nbidta attributes
-    varnbiID.short_name = 'nbidta'
-    varnbiID.units = 'unitless'
-    varnbiID.long_name = 'Bdy i indices'
+    varnbiID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,nbidta['name'],'short_name')
+    varnbiID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,nbidta['name'],'units')
+    varnbiID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,nbidta['name'],'long_name')
 
     #nbjdta attributes
-    varnbjID.short_name = 'nbjdta'
-    varnbjID.units = 'unitless'
-    varnbjID.long_name = 'Bdy j indices'
+    varnbjID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,nbjdta['name'],'short_name')
+    varnbjID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,nbjdta['name'],'units')
+    varnbjID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,nbjdta['name'],'long_name')
 
     #nbrdta attributes
-    varnbrID.short_name = 'nbrdta'
-    varnbrID.units = 'unitless'
-    varnbrID.long_name = 'Bdy discrete distance'
+    varnbrID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,nbrdta['name'],'short_name')
+    varnbrID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,nbrdta['name'],'units')
+    varnbrID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,nbrdta['name'],'long_name')
+
     if grd == 'E':
-        varztID.axis = 'Depth'
-        varztID.short_name = 'deptht'
-        varztID.units = 'm'
-        varztID.long_name = 'Depth'
+        varztID.axis = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID['name'],'axis')
+        varztID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID['name'],'short_name')
+        varztID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID['name'],'units')
+        varztID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID['name'],'long_name')
 
-        varmskID.short_name = 'bdy_msk'
-        varmskID.units = 'unitless'
-        varmskID.long_name = 'Structured boundary mask'
+        varmskID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID['name'],'short_name')
+        varmskID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID['name'],'units')
+        varmskID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID['name'],'long_name')
 
-        varN1pID.units = 'mmol/m^3'
-        varN1pID.short_name = 'N1p'
-        varN1pID.long_name = 'Phosphate'
-        varN1pID.grid = 'bdyT'
+        varN1pID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varN1pID['name'],'units')
+        varN1pID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varN1pID['name'],'short_name')
+        varN1pID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varN1pID['name'],'long_name')
+        varN1pID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varN1pID['name'],'grid')
 
-        varN3nID.units = 'mmol/m^3'
-        varN3nID.short_name = 'N3n'
-        varN3nID.long_name = 'Nitrate'
-        varN3nID.grid = 'bdyT'
+        varN3nID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varN3nID['name'],'units')
+        varN3nID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varN3nID['name'],'short_name')
+        varN3nID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varN3nID['name'],'long_name')
+        varN3nID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varN3nID['name'],'grid')
 
-        varN5sID.units = 'mmol/m^3'
-        varN5sID.short_name = 'N5s'
-        varN5sID.long_name = 'Silicate'
-        varN5sID.grid = 'bdyT'
+        varN5sID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varN5sID['name'],'units')
+        varN5sID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varN5sID['name'],'short_name')
+        varN5sID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varN5sID['name'],'long_name')
+        varN5sID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varN5sID['name'],'grid')
 
     if grd in ['T', 'I']:
-        varztID.axis = 'Depth'
-        varztID.short_name = 'deptht'
-        varztID.units = 'm'
-        varztID.long_name = 'Depth'
+        varztID.axis = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'axis')
+        varztID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'short_name')
+        varztID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'units')
+        varztID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'long_name')
 
-        varmskID.short_name = 'bdy_msk'
-        varmskID.units = 'unitless'
-        varmskID.long_name = 'Structured boundary mask'
+        varmskID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID.name,'short_name')
+        varmskID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID.name,'units')
+        varmskID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID.name,'long_name')
 
-        vartmpID.units = 'C'
-        vartmpID.short_name = 'votemper'
-        vartmpID.long_name = 'Temperature'
-        vartmpID.grid = 'bdyT'
+        vartmpID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,vartmpID.name,'units')
+        vartmpID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,vartmpID.name,'short_name')
+        vartmpID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,vartmpID.name,'long_name')
+        vartmpID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,vartmpID.name,'grid')
 
-        varsalID.units = 'PSU'
-        varsalID.short_name = 'vosaline'
-        varsalID.long_name = 'Salinity'
-        varsalID.grid = 'bdyT'
+        varsalID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varsalID.name,'units')
+        varsalID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varsalID.name,'short_name')
+        varsalID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varsalID.name,'long_name')
+        varsalID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varsalID.name,'grid')
 
         if grd == 'I':
-            varildID.units = '%'
-            varildID.short_name = 'ildsconc'
-            varildID.long_name = 'Ice lead fraction'
-            varildID.grid = 'bdyT'
+            varildID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varildID.name,'units')
+            varildID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varildID.name,'short_name')
+            varildID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varildID.name,'long_name')
+            varildID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varildID.name,'grid')
 
-            variicID.units = 'm'
-            variicID.short_name = 'iicethic'
-            variicID.long_name = 'Ice thickness'
-            variicID.grid = 'bdyT'
+            variicID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,variicID.name,'units')
+            variicID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,variicID.name,'short_name')
+            variicID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,variicID.name,'long_name')
+            variicID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,variicID.name,'grid')
 
-            varisnID.units = 'm'
-            varisnID.short_name = 'isnowthi'
-            varisnID.long_name = 'Snow thickness'
-            varisnID.grid = 'bdyT'
+            varisnID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varisnID.name,'units')
+            varisnID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varisnID.name,'short_name')
+            varisnID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varisnID.name,'long_name')
+            varisnID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varisnID.name,'grid')
+
     elif grd == 'U':
-        varztID.axis = 'Depth'
-        varztID.short_name = 'depthu'
-        varztID.units = 'm'
-        varztID.long_name = 'Depth'
+        varztID.axis = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'axis')
+        varztID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'short_name')
+        varztID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'units')
+        varztID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'long_name')
 
-        varbtuID.units = 'm/s'
-        varbtuID.short_name = 'vobtcrtx'
-        varbtuID.long_name = 'Thickness-weighted depth-averaged zonal Current'
-        varbtuID.grid = 'bdyU'
+        varbtuID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varbtuID.name,'units')
+        varbtuID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varbtuID.name,'short_name')
+        varbtuID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varbtuID.name,'long_name')
+        varbtuID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varbtuID.name,'grid')
 
-        vartouID.units = 'm/s'
-        vartouID.short_name = 'vozocrtx'
-        vartouID.long_name = 'Zonal Current'
-        vartouID.grid = 'bdyU'
+        vartouID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,vartouID.name,'units')
+        vartouID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,vartouID.name,'short_name')
+        vartouID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,vartouID.name,'long_name')
+        vartouID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,vartouID.name,'grid')
 
     elif grd == 'V':
-        varztID.axis = 'Depth'
-        varztID.short_name = 'depthv'
-        varztID.units = 'm'
-        varztID.long_name = 'Depth'
+        varztID.axis = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'axis')
+        varztID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'short_name')
+        varztID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'units')
+        varztID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varztID.name,'long_name')
 
-        varbtvID.units = 'm/s'
-        varbtvID.short_name = 'vobtcrty'
-        varbtvID.long_name = 'Thickness-weighted depth-averaged meridional Current'
-        varbtvID.grid = 'bdyV'
+        varbtvID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varbtvID.name,'units')
+        varbtvID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varbtvID.name,'short_name')
+        varbtvID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varbtvID.name,'long_name')
+        varbtvID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varbtvID.name,'grid')
 
-        vartovID.units = 'm/s'
-        vartovID.short_name = 'vomecrty'
-        vartovID.long_name = 'Meridional Current'
-        vartovID.grid = 'bdyV'
+        vartovID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,vartovID.name,'units')
+        vartovID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,vartovID.name,'short_name')
+        vartovID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,vartovID.name,'long_name')
+        vartovID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,vartovID.name,'grid')
 
     elif grd == 'Z':
-        varsshID.units = 'm'
-        varsshID.short_name = 'sossheig'
-        varsshID.long_name = 'Sea Surface Height'
-        varsshID.grid = 'bdyT'
+        varsshID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varsshID.name,'units')
+        varsshID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varsshID.name,'short_name')
+        varsshID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varsshID.name,'long_name')
+        varsshID.grid = ncml_parse.gen_var_attrib_NCML(ncml_out,varsshID.name,'grid')
 
-        varmskID.short_name = 'bdy_msk'
-        varmskID.units = 'unitless'
-        varmskID.long_name = 'Structured boundary mask'
+        varmskID.short_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID.name,'short_name')
+        varmskID.units = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID.name,'units')
+        varmskID.long_name = ncml_parse.gen_var_attrib_NCML(ncml_out,varmskID.name,'long_name')
 
     else:
         logging.error('Unknown Grid')

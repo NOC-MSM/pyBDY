@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+  <dimension name="y" orgName="y" />
+  <dimension name="x" orgName="x" />
+  <dimension name="z" orgName="z" />
+  <dimension name="yb" orgName="yb" />
+  <dimension name="xb" orgName="xb" />
+  <dimension name="time_counter" orgName="time_counter" isUnlimited="true" />
+  <attribute name="institution" value="National Oceanography Centre, Livepool, U.K." />
+  <variable name="bdy_msk" orgName="bdy_msk" shape="y x" type="float">
+    <attribute name="short_name" value="bdy_msk" />
+    <attribute name="units" value="unitless" />
+    <attribute name="long_name" value="Structured boundary mask" />
+  </variable>
+  <variable name="deptht" orgName="deptht" shape="z yb xb" type="float">
+    <attribute name="axis" value="Depth" />
+    <attribute name="short_name" value="deptht" />
+    <attribute name="units" value="m" />
+    <attribute name="long_name" value="Depth" />
+  </variable>
+  <variable name="nav_lat" orgName="nav_lat" shape="y x" type="float">
+    <attribute name="axis" value="Latitude" />
+    <attribute name="short_name" value="nav_lat" />
+    <attribute name="units" value="degrees_east" />
+    <attribute name="long_name" value="Latitude" />
+  </variable>
+  <variable name="nav_lon" orgName="nav_lon" shape="y x" type="float">
+    <attribute name="axis" value="Longitude" />
+    <attribute name="short_name" value="nav_lon" />
+    <attribute name="units" value="degrees_east" />
+    <attribute name="long_name" value="Longitude" />
+  </variable>
+  <variable name="nbidta" orgName="nbidta" shape="yb xb" type="int">
+    <attribute name="short_name" value="nbidta" />
+    <attribute name="units" value="unitless" />
+    <attribute name="long_name" value="Bdy i indices" />
+  </variable>
+  <variable name="nbjdta" orgName="nbjdta" shape="yb xb" type="int">
+    <attribute name="short_name" value="nbjdta" />
+    <attribute name="units" value="unitless" />
+    <attribute name="long_name" value="Bdy j indices" />
+  </variable>
+  <variable name="nbrdta" orgName="nbrdta" shape="yb xb" type="int">
+    <attribute name="short_name" value="nbrdta" />
+    <attribute name="units" value="unitless" />
+    <attribute name="long_name" value="Bdy discrete distance" />
+  </variable>
+  <variable name="time_counter" orgName="time_counter" shape="time_counter" type="float">
+    <attribute name="axis" value="T" />
+    <attribute name="standard_name" value="time" />
+    <attribute name="units" value="seconds since 1960-01-01 00:00:00" />
+    <attribute name="title" value="Time" />
+    <attribute name="long_name" value="Time axis" />
+  </variable>
+  <variable name="vosaline" orgName="vosaline" shape="time_counter z yb xb" type="float">
+    <attribute name="units" value="PSU" />
+    <attribute name="short_name" value="vosaline" />
+    <attribute name="long_name" value="Salinity" />
+    <attribute name="grid" value="bdyT" />
+  </variable>
+  <variable name="votemper" orgName="votemper" shape="time_counter z yb xb" type="float">
+    <attribute name="units" value="C" />
+    <attribute name="short_name" value="votemper" />
+    <attribute name="long_name" value="Temperature" />
+    <attribute name="grid" value="bdyT" />
+  </variable>
+  <variable name="votemper" orgName="votemper" shape="time_counter z yb xb" type="float">
+    <attribute name="units" value="C" />
+    <attribute name="short_name" value="votemper" />
+    <attribute name="long_name" value="Temperature" />
+    <attribute name="grid" value="bdyT" />
+  </variable>
+</netcdf>

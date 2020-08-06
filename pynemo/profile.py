@@ -38,6 +38,7 @@ from PyQt5.QtWidgets import QMessageBox
 from calendar import monthrange
 import sys
 
+
 #Local imports
 from pynemo import pynemo_settings_editor
 from pynemo import nemo_bdy_ncgen as ncgen
@@ -49,6 +50,7 @@ from pynemo import nemo_bdy_gen_c as gen_grid
 from pynemo import nemo_coord_gen_pop as coord
 from pynemo import nemo_bdy_zgrv2 as zgrv
 from pynemo import nemo_bdy_extr_tm3 as extract
+from pynemo import nemo_ncml_parse as ncml_parse
 
 from pynemo.reader.factory import GetFile
 from pynemo.reader import factory
@@ -434,7 +436,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # Extract source data on dst grid
 
-    if settings['tide']:
+    if settings['tide'] == True:
         if settings['tide_model']=='tpxo':
             cons = tide.nemo_bdy_tide_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
@@ -518,22 +520,31 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # can be included in the ln_tra = .true. option without having to
     # explicitly declaring them.
 
+    var_list = ncml_parse.gen_src_var_list_NCML(settings['src_dir'])
     var_in = {}
     for g in range(len(grd)):
         var_in[grd[g]] = []
 
     if ln_tra:
-        var_in['t'].extend(['votemper']) #, 'vosaline'])
+        if 'votemper' and 'vosaline' in var_list:
+            var_in['t'].extend(['votemper', 'vosaline'])
+        if 'votemper' and not 'vosaline' in var_list:
+            var_in['t'].extend(['votemper'])
+        if 'vosaline' and not 'votemper' in var_list:
+            var_in['t'].extend(['vosaline'])
 
     if ln_dyn2d or ln_dyn3d:
-        var_in['u'].extend(['vozocrtx'])
-        var_in['v'].extend(['vomecrty'])
+        if 'vozocrtx' and 'vomecrty' in var_list:
+            var_in['u'].extend(['vozocrtx'])
+            var_in['v'].extend(['vomecrty'])
 
     if ln_dyn2d:
-        var_in['t'].extend(['sossheig'])
+        if 'sossheig' in var_list:
+            var_in['t'].extend(['sossheig'])
 
     if ln_ice:
-        var_in['t'].extend(['iicethic', 'ileadfra', 'isnowthi'])
+        if 'iicethic' and 'ileadfra' and 'isnowthi' in var_list:
+            var_in['t'].extend(['iicethic', 'ileadfra', 'isnowthi'])
 
     # As variables are associated with grd there must be a filename attached
     # to each variable
@@ -579,7 +590,9 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 
     logger.info('End NRCT Logging: '+time.asctime())
     logger.info('==========================================')
-                
+
+
+
 
 def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
     """ 

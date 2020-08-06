@@ -40,8 +40,10 @@
 !------------------------------------------------------------------------------
 !  I/O 
 !------------------------------------------------------------------------------
-   sn_src_dir = '/Users/thopri/Projects/PyNEMO/inputs/CMEMS.ncml' ! src_files/'
-   sn_dst_dir = '/Users/thopri/Projects/PyNEMO/outputs'
+   sn_src_dir      = '/Users/thopri/Projects/PyNEMO/inputs/CMEMS.ncml' ! src_files/'
+   sn_dst_dir      = '/Users/thopri/Projects/PyNEMO/outputs'
+   sn_ncml_out     = '/Users/thopri/Projects/PyNEMO/pynemo/output_NCML'
+   sn_model_prefix = 'NEMO'
 
    sn_fn      = 'NNA_R12'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
@@ -91,9 +93,9 @@
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .false.              !  boundary conditions for 
+    ln_dyn2d       = .true.              !  boundary conditions for
                                           !  barotropic fields
-    ln_dyn3d       = .false.              !  boundary conditions for
+    ln_dyn3d       = .true.              !  boundary conditions for
                                           !  baroclinic velocities
     ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition   

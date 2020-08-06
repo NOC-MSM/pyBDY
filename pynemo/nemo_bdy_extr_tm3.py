@@ -37,6 +37,7 @@ import logging
 import numpy as np
 import scipy.spatial as sp
 from calendar import monthrange, isleap
+from glob import glob
 from scipy.interpolate import interp1d
 from cftime import datetime, utime
 from pynemo import nemo_bdy_ncgen as ncgen
@@ -886,6 +887,9 @@ class Extract:
        
         f_out = self.settings['dst_dir']+self.settings['fn']+ \
                 '_bdy'+self.g_type.upper()+ '_y'+str(year)+'m'+'%02d' % month+'.nc'
+
+        ncml_out = glob(self.settings['ncml_out']+'/*'+str(self.g_type.upper())+'.ncml')
+        ncml_out = ncml_out[0]
                             
         ncgen.CreateBDYNetcdfFile(f_out, self.num_bdy,
                                   self.jpi, self.jpj, self.jpk,
@@ -894,7 +898,7 @@ class Extract:
                                   unit_origin,
                                   self.settings['fv'],
                                   self.settings['dst_calendar'],
-                                  self.g_type.upper(),self.var_nam)
+                                  self.g_type.upper(),self.var_nam,ncml_out)
         
         self.logger.info('Writing out BDY data to: %s', f_out)
         
@@ -913,17 +917,17 @@ class Extract:
                
             # Write variable to file
             
-            ncpop.write_data_to_file(f_out, v, tmp_var)
+            ncpop.write_data_to_file(f_out, v, tmp_var,ncml_out)
     
         # Write remaining data to file (indices are in Python notation
         # therefore we must add 1 to i,j and r)
-        ncpop.write_data_to_file(f_out, 'nav_lon', self.nav_lon)
-        ncpop.write_data_to_file(f_out, 'nav_lat', self.nav_lat)
-        ncpop.write_data_to_file(f_out, 'depth'+self.g_type, self.dst_dep)
-        ncpop.write_data_to_file(f_out, 'nbidta', ind.bdy_i[:, 0] + 1)
-        ncpop.write_data_to_file(f_out, 'nbjdta', ind.bdy_i[:, 1] + 1)
-        ncpop.write_data_to_file(f_out, 'nbrdta', ind.bdy_r[:   ] + 1)
-        ncpop.write_data_to_file(f_out, 'time_counter', self.time_counter)
+        ncpop.write_data_to_file(f_out, 'nav_lon', self.nav_lon,ncml_out)
+        ncpop.write_data_to_file(f_out, 'nav_lat', self.nav_lat,ncml_out)
+        ncpop.write_data_to_file(f_out, 'depth'+self.g_type, self.dst_dep,ncml_out)
+        ncpop.write_data_to_file(f_out, 'nbidta', ind.bdy_i[:, 0] + 1,ncml_out)
+        ncpop.write_data_to_file(f_out, 'nbjdta', ind.bdy_i[:, 1] + 1,ncml_out)
+        ncpop.write_data_to_file(f_out, 'nbrdta', ind.bdy_r[:   ] + 1,ncml_out)
+        ncpop.write_data_to_file(f_out, 'time_counter', self.time_counter,ncml_out)
 
 
 
