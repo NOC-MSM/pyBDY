@@ -12,9 +12,9 @@
     <attribute name="units" value="unitless" />
     <attribute name="long_name" value="Structured boundary mask" />
   </variable>
-  <variable name="deptht" orgName="deptht" shape="z yb xb" type="float">
+  <variable name="depthz" orgName="depthz" shape="z yb xb" type="float">
     <attribute name="axis" value="Depth" />
-    <attribute name="short_name" value="deptht" />
+    <attribute name="short_name" value="depthz" />
     <attribute name="units" value="m" />
     <attribute name="long_name" value="Depth" />
   </variable>
@@ -52,16 +52,10 @@
     <attribute name="title" value="Time" />
     <attribute name="long_name" value="Time axis" />
   </variable>
-  <variable name="vosaline" orgName="vosaline" shape="time_counter z yb xb" type="float">
-    <attribute name="units" value="PSU" />
-    <attribute name="short_name" value="vosaline" />
-    <attribute name="long_name" value="Salinity" />
-    <attribute name="grid" value="bdyT" />
-  </variable>
-  <variable name="votemper" orgName="votemper" shape="time_counter z yb xb" type="float">
-    <attribute name="units" value="C" />
-    <attribute name="short_name" value="votemper" />
-    <attribute name="long_name" value="Temperature" />
+  <variable name="sossheig" orgName="sossheig" shape="time_counter yb xb" type="float">
+    <attribute name="units" value="m" />
+    <attribute name="short_name" value="sossheig" />
+    <attribute name="long_name" value="Sea Surface Height" />
     <attribute name="grid" value="bdyT" />
   </variable>
 </netcdf>

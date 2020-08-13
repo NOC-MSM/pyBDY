@@ -83,6 +83,7 @@ class Extract:
         self.tmp_valid = None
         self.data_ind = None
         self.nan_ind = None
+        self.isslab = False
         
         # TODO: Why are we deepcopying the coordinates???
         
@@ -99,8 +100,11 @@ class Extract:
         
         
         self.jpj, self.jpi = DC.lonlat[grd]['lon'].shape
-        self.jpk = DC.depths[grd]['bdy_z'].shape[0]
-        # Set some constants
+        try:
+            self.jpk = DC.depths[grd]['bdy_z'].shape[0]
+        except KeyError:
+            self.jpk = 1
+            # Set some constants
         
         # Make function of dst grid resolution (used in 1-2-1 weighting)
         # if the weighting can only find one addtional point this implies an 
@@ -127,12 +131,9 @@ class Extract:
         
         dst_lon = DC.bdy_lonlat[self.g_type]['lon']
         dst_lat = DC.bdy_lonlat[self.g_type]['lat']
-        try:
-            dst_dep = DC.depths[self.g_type]['bdy_z']
-        except KeyError:
-            dst_dep = np.zeros([1])
-        self.isslab = len(dst_dep) == 1
+        dst_dep = DC.depths[self.g_type]['bdy_z']
         if dst_dep.size == len(dst_dep):
+            self.isslab = True
             dst_dep = np.ones([1, len(dst_lon)])
 
         # ??? Should this be read from settings?
@@ -406,10 +407,11 @@ class Extract:
         self.dst_dep = dst_dep
         self.num_bdy = num_bdy
         self.id_121 = id_121
-        if not self.isslab:
-            self.bdy_z = DC.depths[self.g_type]['bdy_H']
-        else:
-            self.bdy_z = np.zeros([1])
+        self.bdy_z = DC.depths[self.g_type]['bdy_H']
+        # if not self.isslab:
+        #     self.bdy_z = DC.depths[self.g_type]['bdy_H']
+        # else:
+        #    self.bdy_z = np.zeros([1])
             
         self.dst_z = dst_dep
         self.sc_z_len = sc_z_len
@@ -575,7 +577,10 @@ class Extract:
                 # Note using isnan/sum is relatively fast, but less than 
                 # bottleneck external lib
                 self.logger.info('SC ARRAY MIN MAX : %s %s', np.nanmin(sc_array[0]), np.nanmax(sc_array[0]))
-                sc_array[0][self.t_mask == 0] = np.NaN
+                if not self.isslab and not self.key_vec:
+                    sc_array[0][self.t_mask == 0] = np.NaN
+                if self.isslab and not self.key_vec:
+                    sc_array[0][self.t_mask[:,0:1,:,:] == 0] = np.NaN
                 self.logger.info( 'SC ARRAY MIN MAX : %s %s', np.nanmin(sc_array[0]), np.nanmax(sc_array[0]))
                 if not np.isnan(np.sum(meta_data[vn]['sf'])):
                     sc_array[0] *= meta_data[vn]['sf']
@@ -592,23 +597,39 @@ class Extract:
                 # Now collapse the extracted data to an array 
                 # containing only nearest neighbours to dest bdy points
                 # Loop over the depth axis
-                for dep in range(sc_z_len):
+                if self.isslab == False:
+                    for dep in range(sc_z_len):
+                        tmp_arr = [None, None]
+                        # Consider squeezing
+                        tmp_arr[0] = sc_array[0][0, dep, :, :].flatten('F')  # [:,:,dep]
+                        if not self.key_vec:
+                            sc_bdy[vn, dep, :, :] = self._flat_ref(tmp_arr[0], ind)
+                        else:
+                            tmp_arr[1] = sc_array[1][0,dep,:,:].flatten('F') #[:,:,dep]
+                            # Include in the collapse the rotation from the
+                            # grid to real zonal direction, ie ij -> e
+                            sc_bdy[vn, dep, :] = (tmp_arr[0][ind[:]] * self.gcos -
+                                                  tmp_arr[1][ind[:]] * self.gsin)
+                            # Include... meridinal direction, ie ij -> n
+                            sc_bdy[vn+1, dep, :] = (tmp_arr[1][ind[:]] * self.gcos +
+                                                    tmp_arr[0][ind[:]] * self.gsin)
+                if self.isslab == True:
                     tmp_arr = [None, None]
                     # Consider squeezing
-                    tmp_arr[0] = sc_array[0][0,dep,:,:].flatten('F') #[:,:,dep]
+                    tmp_arr[0] = sc_array[0][0, 0, :, :].flatten('F')  # [:,:,dep]
                     if not self.key_vec:
-                        sc_bdy[vn, dep, :, :] = self._flat_ref(tmp_arr[0], ind)
+                        sc_bdy[vn, 0, :, :] = self._flat_ref(tmp_arr[0], ind)
                     else:
-                        tmp_arr[1] = sc_array[1][0,dep,:,:].flatten('F') #[:,:,dep]
+                        tmp_arr[1] = sc_array[1][0,0,:,:].flatten('F') #[:,:,dep]
                         # Include in the collapse the rotation from the
                         # grid to real zonal direction, ie ij -> e
-                        sc_bdy[vn, dep, :] = (tmp_arr[0][ind[:]] * self.gcos -
-                                              tmp_arr[1][ind[:]] * self.gsin)
+                        sc_bdy[vn, 0, :] = (tmp_arr[0][ind[:]] * self.gcos -
+                                                  tmp_arr[1][ind[:]] * self.gsin)
                         # Include... meridinal direction, ie ij -> n
-                        sc_bdy[vn+1, dep, :] = (tmp_arr[1][ind[:]] * self.gcos +
-                                                tmp_arr[0][ind[:]] * self.gsin)
+                        sc_bdy[vn+1, 0, :] = (tmp_arr[1][ind[:]] * self.gcos +
+                                                    tmp_arr[0][ind[:]] * self.gsin)
 
-                # End depths loop
+                    # End depths loop
                 self.logger.info(' END DEPTHS LOOP ')
             # End Looping over vars
             self.logger.info(' END VAR LOOP ')
@@ -889,6 +910,8 @@ class Extract:
                 '_bdy'+self.g_type.upper()+ '_y'+str(year)+'m'+'%02d' % month+'.nc'
 
         ncml_out = glob(self.settings['ncml_out']+'/*'+str(self.g_type.upper())+'.ncml')
+        if len(ncml_out) == 0:
+            raise RuntimeError('NCML out file for grid '+str(self.g_type.upper())+' missing, please add into NCML directory')
         ncml_out = ncml_out[0]
                             
         ncgen.CreateBDYNetcdfFile(f_out, self.num_bdy,
@@ -906,12 +929,14 @@ class Extract:
             
 #        for v in self.variables:
         for v in self.var_nam:
-            #if self.settings['dyn2d']: # Calculate depth averaged velocity
-            #    tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
-            #    tmp_var = np.reshape(self.d_bdy[v][year]['data'][:,:,:], tile_dz.shape)
-            #    tmp_var = np.nansum(tmp_var * tile_dz, 2) /np.nansum(tile_dz, 2)
-            #else: # Replace NaNs with specified fill value
-            tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:,:,:]),
+            if self.isslab == True: # Calculate depth averaged velocity
+                tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:, :, :]),
+                                   self.settings['fv'],
+                                   self.d_bdy[v][year]['data'][:, :, :])
+                tmp_var = tmp_var[:,0:1,:]
+                # Replace NaNs with specified fill value
+            else:
+                tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:,:,:]),
                                             self.settings['fv'], 
                                             self.d_bdy[v][year]['data'][:,:,:])
                

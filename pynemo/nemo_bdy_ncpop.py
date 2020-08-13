@@ -19,8 +19,8 @@ def write_data_to_file(filename, variable_name, data,ncml_out):
     """
     ncid = Dataset(filename, 'a', clobber=False, format='NETCDF4')
     count = data.shape
-    time = ncml_parse.gen_dims_NCML(ncml_out,'time_counter')
-    var_list = ncml_parse.gen_var_list_NCML(ncml_out,time)
+    time = ncml_parse.dst_dims(ncml_out,'time_counter')
+    var_list = ncml_parse.dst_var_list(ncml_out,time)
     three_dim_variables = var_list['3D_vars'] #['votemper', 'vosaline', 'N1p', 'N3n', 'N5s','vobtcrtx','vozocrtx','vobtcrty','vomecrty']
     two_dim_variables = var_list['2D_vars'] #['sossheig', 'iicethic', 'ileadfra', 'isnowthi']
 

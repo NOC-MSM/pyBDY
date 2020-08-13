@@ -319,6 +319,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger.info('Generated BDY %s information', grd)
         logger.info('Grid %s has shape %s', grd, bdy_ind[grd].bdy_i.shape)
 
+    for grd in ['z']:
+        bdy_ind[grd] = gen_grid.Boundary(bdy_msk, settings, 't')
+        logger.info('Generated BDY %s information', 't')
+        logger.info('Grid %s has shape %s', grd, bdy_ind['t'].bdy_i.shape)
+
     # TODO: Write in option to seperate out disconnected LBCs
     
     # Write out grid information to coordinates.bdy.nc
@@ -333,6 +338,9 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     
     for grd in ['t', 'u', 'v']:
         nbdy[grd] = len(bdy_ind[grd].bdy_i[:, 0])
+
+    for grd in ['z']:
+        nbdy[grd] = len(bdy_ind['t'].bdy_i[:, 0])
 
     # Gather grid information
     
@@ -355,12 +363,13 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # TODO: put conditional here as we may want to keep data on parent
     #       vertical grid
    
-    DstCoord.depths = {'t': {}, 'u': {}, 'v': {}}
+    DstCoord.depths = {'t': {}, 'u': {}, 'v': {}, 'z':{}}
 
-    for grd in ['t', 'u', 'v']:
+    for grd in ['t', 'u', 'v','z']:
         DstCoord.depths[grd]['bdy_H']  = np.nanmax(z.zpoints['w'+grd], axis=0)
         DstCoord.depths[grd]['bdy_dz'] = np.diff(z.zpoints['w'+grd], axis=0)
         DstCoord.depths[grd]['bdy_z']  = z.zpoints[grd]
+
 
     logger.info('Depths defined')
     
@@ -390,7 +399,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         
     nc.close()
 
-    DstCoord.lonlat = {'t': {}, 'u': {}, 'v': {}}
+    DstCoord.lonlat = {'t': {}, 'u': {}, 'v': {}, 'z':{}}
 
     nc = GetFile(settings['dst_hgr'])
 
@@ -399,6 +408,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     for grd in ['t', 'u', 'v']:
         DstCoord.lonlat[grd]['lon'] = nc['glam' + grd][0, :, :]
         DstCoord.lonlat[grd]['lat'] = nc['gphi' + grd][0, :, :]
+
+    for grd in ['z']:
+        DstCoord.lonlat[grd]['lon'] = nc['glamt'][0, :, :]
+        DstCoord.lonlat[grd]['lat'] = nc['gphit'][0, :, :]
     
     nc.close()
 
@@ -406,13 +419,13 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     
     # Identify lons/lats of the BDY points
     
-    DstCoord.bdy_lonlat = {'t': {}, 'u': {}, 'v': {}}
+    DstCoord.bdy_lonlat = {'t': {}, 'u': {}, 'v': {},'z':{}}
      
-    for grd in ['t', 'u', 'v']:
+    for grd in ['t', 'u', 'v', 'z']:
         for l in ['lon', 'lat']:
             DstCoord.bdy_lonlat[grd][l] = np.zeros(nbdy[grd])
 
-    for grd in ['t', 'u', 'v']:
+    for grd in ['t', 'u', 'v', 'z']:
         for i in range(nbdy[grd]):
             x = bdy_ind[grd].bdy_i[i, 1]
             y = bdy_ind[grd].bdy_i[i, 0]
@@ -431,6 +444,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     reader = factory.GetReader(settings['src_dir'],t_adj)
     for grd in ['t', 'u', 'v']:
         bdy_ind[grd].source_time = reader[grd]
+    for grd in ['z']:
+        bdy_ind[grd].source_time = reader['t']
  
     unit_origin = '%d-01-01 00:00:00' %settings['base_year']
 
@@ -511,16 +526,16 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Define mapping of variables to grids with a dictionary
     
     emap = {}
-    grd  = [  't',  'u',  'v']
+    grd  = [  't',  'u',  'v', 'z']
     #pair = [ None, 'uv', 'uv'] # TODO: devolve this to the namelist?
-    pair = [None, None, None]
+    pair = [None, None, None, None]
     # TODO: The following is a temporary stop gap to assign variables for both CMEMS downloads
     #  and existing variable names. In future we need a slicker way of determining the variables to extract.
     # Perhaps by scraping the .ncml file - this way biogeochemical tracers
     # can be included in the ln_tra = .true. option without having to
     # explicitly declaring them.
 
-    var_list = ncml_parse.gen_src_var_list_NCML(settings['src_dir'])
+    var_list = ncml_parse.src_var_list(settings['src_dir'])
     var_in = {}
     for g in range(len(grd)):
         var_in[grd[g]] = []
@@ -540,7 +555,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     if ln_dyn2d:
         if 'sossheig' in var_list:
-            var_in['t'].extend(['sossheig'])
+            var_in['z'].extend(['sossheig'])
 
     if ln_ice:
         if 'iicethic' and 'ileadfra' and 'isnowthi' in var_list:

@@ -8,7 +8,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def gen_dims_NCML(ncmlfile,orgName):
+def dst_dims(ncmlfile,orgName):
     ncml_dict = xmltodict.parse(ET.tostring(ET.parse(ncmlfile).getroot()))
     dimensions = ncml_dict['ns0:netcdf']['ns0:dimension']
     if type(dimensions) is not list:
@@ -21,7 +21,7 @@ def gen_dims_NCML(ncmlfile,orgName):
             break
     return dim_name
 
-def gen_var_list_NCML(ncmlfile, time):
+def dst_var_list(ncmlfile, time):
     ncml_dict = xmltodict.parse(ET.tostring(ET.parse(ncmlfile).getroot()))
     variables = ncml_dict['ns0:netcdf']['ns0:variable']
     var_3D = []
@@ -36,7 +36,7 @@ def gen_var_list_NCML(ncmlfile, time):
                 }
     return var_type
 
-def gen_src_var_list_NCML(ncmlfile):
+def src_var_list(ncmlfile):
     ncml_dict = xmltodict.parse(ET.tostring(ET.parse(ncmlfile).getroot()))
     variables = ncml_dict['ns0:netcdf']['ns0:variable']
     var_list = []
@@ -44,7 +44,7 @@ def gen_src_var_list_NCML(ncmlfile):
         var_list.append(variables[i]['@name'])
     return var_list
 
-def gen_var_NCML(ncmlfile, orgName):
+def dst_var(ncmlfile, orgName):
     ncml_dict = xmltodict.parse(ET.tostring(ET.parse(ncmlfile).getroot()))
     variables = ncml_dict['ns0:netcdf']['ns0:variable']
     if type(variables) is not list:
@@ -63,7 +63,7 @@ def gen_var_NCML(ncmlfile, orgName):
             break
     return var
 
-def gen_attrib_NCML(ncmlfile,name):
+def dst_glob_attrib(ncmlfile,name):
     ncml_dict = xmltodict.parse(ET.tostring(ET.parse(ncmlfile).getroot()))
     nc_attrib = ncml_dict['ns0:netcdf']['ns0:attribute']
     if type(nc_attrib) is not list:
@@ -76,7 +76,7 @@ def gen_attrib_NCML(ncmlfile,name):
             attrib_val = nc_attrib[i]['@value']
     return attrib_val
 
-def gen_var_attrib_NCML(ncmlfile, variable,name):
+def dst_var_attrib(ncmlfile, variable,name):
     ncml_dict = xmltodict.parse(ET.tostring(ET.parse(ncmlfile).getroot()))
     variables = ncml_dict['ns0:netcdf']['ns0:variable']
     if type(variables) is not list:

@@ -114,9 +114,11 @@ class Depth:
 
             for p in list(self.zpoints.keys()):
                 self.zpoints[p] = self.zpoints[p].reshape(zshapes[p])
-            
-        self.logger.debug( 'Done loop, zpoints: %s ', self.zpoints['t'].shape)
-                                
+
+        self.zpoints['z'] = self.zpoints['t'][0,:]
+        self.zpoints['wz'] = self.zpoints['wt'][0,:]
+
+        self.logger.debug('Done loop, zpoints: %s ', self.zpoints['t'].shape)
 
         nc.close()
 
