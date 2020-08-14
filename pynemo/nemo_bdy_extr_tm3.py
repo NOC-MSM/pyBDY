@@ -452,7 +452,7 @@ class Extract:
         # define src/dst cals
         sf, ed = self.cal_trans(sc_time.calendar, #sc_time[0].calendar 
                                 self.settings['dst_calendar'], year, month)
-        DstCal = utime('seconds since %d-1-1' %year, 
+        DstCal = utime('seconds since %d-1-1' %self.settings['base_year'],
                        self.settings['dst_calendar'])
         dst_start = DstCal.date2num(datetime(year, month, 1))
         dst_end = DstCal.date2num(datetime(year, month, ed, 23, 59, 59))
@@ -473,11 +473,11 @@ class Extract:
         rev_seq = list(range(len(sc_time.time_counter)))
         rev_seq.reverse()
         for date in rev_seq:
-            if src_date_seconds[date] < dst_start:
+            if src_date_seconds[date] <= dst_start:
                 first_date = date
                 break
         for date in range(len(sc_time.time_counter)):
-            if src_date_seconds[date] > dst_end:
+            if src_date_seconds[date] >= dst_end:
                 last_date = date
                 break
 
@@ -525,7 +525,7 @@ class Extract:
             meta_data[n] = self.fnames_2.get_meta_data(self.var_nam[n], meta_data[n])
 
         for vn in range(self.nvar):
-            self.d_bdy[self.var_nam[vn]]['date'] = sc_time.date_counter[first_date:last_date + 1] 
+            self.d_bdy[self.var_nam[vn]]['date'] = sc_time.date_counter[first_date:last_date + 1]
 
         # Loop over identified files
         for f in range(first_date, last_date + 1):
@@ -837,7 +837,7 @@ class Extract:
         # we're grouping variables then they must all have the same date stamps
         nt           = len(self.d_bdy[self.var_nam[0]]['date'])
         time_counter = np.zeros([nt])
-        tmp_cal      = utime('seconds since %d-1-1' %year,
+        tmp_cal      = utime('seconds since %d-1-1' %self.settings['base_year'],
                              self.settings['dst_calendar'].lower())
         
         for t in range(nt):
@@ -929,12 +929,12 @@ class Extract:
             
 #        for v in self.variables:
         for v in self.var_nam:
-            if self.isslab == True: # Calculate depth averaged velocity
+            if self.isslab == True:
                 tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:, :, :]),
                                    self.settings['fv'],
                                    self.d_bdy[v][year]['data'][:, :, :])
+                # remove depths from varible leaving surface layer
                 tmp_var = tmp_var[:,0:1,:]
-                # Replace NaNs with specified fill value
             else:
                 tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:,:,:]),
                                             self.settings['fv'], 
