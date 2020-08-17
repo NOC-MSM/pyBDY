@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+  <dimension name="y" orgName="y" />
+  <dimension name="x" orgName="x" />
+  <dimension name="yb" orgName="yb" />
+  <dimension name="xb" orgName="xb" />
+  <dimension name="time_counter" orgName="time_counter" isUnlimited="true" />
+  <attribute name="institution" value="National Oceanography Centre, Livepool, U.K." />
+  <variable name="bdy_msk" orgName="bdy_msk" shape="y x" type="float">
+    <attribute name="short_name" value="bdy_msk" />
+    <attribute name="units" value="unitless" />
+    <attribute name="long_name" value="Structured boundary mask" />
+  </variable>
+  <variable name="nav_lat" orgName="nav_lat" shape="y x" type="float">
+    <attribute name="axis" value="Latitude" />
+    <attribute name="short_name" value="nav_lat" />
+    <attribute name="units" value="degrees_east" />
+    <attribute name="long_name" value="Latitude" />
+  </variable>
+  <variable name="nav_lon" orgName="nav_lon" shape="y x" type="float">
+    <attribute name="axis" value="Longitude" />
+    <attribute name="short_name" value="nav_lon" />
+    <attribute name="units" value="degrees_east" />
+    <attribute name="long_name" value="Longitude" />
+  </variable>
+  <variable name="nbidta" orgName="nbidta" shape="yb xb" type="int">
+    <attribute name="short_name" value="nbidta" />
+    <attribute name="units" value="unitless" />
+    <attribute name="long_name" value="Bdy i indices" />
+  </variable>
+  <variable name="nbjdta" orgName="nbjdta" shape="yb xb" type="int">
+    <attribute name="short_name" value="nbjdta" />
+    <attribute name="units" value="unitless" />
+    <attribute name="long_name" value="Bdy j indices" />
+  </variable>
+  <variable name="nbrdta" orgName="nbrdta" shape="yb xb" type="int">
+    <attribute name="short_name" value="nbrdta" />
+    <attribute name="units" value="unitless" />
+    <attribute name="long_name" value="Bdy discrete distance" />
+  </variable>
+  <variable name="z1" orgName="z1" shape="yb xb" type="float">
+    <attribute name="units" value="m" />
+    <attribute name="short_name" value="z1" />
+    <attribute name="long_name" value="Tidal elevation: cosine" />
+    <attribute name="grid" value="bdyT" />
+  </variable>
+  <variable name="z2" orgName="z2" shape="yb xb" type="float">
+    <attribute name="units" value="m" />
+    <attribute name="short_name" value="z2" />
+    <attribute name="long_name" value="Tidal elevation: sine" />
+    <attribute name="grid" value="bdyT" />
+  </variable>
+</netcdf>

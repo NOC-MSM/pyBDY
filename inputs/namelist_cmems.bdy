@@ -93,18 +93,18 @@
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .true.              !  boundary conditions for
+    ln_dyn2d       = .false.              !  boundary conditions for
                                           !  barotropic fields
-    ln_dyn3d       = .true.              !  boundary conditions for
+    ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
-    ln_tra         = .true.               !  boundary conditions for T and S
+    ln_tra         = .false.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters
 !------------------------------------------------------------------------------
-    ln_tide        = .false.              !  =T : produce bdy tidal conditions
+    ln_tide        = .true.              !  =T : produce bdy tidal conditions
     sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
@@ -122,7 +122,7 @@
     !clname(14)     = '2N2'
     !clname(15)     = 'MU2'
     ln_trans       = .false.                !  interpolate transport rather than velocities
-    ln_tide_checker = .true.                ! run tide checker on PyNEMO tide output
+    ln_tide_checker = .false.                ! run tide checker on PyNEMO tide output
     sn_ref_model    = 'fes'                 ! which model to check output against (FES only)
 !------------------------------------------------------------------------------
 !  Time information

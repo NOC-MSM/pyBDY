@@ -37,6 +37,7 @@ import numpy as np
 from PyQt5.QtWidgets import QMessageBox
 from calendar import monthrange
 import sys
+from glob import glob
 
 
 #Local imports
@@ -650,30 +651,36 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
                         setup_var.settings['fn']+                  \
                         '_bdytide_'+const_name+'_grd_'+            \
                         val['nam'].upper()+'.nc'
-            
+
+            ncml_out = glob(setup_var.settings['ncml_out'] + '/*' + 'tide_'+str(val['nam'].upper()) + '.ncml')
+            if len(ncml_out) == 0:
+                raise RuntimeError(
+                    'NCML out tide file for grid ' + str(val['nam'].upper()) + ' missing, please add into NCML directory')
+            ncml_out = ncml_out[0]
+
             nemo_bdy_tide_ncgen.CreateBDYTideNetcdfFile(fout_tide, 
                             val['nx'], 
                             dst_coord_var.lonlat['t']['lon'].shape[1],
                             dst_coord_var.lonlat['t']['lon'].shape[0], 
                             val['des']+tide_con, 
-                            setup_var.settings['fv'], key.upper())
+                            setup_var.settings['fv'], key.upper(),ncml_out)
             
             ncpop.write_data_to_file(fout_tide, val['nam']+'1', 
-                                     cons['cos'][val['nam']][indx])
+                                     cons['cos'][val['nam']][indx],ncml_out)
             ncpop.write_data_to_file(fout_tide, val['nam']+'2', 
-                                     cons['sin'][val['nam']][indx])
+                                     cons['sin'][val['nam']][indx],ncml_out)
             ncpop.write_data_to_file(fout_tide, 'bdy_msk',
-                                     dst_coord_var.bdy_msk)
+                                     dst_coord_var.bdy_msk,ncml_out)
             ncpop.write_data_to_file(fout_tide, 'nav_lon',
-                                     dst_coord_var.lonlat['t']['lon'])
+                                     dst_coord_var.lonlat['t']['lon'],ncml_out)
             ncpop.write_data_to_file(fout_tide, 'nav_lat',
-                                     dst_coord_var.lonlat['t']['lat'])
+                                     dst_coord_var.lonlat['t']['lat'],ncml_out)
             ncpop.write_data_to_file(fout_tide, 'nbidta',
-                                     grid[key].bdy_i[val['ind'], 0]+1)
+                                     grid[key].bdy_i[val['ind'], 0]+1,ncml_out)
             ncpop.write_data_to_file(fout_tide, 'nbjdta',
-                                     grid[key].bdy_i[val['ind'], 1]+1)
+                                     grid[key].bdy_i[val['ind'], 1]+1,ncml_out)
             ncpop.write_data_to_file(fout_tide, 'nbrdta',
-                                     grid[key].bdy_r[val['ind']]+1)
+                                     grid[key].bdy_r[val['ind']]+1,ncml_out)
         
         # Iterate over constituents
         
