@@ -38,7 +38,7 @@
    sn_bathy   = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/NNA_R12_bathy_meter_bench.nc'
 
 !------------------------------------------------------------------------------
-!  I/O 
+!  I/O
 !------------------------------------------------------------------------------
    sn_src_dir      = '/Users/thopri/Projects/PyNEMO/inputs/CMEMS.ncml' ! src_files/'
    sn_dst_dir      = '/Users/thopri/Projects/PyNEMO/outputs'
@@ -49,7 +49,7 @@
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
    sn_dst_metainfo = 'CMEMS example'
-   
+
 !------------------------------------------------------------------------------
 !  CMEMS Data Source Configuration
 !------------------------------------------------------------------------------
@@ -85,10 +85,10 @@
    nn_depth_max             = 5727.918000000001
 
 !------------------------------------------------------------------------------
-!  unstructured open boundaries                         
+!  unstructured open boundaries
 !------------------------------------------------------------------------------
     ln_coords_file = .true.               !  =T : produce bdy coordinates files
-    cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files 
+    cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files
                                           !  (if ln_coords_file=.TRUE.)
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file
@@ -98,11 +98,11 @@
     ln_dyn3d       = .true.              !  boundary conditions for
                                           !  baroclinic velocities
     ln_tra         = .true.               !  boundary conditions for T and S
-    ln_ice         = .false.              !  ice boundary condition   
+    ln_ice         = .false.              !  ice boundary condition
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
-!  unstructured open boundaries tidal parameters                        
+!  unstructured open boundaries tidal parameters
 !------------------------------------------------------------------------------
     ln_tide        = .false.              !  =T : produce bdy tidal conditions
     sn_tide_model  = 'fes'                !  Name of tidal model (fes|tpxo)
@@ -139,13 +139,13 @@
 	sn_tide_u      = '/Users/thopri/Projects/PyNEMO/DATA/TPXO/u_tpxo7.2.nc'
 	! location of FES data
 	sn_tide_fes      = '/Users/thopri/Projects/PyNEMO/DATA/FES/'
-	
+
 !------------------------------------------------------------------------------
 !  Additional parameters
 !------------------------------------------------------------------------------
-    nn_wei  = 1                   !  smoothing filter weights 
+    nn_wei  = 1                   !  smoothing filter weights
     rn_r0   = 0.041666666         !  decorrelation distance use in gauss
-                                  !  smoothing onto dst points. Need to 
+                                  !  smoothing onto dst points. Need to
                                   !  make this a funct. of dlon
     sn_history  = 'CMEMS test case'
                                   !  history for netcdf file

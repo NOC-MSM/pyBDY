@@ -78,7 +78,8 @@ class Boundary:
         try:
             msk = np.pad(bdy_msk,((1,1),(1,1)), 'constant', constant_values=(-1))
         except ValueError:
-            raise Exception('the ValueError above is commonly due to PyNEMO not finding the bathymetry/mask file')
+            raise Exception('the ValueError above is commonly due to PyNEMO not finding the bathymetry/mask file or '
+                            'in a incompatable format. E.g. there are zeros along all borders of bathy file...')
         # create index arrays of I and J coords
         igrid, jgrid = np.meshgrid(np.arange(bdy_msk.shape[1]), np.arange(bdy_msk.shape[0]))
 

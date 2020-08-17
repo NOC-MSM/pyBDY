@@ -15,7 +15,7 @@ from mpl_toolkits.basemap import Basemap
 
 from pynemo.tests import bdy_coords as bdc
 
-bdc.process_bdy('/Users/thopri/Projects/PyNEMO/inputs/namelist_cmems.bdy',False)
+bdc.process_bdy('/inputs/namelist_cmems.bdy', False)
 
 rootgrp = Dataset('/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y1979m11.nc', "r", format="NETCDF4")
 bdy_msk = np.squeeze(rootgrp.variables['bdy_msk'][:]) - 1

@@ -473,13 +473,25 @@ class Extract:
         rev_seq = list(range(len(sc_time.time_counter)))
         rev_seq.reverse()
         for date in rev_seq:
-            if src_date_seconds[date] <= dst_start:
-                first_date = date
-                break
+            try:
+                if src_date_seconds[date-1] <= dst_start <= src_date_seconds[date]:
+                    first_date = date
+                    break
+            except IndexError:
+                if src_date_seconds[date] == dst_start:
+                    first_date = date
+                else:
+                    logging.error('Start date not found in source data')
         for date in range(len(sc_time.time_counter)):
-            if src_date_seconds[date] >= dst_end:
-                last_date = date
-                break
+            try:
+                if src_date_seconds[date] <= dst_end <= src_date_seconds[date+1]:
+                    last_date = date
+                    break
+            except IndexError:
+                if src_date_seconds[date] == dst_end:
+                    last_date = date
+                else:
+                    logging.error('End date not found in source data,')
 
         self.logger.info('first/last dates: %s %s', first_date, last_date)
 
