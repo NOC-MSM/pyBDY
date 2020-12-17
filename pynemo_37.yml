@@ -1,4 +1,4 @@
-name: pynemo3_tst
+name: pynemo3
 channels:
   - defaults
 dependencies:
