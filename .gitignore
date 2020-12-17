@@ -34,6 +34,7 @@ MANIFEST
 outputs
 .DS_Store
 DATA
+SSW_FVCOM
 
 # PyInstaller
 #  Usually these files are written by a python script from a template

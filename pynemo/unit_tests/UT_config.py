@@ -11,4 +11,4 @@ output_dir = 'pynemo/unit_tests/test_outputs/'
 # namelist directory
 unit_dir = 'pynemo/unit_tests/namelists/'
 # plot grids
-plot_grids = False
+plot_grids = True
