@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" location="SSW_Hindcast_nest_forcing_v1.1_1998.nc">
+  <dimension name="time" length="10248" isUnlimited="true" />
+  <dimension name="DateStrLen" length="26" />
+  <dimension name="node" length="529" />
+  <dimension name="nele" length="524" />
+  <dimension name="siglev" length="21" />
+  <dimension name="three" length="3" />
+  <dimension name="siglay" length="20" />
+  <attribute name="type" value="FVCOM nestING TIME SERIES FILE" />
+  <attribute name="title" value="FVCOM nestING TYPE 2 TIME SERIES data for open boundary" />
+  <attribute name="history" value="Wed Aug 12 11:19:20 2020: ncks -O --mk_rec_dmn time SSW_Hindcast_nest_forcing_1997_12.nc SSW_Hindcast_nest_forcing_1997_12_rec.nc&#xA;File created using write_nested_forcing from PyFVCOM" />
+  <attribute name="filename" value="/scratch/benbar/Nesting/Monthly/SSW_Hindcast_nest_forcing_1997_12.nc" />
+  <attribute name="Conventions" value="CF-1.0" />
+  <attribute name="NCO" value="netCDF Operators version 4.7.5 (Homepage = http://nco.sf.net, Code = http://github.com/nco/nco)" />
+  <variable name="Itime" shape="time" type="int">
+    <attribute name="units" value="days since 1858-11-17 00:00:00" />
+    <attribute name="format" value="modified julian day (MJD)" />
+    <attribute name="time_zone" value="UTC" />
+  </variable>
+  <variable name="Itime2" shape="time" type="int">
+    <attribute name="units" value="msec since 00:00:00" />
+    <attribute name="time_zone" value="UTC" />
+  </variable>
+  <variable name="Times" shape="time DateStrLen" type="char">
+    <attribute name="long_name" value="Calendar Date" />
+    <attribute name="format" value="String: Calendar Time" />
+    <attribute name="time_zone" value="UTC" />
+  </variable>
+  <variable name="h" shape="node" type="float">
+    <attribute name="long_name" value="Bathymetry" />
+    <attribute name="standard_name" value="sea_floor_depth_below_geoid" />
+    <attribute name="units" value="m" />
+    <attribute name="positive" value="down" />
+    <attribute name="grid" value="Bathymetry_mesh" />
+    <attribute name="coordinates" value="x y" />
+    <attribute name="type" value="data" />
+  </variable>
+  <variable name="h_center" shape="nele" type="float">
+    <attribute name="long_name" value="Bathymetry" />
+    <attribute name="standard_name" value="sea_floor_depth_below_geoid" />
+    <attribute name="units" value="m" />
+    <attribute name="positive" value="down" />
+    <attribute name="grid" value="grid1 grid3" />
+    <attribute name="coordinates" value="latc lonc" />
+    <attribute name="grid_location" value="center" />
+  </variable>
+  <variable name="hyw" shape="time siglev node" type="float">
+    <attribute name="long_name" value="hydro static vertical velocity" />
+    <attribute name="units" value="meters s-1" />
+    <attribute name="grid" value="fvcom_grid" />
+    <attribute name="type" value="data" />
+    <attribute name="coordinates" value="time siglev lat lon" />
+  </variable>
+  <variable name="lat" shape="node" type="float">
+    <attribute name="units" value="degrees_north" />
+    <attribute name="standard_name" value="latitude" />
+    <attribute name="long_name" value="nodal latitude" />
+  </variable>
+  <variable name="latc" shape="nele" type="float">
+    <attribute name="units" value="degrees_north" />
+    <attribute name="standard_name" value="latitude" />
+    <attribute name="long_name" value="zonal latitude" />
+  </variable>
+  <variable name="lon" shape="node" type="float">
+    <attribute name="units" value="degrees_east" />
+    <attribute name="standard_name" value="longitude" />
+    <attribute name="long_name" value="nodal longitude" />
+  </variable>
+  <variable name="lonc" shape="nele" type="float">
+    <attribute name="units" value="degrees_east" />
+    <attribute name="standard_name" value="longitude" />
+    <attribute name="long_name" value="zonal longitude" />
+  </variable>
+  <variable name="nv" shape="three nele" type="int">
+    <attribute name="long_name" value="nodes surrounding element" />
+  </variable>
+  <variable name="salinity" shape="time siglay node" type="float">
+    <attribute name="long_name" value="Salinity" />
+    <attribute name="standard_name" value="sea_water_salinity" />
+    <attribute name="units" value="1e-3" />
+    <attribute name="grid" value="fvcom_grid" />
+    <attribute name="coordinates" value="time siglay lat lon" />
+    <attribute name="type" value="data" />
+    <attribute name="location" value="node" />
+  </variable>
+  <variable name="siglay" shape="siglay node" type="float">
+    <attribute name="long_name" value="Sigma Layers" />
+    <attribute name="standard_name" value="ocean_sigma/general_coordinate" />
+    <attribute name="positive" value="up" />
+    <attribute name="valid_min" type="float" value="-1." />
+    <attribute name="valid_max" type="float" value="0." />
+    <attribute name="formula_terms" value="sigma: siglay eta: zeta depth: h" />
+  </variable>
+  <variable name="siglay_center" shape="siglay nele" type="float">
+    <attribute name="long_name" value="Sigma Layers" />
+    <attribute name="standard_name" value="ocean_sigma/general_coordinate" />
+    <attribute name="positive" value="up" />
+    <attribute name="valid_min" type="float" value="-1." />
+    <attribute name="valid_max" type="float" value="0." />
+    <attribute name="formula_terms" value="sigma: siglay_center eta: zeta_center depth: h_center" />
+  </variable>
+  <variable name="siglev" shape="siglev node" type="float">
+    <attribute name="long_name" value="Sigma Levels" />
+    <attribute name="standard_name" value="ocean_sigma/general_coordinate" />
+    <attribute name="positive" value="up" />
+    <attribute name="valid_min" type="float" value="-1." />
+    <attribute name="valid_max" type="float" value="0." />
+    <attribute name="formula_terms" value="sigma: siglev eta: zeta depth: h" />
+  </variable>
+  <variable name="siglev_center" shape="siglev nele" type="float">
+    <attribute name="long_name" value="Sigma Levels" />
+    <attribute name="standard_name" value="ocean_sigma/general_coordinate" />
+    <attribute name="positive" value="up" />
+    <attribute name="valid_min" type="float" value="-1." />
+    <attribute name="valid_max" type="float" value="0." />
+    <attribute name="formula_terms" value="sigma: siglev_center eta: zeta_center depth: h_center" />
+  </variable>
+  <variable name="temp" shape="time siglay node" type="float">
+    <attribute name="long_name" value="Temperature" />
+    <attribute name="standard_name" value="sea_water_temperature" />
+    <attribute name="units" value="degrees Celcius" />
+    <attribute name="grid" value="fvcom_grid" />
+    <attribute name="coordinates" value="time siglay lat lon" />
+    <attribute name="type" value="data" />
+    <attribute name="location" value="node" />
+  </variable>
+  <variable name="time" shape="time" type="float">
+    <attribute name="units" value="days since 1858-11-17 00:00:00" />
+    <attribute name="format" value="modified julian day (MJD)" />
+    <attribute name="long_name" value="time" />
+    <attribute name="time_zone" value="UTC" />
+  </variable>
+  <variable name="u" shape="time siglay nele" type="float">
+    <attribute name="long_name" value="Eastward Water Velocity" />
+    <attribute name="units" value="meters  s-1" />
+    <attribute name="standard_name" value="eastward_sea_water_velocity" />
+    <attribute name="grid" value="fvcom_grid" />
+    <attribute name="coordinates" value="time siglay latc lonc" />
+    <attribute name="type" value="data" />
+    <attribute name="location" value="face" />
+  </variable>
+  <variable name="ua" shape="time nele" type="float">
+    <attribute name="long_name" value="Vertically Averaged x-velocity" />
+    <attribute name="units" value="meters  s-1" />
+    <attribute name="grid" value="fvcom_grid" />
+    <attribute name="type" value="data" />
+  </variable>
+  <variable name="v" shape="time siglay nele" type="float">
+    <attribute name="long_name" value="Northward Water Velocity" />
+    <attribute name="units" value="meters  s-1" />
+    <attribute name="standard_name" value="Northward_sea_water_velocity" />
+    <attribute name="grid" value="fvcom_grid" />
+    <attribute name="coordinates" value="time siglay latc lonc" />
+    <attribute name="type" value="data" />
+    <attribute name="location" value="face" />
+  </variable>
+  <variable name="va" shape="time nele" type="float">
+    <attribute name="long_name" value="Vertically Averaged y-velocity" />
+    <attribute name="units" value="meters  s-1" />
+    <attribute name="grid" value="fvcom_grid" />
+    <attribute name="type" value="data" />
+  </variable>
+  <variable name="x" shape="node" type="float">
+    <attribute name="units" value="meters" />
+    <attribute name="long_name" value="nodal x-coordinate" />
+  </variable>
+  <variable name="xc" shape="nele" type="float">
+    <attribute name="units" value="meters" />
+    <attribute name="long_name" value="zonal x-coordinate" />
+  </variable>
+  <variable name="y" shape="node" type="float">
+    <attribute name="units" value="meters" />
+    <attribute name="long_name" value="nodal y-coordinate" />
+  </variable>
+  <variable name="yc" shape="nele" type="float">
+    <attribute name="units" value="meters" />
+    <attribute name="long_name" value="zonal y-coordinate" />
+  </variable>
+  <variable name="zeta" shape="time node" type="float">
+    <attribute name="long_name" value="Water Surface Elevation" />
+    <attribute name="units" value="meters" />
+    <attribute name="positive" value="up" />
+    <attribute name="standard_name" value="sea_surface_height_above_geoid" />
+    <attribute name="grid" value="Bathymetry_Mesh" />
+    <attribute name="coordinates" value="time lat lon" />
+    <attribute name="type" value="data" />
+    <attribute name="location" value="node" />
+  </variable>
+</netcdf>
