@@ -2,6 +2,7 @@ name: pynemo3
 channels:
   - defaults
 dependencies:
+  - matplotlib=3.2
   - basemap=1.2.0
   - netcdf4=1.5.3
   - pyqt=5.9.2
@@ -13,6 +14,7 @@ dependencies:
   - xarray=0.15.0
   - xlsxwriter=1.2.8
   - xmltodict=0.12.0
+  - cftime=1.4.1 
   - pip:
     - idna==2.9
     - lxml==4.5.0
