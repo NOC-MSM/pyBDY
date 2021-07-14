@@ -59,6 +59,7 @@ To reactivate, the following needs to be typed::
 
 To use PyNEMO, the following command is entered: (the example will run an benchmarking test)::
 
+    $ cp /path/to/PyNEMO/pynemo/output_NCML/* /path/to/ncml_out/ -r
     $ pynemo -s /path/to/namelist/file (e.g. PyNEMO/inputs/namelist_remote.bdy)
 
 Other commands include -d which downloads the specified CMEMS data in the namelist bdy file.::
