@@ -412,14 +412,10 @@ class Extract:
         
         # Need to qualify for key_vec
         for v in range(self.nvar):
-            print('I am here')
-            print(self.nvar)
-            print(self.var_nam[v])
-            print('*******************')
-            if grd == 'u':
-                 self.d_bdy[self.var_nam[v]] = {}
-            else:
+            if grd == 'v':
                  self.d_bdy[self.var_nam[v+1]] = {}
+            else:
+                 self.d_bdy[self.var_nam[v]] = {}
 
        
     def extract_month(self, year, month):
