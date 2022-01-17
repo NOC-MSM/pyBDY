@@ -220,7 +220,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
                                                             settings['clname'])
         elif settings['tide_model']=='fes':
-            logger.error('Tidal model: %s, not yet implimented', 
+            logger.error('Tidal model: %s, not yet implemented',
                          settings['tide_model'])
             return
         else:
