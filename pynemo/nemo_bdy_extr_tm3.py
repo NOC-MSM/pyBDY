@@ -102,6 +102,7 @@ class Extract:
         # Set up any rotation that is required
         
         if pair == 'uv':
+            print(grd)
             if grd == 'u':
                 self.rot_dir = 'i'
                 self.key_vec = True
@@ -141,7 +142,7 @@ class Extract:
         
         
         if self.key_vec:
-            self.nvar = self.nvar / 2
+            self.nvar = self.nvar // 2 # TODO: if  self.nvar=3 then this will pass and should not!
             if self.nvar != 1:
                 self.logger.error('Code not written yet to handle more than\
                                    one pair of rotated vectors')
@@ -407,8 +408,19 @@ class Extract:
         self.dist_tot = dist_tot
 
         self.d_bdy = {}
+        print(self.nvar)
+        
+        # Need to qualify for key_vec
         for v in range(self.nvar):
-            self.d_bdy[self.var_nam[v]] = {}
+            print('I am here')
+            print(self.nvar)
+            print(self.var_nam[v])
+            print('*******************')
+            if grd == 'u':
+                 self.d_bdy[self.var_nam[v]] = {}
+            else:
+                 self.d_bdy[self.var_nam[v+1]] = {}
+
        
     def extract_month(self, year, month):
         """Extracts monthly data and interpolates onto the destination grid
@@ -420,10 +432,17 @@ class Extract:
         self.logger.info('extract_month function called')
         # Check year entry exists in d_bdy, if not create it.
         for v in range(self.nvar):
+            print(v)
             try:
-                self.d_bdy[self.var_nam[v]][year]
+                if (self.key_vec == True and self.rot_dir == 'j'):
+                    self.d_bdy[self.var_nam[v+1]][year]
+                else:
+                    self.d_bdy[self.var_nam[v]][year]
             except KeyError:        
-                self.d_bdy[self.var_nam[v]][year] = {'data': None, 'date': {}}
+                if (self.key_vec == True and self.rot_dir == 'j'):
+                    self.d_bdy[self.var_nam[v+1]][year] = {'data': None, 'date': {}}
+                else:
+                    self.d_bdy[self.var_nam[v]][year] = {'data': None, 'date': {}}
         
         i_run = np.arange(self.sc_ind['imin'], self.sc_ind['imax']) 
         j_run = np.arange(self.sc_ind['jmin'], self.sc_ind['jmax'])
@@ -494,12 +513,15 @@ class Extract:
 
 
         if self.key_vec:
-            n = self.nvar
+          #  n = self.nvar
 #            meta_data[n] = self.fnames_2[first_date].get_meta_data(self.var_nam[n], meta_data[n])
-            meta_data[n] = self.fnames_2.get_meta_data(self.var_nam[n], meta_data[n])
+            meta_data[1] = self.fnames_2.get_meta_data(self.var_nam[1], meta_data[1])
 
         for vn in range(self.nvar):
-            self.d_bdy[self.var_nam[vn]]['date'] = sc_time.date_counter[first_date:last_date + 1] 
+            if (self.key_vec == True and self.rot_dir == 'j'):
+                self.d_bdy[self.var_nam[vn+1]]['date'] = sc_time.date_counter[first_date:last_date + 1] 
+            else:
+                self.d_bdy[self.var_nam[vn]]['date'] = sc_time.date_counter[first_date:last_date + 1] 
 
         # Loop over identified files
         for f in range(first_date, last_date + 1):
@@ -662,8 +684,8 @@ class Extract:
                                  dist_fac)
                     self.logger.info('time to to rot and rep ')
                     self.logger.info('%s %s',  np.nanmin(dst_bdy), np.nanmax(dst_bdy))
-                    self.logger.info( '%s en to %s %s' , self.rot_str,self.rot_dir, dst_bdy.shape)
-                    dst_bdy = rot_rep(dst_bdy, dst_bdy_2, self.rot_str,
+                    self.logger.info( '%s en to %s %s' , self.rot_dir,self.rot_dir, dst_bdy.shape)
+                    dst_bdy = rot_rep(dst_bdy, dst_bdy_2, self.rot_dir,
                                       'en to %s' %self.rot_dir, self.dst_gcos, self.dst_gsin)
                     self.logger.info('%s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 # Apply 1-2-1 filter along bdy pts using NN ind self.id_121
@@ -708,7 +730,10 @@ class Extract:
                 else:
                     data_out = dst_bdy
                     data_out[np.isnan(self.bdy_z)] = np.NaN
-                entry = self.d_bdy[self.var_nam[vn]][year]
+                if (self.key_vec == True and self.rot_dir == 'j'):
+                    entry = self.d_bdy[self.var_nam[vn+1]][year]
+                else:
+                    entry = self.d_bdy[self.var_nam[vn]][year]
                 if entry['data'] is None:
                     # Create entry with singleton 3rd dimension
                     entry['data'] = np.array([data_out])
@@ -790,13 +815,18 @@ class Extract:
         # Extract time information 
         # TODO: check that we can just use var_nam[0]. Rational is that if 
         # we're grouping variables then they must all have the same date stamps
-        nt           = len(self.d_bdy[self.var_nam[0]]['date'])
+        if (self.key_vec == True and self.rot_dir == 'j'):
+             var_id = 1
+        else:
+             var_id = 0
+
+        nt           = len(self.d_bdy[self.var_nam[var_id]]['date'])
         time_counter = np.zeros([nt])
         tmp_cal      = utime('seconds since %d-1-1' %year,
                              self.settings['dst_calendar'].lower())
         
         for t in range(nt):
-            time_counter[t] = tmp_cal.date2num(self.d_bdy[self.var_nam[0]]['date'][t])
+            time_counter[t] = tmp_cal.date2num(self.d_bdy[self.var_nam[var_id]]['date'][t])
         
         date_000 = datetime(year, month, 1, 12, 0, 0)
         if month < 12:
@@ -809,7 +839,7 @@ class Extract:
         # Take the difference of the first two time enteries to get delta t
         
         del_t = time_counter[1] - time_counter[0]
-        dstep = 86400 / np.int(del_t)
+        dstep = 86400 // np.int(del_t)
       
         # TODO: put in a test to check all deltaT are the same otherwise throw 
         # an exception
@@ -817,13 +847,27 @@ class Extract:
         # If time freq. is greater than 86400s 
         # TODO put in an error handler for the unlikely event of frequency not a
         # multiple of 86400 | data are annual means
+        print(self.key_vec)
+        print(self.rot_dir)
+        if self.key_vec == True:
+            if self.rot_dir == 'i':
+                varnams = [self.var_nam[0],]
+            else:
+                varnams = [self.var_nam[1],]
+        else:
+            varnams=self.var_nam
+
+       
+        print(varnams)
         if del_t >= 86400.:
-            for v in self.var_nam:    
+            for v in varnams:    
+                print(v)
+                print(self.d_bdy.keys())
                 intfn = interp1d(time_counter, self.d_bdy[v][1979]['data'][:,:,:], axis=0,
                                                                  bounds_error=True)
                 self.d_bdy[v][1979]['data'] = intfn(np.arange(time_000, time_end, 86400))
         else:
-            for v in self.var_nam: 
+            for v in varnams: 
                 for t in range(dstep):
                     intfn = interp1d(time_counter[t::dstep], 
                        self.d_bdy[v].data[t::dstep,:,:], axis=0, bounds_error=True)
@@ -869,8 +913,16 @@ class Extract:
         
         # Loop over variables in extracted object
             
-#        for v in self.variables:
-        for v in self.var_nam:
+        #        for v in self.variables:
+        if self.key_vec == True:
+            if self.rot_dir == 'i':
+                varnams = [self.var_nam[0],]
+            else:
+                varnams = [self.var_nam[1],]
+        else:
+            varnams=self.var_nam
+
+        for v in varnams:
             if self.settings['dyn2d']: # Calculate depth averaged velocity
                 tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
                 tmp_var = np.reshape(self.d_bdy[v][1979]['data'][:,:,:], tile_dz.shape)

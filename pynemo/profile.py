@@ -328,11 +328,16 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 
                 # Extract the data for a given month and year
                 
+                print('Extract')
+                print(key)
+                print(val)
                 extract_obj[key].extract_month(year, month)
                 
                 # Interpolate/stretch in time if time frequecy is not a factor 
                 # of a month and/or parent:child calendars differ
                 
+                print('Interp')
+                print(key)
                 extract_obj[key].time_interp(year, month)
                 
                 # Finally write to file
