@@ -67,10 +67,10 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         logger.warning('Missing zonal velocity along the x open boundary')
     ampuX[ind] = 0
     phauX[ind] = 0
-    #check if ux data are missing
+    #check if vx data are missing
     ind = np.where((np.isnan(ampvX)) | (np.isnan(phavX)))
     if ind[0].size > 0:
-        logger.warning('Missing zonal velocity along the x open boundary')
+        logger.warning('Missing meridional velocity along the x open boundary')
     ampvX[ind] = 0
     phavX[ind] = 0
 
@@ -91,16 +91,16 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     ampvY = tpxo_vy.amp
     phavY = tpxo_vy.gph
 
-    #check if ux data are missing
+    #check if uy data are missing
     ind = np.where((np.isnan(ampuY)) | (np.isnan(phauY)))
     if ind[0].size > 0:
-        logger.warning('Missing zonal velocity along the x open boundary')
+        logger.warning('Missing zonal velocity along the y open boundary')
     ampuY[ind] = 0
     phauY[ind] = 0
     #check if ux data are missing
     ind = np.where((np.isnan(ampvY)) | (np.isnan(phavY)))
     if ind[0].size > 0:
-        logger.warning('Missing zonal velocity along the x open boundary')
+        logger.warning('Missing meridional velocity along the y open boundary')
     ampvY[ind] = 0
     phavY[ind] = 0
 
