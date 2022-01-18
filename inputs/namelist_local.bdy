@@ -30,12 +30,12 @@
 !------------------------------------------------------------------------------
 !  grid information 
 !------------------------------------------------------------------------------
-   sn_src_hgr = './benchmark/grid_low_res_C/mesh_hgr.nc' 
-   sn_src_zgr = './benchmark/grid_low_res_C/mesh_zgr.nc'
-   sn_dst_hgr = './benchmark/grid_C/mesh_hgr_zps.nc'
-   sn_dst_zgr = './benchmark/grid_C/mesh_zgr_zps.nc'
-   sn_src_msk = './benchmark/grid_low_res_C/mask.nc'
-   sn_bathy   = './benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'
+   sn_src_hgr = './inputs/benchmark/grid_low_res_C/mesh_hgr.nc' 
+   sn_src_zgr = './inputs/benchmark/grid_low_res_C/mesh_zgr.nc'
+   sn_dst_hgr = './inputs/benchmark/grid_C/mesh_hgr_zps.nc'
+   sn_dst_zgr = './inputs/benchmark/grid_C/mesh_zgr_zps.nc'
+   sn_src_msk = './inputs/benchmark/grid_low_res_C/mask.nc'
+   sn_bathy   = './inputs/benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'
 
 !------------------------------------------------------------------------------
 !  I/O 
