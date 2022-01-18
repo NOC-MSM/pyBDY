@@ -60,17 +60,17 @@
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for 
                                           !  baroclinic velocities
-    ln_tra         = .true.               !  boundary conditions for T and S
+    ln_tra         = .false.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition   
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
-    ln_tide        = .false.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'FES'                !  Name of tidal model (FES|TPXO)
+    ln_tide        = .true.              !  =T : produce bdy tidal conditions
+    sn_tide_model  = 'TPXO'                !  Name of tidal model (FES|TPXO)
     clname(1)      = 'M2'                 !  constituent name
-    clname(2)      = 'S2'         
+    clname(2)      = 'S2'
     clname(3)      = 'K2'        
     ln_trans       = .true.               !  interpolate transport rather than
                                           !  velocities
@@ -83,9 +83,9 @@
     nn_month_end    = 11          !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
-	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'
-	sn_tide_h      = './src_data/tide/h_tpxo7.2.nc'
-	sn_tide_u      = './src_data/tide/u_tpxo7.2.nc'
+	sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
+	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
 	
 !------------------------------------------------------------------------------
 !  Additional parameters
