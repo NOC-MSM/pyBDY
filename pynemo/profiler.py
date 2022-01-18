@@ -367,7 +367,8 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
     
     for g in range(len(grd)):
         bdy_r = grid[grd[g]].bdy_r
-        tmap[grd[g]]= {'nam': var[g], 'des': des[g], 
+        tmap[grd[g]]= {'nam': var[g],
+                       'des': des[g],
                        'ind': np.where(bdy_r == 0),
                        'nx' : len(grid[grd[g]].bdy_i[bdy_r == 0, 0])}
         
@@ -387,15 +388,15 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
             
             nemo_bdy_tide_ncgen.CreateBDYTideNetcdfFile(fout_tide, 
                             val['nx'], 
-                            dst_coord_var.lonlat['t']['lon'].shape[1],
-                            dst_coord_var.lonlat['t']['lon'].shape[0], 
+                            dst_coord_var.lonlat[key]['lon'].shape[1],  # "key" is the grd value
+                            dst_coord_var.lonlat[key]['lon'].shape[0],
                             val['des']+tide_con, 
                             setup_var.settings['fv'], key.upper())
 
             # Set the index for the con(stituent) to save
             if val['nam'] == "z":
                 indx = 0
-                # The original code had the bdy_msk ouput for z,u,v files. I can only seem to output it for z files. Like this. Hmm
+                # bdy_msk is only defined on the t-grid (not u/v-points)
                 ncpop.write_data_to_file(fout_tide, 'bdy_msk',
                                          dst_coord_var.bdy_msk)
             elif val['nam'] == "u":
@@ -409,12 +410,10 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
                                      cons[indx][int(tide_con)-1])  # "cos[var][constituent index]"
             ncpop.write_data_to_file(fout_tide, val['nam']+'2',
                                      cons[indx+1][int(tide_con)-1])  # "sin[var][constituent index]"
-            #ncpop.write_data_to_file(fout_tide, 'bdy_msk',
-            #                         dst_coord_var.bdy_msk)
             ncpop.write_data_to_file(fout_tide, 'nav_lon',
-                                     dst_coord_var.lonlat['t']['lon'])
+                                     dst_coord_var.lonlat[key]['lon'])   # "key" is the grd value
             ncpop.write_data_to_file(fout_tide, 'nav_lat',
-                                     dst_coord_var.lonlat['t']['lat'])
+                                     dst_coord_var.lonlat[key]['lat'])   # "key" is the grd value
             ncpop.write_data_to_file(fout_tide, 'nbidta',
                                      grid[key].bdy_i[val['ind'], 0]+1)
             ncpop.write_data_to_file(fout_tide, 'nbjdta',
