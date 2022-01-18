@@ -5,7 +5,7 @@ Entry for the project
 '''
 
 import sys, getopt
-import profiler
+from . import profiler
 import logging
 import cProfile
 
