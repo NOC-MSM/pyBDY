@@ -5,7 +5,8 @@ Entry for the project
 '''
 
 import sys, getopt
-import profiler
+from . import profiler
+#import profiler # This syntax works in a PyCharm configuration - great for debugging
 import logging
 import cProfile
 
