@@ -215,11 +215,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Extract source data on dst grid
 
     if settings['tide']:
-        if settings['tide_model']=='tpxo':
+        if settings['tide_model'].lower()=='tpxo':
             cons = tide.nemo_bdy_tpx7p2_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
                                                             settings['clname'])
-        elif settings['tide_model']=='fes':
+        elif settings['tide_model'].lower()=='fes':
             logger.error('Tidal model: %s, not yet implemented',
                          settings['tide_model'])
             return
@@ -353,10 +353,9 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
         dst_coord_var (obj) : Description of arg1
         grid          (dict): Description of arg1
         tide_cons     (list): Description of arg1
-        cons          (data): Description of arg1
+        cons          (data): cosz, sinz, cosu, sinu, cosv, sinv
     """
-    indx = 0
-    
+
     # Mapping of variable names to grid types
     
     tmap = {}
@@ -374,8 +373,8 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
         
     # Write constituents to file
     
-    for tide_con in tide_cons:
-        
+    for tide_con in tide_cons:  # iterates over the constituent numbers {1,..} as str
+
         const_name = setup_var.settings['clname'][tide_con]
         const_name = const_name.replace("'", "").upper()
 
@@ -392,13 +391,25 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
                             dst_coord_var.lonlat['t']['lon'].shape[0], 
                             val['des']+tide_con, 
                             setup_var.settings['fv'], key.upper())
-            
-            ncpop.write_data_to_file(fout_tide, val['nam']+'1', 
-                                     cons['cos'][val['nam']][indx])
-            ncpop.write_data_to_file(fout_tide, val['nam']+'2', 
-                                     cons['sin'][val['nam']][indx])
-            ncpop.write_data_to_file(fout_tide, 'bdy_msk',
-                                     dst_coord_var.bdy_msk)
+
+            # Set the index for the con(stituent) to save
+            if val['nam'] == "z":
+                indx = 0
+            elif val['nam'] == "u":
+                indx = 2
+            elif val['nam'] == "v":
+                indx = 4
+            else:
+                logging.error("profiler: Ooo, that should not have happened")
+
+            ncpop.write_data_to_file(fout_tide, val['nam']+'1',
+                                     cons[indx][int(tide_con)-1])  # "cos[var][constituent index]"
+            #print(f"val['nam']+'1':{val['nam']+'1'}, [indx]:{[indx]}")
+            ncpop.write_data_to_file(fout_tide, val['nam']+'2',
+                                     cons[indx+1][int(tide_con)-1])  # "sin[var][constituent index]"
+            #print(f"val['nam']+'2':{val['nam']+'2'}, [indx+1]:{[indx+1]}")
+
+
             ncpop.write_data_to_file(fout_tide, 'nav_lon',
                                      dst_coord_var.lonlat['t']['lon'])
             ncpop.write_data_to_file(fout_tide, 'nav_lat',
@@ -409,10 +420,8 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
                                      grid[key].bdy_i[val['ind'], 1]+1)
             ncpop.write_data_to_file(fout_tide, 'nbrdta',
                                      grid[key].bdy_r[val['ind']]+1)
-        
-        # Iterate over constituents
-        
-        indx += 1
+            ncpop.write_data_to_file(fout_tide, 'bdy_msk',
+                                     dst_coord_var.bdy_msk)
 
 def _get_mask(Setup, mask_gui):
     """ 
