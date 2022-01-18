@@ -395,6 +395,9 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
             # Set the index for the con(stituent) to save
             if val['nam'] == "z":
                 indx = 0
+                # The original code had the bdy_msk ouput for z,u,v files. I can only seem to output it for z files. Like this. Hmm
+                ncpop.write_data_to_file(fout_tide, 'bdy_msk',
+                                         dst_coord_var.bdy_msk)
             elif val['nam'] == "u":
                 indx = 2
             elif val['nam'] == "v":
@@ -404,12 +407,10 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
 
             ncpop.write_data_to_file(fout_tide, val['nam']+'1',
                                      cons[indx][int(tide_con)-1])  # "cos[var][constituent index]"
-            #print(f"val['nam']+'1':{val['nam']+'1'}, [indx]:{[indx]}")
             ncpop.write_data_to_file(fout_tide, val['nam']+'2',
                                      cons[indx+1][int(tide_con)-1])  # "sin[var][constituent index]"
-            #print(f"val['nam']+'2':{val['nam']+'2'}, [indx+1]:{[indx+1]}")
-
-
+            #ncpop.write_data_to_file(fout_tide, 'bdy_msk',
+            #                         dst_coord_var.bdy_msk)
             ncpop.write_data_to_file(fout_tide, 'nav_lon',
                                      dst_coord_var.lonlat['t']['lon'])
             ncpop.write_data_to_file(fout_tide, 'nav_lat',
@@ -420,8 +421,6 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
                                      grid[key].bdy_i[val['ind'], 1]+1)
             ncpop.write_data_to_file(fout_tide, 'nbrdta',
                                      grid[key].bdy_r[val['ind']]+1)
-            ncpop.write_data_to_file(fout_tide, 'bdy_msk',
-                                     dst_coord_var.bdy_msk)
 
 def _get_mask(Setup, mask_gui):
     """ 
