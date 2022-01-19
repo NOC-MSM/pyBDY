@@ -83,9 +83,12 @@
     nn_month_end    = 11          !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
+	! location of TPXO7.2 data
 	sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
 	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
 	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
+	! location of FES2014 data
+	sn_tide_fes      = '/Users/jeff/DATA/FES2014/'
 	
 !------------------------------------------------------------------------------
 !  Additional parameters

@@ -216,12 +216,15 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     if settings['tide']:
         if settings['tide_model'].lower()=='tpxo':
-            cons = tide.nemo_bdy_tpx7p2_rot(
+            cons = tide.nemo_bdy_tide_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
                                                             settings['clname'])
         elif settings['tide_model'].lower()=='fes':
-            logger.error('Tidal model: %s, not yet implemented',
-                         settings['tide_model'])
+            cons = tide.nemo_bdy_tide_rot(
+                Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
+                                                            settings['clname'])
+            #logger.error('Tidal model: %s, not yet implemented',
+            #             settings['tide_model'])
             return
         else:
             logger.error('Tidal model: %s, not recognised', 
