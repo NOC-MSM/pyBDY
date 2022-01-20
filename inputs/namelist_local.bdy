@@ -67,8 +67,8 @@
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
-    ln_tide        = .true.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'TPXO'                !  Name of tidal model (FES|TPXO)
+    ln_tide        = .true.               !  =T : produce bdy tidal conditions
+    sn_tide_model  = 'TPXO'               !  Name of tidal model (FES|TPXO)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
     clname(3)      = 'K2'        
