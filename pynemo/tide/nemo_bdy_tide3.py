@@ -29,7 +29,7 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
                                 e.g. {'1':"M2" , '2':"<constituent name>", ...}
 
     RETURNS:
-        cosz, sinz, cosu, sinu, cosv, sinv: [# of constituents, number of bdy points]
+        cosz, sinz, cosu, sinu, cosv, sinv : [# of constituents, number of bdy points]
     """
     key_transport = 0 # compute the velocities from transport
     numharm = len(comp)
