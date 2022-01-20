@@ -14,6 +14,7 @@ jelt
 from netCDF4 import Dataset
 from scipy import interpolate
 import numpy as np
+from . import nemo_bdy_tide3
 
 class FesExtract(object):
     """
@@ -32,10 +33,14 @@ class FesExtract(object):
         """initialises the Extract of tide information from the netcdf
            Tidal files"""
 
-        try:
-            constituents = ['M2','S2','K2']
-            #constituents = ['2N2','EPS2','J1','K1','K2','L2','LA2','M2','M3','M4','M6','M8','MF','MKS2','MM','MN4','MS4','MSF','MSQM','MTM','MU2','N2','N4','NU2','O1','P1','Q1','R2','S1','S2','S4','SA','SSA','T2']
+        # Complete set of available constituents
+        constituents = ['2N2','EPS2','J1','K1','K2','L2','LA2','M2','M3','M4','M6','M8','MF','MKS2','MM','MN4','MS4','MSF','MSQM','MTM','MU2','N2','N4','NU2','O1','P1','Q1','R2','S1','S2','S4','SA','SSA','T2']
 
+        # Extract the subset requested by the namelist
+        compindx = [icon.astype(int) for icon in nemo_bdy_tide3.constituents_index(constituents, settings['clname'])]
+        constit_list = [constituents[i] for i in compindx]
+
+        try:
             icon = 0
             self.cons = []
             self.amp = []
@@ -59,8 +64,8 @@ class FesExtract(object):
             else:
                logging.error(f'Not expecting grid_type:{grid_type}')
 
-            for con in constituents:
-                print(f"Grid:{grid_type}. Extracting FES constituent:{con}, {icon+1}/{len(constituents)}")
+            for con in constit_list:
+                print(f"Grid:{grid_type}. Extracting FES constituent:{con}, {icon+1}/{len(constit_list)}")
                 # load in the data
                 ds = Dataset(settings['tide_fes'] + filename + con.lower() + '.nc', 'r')
 
