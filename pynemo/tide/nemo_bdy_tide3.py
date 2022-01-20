@@ -300,9 +300,9 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     #convert the dst_lon into TMD Conventions (0E/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
     #extract the surface elevation at each z-point
-    if setup.settings['tide_model'].lower() == 'tpxo':
+    if setup.settings['tide_model'].lower() == 'tpxo7p2':
         tide_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
-    elif setup.settings['tide_model'].lower()=='fes':
+    elif setup.settings['tide_model'].lower()=='fes2014':
         tide_z = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, g_type)
 
     #convert back the z-longitudes into the usual conventions (-180E/+180E)
@@ -327,12 +327,12 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
 
-    if setup.settings['tide_model'].lower() == 'tpxo':
+    if setup.settings['tide_model'].lower() == 'tpxo7p2':
         tide_ux = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
         tide_vx = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
-    elif setup.settings['tide_model'].lower() == 'fes':
-        tide_ux = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-        tide_vx = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+    elif setup.settings['tide_model'].lower() == 'fes2014':
+        tide_ux = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tide_vx = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
         
     ampuX = tide_ux.amp
     phauX = tide_ux.gph
@@ -364,8 +364,12 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
-    tpxo_uy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-    tpxo_vy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+    if setup.settings['tide_model'].lower() == 'tpxo7p2':
+        tpxo_uy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tpxo_vy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+    elif setup.settings['tide_model'].lower() == 'fes2014':
+        tpxo_uy = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tpxo_vy = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
 
     ampuY = tpxo_uy.amp
     phauY = tpxo_uy.gph

@@ -32,153 +32,107 @@ class FesExtract(object):
         """initialises the Extract of tide information from the netcdf
            Tidal files"""
 
-        if True:
-           constituents = ['M2','S2','K2']
-           #constituents = ['2N2','EPS2','J1','K1','K2','L2','LA2','M2','M3','M4','M6','M8','MF','MKS2','MM','MN4','MS4','MSF','MSQM','MTM','MU2','N2','N4','NU2','O1','P1','Q1','R2','S1','S2','S4','SA','SSA','T2']
+        try:
+            constituents = ['M2','S2','K2']
+            #constituents = ['2N2','EPS2','J1','K1','K2','L2','LA2','M2','M3','M4','M6','M8','MF','MKS2','MM','MN4','MS4','MSF','MSQM','MTM','MU2','N2','N4','NU2','O1','P1','Q1','R2','S1','S2','S4','SA','SSA','T2']
 
-           icon = -1
-           self.cons = []
-           self.amp_z = []
-           self.pha_z = []
-           self.amp_u = []
-           self.pha_u = []
-           self.amp_v = []
-           self.pha_v = []
-
-           for con in constituents:
-             icon = icon+1
-             #print 'jelt: con ',con.lower()
-             #print '/projectsa/NEMO/Forcing/FES2014/ocean_tide_extrapolated//' +con.lower()+ '.nc'
-             ## load in the data
-             #self.Z_dataset = Dataset('/work/thopri/Global_Tide_Model/FES_NetCDFs/' +con.lower()+ '_Z.nc')
-             #self.U_dataset = Dataset('/work/thopri/Global_Tide_Model/FES_NetCDFs/' +con.lower()+ '_U.nc')
-             #self.V_dataset = Dataset('/work/thopri/Global_Tide_Model/FES_NetCDFs/' +con.lower()+ '_V.nc')
-             self.Z_dataset = Dataset(settings['tide_fes'] +'/ocean_tide_extrapolated/' +con.lower()+ '.nc')
-             self.U_dataset = Dataset(settings['tide_fes'] +'/eastward_velocity/' +con.lower()+ '.nc')
-             self.V_dataset = Dataset(settings['tide_fes'] +'/northward_velocity/' +con.lower()+ '.nc')
-
-             if icon==0:
-                     ny,nx = np.shape(self.Z_dataset['amplitude'][:,:])
-
-                     self.amp_z = np.reshape( self.Z_dataset['amplitude'][:,:]/100., (1,ny,nx) )
-                     self.pha_z = np.reshape( self.Z_dataset['phase'][:,:], (1,ny,nx) )
-
-                     self.amp_u = np.reshape( self.U_dataset['Ua'][:,:], (1,ny,nx) )
-                     self.pha_u = np.reshape( self.U_dataset['Ug'][:,:], (1,ny,nx) )
-
-                     self.amp_v = np.reshape( self.V_dataset['Va'][:,:], (1,ny,nx) )
-                     self.pha_v = np.reshape( self.V_dataset['Vg'][:,:], (1,ny,nx) )
-                     print('jelt: ',np.shape(self.amp_z))
-
-             else:
-                     self.amp_z = np.concatenate( (self.amp_z, np.reshape(self.Z_dataset['amplitude'][:,:]/100.,(1,ny,nx))), axis=0 )
-                     self.pha_z = np.concatenate( (self.pha_z, np.reshape(self.Z_dataset['phase'][:,:],(1,ny,nx))), axis=0 )
-                     self.amp_u = np.concatenate( (self.amp_u, np.reshape(self.U_dataset['Ua'][:,:],(1,ny,nx))), axis=0 )
-                     self.pha_u = np.concatenate( (self.pha_u, np.reshape(self.U_dataset['Ug'][:,:],(1,ny,nx))), axis=0 )
-                     self.amp_v = np.concatenate( (self.amp_v, np.reshape(self.V_dataset['Va'][:,:],(1,ny,nx))), axis=0 )
-                     self.pha_v = np.concatenate( (self.pha_v, np.reshape(self.V_dataset['Vg'][:,:],(1,ny,nx))), axis=0 )
-                     print('jelt: ',np.shape(self.amp_z))
-             self.cons.append(con) # self.height_dataset.variables['con'][ncon, :].tostring().strip())
-
-           # Swap the lat and lon axes to be ordered according to (con,lon,lat)
-           self.amp_z = np.swapaxes(self.amp_z,1,2)
-           self.pha_z = np.swapaxes(self.pha_z,1,2)
-           self.amp_u = np.swapaxes(self.amp_u,1,2)
-           self.pha_u = np.swapaxes(self.pha_u,1,2)
-           self.amp_v = np.swapaxes(self.amp_v,1,2)
-           self.pha_v = np.swapaxes(self.pha_v,1,2)
-
-           # Construct mask from missing values. Also NaN these out. 1=Wet. 0=land
-           mask_z = np.ones((np.shape(self.amp_z)[1], np.shape(self.amp_z)[2]))
-           mask_z[self.amp_z[0,:,:] > 9999] = 0
-
-           self.lon_z = self.Z_dataset['lon'][:]
-           self.lat_z = self.Z_dataset['lat'][:]
-           self.lon_u = self.U_dataset['lon'][:]
-           self.lat_u = self.U_dataset['lat'][:]
-           self.lon_v = self.V_dataset['lon'][:]
-           self.lat_v = self.V_dataset['lat'][:]
-           lon_resolution = self.lon_z[1] - self.lon_z[0]
-           data_in_km = 0 # added to maintain the reference to matlab tmd code
+            icon = 0
+            self.cons = []
+            self.amp = []
+            self.pha = []
 
 
-        else:
-           print('You wont get here.')
+            scale = 1. # multiplication scale to convert units, if needed
+            if grid_type == 't':
+               filename = '/ocean_tide_extrapolated/'
+               amp_var = 'amplitude'
+               pha_var = 'phase'
+               scale = 0.01  # convert amplitude from cm to metres
+            elif grid_type == 'u':
+               filename = '/eastward_velocity/'
+               amp_var = 'Ua'
+               pha_var = 'Ug'
+            elif grid_type == 'v':
+               filename = '/northward_velocity/'
+               amp_var = 'Va'
+               pha_var = 'Vg'
+            else:
+               logging.error(f'Not expecting grid_type:{grid_type}')
 
-        # Wrap coordinates in longitude if the domain is global
+            for con in constituents:
+                print(f"Grid:{grid_type}. Extracting FES constituent:{con}, {icon+1}/{len(constituents)}")
+                # load in the data
+                ds = Dataset(settings['tide_fes'] + filename + con.lower() + '.nc', 'r')
+
+                if icon==0:
+                    lon_grd = ds['lon'][:]
+                    lat_grd = ds['lat'][:]
+                    nx = np.shape(lon_grd)[0]
+                    ny = np.shape(lat_grd)[0]
+
+                    amp_grd = np.reshape(ds[amp_var][:, :] * scale, (1, ny, nx))
+                    pha_grd = np.reshape(ds[pha_var][:, :], (1, ny, nx))
+
+                else:
+                   amp_grd = np.concatenate((amp_grd, np.reshape(ds[amp_var][:, :] * scale, (1, ny, nx))), axis=0)
+                   pha_grd = np.concatenate((pha_grd, np.reshape(ds[pha_var][:, :], (1, ny, nx))), axis=0)
+
+                ds.close()
+
+                self.cons.append(con)  # self.height_dataset.variables['con'][ncon, :].tostring().strip())
+                icon = icon+1
+
+            # Swap the lat and lon axes to be ordered according to (con,lon,lat)
+            amp_grd = np.swapaxes(amp_grd,1,2)
+            pha_grd = np.swapaxes(pha_grd,1,2)
+
+
+            # Construct mask from missing values. Also NaN these out. 1=Wet. 0=land
+            mask_grd = np.ones((np.shape(amp_grd)[1], np.shape(amp_grd)[2]))
+            mask_grd[amp_grd[0,:,:] > 9999] = 0
+
+            lon_resolution = lon_grd[1] - lon_grd[0]
+            data_in_km = 0 # added to maintain the reference to matlab tmd code
+
+        except:
+            print('You wont get here.')
+
+        # Wrap coordinates in longitude if the domain is global. This was previously only applied to the *_z grid
         glob = 0
-        if self.lon_z[-1]-self.lon_z[0] == 360-lon_resolution:
+        if lon_grd[-1]-lon_grd[0] == 360-lon_resolution:
             glob = 1
         if glob == 1:
-            lon_z = np.concatenate(([self.lon_z[0]-lon_resolution, ], self.lon_z,
-                                    [self.lon_z[-1]+lon_resolution, ]))
-#            height_z = np.concatenate(([height_z[-1, :], ], height_z, [height_z[0, :],]), axis=0)
-            mask_z = np.concatenate(([mask_z[-1, :], ], mask_z, [mask_z[0, :], ]), axis=0)
+            lon_grd = np.concatenate(([lon_grd[0]-lon_resolution, ], lon_grd,
+                                    [lon_grd[-1]+lon_resolution, ]))
+            mask_grd = np.concatenate(([mask_grd[-1, :], ], mask_grd, [mask_grd[0, :], ]), axis=0)
 
         #adjust lon convention
         xmin = np.min(lon)
 
         if data_in_km == 0:
-            if xmin < self.lon_z[0]:
+            if xmin < lon_grd[0]:
                 lon[lon < 0] = lon[lon < 0] + 360
-            if xmin > self.lon_z[-1]:
+            if xmin > lon_grd[-1]:
                 lon[lon > 180] = lon[lon > 180]-360
 
-        #height_z[height_z==0] = np.NaN
-#        f=interpolate.RectBivariateSpline(lon_z,lat_z,height_z,kx=1,ky=1)
-#        depth = np.zeros(lon.size)
-#        for idx in range(lon.size):
-#            depth[idx] = f(lon[idx],lat[idx])
-#        print depth[369:371]
 
-#        H2 = np.ravel(height_z)
-#        H2[H2==0] = np.NaN
-#        points= np.concatenate((np.ravel(self.height_dataset.variables['lon_z']),
-#                                np.ravel(self.height_dataset.variables['lat_z'])))
-#        points= np.reshape(points,(points.shape[0]/2,2),order='F')
-#        print points.shape
-#        print np.ravel(height_z).shape
-#        depth = interpolate.griddata(points,H2,(lon,lat))
-#        print depth
-#        print depth.shape
-
-#        height_z[height_z == 0] = np.NaN # This is a bathymetry variable (not in _my_ FES data)
         lonlat = np.concatenate((lon, lat))
         lonlat = np.reshape(lonlat, (lon.size, 2), order='F')
 
-#        depth = interpolate.interpn((lon_z, lat_z), height_z, lonlat)
-#        f=interpolate.RectBivariateSpline(lon_z,lat_z,mask_z,kx=1,ky=1)
-#        depth_mask = np.zeros(lon.size)
-#        for idx in range(lon.size):
-#            depth_mask[idx] = f(lon[idx],lat[idx])
-#        depth_mask = interpolate.interpn((lon_z, lat_z), mask_z, lonlat)
-#       index = np.where((np.isnan(depth)) & (depth_mask > 0)) # jelt: i.e. land (from bathy) and wet (from harmonics)
 
-# jelt: I don't really get this index quantity. But I don't need it. Some descriptions would be good
-#        if index[0].size != 0:
-#            depth[index] = bilinear_interpolation(lon_z, lat_z, height_z, lon[index], lat[index])
+        #print('jelt: grid_type', grid_type)
+        #print('jelt: amp_z', np.shape(amp_grd))
+        #print('jelt: lon_z', np.shape(lon_grd))
+        self.amp, self.gph = self.interpolate_constituents(amp_grd, pha_grd, lon_grd, lat_grd, lon, lat)
 
-        print('jelt: grid_type', grid_type)
-        print('jelt: amp_z', np.shape(self.amp_z))
-        print('jelt: lon_z', np.shape(self.lon_z))
-        if grid_type == 'z' or grid_type == 't':
-            self.amp, self.gph = self.interpolate_constituents(self.amp_z, self.pha_z, self.lon_z, self.lat_z, lon, lat)
-        elif grid_type == 'u':
-            self.amp, self.gph = self.interpolate_constituents( self.amp_u, self.pha_u, self.lon_u, self.lat_u,
-                                                               lon, lat) # Not passing depth for depth normalisation
-        elif grid_type == 'v':
-            self.amp, self.gph = self.interpolate_constituents( self.amp_v, self.pha_v, self.lon_v, self.lat_v,
-                                                               lon, lat) # Not passing depth for depth normalisation
-        else:
-            print('Unknown grid_type')
-            return
+
 
     def interpolate_constituents(self, amp_fes, pha_fes, lon_fes, lat_fes, lon, lat):
         """ Interpolates the tidal constituents along the given lat lon coordinates """
-        print('jelt: amp_fes',np.shape(amp_fes))
-        print('jelt: lon_fes',np.shape(lon_fes))
-        print('jelt: amp_fes[0]',np.shape(amp_fes)[0])
-        print('jelt: lon_fes[0]',np.shape(lon_fes)[0])
+        #print('jelt: amp_fes',np.shape(amp_fes))
+        #print('jelt: lon_fes',np.shape(lon_fes))
+        #print('jelt: amp_fes[0]',np.shape(amp_fes)[0])
+        #print('jelt: lon_fes[0]',np.shape(lon_fes)[0])
         amp = np.zeros((np.shape(amp_fes)[0], np.shape(lon)[0],))
         gph = np.zeros((np.shape(amp_fes)[0], np.shape(lon)[0],))
         #data = np.array(np.ravel(nc_dataset.variables[real_var_name]), dtype=complex)
