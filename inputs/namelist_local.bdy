@@ -72,6 +72,7 @@
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
     clname(3)      = 'K2'        
+    clname(4)      = 'O1'        
     ln_trans       = .true.               !  interpolate transport rather than
                                           !  velocities
 !------------------------------------------------------------------------------
