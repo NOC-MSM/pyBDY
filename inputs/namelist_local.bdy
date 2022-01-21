@@ -71,7 +71,11 @@
     sn_tide_model  = 'FES2014'            !  Name of tidal model (FES2014|TPXO7p2)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
-    clname(3)      = 'K2'        
+    clname(3)      = 'K2'
+    clname(4)      = 'O1'
+    clname(5)      = 'P1'
+    clname(6)      = 'Q1'
+    clname(7)      = 'M4'
     ln_trans       = .true.               !  interpolate transport rather than
                                           !  velocities
 !------------------------------------------------------------------------------
