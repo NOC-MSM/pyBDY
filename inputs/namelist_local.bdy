@@ -92,7 +92,7 @@
 	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
 	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
 	! location of FES2014 data
-	sn_tide_fes      = '/Users/jeff/DATA/FES2014/'
+	sn_tide_fes      = './inputs/FES2014/'
 	
 !------------------------------------------------------------------------------
 !  Additional parameters
