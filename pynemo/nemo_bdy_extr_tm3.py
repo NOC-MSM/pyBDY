@@ -915,9 +915,9 @@ class Extract:
        
         if del_t >= 86400.:
             for v in varnams:    
-                intfn = interp1d(time_counter, self.d_bdy[v][1979]['data'][:,:,:], axis=0,
+                intfn = interp1d(time_counter, self.d_bdy[v][year]['data'][:,:,:], axis=0,
                                                                  bounds_error=True)
-                self.d_bdy[v][1979]['data'] = intfn(np.arange(time_000, time_end, 86400))
+                self.d_bdy[v][year]['data'] = intfn(np.arange(time_000, time_end, 86400))
                 self.time_counter=np.arange(time_000, time_end, 86400)
         else:
             for v in varnams: 
@@ -927,7 +927,7 @@ class Extract:
                     self.d_bdy[v].data[t::dstep,:,:] = intfn(np.arange(time_000, 
                                                                   time_end, 86400)) 
         #self.time_counter = time_counter
-#        self.time_counter = len(self.d_bdy[v][1979]['data'][:,0,0])
+#        self.time_counter = len(self.d_bdy[v][year]['data'][:,0,0])
     
     def write_out(self, year, month, ind, unit_origin):
         """ 
@@ -979,7 +979,7 @@ class Extract:
         for v in varnams:
             if self.settings['dyn2d'] and ( (v == 'vozocrtx') or (v=='vomecrty') ) : # Calculate depth averaged velocity
                 tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
-                tmp_var = np.reshape(self.d_bdy[v][1979]['data'][:,:,:], tile_dz.shape)
+                tmp_var = np.reshape(self.d_bdy[v][year]['data'][:,:,:], tile_dz.shape)
                 tmp_var = np.nansum(tmp_var * tile_dz, 2) /np.nansum(tile_dz, 2)
                 # Write variable to file
                 if v == 'vozocrtx':
@@ -989,9 +989,9 @@ class Extract:
 
             #else: # Replace NaNs with specified fill value
                 
-            tmp_var = np.where(np.isnan(self.d_bdy[v][1979]['data'][:,:,:]),
+            tmp_var = np.where(np.isnan(self.d_bdy[v][year]['data'][:,:,:]),
                                             self.settings['fv'], 
-                                            self.d_bdy[v][1979]['data'][:,:,:])
+                                            self.d_bdy[v][year]['data'][:,:,:])
             # Write variable to file
             ncpop.write_data_to_file(f_out, v, tmp_var)
     
