@@ -87,10 +87,13 @@ class Extract:
         self.var_nam = var_nam
         sc_z = SC.zt[:]
         sc_z_len = len(sc_z)
-        
+      
         
         self.jpj, self.jpi = DC.lonlat[grd]['lon'].shape
         self.jpk = DC.depths[grd]['bdy_z'].shape[0]
+        self.bdy_dz= DC.depths[grd]['bdy_dz']
+        if grd=='t':
+            self.bdy_msk=DC.bdy_msk
         # Set some constants
         
         # Make function of dst grid resolution (used in 1-2-1 weighting)
@@ -102,7 +105,6 @@ class Extract:
         # Set up any rotation that is required
         
         if pair == 'uv':
-            print(grd)
             if grd == 'u':
                 self.rot_dir = 'i'
                 self.key_vec = True
@@ -123,7 +125,8 @@ class Extract:
             dst_dep = DC.depths[self.g_type]['bdy_z']
         except KeyError:
             dst_dep = np.zeros([1])
-        self.isslab = len(dst_dep) == 1
+        
+        isslab = len(dst_dep) == 1
         if dst_dep.size == len(dst_dep):
             dst_dep = np.ones([1, len(dst_lon)])
 
@@ -323,23 +326,34 @@ class Extract:
 #        id_121 = id_121 + reptile * (id_121 == len(dst_lon))
 
         rep_dims = (id_121.shape[0], id_121.shape[1], sc_z_len)
+        rep_dims_2d = (id_121.shape[0], id_121.shape[1], 1)
         # These tran/tiles work like matlab. Tested with same Data.
+        id_121_2d = id_121.repeat(1).reshape(rep_dims_2d).transpose(2, 0, 1)
+        reptile = np.arange(1).repeat(num_bdy).reshape(1, 
+                                                              num_bdy)
+        reptile = reptile.repeat(3).reshape(num_bdy, 3, 1, 
+                                            order='F').transpose(2, 0, 1)
+
+        id_121_2d = sub2ind((1, num_bdy), id_121_2d, reptile)
+
         id_121 = id_121.repeat(sc_z_len).reshape(rep_dims).transpose(2, 0, 1)
         reptile = np.arange(sc_z_len).repeat(num_bdy).reshape(sc_z_len, 
                                                               num_bdy)
         reptile = reptile.repeat(3).reshape(num_bdy, 3, sc_z_len, 
                                             order='F').transpose(2, 0, 1)
 
-        id_121 = sub2ind((sc_z_len, num_bdy), id_121, reptile)
+        id_121_3d = sub2ind((sc_z_len, num_bdy), id_121, reptile)
 
         tmp_filt = wei_121.repeat(num_bdy).reshape(num_bdy, len(wei_121),
                                                    order='F')
-        tmp_filt = tmp_filt.repeat(sc_z_len).reshape(num_bdy, len(wei_121),
-                                                     sc_z_len).transpose(2, 0, 1)
+        tmp_filt_2d = tmp_filt.repeat(1).reshape(num_bdy, len(wei_121),
+                                                     1).transpose(2, 0, 1)
 
+        tmp_filt_3d = tmp_filt.repeat(sc_z_len).reshape(num_bdy, len(wei_121),
+                                                     sc_z_len).transpose(2, 0, 1)
         # Fig not implemented
 
-        if self.isslab != 1: # TODO or no vertical interpolation required
+        if not isslab: # TODO or no vertical interpolation required
             
             # Determine vertical weights for the linear interpolation 
             # onto Dst grid
@@ -384,7 +398,7 @@ class Extract:
         else:
             z_ind = np.zeros([1,1])
             z_dist = np.zeros([1,1])
-        # End self.isslab
+        # End isslab
         
         # Set instance attributes
         self.first = True
@@ -395,8 +409,9 @@ class Extract:
         self.sc_ind = sc_ind
         self.dst_dep = dst_dep
         self.num_bdy = num_bdy
-        self.id_121 = id_121
-        if not self.isslab:
+        self.id_121_2d = id_121_2d
+        self.id_121_3d = id_121_3d
+        if not isslab:
             self.bdy_z = DC.depths[self.g_type]['bdy_H']
         else:
             self.bdy_z = np.zeros([1])
@@ -404,11 +419,11 @@ class Extract:
         self.dst_z = dst_dep
         self.sc_z_len = sc_z_len
         self.sc_time = sc_time
-        self.tmp_filt = tmp_filt
+        self.tmp_filt_2d = tmp_filt_2d
+        self.tmp_filt_3d = tmp_filt_3d
         self.dist_tot = dist_tot
 
         self.d_bdy = {}
-        print(self.nvar)
         
         # Need to qualify for key_vec
         for v in range(self.nvar):
@@ -428,7 +443,6 @@ class Extract:
         self.logger.info('extract_month function called')
         # Check year entry exists in d_bdy, if not create it.
         for v in range(self.nvar):
-            print(v)
             try:
                 if (self.key_vec == True and self.rot_dir == 'j'):
                     self.d_bdy[self.var_nam[v+1]][year]
@@ -526,9 +540,11 @@ class Extract:
             #self.logger.info('opening nc file: %s', sc_time[f].file_name)            
             # Counters not implemented
 
-            sc_bdy = np.zeros((len(self.var_nam), sc_z_len, ind.shape[0], 
-                              ind.shape[1]))
+            sc_bdy={}
+           # sc_bdy = np.zeros((len(self.var_nam), sc_z_len, ind.shape[0], 
+           #                   ind.shape[1]))
 
+            
             # Loop over time entries from file f
             for vn in range(self.nvar):
                 # Extract sub-region of data
@@ -538,8 +554,24 @@ class Extract:
                 if self.key_vec:
                     varid_2 = self.fnames_2[self.var_nam[vn+1]]#nc_2.variables[self.var_nam[vn + 1]]
 
+                # Determine if slab or not
+                isslab = len(varid._get_dimensions())==3
+   
+               
+                # Set up tmp dict of tmp arrays
+                if isslab:
+                    sc_z_len=1
+                else:
+                    sc_z_len=self.sc_z_len
+
+                sc_bdy[vn] = np.zeros((sc_z_len, ind.shape[0], 
+                              ind.shape[1]))
+                if self.key_vec:
+                    sc_bdy[vn+1] = np.zeros((sc_z_len, ind.shape[0],
+                              ind.shape[1]))
+
                 # Extract 3D scalar variables
-                if not self.isslab and not self.key_vec:
+                if not isslab and not self.key_vec:
                     self.logger.info(' 3D source array ')
                     sc_array[0] = varid[f:f+1 , :sc_z_len, j_run, i_run]
                 # Extract 3D vector variables
@@ -569,7 +601,11 @@ class Extract:
                 # Note using isnan/sum is relatively fast, but less than 
                 # bottleneck external lib
                 self.logger.info('SC ARRAY MIN MAX : %s %s', np.nanmin(sc_array[0]), np.nanmax(sc_array[0]))
-                sc_array[0][t_mask == 0] = np.NaN
+                
+                if isslab and not self.key_vec:
+                    sc_array[0][t_mask[:,0:1,:,:] == 0] = np.NaN
+                else:
+                    sc_array[0][t_mask == 0] = np.NaN
                 self.logger.info( 'SC ARRAY MIN MAX : %s %s', np.nanmin(sc_array[0]), np.nanmax(sc_array[0]))
                 if not np.isnan(np.sum(meta_data[vn]['sf'])):
                     sc_array[0] *= meta_data[vn]['sf']
@@ -591,15 +627,15 @@ class Extract:
                     # Consider squeezing
                     tmp_arr[0] = sc_array[0][0,dep,:,:].flatten('F') #[:,:,dep]
                     if not self.key_vec:
-                        sc_bdy[vn, dep, :, :] = self._flat_ref(tmp_arr[0], ind)
+                        sc_bdy[vn][dep, :, :] = self._flat_ref(tmp_arr[0], ind)
                     else:
                         tmp_arr[1] = sc_array[1][0,dep,:,:].flatten('F') #[:,:,dep]
                         # Include in the collapse the rotation from the
                         # grid to real zonal direction, ie ij -> e
-                        sc_bdy[vn, dep, :] = (tmp_arr[0][ind[:]] * self.gcos -
+                        sc_bdy[vn][ dep, :] = (tmp_arr[0][ind[:]] * self.gcos -
                                               tmp_arr[1][ind[:]] * self.gsin)
                         # Include... meridinal direction, ie ij -> n
-                        sc_bdy[vn+1, dep, :] = (tmp_arr[1][ind[:]] * self.gcos +
+                        sc_bdy[vn+1][ dep, :] = (tmp_arr[1][ind[:]] * self.gcos +
                                                 tmp_arr[0][ind[:]] * self.gsin)
 
                 # End depths loop
@@ -618,24 +654,40 @@ class Extract:
 
             # Calculate weightings to be used in interpolation from
             # source data to dest bdy pts. Only need do once.
-            if self.first:
+            #if self.first:
+            for vn in range(self.nvar):
+
+
+                varid = sc_time[self.var_nam[vn]]
+                # Determine if slab or not
+                isslab = len(varid._get_dimensions())==3
+
+                # Set up tmp dict of tmp arrays
+                if isslab:
+                    sc_z_len=1
+                else:
+                    sc_z_len=self.sc_z_len
+
+
+
+
                 # identify valid pts
-                data_ind = np.invert(np.isnan(sc_bdy[0,:,:,:]))
+                data_ind = np.invert(np.isnan(sc_bdy[vn][:,:,:]))
                 # dist_tot is currently 2D so extend along depth
                 # axis to allow single array calc later, also remove
                 # any invalid pts using our eldritch data_ind
                 self.logger.info('DIST TOT ZEROS BEFORE %s', np.sum(self.dist_tot == 0))
-                self.dist_tot = (np.repeat(self.dist_tot, sc_z_len).reshape(
+                dist_tot = (np.repeat(self.dist_tot, sc_z_len).reshape(
                             self.dist_tot.shape[0],
                             self.dist_tot.shape[1], sc_z_len)).transpose(2,0,1)
-                self.dist_tot *= data_ind
-                self.logger.info('DIST TOT ZEROS %s', np.sum(self.dist_tot == 0))
+                dist_tot *= data_ind
+                self.logger.info('DIST TOT ZEROS %s', np.sum(dist_tot == 0))
 
                 self.logger.info('DIST IND ZEROS %s', np.sum(data_ind == 0))
 
                 # Identify problem pts due to grid discontinuities 
                 # using dists >  lat
-                over_dist = np.sum(self.dist_tot[:] > 4)
+                over_dist = np.sum(dist_tot[:] > 4)
                 if over_dist > 0:
                     raise RuntimeError('''Distance between source location
                                           and new boundary points is greater
@@ -643,7 +695,7 @@ class Extract:
 
                 # Calculate guassian weighting with correlation dist
                 r0 = self.settings['r0']
-                dist_wei = (1/(r0 * np.power(2 * np.pi, 0.5)))*(np.exp( -0.5 *np.power(self.dist_tot / r0, 2)))
+                dist_wei = (1/(r0 * np.power(2 * np.pi, 0.5)))*(np.exp( -0.5 *np.power(dist_tot / r0, 2)))
                 # Calculate sum of weightings
                 dist_fac = np.sum(dist_wei * data_ind, 2)
                 # identify loc where all sc pts are land
@@ -660,13 +712,13 @@ class Extract:
                 # index that can be used to speed up calcs
                 data_ind += np.arange(0, sc_z_len * self.num_bdy, sc_z_len)
 
+                
                 # ? Attribute only used on first run so clear. 
-                del self.dist_tot
+                del dist_tot
 
             # weighted averaged onto new horizontal grid
-            for vn in range(self.nvar):
-                self.logger.info(' sc_bdy %s %s', np.nanmin(sc_bdy), np.nanmax(sc_bdy))
-                dst_bdy = (np.nansum(sc_bdy[vn,:,:,:] * dist_wei, 2) /
+                self.logger.info(' sc_bdy %s %s', np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn]))
+                dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
                            dist_fac)
                 self.logger.info(' dst_bdy %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 # Quick check to see we have not got bad values
@@ -676,7 +728,7 @@ class Extract:
                 # weight vector array and rotate onto dest grid
                 if self.key_vec:
                     # [:,:,:,vn+1]
-                    dst_bdy_2 = (np.nansum(sc_bdy[vn+1,:,:,:] * dist_wei, 2) /
+                    dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
                                  dist_fac)
                     self.logger.info('time to to rot and rep ')
                     self.logger.info('%s %s',  np.nanmin(dst_bdy), np.nanmax(dst_bdy))
@@ -685,17 +737,26 @@ class Extract:
                                       'en to %s' %self.rot_dir, self.dst_gcos, self.dst_gsin)
                     self.logger.info('%s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 # Apply 1-2-1 filter along bdy pts using NN ind self.id_121
-                if self.first:
-                    tmp_valid = np.invert(np.isnan(
-                                            dst_bdy.flatten('F')[self.id_121]))
-                    # Finished first run operations
-                    self.first = False
+                #if self.first:
+                if isslab:
+                    id_121=self.id_121_2d
+                    tmp_filt=self.tmp_filt_2d
+                else:
+                    id_121=self.id_121_3d
+                    tmp_filt=self.tmp_filt_3d
+               
+                
+                tmp_valid = np.invert(np.isnan(
+                                            dst_bdy.flatten('F')[id_121]))
 
-                dst_bdy = (np.nansum(dst_bdy.flatten('F')[self.id_121] * 
-                           self.tmp_filt, 2) / np.sum(self.tmp_filt *
+                dst_bdy = (np.nansum(dst_bdy.flatten('F')[id_121] * 
+                           tmp_filt, 2) / np.sum(tmp_filt *
                            tmp_valid, 2))
-                # Set land pts to zero
+     
+                    # Finished first run operations
+                #self.first = False
 
+                # Set land pts to zero
                 self.logger.info(' pre dst_bdy[nan_ind] %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 dst_bdy[nan_ind] = 0
                 self.logger.info(' post dst_bdy %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
@@ -704,7 +765,7 @@ class Extract:
                 self.logger.info(' 3 dst_bdy %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
 
                 # If we have depth dimension
-                if not self.isslab:
+                if not isslab:
                     # If all else fails fill down using deepest pt
                     dst_bdy = dst_bdy.flatten('F')
                     dst_bdy += ((dst_bdy == 0) *
@@ -725,7 +786,7 @@ class Extract:
                     data_out[ind_z] = np.NaN
                 else:
                     data_out = dst_bdy
-                    data_out[np.isnan(self.bdy_z)] = np.NaN
+                    data_out[:,np.isnan(self.bdy_z)] = np.NaN
                 if (self.key_vec == True and self.rot_dir == 'j'):
                     entry = self.d_bdy[self.var_nam[vn+1]][year]
                 else:
@@ -843,8 +904,6 @@ class Extract:
         # If time freq. is greater than 86400s 
         # TODO put in an error handler for the unlikely event of frequency not a
         # multiple of 86400 | data are annual means
-        print(self.key_vec)
-        print(self.rot_dir)
         if self.key_vec == True:
             if self.rot_dir == 'i':
                 varnams = [self.var_nam[0],]
@@ -854,14 +913,12 @@ class Extract:
             varnams=self.var_nam
 
        
-        print(varnams)
         if del_t >= 86400.:
             for v in varnams:    
-                print(v)
-                print(self.d_bdy.keys())
                 intfn = interp1d(time_counter, self.d_bdy[v][1979]['data'][:,:,:], axis=0,
                                                                  bounds_error=True)
                 self.d_bdy[v][1979]['data'] = intfn(np.arange(time_000, time_end, 86400))
+                self.time_counter=np.arange(time_000, time_end, 86400)
         else:
             for v in varnams: 
                 for t in range(dstep):
@@ -869,7 +926,8 @@ class Extract:
                        self.d_bdy[v].data[t::dstep,:,:], axis=0, bounds_error=True)
                     self.d_bdy[v].data[t::dstep,:,:] = intfn(np.arange(time_000, 
                                                                   time_end, 86400)) 
-        self.time_counter = time_counter
+        #self.time_counter = time_counter
+#        self.time_counter = len(self.d_bdy[v][1979]['data'][:,0,0])
     
     def write_out(self, year, month, ind, unit_origin):
         """ 
@@ -919,17 +977,22 @@ class Extract:
             varnams=self.var_nam
 
         for v in varnams:
-            if self.settings['dyn2d']: # Calculate depth averaged velocity
+            if self.settings['dyn2d'] and ( (v == 'vozocrtx') or (v=='vomecrty') ) : # Calculate depth averaged velocity
                 tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
                 tmp_var = np.reshape(self.d_bdy[v][1979]['data'][:,:,:], tile_dz.shape)
                 tmp_var = np.nansum(tmp_var * tile_dz, 2) /np.nansum(tile_dz, 2)
-            else: # Replace NaNs with specified fill value
-                tmp_var = np.where(np.isnan(self.d_bdy[v][1979]['data'][:,:,:]),
+                # Write variable to file
+                if v == 'vozocrtx':
+                    ncpop.write_data_to_file(f_out, 'vobtcrtx', tmp_var)
+                else:
+                    ncpop.write_data_to_file(f_out, 'vobtcrty', tmp_var)
+
+            #else: # Replace NaNs with specified fill value
+                
+            tmp_var = np.where(np.isnan(self.d_bdy[v][1979]['data'][:,:,:]),
                                             self.settings['fv'], 
                                             self.d_bdy[v][1979]['data'][:,:,:])
-               
             # Write variable to file
-            
             ncpop.write_data_to_file(f_out, v, tmp_var)
     
         # Write remaining data to file (indices are in Python notation
@@ -941,6 +1004,9 @@ class Extract:
         ncpop.write_data_to_file(f_out, 'nbjdta', ind.bdy_i[:, 1] + 1)
         ncpop.write_data_to_file(f_out, 'nbrdta', ind.bdy_r[:   ] + 1)
         ncpop.write_data_to_file(f_out, 'time_counter', self.time_counter)
+        if self.g_type=='t':
+            ncpop.write_data_to_file(f_out, 'bdy_msk', self.bdy_msk)
+
 
 
 
