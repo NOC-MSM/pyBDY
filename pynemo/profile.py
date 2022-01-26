@@ -347,7 +347,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 
     logger.info('End NRCT Logging: '+time.asctime())
     logger.info('==========================================')
-                
 
 def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
     """ 
