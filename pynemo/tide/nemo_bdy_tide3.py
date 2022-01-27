@@ -97,7 +97,7 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     dst_lon = DC.bdy_lonlat[Grid_V.grid_type]['lon'][Grid_V.bdy_r == 0]
     dst_lat = DC.bdy_lonlat[Grid_V.grid_type]['lat'][Grid_V.bdy_r == 0]
     #set the array size for the target boundary output
-    if len(dst_lon) != len(dst_lon): logger.error('These should be the same size')
+    if len(dst_lon) != len(dst_lat): logger.error('These should be the same size')
     else: nbdyv = len(dst_lon)
 
     #convert the U-longitudes into the TMD conventions (0/360E)
