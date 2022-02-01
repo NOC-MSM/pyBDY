@@ -67,12 +67,15 @@
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
-    ln_tide        = .true.               !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'TPXO'               !  Name of tidal model (FES|TPXO)
+    ln_tide        = .true.              !  =T : produce bdy tidal conditions
+    sn_tide_model  = 'FES2014'            !  Name of tidal model (FES2014|TPXO7p2)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
-    clname(3)      = 'K2'        
-    clname(4)      = 'O1'        
+    clname(3)      = 'K2'
+    clname(4)      = 'O1'
+    clname(5)      = 'P1'
+    clname(6)      = 'Q1'
+    clname(7)      = 'M4'
     ln_trans       = .true.               !  interpolate transport rather than
                                           !  velocities
 !------------------------------------------------------------------------------
@@ -84,9 +87,13 @@
     nn_month_end    = 11          !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
+	! location of TPXO7.2 data
 	sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
 	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
 	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
+	! location of FES2014 data
+	sn_tide_fes      = './inputs/FES2014/'
+
 	
 !------------------------------------------------------------------------------
 !  Additional parameters

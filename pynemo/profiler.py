@@ -215,16 +215,13 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Extract source data on dst grid
 
     if settings['tide']:
-        if settings['tide_model'].lower()=='tpxo':
-            cons = tide.nemo_bdy_tpx7p2_rot(
+        if (settings['tide_model'].lower() == 'tpxo7p2') or \
+                (settings['tide_model'].lower() == 'fes2014'):
+            cons = tide.nemo_bdy_tide_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
-                                                            settings['clname'])
-        elif settings['tide_model'].lower()=='fes':
-            logger.error('Tidal model: %s, not yet implemented',
-                         settings['tide_model'])
-            return
+                settings['clname'])
         else:
-            logger.error('Tidal model: %s, not recognised', 
+            logger.error('Tidal model: %s, not recognised',
                          settings['tide_model'])
             return
             
@@ -379,19 +376,22 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
         const_name = setup_var.settings['clname'][tide_con]
         const_name = const_name.replace("'", "").upper()
 
-        for key,val in list(tmap.items()):
-            
-            fout_tide = setup_var.settings['dst_dir']+             \
-                        setup_var.settings['fn']+                  \
-                        '_bdytide_'+const_name+'_grd_'+            \
-                        val['nam'].upper()+'.nc'
-            
-            nemo_bdy_tide_ncgen.CreateBDYTideNetcdfFile(fout_tide, 
-                            val['nx'], 
-                            dst_coord_var.lonlat[key]['lon'].shape[1],  # "key" is the grd value
-                            dst_coord_var.lonlat[key]['lon'].shape[0],
-                            val['des']+tide_con, 
-                            setup_var.settings['fv'], key.upper())
+        for key, val in list(tmap.items()):
+
+            fout_tide = setup_var.settings['dst_dir'] + \
+                        setup_var.settings['fn'] + \
+                        '_bdytide_' + \
+                        setup_var.settings['tide_model'] + '_' + \
+                        const_name + '_grd_' + \
+                        val['nam'].upper() + '.nc'
+
+            nemo_bdy_tide_ncgen.CreateBDYTideNetcdfFile(fout_tide,
+                                                        val['nx'],
+                                                        dst_coord_var.lonlat[key]['lon'].shape[1],
+                                                        # "key" is the grd value
+                                                        dst_coord_var.lonlat[key]['lon'].shape[0],
+                                                        val['des'] + tide_con,
+                                                        setup_var.settings['fv'], key.upper())
 
             # Set the index for the con(stituent) to save
             if val['nam'] == "z":

@@ -8,6 +8,7 @@ Module to extract constituents for the input grid mapped onto output grid
 # pylint: disable=no-name-in-module
 import copy
 from . import tpxo_extract_HC
+from . import fes2014_extract_HC
 import numpy as np
 from netCDF4 import Dataset
 from pynemo import nemo_bdy_grid_angle
@@ -16,9 +17,10 @@ from pynemo.reader.factory import GetFile
 
 import logging
 
-def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
+def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     """
-    TPXO Global Tidal model interpolation including rotation grid
+    Global Tidal model interpolation onto target grid, including grid rotation
+
 
     INPUTS:
         setup:                  settings
@@ -29,7 +31,8 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
                                 e.g. {'1':"M2" , '2':"<constituent name>", ...}
 
     RETURNS:
-        cosz, sinz, cosu, sinu, cosv, sinv : [# of constituents, number of bdy points]
+        cosz, sinz, cosu, sinu, cosv, sinv: [# of constituents, number of bdy points]
+
     """
     key_transport = 0 # compute the velocities from transport
     numharm = len(comp)
@@ -46,16 +49,21 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     #convert the dst_lon into TMD Conventions (0E/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
     #extract the surface elevation at each z-point
-    tpxo_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
+    if setup.settings['tide_model'].lower() == 'tpxo7p2':
+        tide_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
+    elif setup.settings['tide_model'].lower()=='fes2014':
+        tide_z = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, g_type)
+
     #convert back the z-longitudes into the usual conventions (-180E/+180E)
     dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0]-360.0
     #check if elevation data are missing
-    ind = np.where((np.isnan(tpxo_z.amp)) | (np.isnan(tpxo_z.gph)))
+    ind = np.where((np.isnan(tide_z.amp)) | (np.isnan(tide_z.gph)))
     if ind[0].size > 0:
         logger.warning('Missing elveation along the open boundary')
 
-    ampz = tpxo_z.amp
-    phaz = tpxo_z.gph
+    ampz = tide_z.amp
+    phaz = tide_z.gph
+
     ampz[ind] = 0.0
     phaz[ind] = 0.0
 
@@ -69,13 +77,18 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
 
-    tpxo_ux = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-    tpxo_vx = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+    if setup.settings['tide_model'].lower() == 'tpxo7p2':
+        tide_ux = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tide_vx = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+    elif setup.settings['tide_model'].lower() == 'fes2014':
+        tide_ux = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tide_vx = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+        
+    ampuX = tide_ux.amp
+    phauX = tide_ux.gph
+    ampvX = tide_vx.amp
+    phavX = tide_vx.gph
 
-    ampuX = tpxo_ux.amp
-    phauX = tpxo_ux.gph
-    ampvX = tpxo_vx.amp
-    phavX = tpxo_vx.gph
 
     #check if ux data are missing
     ind = np.where((np.isnan(ampuX)) | (np.isnan(phauX)))
@@ -97,13 +110,19 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     dst_lon = DC.bdy_lonlat[Grid_V.grid_type]['lon'][Grid_V.bdy_r == 0]
     dst_lat = DC.bdy_lonlat[Grid_V.grid_type]['lat'][Grid_V.bdy_r == 0]
     #set the array size for the target boundary output
-    if len(dst_lon) != len(dst_lat): logger.error('These should be the same size')
+    if len(dst_lon) != len(dst_lon): logger.error('These should be the same size')
+
     else: nbdyv = len(dst_lon)
 
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
-    tpxo_uy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
-    tpxo_vy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+    if setup.settings['tide_model'].lower() == 'tpxo7p2':
+        tpxo_uy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tpxo_vy = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+    elif setup.settings['tide_model'].lower() == 'fes2014':
+        tpxo_uy = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
+        tpxo_vy = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+
 
     ampuY = tpxo_uy.amp
     phauY = tpxo_uy.gph
@@ -196,7 +215,8 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     cosvY = np.zeros((numharm, nbdyv))
     sinvY = np.zeros((numharm, nbdyv))
 
-    compindx = constituents_index(tpxo_z.cons, comp)
+    compindx = constituents_index(tide_z.cons, comp)
+
     for h in range(0, numharm):
         c = int(compindx[h])
         if c != -1:
