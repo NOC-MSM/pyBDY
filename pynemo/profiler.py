@@ -148,6 +148,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     for grd in ['t', 'u', 'v']:
         DstCoord.depths[grd]['bdy_H']  = np.nanmax(z.zpoints['w'+grd], axis=0)
         DstCoord.depths[grd]['bdy_dz'] = np.diff(z.zpoints['w'+grd], axis=0)
+        DstCoord.depths[grd]['bdy_dz'] = np.vstack([DstCoord.depths[grd]['bdy_dz'], np.zeros((1,nbdy[grd]))])
         DstCoord.depths[grd]['bdy_z']  = z.zpoints[grd]
     logger.info('Depths defined')
     
