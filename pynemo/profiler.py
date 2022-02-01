@@ -215,12 +215,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Extract source data on dst grid
 
     if settings['tide']:
-        if settings['tide_model']=='tpxo':
+        if settings['tide_model'].lower()=='tpxo':
             cons = tide.nemo_bdy_tpx7p2_rot(
                 Setup, DstCoord, bdy_ind['t'], bdy_ind['u'], bdy_ind['v'],
                                                             settings['clname'])
-        elif settings['tide_model']=='fes':
-            logger.error('Tidal model: %s, not yet implimented', 
+        elif settings['tide_model'].lower()=='fes':
+            logger.error('Tidal model: %s, not yet implemented',
                          settings['tide_model'])
             return
         else:
@@ -353,10 +353,9 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
         dst_coord_var (obj) : Description of arg1
         grid          (dict): Description of arg1
         tide_cons     (list): Description of arg1
-        cons          (data): Description of arg1
+        cons          (data): cosz, sinz, cosu, sinu, cosv, sinv
     """
-    indx = 0
-    
+
     # Mapping of variable names to grid types
     
     tmap = {}
@@ -368,14 +367,15 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
     
     for g in range(len(grd)):
         bdy_r = grid[grd[g]].bdy_r
-        tmap[grd[g]]= {'nam': var[g], 'des': des[g], 
+        tmap[grd[g]]= {'nam': var[g],
+                       'des': des[g],
                        'ind': np.where(bdy_r == 0),
                        'nx' : len(grid[grd[g]].bdy_i[bdy_r == 0, 0])}
         
     # Write constituents to file
     
-    for tide_con in tide_cons:
-        
+    for tide_con in tide_cons:  # iterates over the constituent numbers {1,..} as str
+
         const_name = setup_var.settings['clname'][tide_con]
         const_name = const_name.replace("'", "").upper()
 
@@ -388,31 +388,38 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
             
             nemo_bdy_tide_ncgen.CreateBDYTideNetcdfFile(fout_tide, 
                             val['nx'], 
-                            dst_coord_var.lonlat['t']['lon'].shape[1],
-                            dst_coord_var.lonlat['t']['lon'].shape[0], 
+                            dst_coord_var.lonlat[key]['lon'].shape[1],  # "key" is the grd value
+                            dst_coord_var.lonlat[key]['lon'].shape[0],
                             val['des']+tide_con, 
                             setup_var.settings['fv'], key.upper())
-            
-            ncpop.write_data_to_file(fout_tide, val['nam']+'1', 
-                                     cons['cos'][val['nam']][indx])
-            ncpop.write_data_to_file(fout_tide, val['nam']+'2', 
-                                     cons['sin'][val['nam']][indx])
-            ncpop.write_data_to_file(fout_tide, 'bdy_msk',
-                                     dst_coord_var.bdy_msk)
+
+            # Set the index for the con(stituent) to save
+            if val['nam'] == "z":
+                indx = 0
+                # bdy_msk is only defined on the t-grid (not u/v-points)
+                ncpop.write_data_to_file(fout_tide, 'bdy_msk',
+                                         dst_coord_var.bdy_msk)
+            elif val['nam'] == "u":
+                indx = 2
+            elif val['nam'] == "v":
+                indx = 4
+            else:
+                logging.error("profiler: Ooo, that should not have happened")
+
+            ncpop.write_data_to_file(fout_tide, val['nam']+'1',
+                                     cons[indx][int(tide_con)-1])  # "cos[var][constituent index]"
+            ncpop.write_data_to_file(fout_tide, val['nam']+'2',
+                                     cons[indx+1][int(tide_con)-1])  # "sin[var][constituent index]"
             ncpop.write_data_to_file(fout_tide, 'nav_lon',
-                                     dst_coord_var.lonlat['t']['lon'])
+                                     dst_coord_var.lonlat[key]['lon'])   # "key" is the grd value
             ncpop.write_data_to_file(fout_tide, 'nav_lat',
-                                     dst_coord_var.lonlat['t']['lat'])
+                                     dst_coord_var.lonlat[key]['lat'])   # "key" is the grd value
             ncpop.write_data_to_file(fout_tide, 'nbidta',
                                      grid[key].bdy_i[val['ind'], 0]+1)
             ncpop.write_data_to_file(fout_tide, 'nbjdta',
                                      grid[key].bdy_i[val['ind'], 1]+1)
             ncpop.write_data_to_file(fout_tide, 'nbrdta',
                                      grid[key].bdy_r[val['ind']]+1)
-        
-        # Iterate over constituents
-        
-        indx += 1
 
 def _get_mask(Setup, mask_gui):
     """ 

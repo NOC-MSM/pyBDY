@@ -49,7 +49,7 @@ setup(
                     },
       #If files are needs outside the installed packages
       data_files=[(path.join(environ['CONDA_PREFIX'], 'share/proj/epsg'), ['pynemo/share/epsg'])],
-      
+
       entry_points={
                     'console_scripts':[
                         'pynemo=pynemo.pynemo_exe:main',

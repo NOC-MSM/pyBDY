@@ -17,7 +17,20 @@ from pynemo.reader.factory import GetFile
 import logging
 
 def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
-    """ TPXO Global Tidal model interpolation including rotation grid"""
+    """
+    TPXO Global Tidal model interpolation including rotation grid
+
+    INPUTS:
+        setup:                  settings
+        DstCoord:               ...
+        Grid_T         :        grid_type, bdy_r
+        Grid_U, Grid_V :        bdy_i , grid_type, bdy_r
+        comp:                   dictionary of harmonics read from namelist.
+                                e.g. {'1':"M2" , '2':"<constituent name>", ...}
+
+    RETURNS:
+        cosz, sinz, cosu, sinu, cosv, sinv : [# of constituents, number of bdy points]
+    """
     key_transport = 0 # compute the velocities from transport
     numharm = len(comp)
     logger = logging.getLogger(__name__)
@@ -49,6 +62,9 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     #extract U values of constituents
     dst_lon = DC.bdy_lonlat[Grid_U.grid_type]['lon'][Grid_U.bdy_r == 0]
     dst_lat = DC.bdy_lonlat[Grid_U.grid_type]['lat'][Grid_U.bdy_r == 0]
+    #set the array size for the target boundary output
+    if len(dst_lon) != len(dst_lon): logger.error('These should be the same size')
+    else: nbdyu = len(dst_lon)
 
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
@@ -67,10 +83,10 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         logger.warning('Missing zonal velocity along the x open boundary')
     ampuX[ind] = 0
     phauX[ind] = 0
-    #check if ux data are missing
+    #check if vx data are missing
     ind = np.where((np.isnan(ampvX)) | (np.isnan(phavX)))
     if ind[0].size > 0:
-        logger.warning('Missing zonal velocity along the x open boundary')
+        logger.warning('Missing meridional velocity along the x open boundary')
     ampvX[ind] = 0
     phavX[ind] = 0
 
@@ -80,6 +96,9 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     #extract V values of constituents
     dst_lon = DC.bdy_lonlat[Grid_V.grid_type]['lon'][Grid_V.bdy_r == 0]
     dst_lat = DC.bdy_lonlat[Grid_V.grid_type]['lat'][Grid_V.bdy_r == 0]
+    #set the array size for the target boundary output
+    if len(dst_lon) != len(dst_lat): logger.error('These should be the same size')
+    else: nbdyv = len(dst_lon)
 
     #convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0]+360.0
@@ -91,16 +110,16 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     ampvY = tpxo_vy.amp
     phavY = tpxo_vy.gph
 
-    #check if ux data are missing
+    #check if uy data are missing
     ind = np.where((np.isnan(ampuY)) | (np.isnan(phauY)))
     if ind[0].size > 0:
-        logger.warning('Missing zonal velocity along the x open boundary')
+        logger.warning('Missing zonal velocity along the y open boundary')
     ampuY[ind] = 0
     phauY[ind] = 0
     #check if ux data are missing
     ind = np.where((np.isnan(ampvY)) | (np.isnan(phavY)))
     if ind[0].size > 0:
-        logger.warning('Missing zonal velocity along the x open boundary')
+        logger.warning('Missing meridional velocity along the y open boundary')
     ampvY[ind] = 0
     phavY[ind] = 0
 
@@ -217,11 +236,11 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     dst_gsin = grid_angles.sinval
 
     #retain only boundary points rotation information
-    tmp_gcos = np.zeros(Grid_U.bdy_i.shape[0])
-    tmp_gsin = np.zeros(Grid_U.bdy_i.shape[0])
-    for index in range(Grid_U.bdy_i.shape[0]):
-        tmp_gcos[index] = dst_gcos[Grid_U.bdy_i[index, 1], Grid_U.bdy_i[index, 0]]
-        tmp_gsin[index] = dst_gsin[Grid_U.bdy_i[index, 1], Grid_U.bdy_i[index, 0]]
+    tmp_gcos = np.zeros((Grid_U.bdy_r==0).sum())
+    tmp_gsin = np.zeros((Grid_U.bdy_r==0).sum())
+    for index in range(len(tmp_gcos)):
+        tmp_gcos[index] = dst_gcos[Grid_U.bdy_i[index, 1], Grid_U.bdy_i[index, 0]] # Iterate over bdy_i (not bdy_r )because the
+        tmp_gsin[index] = dst_gsin[Grid_U.bdy_i[index, 1], Grid_U.bdy_i[index, 0]] #  first portion are the edge values
     dst_gcos = tmp_gcos
     dst_gsin = tmp_gsin
 
@@ -236,9 +255,9 @@ def nemo_bdy_tpx7p2_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     dst_gsin = grid_angles.sinval
 
     #retain only boundary points rotation information
-    tmp_gcos = np.zeros(Grid_V.bdy_i.shape[0])
-    tmp_gsin = np.zeros(Grid_V.bdy_i.shape[0])
-    for index in range(Grid_V.bdy_i.shape[0]):
+    tmp_gcos = np.zeros((Grid_V.bdy_r==0).sum())
+    tmp_gsin = np.zeros((Grid_V.bdy_r==0).sum())
+    for index in range(len(tmp_gcos)):
         tmp_gcos[index] = dst_gcos[Grid_V.bdy_i[index, 1], Grid_V.bdy_i[index, 0]]
         tmp_gsin[index] = dst_gsin[Grid_V.bdy_i[index, 1], Grid_V.bdy_i[index, 0]]
     dst_gcos = tmp_gcos
