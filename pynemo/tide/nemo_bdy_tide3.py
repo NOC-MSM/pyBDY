@@ -21,6 +21,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     """
     Global Tidal model interpolation onto target grid, including grid rotation
 
+
     INPUTS:
         setup:                  settings
         DstCoord:               ...
@@ -31,6 +32,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     RETURNS:
         cosz, sinz, cosu, sinu, cosv, sinv: [# of constituents, number of bdy points]
+
     """
     key_transport = 0 # compute the velocities from transport
     numharm = len(comp)
@@ -61,6 +63,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     ampz = tide_z.amp
     phaz = tide_z.gph
+
     ampz[ind] = 0.0
     phaz[ind] = 0.0
 
@@ -86,6 +89,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     ampvX = tide_vx.amp
     phavX = tide_vx.gph
 
+
     #check if ux data are missing
     ind = np.where((np.isnan(ampuX)) | (np.isnan(phauX)))
     if ind[0].size > 0:
@@ -107,6 +111,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     dst_lat = DC.bdy_lonlat[Grid_V.grid_type]['lat'][Grid_V.bdy_r == 0]
     #set the array size for the target boundary output
     if len(dst_lon) != len(dst_lon): logger.error('These should be the same size')
+
     else: nbdyv = len(dst_lon)
 
     #convert the U-longitudes into the TMD conventions (0/360E)
@@ -117,6 +122,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     elif setup.settings['tide_model'].lower() == 'fes2014':
         tpxo_uy = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_U.grid_type)
         tpxo_vy = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, Grid_V.grid_type)
+
 
     ampuY = tpxo_uy.amp
     phauY = tpxo_uy.gph
@@ -210,6 +216,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     sinvY = np.zeros((numharm, nbdyv))
 
     compindx = constituents_index(tide_z.cons, comp)
+
     for h in range(0, numharm):
         c = int(compindx[h])
         if c != -1:
@@ -281,6 +288,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     #return the values
     return cosz, sinz, cosu, sinu, cosv, sinv
+
 
 def constituents_index(constituents, inputcons):
     """
