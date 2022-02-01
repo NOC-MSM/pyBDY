@@ -29,7 +29,7 @@ Steps to take to install PyNEMO, creating a specific conda virtual environment i
 
 - Make sure the Java Runtime Environment is set (e.g. livljobs*)::
 
-    $ export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.el7_9.x86_64/
+    $ export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.322.b06-1.el7_9.x86_64/
 
 - Install PyNEMO::
   
