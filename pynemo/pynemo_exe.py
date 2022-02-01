@@ -5,7 +5,8 @@ Entry for the project
 '''
 
 import sys, getopt
-from . import profile
+from . import profiler
+#import profiler # This syntax works in a PyCharm configuration - great for debugging
 import logging
 import cProfile
 
@@ -42,7 +43,7 @@ def main():
     #Logger
     #logger = logging.getLogger(__name__)
     t0 = time.time()
-    cProfile.runctx("f(x, y)",{'f': profile.process_bdy, 'x': setup_file, 'y': mask_gui}, {}, 'pynemo_stats')
+    cProfile.runctx("f(x, y)",{'f': profiler.process_bdy, 'x': setup_file, 'y': mask_gui}, {}, 'pynemo_stats')
     t1 = time.time()
     print("Execution Time: %s" % (t1-t0))
     

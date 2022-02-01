@@ -30,17 +30,17 @@
 !------------------------------------------------------------------------------
 !  grid information 
 !------------------------------------------------------------------------------
-   sn_src_hgr = './benchmark/grid_low_res_C/mesh_hgr.nc' 
-   sn_src_zgr = './benchmark/grid_low_res_C/mesh_zgr.nc'
-   sn_dst_hgr = './benchmark/grid_C/mesh_hgr_zps.nc'
-   sn_dst_zgr = './benchmark/grid_C/mesh_zgr_zps.nc'
-   sn_src_msk = './benchmark/grid_low_res_C/mask.nc'
-   sn_bathy   = './benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'
+   sn_src_hgr = './inputs/benchmark/grid_low_res_C/mesh_hgr.nc' 
+   sn_src_zgr = './inputs/benchmark/grid_low_res_C/mesh_zgr.nc'
+   sn_dst_hgr = './inputs/benchmark/grid_C/mesh_hgr_zps.nc'
+   sn_dst_zgr = './inputs/benchmark/grid_C/mesh_zgr_zps.nc'
+   sn_src_msk = './inputs/benchmark/grid_low_res_C/mask.nc'
+   sn_bathy   = './inputs/benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'
 
 !------------------------------------------------------------------------------
 !  I/O 
 !------------------------------------------------------------------------------
-   sn_src_dir = '/Users/jdha/Projects/GitHub/PyNEMO/inputs/src_data_local.ncml' ! src_files/'
+   sn_src_dir = './inputs/src_data_local.ncml' ! src_files/'
    sn_dst_dir = './outputs'
    sn_fn      = 'NNA_R12'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
@@ -60,18 +60,22 @@
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for 
                                           !  baroclinic velocities
-    ln_tra         = .true.               !  boundary conditions for T and S
+    ln_tra         = .false.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition   
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters                        
 !------------------------------------------------------------------------------
-    ln_tide        = .false.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'FES'                !  Name of tidal model (FES|TPXO)
+    ln_tide        = .true.              !  =T : produce bdy tidal conditions
+    sn_tide_model  = 'FES2014'            !  Name of tidal model (FES2014|TPXO7p2)
     clname(1)      = 'M2'                 !  constituent name
-    clname(2)      = 'S2'         
-    clname(3)      = 'K2'        
+    clname(2)      = 'S2'
+    clname(3)      = 'K2'
+    clname(4)      = 'O1'
+    clname(5)      = 'P1'
+    clname(6)      = 'Q1'
+    clname(7)      = 'M4'
     ln_trans       = .true.               !  interpolate transport rather than
                                           !  velocities
 !------------------------------------------------------------------------------
@@ -83,9 +87,13 @@
     nn_month_end    = 11          !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
-	sn_tide_grid   = './src_data/tide/grid_tpxo7.2.nc'
-	sn_tide_h      = './src_data/tide/h_tpxo7.2.nc'
-	sn_tide_u      = './src_data/tide/u_tpxo7.2.nc'
+	! location of TPXO7.2 data
+	sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
+	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
+	! location of FES2014 data
+	sn_tide_fes      = './inputs/FES2014/'
+
 	
 !------------------------------------------------------------------------------
 !  Additional parameters

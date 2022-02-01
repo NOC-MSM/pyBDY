@@ -19,7 +19,7 @@ def CreateBDYTideNetcdfFile(filename, N,I,J,h,fv,grd):
     
     # Enter define mode
     ncid = Dataset(filename, 'w', clobber=True, format='NETCDF4')
-    
+
     #define dimensions
     dimxbID = ncid.createDimension('xb',xb_len)
     dimybID = ncid.createDimension('yb',yb_len)

@@ -1,1 +1,3 @@
 *.py filter=add_date_info
+# Ignore all differences in line endings
+*        -crlf
