@@ -52,7 +52,6 @@ class Depth:
 
         # Check inputs
         # FIX ME? Errors for wrong obj arg len. probably better to work around
-        print(settings)
         if settings['sco']:
             # hc = ... FIX ME??
             # Depth of water column at t-point
