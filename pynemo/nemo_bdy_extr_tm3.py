@@ -718,8 +718,11 @@ class Extract:
 
             # weighted averaged onto new horizontal grid
                 self.logger.info(' sc_bdy %s %s', np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn]))
-                dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
-                           dist_fac)
+                dst_bdy=np.zeros_like(dist_fac)
+                ind_valid=dist_fac>0.
+                dst_bdy[ind_valid] = np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2)[ind_valid] / dist_fac[ind_valid]
+                #dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
+                #           dist_fac)
                 self.logger.info(' dst_bdy %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 # Quick check to see we have not got bad values
                 if np.sum(dst_bdy == np.inf) > 0:
@@ -728,8 +731,11 @@ class Extract:
                 # weight vector array and rotate onto dest grid
                 if self.key_vec:
                     # [:,:,:,vn+1]
-                    dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
-                                 dist_fac)
+                    dst_bdy_2=np.zeros_like(dist_fac)
+                    ind_valid=dist_fac>0.
+                    dst_bdy_2[ind_valid] = np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2)[ind_valid] / dist_fac[ind_valid]
+                    #dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
+                    #             dist_fac)
                     self.logger.info('time to to rot and rep ')
                     self.logger.info('%s %s',  np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                     self.logger.info( '%s en to %s %s' , self.rot_dir,self.rot_dir, dst_bdy.shape)
