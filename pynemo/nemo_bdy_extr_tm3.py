@@ -498,12 +498,12 @@ class Extract:
         if self.first:
             nc_3 = GetFile(self.settings['src_msk'])
             varid_3 = nc_3['tmask']
-            t_mask = varid_3[:1, :sc_z_len, j_run, i_run]
+            t_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run)+1, np.min(i_run):np.max(i_run)+1]
             if self.key_vec:
                 varid_3 = nc_3['umask']
-                u_mask = varid_3[:1, :sc_z_len, j_run, extended_i]
+                u_mask = varid_3[:1, :sc_z_len, np.min(j_run):np.max(j_run)+1, np.min(extended_i):np.max(extended_i)+1]
                 varid_3 = nc_3['vmask']
-                v_mask = varid_3[:1, :sc_z_len, extended_j, i_run]
+                v_mask = varid_3[:1, :sc_z_len, np.min(extended_j):np.max(extended_j)+1, np.min(i_run):np.max(i_run)+1]
             nc_3.close()
 
         # Identify missing values and scale factors if defined
@@ -573,17 +573,17 @@ class Extract:
                 # Extract 3D scalar variables
                 if not isslab and not self.key_vec:
                     self.logger.info(' 3D source array ')
-                    sc_array[0] = varid[f:f+1 , :sc_z_len, j_run, i_run]
+                    sc_array[0] = varid[f:f+1 , :sc_z_len, np.min(j_run):np.max(j_run)+1, np.min(i_run):np.max(i_run)+1]
                 # Extract 3D vector variables
                 elif self.key_vec:
                     # For u vels take i-1
-                    sc_alt_arr[0] = varid[f:f+1, :sc_z_len, j_run, extended_i]
+                    sc_alt_arr[0] = varid[f:f+1, :sc_z_len, np.min(j_run):np.max(j_run)+1, np.min(extended_i):np.max(extended_i)+1]
                     # For v vels take j-1
-                    sc_alt_arr[1] = varid_2[f:f+1, :sc_z_len, extended_j, i_run]
+                    sc_alt_arr[1] = varid_2[f:f+1, :sc_z_len, np.min(extended_j):np.max(extended_j)+1, np.min(i_run):np.max(i_run)+1]
                 # Extract 2D scalar vars
                 else:
                     self.logger.info(' 2D source array ')
-                    sc_array[0] = varid[f:f+1, j_run, i_run].reshape([1,1,j_run.size,i_run.size])
+                    sc_array[0] = varid[f:f+1, np.min(j_run):np.max(j_run)+1, np.min(i_run):np.max(i_run)+1].reshape([1,1,j_run.size,i_run.size])
 
                 # Average vector vars onto T-grid
                 if self.key_vec:
@@ -718,8 +718,11 @@ class Extract:
 
             # weighted averaged onto new horizontal grid
                 self.logger.info(' sc_bdy %s %s', np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn]))
-                dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
-                           dist_fac)
+                dst_bdy=np.zeros_like(dist_fac)
+                ind_valid=dist_fac>0.
+                dst_bdy[ind_valid] = np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2)[ind_valid] / dist_fac[ind_valid]
+                #dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
+                #           dist_fac)
                 self.logger.info(' dst_bdy %s %s', np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                 # Quick check to see we have not got bad values
                 if np.sum(dst_bdy == np.inf) > 0:
@@ -728,8 +731,11 @@ class Extract:
                 # weight vector array and rotate onto dest grid
                 if self.key_vec:
                     # [:,:,:,vn+1]
-                    dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
-                                 dist_fac)
+                    dst_bdy_2=np.zeros_like(dist_fac)
+                    ind_valid=dist_fac>0.
+                    dst_bdy_2[ind_valid] = np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2)[ind_valid] / dist_fac[ind_valid]
+                    #dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
+                    #             dist_fac)
                     self.logger.info('time to to rot and rep ')
                     self.logger.info('%s %s',  np.nanmin(dst_bdy), np.nanmax(dst_bdy))
                     self.logger.info( '%s en to %s %s' , self.rot_dir,self.rot_dir, dst_bdy.shape)
