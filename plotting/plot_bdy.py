@@ -195,8 +195,13 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
     
     for n in range(nsc):
         
-        plt.sca(ax[n])
+         
+        if nsc > 1:
+            nax=ax[n]
+        else:
+            nax=ax
         
+        plt.sca(nax)
         # from gdep create some pseudo w points
         
         
@@ -230,8 +235,8 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
                           facecolor=(0.8,0.8,0), alpha=0, edgecolor=None)
 
         # Add patch to axes
-        ax[n].add_patch(bathy_patch)
-        ax[n].set_title('BDY points along section: '+str(n))
+        nax.add_patch(bathy_patch)
+        nax.set_title('BDY points along section: '+str(n))
         patches = []
         colors = []
         
@@ -263,10 +268,10 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
         plt.plot(coords,bathy,'-',color=(0.4,0,0))
         p = PatchCollection(patches, alpha=0.8, edgecolor='none')
         p.set_array(np.array(colors))
-        ax[n].add_collection(p)
-        f.colorbar(p, ax=ax[n])
-        ax[n].set_ylim((0,np.max(bathy)))
-        ax[n].invert_yaxis()
+        nax.add_collection(p)
+        f.colorbar(p, ax=nax)
+        nax.set_ylim((0,np.max(bathy)))
+        nax.invert_yaxis()
         
     return f
 

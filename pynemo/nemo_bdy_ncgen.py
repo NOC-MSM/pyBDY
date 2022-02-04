@@ -14,6 +14,23 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd):
     """ This method creates a template of bdy netcdf files. A common for
     T, I, U, V, E grid types.
     """
+    # TODO: create a dictionary of variables, grids, units etc from ncml
+
+    var_in = {}
+    var_in['T'] = []
+    var_in['T'].extend(['votemper', 'vosaline',
+                         'CHN', 'CHD', 'PHN',
+                         'PHD', 'ZMI', 'ZME',
+                         'DIN', 'SIL', 'FER',
+                         'DET', 'PDS', 'DTC',
+                         'DIC', 'ALK', 'OXY'])
+
+    #var_in['u'].extend(['vozocrtx', 'vomecrty'])
+    #var_in['v'].extend(['vozocrtx', 'vomecrty'])
+
+    #var_in['T'].extend(['sossheig'])
+
+    #var_in['T'].extend(['ice1', 'ice2', 'ice3'])
 
     gridNames = ['T', 'I', 'U', 'V', 'E', 'Z'] # All possible grids
 
@@ -55,10 +72,11 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd):
     elif grd in ['T', 'I']:
         varztID = ncid.createVariable('deptht', 'f4', ('z', 'yb', 'xb', ))
         varmskID = ncid.createVariable('bdy_msk', 'f4', ('y', 'x', ), fill_value=fv)
-        vartmpID = ncid.createVariable('votemper', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
-                                       fill_value=fv)
-        varsalID = ncid.createVariable('vosaline', 'f4', ('time_counter', 'z', 'yb', 'xb', ),
-                                       fill_value=fv)
+        varID={}
+        varID['T']={}
+        for v in range(len(var_in[grd])):
+            varID['T'][var_in[grd][v]] = ncid.createVariable(var_in[grd][v], 'f4', ('time_counter', 'z', 'yb', 'xb', ),
+                                           fill_value=fv)
         varsshID = ncid.createVariable('sossheig', 'f4', ('time_counter', 'yb', 'xb', ),
                                        fill_value=fv)
         if grd == 'I':
@@ -168,16 +186,20 @@ def CreateBDYNetcdfFile(filename, N, I, J, K, rw, h, orig, fv, calendar, grd):
         varmskID.units = 'unitless'
         varmskID.long_name = 'Structured boundary mask'
 
-        vartmpID.units = 'C'
-        vartmpID.short_name = 'votemper'
-        vartmpID.long_name = 'Temperature'
-        vartmpID.grid = 'bdyT'
+        varID['T']['votemper'].units = 'C'
+        varID['T']['votemper'].short_name = 'votemper'
+        varID['T']['votemper'].long_name = 'Temperature'
+        varID['T']['votemper'].grid = 'bdyT'
 
-        varsalID.units = 'PSU'
-        varsalID.short_name = 'vosaline'
-        varsalID.long_name = 'Salinity'
-        varsalID.grid = 'bdyT'
+        varID['T']['vosaline'].units = 'PSU'
+        varID['T']['vosaline'].short_name = 'vosaline'
+        varID['T']['vosaline'].long_name = 'Salinity'
+        varID['T']['vosaline'].grid = 'bdyT'
 
+        varsshID.units = 'm'
+        varsshID.short_name = 'sossheig'
+        varsshID.long_name = 'Sea Surface Height'
+        varsshID.grid = 'bdyT'
         if grd == 'I':
             varildID.units = '%'
             varildID.short_name = 'ildsconc'

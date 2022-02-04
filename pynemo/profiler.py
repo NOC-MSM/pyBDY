@@ -284,7 +284,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         var_in[grd[g]] = []
         
     if ln_tra:
-        var_in['t'].extend(['votemper', 'vosaline'])
+        var_in['t'].extend(['votemper', 'vosaline',
+                             'CHN', 'CHD', 'PHN',
+                             'PHD', 'ZMI', 'ZME',
+                             'DIN', 'SIL', 'FER',
+                             'DET', 'PDS', 'DTC', 
+                             'DIC', 'ALK', 'OXY'])
         
     if ln_dyn2d or ln_dyn3d:
         var_in['u'].extend(['vozocrtx', 'vomecrty'])
