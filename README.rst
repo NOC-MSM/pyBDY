@@ -89,7 +89,7 @@ Example: generating tidal boundary conditions on ARCHER2
 
     pynemo -s inputs/namelist_local.bdy
 
-Take about 120s. Generates files in `outputs`::
+Take about 120s. Generates 7 consitutents, using FES2014 data, written to `outputs`::
 
     coordinates.bdy.nc
     NNA_R12_bdytide_FES2014_M4_grd_V.nc
