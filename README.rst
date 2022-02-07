@@ -54,15 +54,15 @@ Contribution guidelines
 Bench Marking Tests
 -------------------
 
-The PyNEMO module can be tested using the bench marking namelist bdy file in the inputs folder. To check the outputs of the benchmark test, these can be visualised using the plotting script within the test_scripts folder. The following steps are required,
+The PyNEMO module can be tested using the bench marking namelist bdy file in the inputs folder. To check the outputs of the benchmark test, these can be visualised using the plotting script within the test_scripts folder. A local version of the benchmark data can be downloaded from `here <https://gws-access.jasmin.ac.uk/public/jmmp_collab/benchmark/>`_. The ./benchmark directory should reside as a subfolder of ./inputs. The following steps are required,
 
-- Run PyNEMO using the namelist file in the inputs folder (namelist_remote.bdy) e.g.::
+- Run PyNEMO using the namelist file in the inputs folder (namelist_local.bdy) e.g.::
 
     $ pynemo -s /path/to/namelist/file
 
-- This will create two output files coordinates.bdy.nc and NNA_R12_bdyT_y1979)m11.nc in an outputs folder
+- This will create two output files coordinates.bdy.nc and NNA_R12_bdyT_y1979_m11.nc in an ./outputs folder
 
-- To check the coordinates.bdy.nc has the correct boundary points, the script bdy_coords_plot.py will plot the domain boundaries and shown the different locations of the rim width (increasing number should go inwards) This script is located in the test_scripts folder.
+- To check the coordinates.bdy.nc has the correct boundary points, the script bdy_coords_plot.py will plot the domain boundaries and shown the different locations of the rim width (increasing number should go inwards) This script is located in the test_scripts folder. There are also two plotting scripts in ./plotting, one does a similar job to bdy_coords_plot.py the other plots the tracer boundaries (as a pcolormesh) to help visualise the output.
 
 - The result should look like this (if using the current benchmark data)
 
@@ -78,24 +78,8 @@ Example: generating tidal boundary conditions on ARCHER2
 
     conda activate pynemo
 
-- Make sure all the directories and files are in place::
-
     cd PyNEMO
-    mkdir outputs
     ln -s /work/n01/n01/shared/jelt/FES2014 inputs/.
-    <cp benchmark dir into inputs/benchmark>
+    <cp benchmark into inputs>
 
-- Press go::
-
-    pynemo -s inputs/namelist_local.bdy
-
-Take about 120s. Generates 7 consitutents, using FES2014 data, written to `outputs`::
-
-    coordinates.bdy.nc
-    NNA_R12_bdytide_FES2014_M4_grd_V.nc
-    NNA_R12_bdytide_FES2014_Q1_grd_U.nc
-    NNA_R12_bdytide_FES2014_K2_grd_U.nc
-    NNA_R12_bdytide_FES2014_M4_grd_Z.nc
-    NNA_R12_bdytide_FES2014_Q1_grd_V.nc
-    NNA_R12_bdytide_FES2014_K2_grd_V.nc
-    ...
+    python -s inputs/namelist_local.bdy
