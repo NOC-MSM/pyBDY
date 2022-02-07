@@ -83,7 +83,7 @@ Example: generating tidal boundary conditions on ARCHER2
     cd PyNEMO
     mkdir outputs
     ln -s /work/n01/n01/shared/jelt/FES2014 inputs/.
-    <cp benchmark into inputs>
+    <cp benchmark dir into inputs/benchmark>
 
 - Press go::
 
