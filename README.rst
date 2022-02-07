@@ -69,3 +69,17 @@ The PyNEMO module can be tested using the bench marking namelist bdy file in the
 .. image:: /screenshots/example_bdy_coords.png
   :width: 800
   :alt: Example BDY coords output
+  
+  
+  Example: generating tidal boundary conditions on ARCHER2
+  --------------------------------------------------------
+  
+   - Activate the new virtual environment::
+
+   $ source activate pynemo
+   
+   cd PyNEMO
+   ln -s /work/n01/n01/shared/jelt/FES2014 inputs/.
+   <cp benchmark into inputs>
+   
+   python -s inputs/namelist_local.bdy
