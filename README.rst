@@ -78,8 +78,24 @@ Example: generating tidal boundary conditions on ARCHER2
 
     conda activate pynemo
 
-    cd PyNEMO
-    ln -s /work/n01/n01/shared/jelt/FES2014 inputs/.
-    <cp benchmark into inputs>
+- Make sure all the directories and files are in place::
 
-    python -s inputs/namelist_local.bdy
+    cd PyNEMO
+    mkdir outputs
+    ln -s /work/n01/n01/shared/jelt/FES2014 inputs/.
+    <cp benchmark dir into inputs/benchmark>
+
+- Press go::
+
+    pynemo -s inputs/namelist_local.bdy
+
+Take about 120s. Generates 7 consitutents, using FES2014 data, written to `outputs`::
+ 
+    coordinates.bdy.nc
+    NNA_R12_bdytide_FES2014_M4_grd_V.nc
+    NNA_R12_bdytide_FES2014_Q1_grd_U.nc
+    NNA_R12_bdytide_FES2014_K2_grd_U.nc
+    NNA_R12_bdytide_FES2014_M4_grd_Z.nc
+    NNA_R12_bdytide_FES2014_Q1_grd_V.nc
+    NNA_R12_bdytide_FES2014_K2_grd_V.nc
+    ...
