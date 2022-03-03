@@ -95,7 +95,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     Setup = setup.Setup(setup_filepath) # default settings file
     settings = Setup.settings
-
     logger.info('Reading grid completed')
 
     bdy_msk = _get_mask(Setup, mask_gui)

@@ -129,6 +129,10 @@ class Extract:
         isslab = len(dst_dep) == 1
         if dst_dep.size == len(dst_dep):
             dst_dep = np.ones([1, len(dst_lon)])
+        
+        # Quick fix if not vertical interpolation required.
+        if not self.settings['interp']:
+            dst_dep = sc_z.repeat(len(dst_lon))
 
         # ??? Should this be read from settings?
         wei_121 = np.array([0.5, 0.25, 0.25])
@@ -422,7 +426,7 @@ class Extract:
         self.tmp_filt_2d = tmp_filt_2d
         self.tmp_filt_3d = tmp_filt_3d
         self.dist_tot = dist_tot
-        self.vinterp = self.settings['ln_interp']
+        self.vinterp = self.settings['interp']
 
         self.d_bdy = {}
         
@@ -784,6 +788,7 @@ class Extract:
 
                     # If z-level replace data below bed !!! make stat
                     # of this as could be problematic
+                   
                     ind_z = self.bdy_z.repeat(len(self.dst_dep))
                     ind_z = ind_z.reshape(len(self.dst_dep),
                                           len(self.bdy_z), order='F')
