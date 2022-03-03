@@ -2,6 +2,7 @@ ln_zco = z-coordinate - full    steps   (T/F)
 ln_zps = z-coordinate - partial steps   (T/F)
 ln_sco = s- or hybrid z-s-coordinate    (T/F)
 rn_hmin = min depth of the ocean (>0) or min number of ocean level (<0)
+ln_interp = interpolate onto the new vertical grid (T)or keep the parent vertical coordinates (F)
 rn_sbot_min = minimum depth of s-bottom surface (>0) (m)
 rn_sbot_max = maximum depth of s-bottom surface (= ocean depth) (>0) (m)
 ln_s_sigma = hybrid s-sigma coordinates

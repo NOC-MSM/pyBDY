@@ -422,6 +422,7 @@ class Extract:
         self.tmp_filt_2d = tmp_filt_2d
         self.tmp_filt_3d = tmp_filt_3d
         self.dist_tot = dist_tot
+        self.vinterp = self.settings['ln_interp']
 
         self.d_bdy = {}
         
