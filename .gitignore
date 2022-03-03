@@ -27,6 +27,7 @@ wheels/
 *.egg
 MANIFEST
 outputs
+pynemo_stats
 .DS_Store
 
 # PyInstaller
