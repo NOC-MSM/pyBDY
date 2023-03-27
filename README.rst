@@ -54,7 +54,7 @@ Contribution guidelines
 Bench Marking Tests
 -------------------
 
-The PyNEMO module can be tested using the bench marking namelist bdy file in the inputs folder. To check the outputs of the benchmark test, these can be visualised using the plotting script within the test_scripts folder. A local version of the benchmark data can be downloaded from `here <https://gws-access.jasmin.ac.uk/public/jmmp_collab/benchmark/>`_. The ./benchmark directory should reside as a subfolder of ./inputs. The following steps are required,
+The PyNEMO module can be tested using the bench marking namelist bdy file in the inputs folder. To check the outputs of the benchmark test, these can be visualised using the plotting script within the test_scripts folder. A local version of the benchmark data can be downloaded from `here <https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/>`_. The ./benchmark directory should reside as a subfolder of ./inputs. The following steps are required,
 
 - Run PyNEMO using the namelist file in the inputs folder (namelist_local.bdy) e.g.::
 
