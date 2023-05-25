@@ -25,11 +25,13 @@ def nemo_bdy_order(fname):
 
     # open file pointer and extract data
     rootgrp = Dataset(fname, "r", format="NETCDF4")
-    nbi = np.squeeze(rootgrp.variables['nbidta'][:, :]) - 1  # subtract 1 for python indexing
-    nbj = np.squeeze(rootgrp.variables['nbjdta'][:, :]) - 1
-    nbr = np.squeeze(rootgrp.variables['nbrdta'][:, :]) - 1
-    lon = np.squeeze(rootgrp.variables['nav_lon'][:, :])
-    lat = np.squeeze(rootgrp.variables['nav_lat'][:, :])
+    nbi = (
+        np.squeeze(rootgrp.variables["nbidta"][:, :]) - 1
+    )  # subtract 1 for python indexing
+    nbj = np.squeeze(rootgrp.variables["nbjdta"][:, :]) - 1
+    nbr = np.squeeze(rootgrp.variables["nbrdta"][:, :]) - 1
+    np.squeeze(rootgrp.variables["nav_lon"][:, :])
+    np.squeeze(rootgrp.variables["nav_lat"][:, :])
     rootgrp.close()
 
     rw = np.amax(nbr) + 1
@@ -46,7 +48,6 @@ def nemo_bdy_order(fname):
     # start with outer rim and work in
 
     for r in range(rw):
-
         # set initial constants
 
         ind = nbr == r
@@ -58,21 +59,29 @@ def nemo_bdy_order(fname):
         id_order[0,] = 0
         flag = False
         mark = 0
-        source_tree = sp.cKDTree(zip(nbi_tmp, nbj_tmp), balanced_tree=False, compact_nodes=False)
+        source_tree = sp.cKDTree(
+            zip(nbi_tmp, nbj_tmp), balanced_tree=False, compact_nodes=False
+        )
 
         # order bdy entries
 
         while count < nbdy[r]:
-
-            nn_dist, nn_id = source_tree.query(zip(nbi_tmp[id_order[count - 1]], nbj_tmp[id_order[count - 1]]),
-                                               k=3, distance_upper_bound=2.9)
-            if np.sum(id_order == nn_id[0, 1]) == 1:  # is the nearest point already in the list?
-                if np.sum(id_order == nn_id[0, 2]) == 1:  # is the 2nd nearest point already in the list?
-                    if flag == False:  # then we've found an end point and we can start the search in earnest!
-
+            nn_dist, nn_id = source_tree.query(
+                zip(nbi_tmp[id_order[count - 1]], nbj_tmp[id_order[count - 1]]),
+                k=3,
+                distance_upper_bound=2.9,
+            )
+            if (
+                np.sum(id_order == nn_id[0, 1]) == 1
+            ):  # is the nearest point already in the list?
+                if (
+                    np.sum(id_order == nn_id[0, 2]) == 1
+                ):  # is the 2nd nearest point already in the list?
+                    if flag is False:  # then we've found an end point
+                        # and we can start the search in earnest!
                         flag = True
                         id_order[mark] = id_order[count - 1]  # reset values
-                        id_order[mark + 1:] = -1  # reset values
+                        id_order[mark + 1 :] = -1  # reset values
                         count = mark + 1  # reset counter
                     else:
                         i = 0  # should this be zero?
@@ -104,16 +113,24 @@ def nemo_bdy_order(fname):
                 count += 1
 
         bdy_ind[r] = id_order
-        bdy_dst[r] = np.sqrt((np.diff(np.hstack((nbi_tmp[id_order], nbj_tmp[id_order])), axis=0) ** 2).sum(axis=1))
-        bdy_brk[r], = np.where(bdy_dst[r] > 2 ** 0.5)
+        bdy_dst[r] = np.sqrt(
+            (
+                np.diff(np.hstack((nbi_tmp[id_order], nbj_tmp[id_order])), axis=0) ** 2
+            ).sum(axis=1)
+        )
+        (bdy_brk[r],) = np.where(bdy_dst[r] > 2**0.5)
         bdy_brk[r] += 1
         bdy_brk[r] = np.insert(bdy_brk[r], 0, 0)  # insert start point
-        bdy_brk[r] = np.insert(bdy_brk[r], len(bdy_brk[r]), len(id_order))  # insert end point
+        bdy_brk[r] = np.insert(
+            bdy_brk[r], len(bdy_brk[r]), len(id_order)
+        )  # insert end point
         bdy_dst[r] = np.insert(np.cumsum(bdy_dst[r]), 0, 0)
 
-        if r == 2:  # change to a valid rw number to get a visual output (outer most rw is zero)
+        if (
+            r == 2
+        ):  # change to a valid rw number to get a visual output (outer most rw is zero)
             f, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 10))
-            plt.scatter(nbi_tmp[bdy_ind[r][:]], nbj_tmp[bdy_ind[r][:]], s=1, marker='.')
+            plt.scatter(nbi_tmp[bdy_ind[r][:]], nbj_tmp[bdy_ind[r][:]], s=1, marker=".")
             for t in np.arange(0, len(bdy_ind[r]), 20):
                 plt.text(nbi_tmp[bdy_ind[r][t]], nbj_tmp[bdy_ind[r][t]], t)
 
@@ -138,24 +155,24 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
 
     rootgrp = Dataset(fname, "r", format="NETCDF4")
     var = np.squeeze(rootgrp.variables[varnam][t, :])
-    nbr = np.squeeze(rootgrp.variables['nbrdta'][:, :]) - 1
+    nbr = np.squeeze(rootgrp.variables["nbrdta"][:, :]) - 1
     var = var[:, nbr == rw]
 
     # let us use gdept as the central depth irrespective of whether t, u or v
 
     try:
-        gdep = np.squeeze(rootgrp.variables['deptht'][:, :, :])
+        gdep = np.squeeze(rootgrp.variables["deptht"][:, :, :])
     except KeyError:
         try:
-            gdep = np.squeeze(rootgrp.variables['gdept'][:, :, :])
+            gdep = np.squeeze(rootgrp.variables["gdept"][:, :, :])
         except KeyError:
             try:
-                gdep = np.squeeze(rootgrp.variables['depthu'][:, :, :])
+                gdep = np.squeeze(rootgrp.variables["depthu"][:, :, :])
             except KeyError:
                 try:
-                    gdep = np.squeeze(rootgrp.variables['depthv'][:, :, :])
+                    gdep = np.squeeze(rootgrp.variables["depthv"][:, :, :])
                 except KeyError:
-                    print 'depth variable not found'
+                    print("depth variable not found")
 
     rootgrp.close()
 
@@ -168,19 +185,19 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
     # divide data up into sections and re-order
 
     for n in range(nsc):
-        dta[n] = np.squeeze(var[:, bdy_ind[rw][bdy_brk[rw][n]:bdy_brk[rw][n + 1]]])
-        dep[n] = np.squeeze(gdep[:, bdy_ind[rw][bdy_brk[rw][n]:bdy_brk[rw][n + 1]]])
+        dta[n] = np.squeeze(var[:, bdy_ind[rw][bdy_brk[rw][n] : bdy_brk[rw][n + 1]]])
+        dep[n] = np.squeeze(gdep[:, bdy_ind[rw][bdy_brk[rw][n] : bdy_brk[rw][n + 1]]])
 
     # loop over number of sections and plot
 
     f, ax = plt.subplots(nrows=1, ncols=1, figsize=(11, 4))
     ax.plot(dta[0][10, :])
-    ax.set_title('BDY points along section: 1, depth level: 10')
+    ax.set_title("BDY points along section: 1, depth level: 10")
 
     f, ax = plt.subplots(nrows=nsc, ncols=1, figsize=(14, 10 * nsc))
 
     for n in range(nsc):
-        print('NSC '+str(n))
+        print("NSC " + str(n))
         plt.sca(ax[n])
 
         # from gdep create some pseudo w points
@@ -207,26 +224,46 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
         for i in range(len(coords)):
             bathy[i] = gdepw[mbath[i], i]
 
-        bathy_patch = Polygon(np.vstack((np.hstack((coords[0], coords, coords[-1])),
-                                         np.hstack((np.amax(bathy[:]), bathy, np.amax(bathy[:]))))).T,
-                              closed=True,
-                              facecolor=(0.8, 0.8, 0), alpha=0, edgecolor=None)
+        bathy_patch = Polygon(
+            np.vstack(
+                (
+                    np.hstack((coords[0], coords, coords[-1])),
+                    np.hstack((np.amax(bathy[:]), bathy, np.amax(bathy[:]))),
+                )
+            ).T,
+            closed=True,
+            facecolor=(0.8, 0.8, 0),
+            alpha=0,
+            edgecolor=None,
+        )
 
         # Add patch to axes
         ax[n].add_patch(bathy_patch)
-        ax[n].set_title('BDY points along section: ' + str(n))
+        ax[n].set_title("BDY points along section: " + str(n))
         patches = []
         colors = []
 
         for i in range(len(coords)):
-
             for k in np.arange(jpk - 2, -1, -1):
-
                 if dta[n][k, i] > -10:
-                    x = [coords[i] - 0.5, coords[i], coords[i] + 0.5,
-                         coords[i] + 0.5, coords[i], coords[i] - 0.5, coords[i] - 0.5]
-                    y = [gdepvw[k + 1, i], gdepw[k + 1, i], gdepvw[k + 1, i + 1],
-                         gdepvw[k, i + 1], gdepw[k, i], gdepvw[k, i], gdepvw[k + 1, i]]
+                    x = [
+                        coords[i] - 0.5,
+                        coords[i],
+                        coords[i] + 0.5,
+                        coords[i] + 0.5,
+                        coords[i],
+                        coords[i] - 0.5,
+                        coords[i] - 0.5,
+                    ]
+                    y = [
+                        gdepvw[k + 1, i],
+                        gdepw[k + 1, i],
+                        gdepvw[k + 1, i + 1],
+                        gdepvw[k, i + 1],
+                        gdepw[k, i],
+                        gdepvw[k, i],
+                        gdepvw[k + 1, i],
+                    ]
 
                     polygon = Polygon(np.vstack((x, y)).T, True)
                     patches.append(polygon)
@@ -242,8 +279,8 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
         #         plt.plot(x, y, 'k-', linewidth=0.1)
         #         plt.plot(coords[i], gdept[k, i], 'k.', markersize=1)
 
-        plt.plot(coords, bathy, '-', color=(0.4, 0, 0))
-        p = PatchCollection(patches, alpha=0.8, edgecolor='none')
+        plt.plot(coords, bathy, "-", color=(0.4, 0, 0))
+        p = PatchCollection(patches, alpha=0.8, edgecolor="none")
         p.set_array(np.array(colors))
         ax[n].add_collection(p)
         f.colorbar(p, ax=ax[n])
@@ -252,8 +289,9 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
 
     return f
 
-fname = '/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y1979m11.nc'
+
+fname = "/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y1979m11.nc"
 ind, dst, brk = nemo_bdy_order(fname)
-f = plot_bdy(fname, ind, dst, brk, 'votemper', 0, 0)
+f = plot_bdy(fname, ind, dst, brk, "votemper", 0, 0)
 
 plt.show()
