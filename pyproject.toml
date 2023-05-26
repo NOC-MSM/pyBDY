@@ -1,23 +1,50 @@
 [build-system]
 requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
 
+[options]
+install_requires = [
+  "netCDF4",
+  "scipy",
+  "numpy",
+  "matplotlib",
+  "basemap",
+  "thredds_crawler",
+  "seawater"
+]
+
 [project]
+authors = [
+  {name = "James Harle", email = "jdha@noc.ac.uk"},
+  {name = "John Kazimierz Farey"},
+  {name = "Srikanth Nagella"},
+  {name = "Shirley Crompton"},
+  {name = "Tom Prime"}
+]
 classifiers = [
+  "License :: OSI Approved :: GPL License",
   "Development Status :: 2 - Pre-Alpha",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: Apache Software License",
-  "Operating System :: OS Independent",
+  "Intended Audience :: Developers",
+  "Topic :: Oceonography Modelling",
+  "Topic :: Scientific/Engineering",
   "Programming Language :: Python",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Topic :: Scientific/Engineering"
+  "Programming Language :: Python :: 3.9"
 ]
-description = "a Python based regional NEMO model configuration toolbox"
+description = "NEMO Regional Configuration Toolbox"
 dynamic = ["version"]
+keywords = ["Oceanography", "NEMO"]
 license = {file = "LICENSE"}
 name = "PyNEMO"
 readme = "README.md"
+
+[project.scripts]
+pynemo = "pynemo.pynemo_exe:main"
+pynemo_ncml_generator = "pynemo.pynemo_ncml_generator:main"
+pynemo_settings_editor = "pynemo.pynemo_settings_editor:main"
+
+[project.urls]
+documentation = "https://pynemo.readthedocs.io/en/latest/"
+repository = "https://github.com/NOC-MSM/PyNEMO"
 
 [tool.coverage.run]
 branch = true
@@ -56,11 +83,18 @@ select = [
   "D"
 ]
 
-[tool.setuptools]
-packages = ["pynemo"]
+[tool.setuptools.package-data]
+gui = ["*.png", "*.ncml"]
+"pynemo" = ["*.info"]
+"reader.jars" = ["*.jar"]
+share = ["epsg"]
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["src"]
 
 [tool.setuptools_scm]
-write_to = "pynemo/version.py"
+write_to = "src/pynemo/version.py"
 write_to_template = '''
 # Do not change! Do not track in version control!
 __version__ = "{version}"
