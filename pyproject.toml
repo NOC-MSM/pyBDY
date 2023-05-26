@@ -1,0 +1,67 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+
+[project]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Topic :: Scientific/Engineering"
+]
+description = "a Python based regional NEMO model configuration toolbox"
+dynamic = ["version"]
+license = {file = "LICENSE"}
+name = "PyNEMO"
+readme = "README.md"
+
+[tool.coverage.run]
+branch = true
+
+[tool.mypy]
+strict = false
+
+[tool.ruff]
+ignore = [
+  # pydocstyle: Missing Docstrings
+  "D1",
+  # pydocstyle: numpy convention
+  "D107",
+  "D203",
+  "D212",
+  "D213",
+  "D402",
+  "D413",
+  "D415",
+  "D416",
+  "D417",
+  "D401",  # JM
+  "D402"  # JM
+]
+# Black line length is 88, but black does not format comments.
+line-length = 110
+select = [
+  # pyflakes
+  "F",
+  # pycodestyle
+  "E",
+  "W",
+  # isort
+  "I",
+  # pydocstyle
+  "D"
+]
+
+[tool.setuptools]
+packages = ["pynemo"]
+
+[tool.setuptools_scm]
+write_to = "pynemo/version.py"
+write_to_template = '''
+# Do not change! Do not track in version control!
+__version__ = "{version}"
+'''

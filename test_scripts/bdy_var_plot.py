@@ -1,28 +1,31 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.spatial as sp
-from netCDF4 import Dataset
-import matplotlib.pyplot as plt
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import Polygon
+from netCDF4 import Dataset
 
 
 def nemo_bdy_order(fname):
     """
     Determine the ordering and breaks in BDY files to aid plotting.
+
+    Notes
+    -----
     This function takes the i/j coordinates from BDY files and orders them sequentially
     making it easier to visualise sections along the open boundary. Breaks in the open
-    boundary are also determined (i.e. where the distance between two points > 2**0.5)
-    Args:
-        fname     (str) : filename of BDY file
-    Returns:
-        bdy_ind   (dict): re-ordered indices
-        bdy_dst   (dict): distance (in model coords) between points
-        bdy_brk   (dict): location of the break points in the open boundary
-    """
+    boundary are also determined (i.e. where the distance between two points > 2**0.5).
 
+    Parameters
+    ----------
+    fname     (str) : filename of BDY file
+
+    Returns
+    -------
+    bdy_ind   (dict): re-ordered indices
+    bdy_dst   (dict): distance (in model coords) between points
+    bdy_brk   (dict): location of the break points in the open boundary.
+    """
     # open file pointer and extract data
     rootgrp = Dataset(fname, "r", format="NETCDF4")
     nbi = (
@@ -140,17 +143,23 @@ def nemo_bdy_order(fname):
 def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
     """
     Determine the ordering and breaks in BDY files to aid plotting.
+
+    Notes
+    -----
     This function takes the i/j coordinates from BDY files and orders them sequentially
     making it easier to visualise sections along the open boundary. Breaks in the open
-    boundary are also determined (i.e. where the distance between two points > 2**0.5)
-    Args:
-        fname     (str) : filename of BDY file
-    Returns:
-        bdy_ind   (dict): re-ordered indices
-        bdy_dst   (dict): distance (in model coords) between points
-        bdy_brk   (dict): location of the break points in the open boundary
-    """
+    boundary are also determined (i.e. where the distance between two points > 2**0.5).
 
+    Parameters
+    ----------
+    fname     (str) : filename of BDY file
+
+    Returns
+    -------
+    bdy_ind   (dict): re-ordered indices
+    bdy_dst   (dict): distance (in model coords) between points
+    bdy_brk   (dict): location of the break points in the open boundary.
+    """
     # need to write in a check that either i or j are single values
 
     rootgrp = Dataset(fname, "r", format="NETCDF4")

@@ -1,6 +1,6 @@
 Installation
 ============
-This page provides a guide to installing pyNEMO. 
+This page provides a guide to installing pyNEMO.
 
 Dependencies
 ^^^^^^^^^^^^
@@ -20,7 +20,7 @@ Anaconda
 
 Using conda: pyNEMO supports Win64, OSX and Linux. for other operating systems please build from source.
 
-.. note:: It is recommended to create a seperate virtual environment for pyNEMO. 
+.. note:: It is recommended to create a seperate virtual environment for pyNEMO.
           Please follow the instructions on doing this at http://www.continuum.io/blog/conda
 
 ::
@@ -34,14 +34,14 @@ release is available.
 From Source
 ^^^^^^^^^^^
 
-Installing pyNEMO using other flavours of software or from source. Install all the dependencies and 
-download the source code from svn and install. 
+Installing pyNEMO using other flavours of software or from source. Install all the dependencies and
+download the source code from svn and install.
 
 ::
 
    svn checkout http://ccpforge.cse.rl.ac.uk/svn/pynemo/trunk/Python/
    python setup.py install
-   
+
 .. note:: If building from source in the Anaconda environment all dependencies can
           be installed using conda apart from thredds_crawler and pyjnius which can
           be installed using the following Anaconda channel:

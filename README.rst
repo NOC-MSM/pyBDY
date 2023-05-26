@@ -6,14 +6,14 @@ To be updated soon. This work springboards from the `PyNEMO Project <http://pyne
 How do I get set up?
 --------------------
 
-Steps to take to install PyNEMO, creating a specific conda virtual environment is highly recommended. 
+Steps to take to install PyNEMO, creating a specific conda virtual environment is highly recommended.
 `click here for more about virtual enviroments <https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html/>`_
 
 - Clone PyNEMO repository::
-    
+
     $ export PYNEMO_DIR=$PWD/PyNEMO
-    $ git clone https://github.com/NOC-MSM/PyNEMO.git 
-    
+    $ git clone https://github.com/NOC-MSM/PyNEMO.git
+
 - Create conda environment for PyNEMO::
 
     $ cd $PyNEMO_DIR
@@ -22,9 +22,9 @@ Steps to take to install PyNEMO, creating a specific conda virtual environment i
 - Activate the new virtual environment::
 
    $ source activate pynemo
-  
+
 - To deactivate::
-   
+
    $ conda deactivate
 
 - Make sure the Java Runtime Environment is set (e.g. livljobs*)::
@@ -32,17 +32,17 @@ Steps to take to install PyNEMO, creating a specific conda virtual environment i
     $ export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.322.b06-1.el7_9.x86_64/
 
 - Install PyNEMO::
-  
+
     $ python setup.py build
     $ python setup.py install
 
-This should result in PyNEMO being installed in the virtual environment, and can be checked by entering::  
+This should result in PyNEMO being installed in the virtual environment, and can be checked by entering::
 
     $ pynemo -v
 
 Resulting in a help usage prompt::
- 
-    $ usage: pynemo -g -s <namelist.bdy> 
+
+    $ usage: pynemo -g -s <namelist.bdy>
 
 To use PyNEMO, the following command is entered: (the example will run an benchmarking test)::
 
@@ -69,11 +69,11 @@ The PyNEMO module can be tested using the bench marking namelist bdy file in the
 .. image:: /screenshots/example_bdy_coords.png
   :width: 800
   :alt: Example BDY coords output
-  
-  
+
+
 Example: generating tidal boundary conditions on ARCHER2
 --------------------------------------------------------
-  
+
 - Activate the new virtual environment::
 
     conda activate pynemo
@@ -90,7 +90,7 @@ Example: generating tidal boundary conditions on ARCHER2
     pynemo -s inputs/namelist_local.bdy
 
 Take about 120s. Generates 7 consitutents, using FES2014 data, written to `outputs`::
- 
+
     coordinates.bdy.nc
     NNA_R12_bdytide_FES2014_M4_grd_V.nc
     NNA_R12_bdytide_FES2014_Q1_grd_U.nc

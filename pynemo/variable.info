@@ -17,7 +17,7 @@ sn_dst_dir = directory where the output data files need to be stored
 sn_fn = prefix for output files
 nn_fv = set fill value for output files
 nn_src_time_adj = src time adjustment
-sn_dst_metainfo = meta data information written to the output files. 
+sn_dst_metainfo = meta data information written to the output files.
 ln_coords_file = If true : produce bdy coordinates files
 cn_coords_file = name of bdy coordinates files (if ln_coords_file is set to .TRUE.)
 ln_mask_file = If .true. : read mask from file
@@ -30,14 +30,14 @@ nn_rimwidth = width of the relaxation zone
 ln_tide = if .true. : produce bdy tidal conditions
 sn_tide_model  = 'FES'
 clname(0) = constituent name
-ln_trans = 
+ln_trans =
 nn_year_000 = year start
 nn_year_end = year end
 nn_month_000 = month start (default = 1 is years>1)
 nn_month_end = month end (default = 12 is years>1)
 sn_dst_calendar = output calendar format
 nn_base_year = base year for time counter
-sn_tide_grid = 
+sn_tide_grid =
 sn_tide_h =
 sn_tide_u =
 nn_wei = smoothing filter weights

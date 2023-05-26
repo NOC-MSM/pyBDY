@@ -1,21 +1,18 @@
 # The Normalize class is largely based on code provided by Sarah Graves.
 
+import matplotlib.cbook as cbook
 import numpy as np
 import numpy.ma as ma
-
-import matplotlib.cbook as cbook
 from matplotlib.colors import Normalize
 
 
 class MyNormalize(Normalize):
-    '''
-    A Normalize class for imshow that allows different stretching functions
-    for astronomical images.
-    '''
+    """A Normalize class for imshow that allows different stretching functions for astronomical images."""
 
-    def __init__(self, stretch='linear', exponent=5, vmid=None, vmin=None,
-                 vmax=None, clip=False):
-        '''
+    def __init__(
+        self, stretch="linear", exponent=5, vmid=None, vmin=None, vmax=None, clip=False
+    ):
+        """
         Initalize an APLpyNormalize instance.
 
         Optional Keyword Arguments:
@@ -39,8 +36,7 @@ class MyNormalize(Normalize):
             *clip*: [ True | False ]
                 If clip is True and the given value falls outside the range,
                 the returned value will be 0 or 1, whichever is closer.
-        '''
-
+        """
         if vmax < vmin:
             raise Exception("vmax should be larger than vmin")
 
@@ -51,35 +47,36 @@ class MyNormalize(Normalize):
         self.stretch = stretch
         self.exponent = exponent
 
-        if stretch == 'power' and np.equal(self.exponent, None):
+        if stretch == "power" and np.equal(self.exponent, None):
             raise Exception("For stretch=='power', an exponent should be specified")
 
         if np.equal(vmid, None):
-            if stretch == 'log':
+            if stretch == "log":
                 if vmin > 0:
                     self.midpoint = vmax / vmin
                 else:
-                    raise Exception("When using a log stretch, if vmin < 0, then vmid has to be specified")
-            elif stretch == 'arcsinh':
-                self.midpoint = -1. / 30.
+                    raise Exception(
+                        "When using a log stretch, if vmin < 0, then vmid has to be specified"
+                    )
+            elif stretch == "arcsinh":
+                self.midpoint = -1.0 / 30.0
             else:
                 self.midpoint = None
         else:
-            if stretch == 'log':
+            if stretch == "log":
                 if vmin < vmid:
-                    raise Exception("When using a log stretch, vmin should be larger than vmid")
+                    raise Exception(
+                        "When using a log stretch, vmin should be larger than vmid"
+                    )
                 self.midpoint = (vmax - vmid) / (vmin - vmid)
-            elif stretch == 'arcsinh':
+            elif stretch == "arcsinh":
                 self.midpoint = (vmid - vmin) / (vmax - vmin)
             else:
                 self.midpoint = None
 
     def __call__(self, value, clip=None):
-
-        #read in parameters
-        method = self.stretch
+        # read in parameters
         exponent = self.exponent
-        midpoint = self.midpoint
 
         # ORIGINAL MATPLOTLIB CODE
 
@@ -87,10 +84,10 @@ class MyNormalize(Normalize):
             clip = self.clip
 
         if cbook.iterable(value):
-            vtype = 'array'
+            vtype = "array"
             val = ma.asarray(value).astype(np.float)
         else:
-            vtype = 'scalar'
+            vtype = "scalar"
             val = ma.array([value]).astype(np.float)
 
         self.autoscale_None(val)
@@ -102,53 +99,46 @@ class MyNormalize(Normalize):
         else:
             if clip:
                 mask = ma.getmask(val)
-                val = ma.array(np.clip(val.filled(vmax), vmin, vmax),
-                                mask=mask)
+                val = ma.array(np.clip(val.filled(vmax), vmin, vmax), mask=mask)
             result = (val - vmin) * (1.0 / (vmax - vmin))
 
             # CUSTOM APLPY CODE
 
             # Keep track of negative values
-            negative = result < 0.
+            negative = result < 0.0
 
-            if self.stretch == 'linear':
-
+            if self.stretch == "linear":
                 pass
 
-            elif self.stretch == 'log':
+            elif self.stretch == "log":
+                result = ma.log10(result * (self.midpoint - 1.0) + 1.0) / ma.log10(
+                    self.midpoint
+                )
 
-                result = ma.log10(result * (self.midpoint - 1.) + 1.) \
-                       / ma.log10(self.midpoint)
-
-            elif self.stretch == 'sqrt':
-
+            elif self.stretch == "sqrt":
                 result = ma.sqrt(result)
 
-            elif self.stretch == 'arcsinh':
+            elif self.stretch == "arcsinh":
+                result = ma.arcsinh(result / self.midpoint) / ma.arcsinh(
+                    1.0 / self.midpoint
+                )
 
-                result = ma.arcsinh(result / self.midpoint) \
-                       / ma.arcsinh(1. / self.midpoint)
-
-            elif self.stretch == 'power':
-
+            elif self.stretch == "power":
                 result = ma.power(result, exponent)
 
             else:
-
-                raise Exception("Unknown stretch in APLpyNormalize: %s" %
-                                self.stretch)
+                raise Exception("Unknown stretch in APLpyNormalize: %s" % self.stretch)
 
             # Now set previously negative values to 0, as these are
             # different from true NaN values in the FITS image
             result[negative] = -np.inf
 
-        if vtype == 'scalar':
+        if vtype == "scalar":
             result = result[0]
 
         return result
 
     def inverse(self, value):
-
         # ORIGINAL MATPLOTLIB CODE
 
         if not self.scaled():
@@ -163,30 +153,24 @@ class MyNormalize(Normalize):
         else:
             val = value
 
-        if self.stretch == 'linear':
-
+        if self.stretch == "linear":
             pass
 
-        elif self.stretch == 'log':
+        elif self.stretch == "log":
+            val = (ma.power(10.0, val * ma.log10(self.midpoint)) - 1.0) / (
+                self.midpoint - 1.0
+            )
 
-            val = (ma.power(10., val * ma.log10(self.midpoint)) - 1.) / (self.midpoint - 1.)
-
-        elif self.stretch == 'sqrt':
-
+        elif self.stretch == "sqrt":
             val = val * val
 
-        elif self.stretch == 'arcsinh':
+        elif self.stretch == "arcsinh":
+            val = self.midpoint * ma.sinh(val * ma.arcsinh(1.0 / self.midpoint))
 
-            val = self.midpoint * \
-                  ma.sinh(val * ma.arcsinh(1. / self.midpoint))
-
-        elif self.stretch == 'power':
-
-            val = ma.power(val, (1. / self.exponent))
+        elif self.stretch == "power":
+            val = ma.power(val, (1.0 / self.exponent))
 
         else:
-
-            raise Exception("Unknown stretch in APLpyNormalize: %s" %
-                            self.stretch)
+            raise Exception("Unknown stretch in APLpyNormalize: %s" % self.stretch)
 
         return vmin + val * (vmax - vmin)

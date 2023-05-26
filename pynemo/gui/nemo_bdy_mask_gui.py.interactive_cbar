@@ -1,10 +1,9 @@
-'''
+"""
 Created on 12 Jan 2015
 
 @author: Mr. Srikanth Nagella
-'''
-# pylint: disable=E1103
-# pylint: disable=no-name-in-module
+"""
+
 from netCDF4 import Dataset
 from mpl_toolkits.basemap import Basemap, cm
 import numpy as np
@@ -25,7 +24,7 @@ from matplotlib.transforms import Bbox
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import mynormalize
-# pylint: disable=E1002
+
 class DraggableColorbar(object):
     def __init__(self, cbar, mappable):
         self.cbar = cbar
@@ -186,14 +185,14 @@ class MatplotlibWidget(QtGui.QWidget):
             self.cbar.connect()
         self.canvas.draw()
 
-    
+
     def reset_mask(self):
         if self.mask == None:
-            return             
+            return
         self.mask.reset_mask()
         self.axes.clear()
         self.create_basemap()
-        
+
     def add_mask(self):
         """ adds the selected region in the drawing tool to the mask """
         if self._drawing_tool_name != "" and self.mask != None:
@@ -228,7 +227,7 @@ class MatplotlibWidget(QtGui.QWidget):
                 index = p_path.contains_points(grid)
                 index = index.reshape(self.mask.lon.shape)
                 xmin, ymin = np.min(self._drawing_tool.polygon.xy, axis=0)
-                xmax, ymax = np.max(self._drawing_tool.polygon.xy, axis=0)                
+                xmax, ymax = np.max(self._drawing_tool.polygon.xy, axis=0)
                 self.mask.remove_mask(index,[xmin,xmax,ymin,ymax])
                 self._drawing_tool.reset()
                 self.axes.clear()
@@ -248,7 +247,7 @@ class MatplotlibWidget(QtGui.QWidget):
         """ Sets the mask type """
         self.mask_type = type
         self.mask.mask_type = type
-        
+
     @pyqtSlot(str, str)
     def set_bathymetry_file(self, bathymetry_filename, mask_file):
         """ Set the bathymetry file """
@@ -258,13 +257,13 @@ class MatplotlibWidget(QtGui.QWidget):
             self.create_basemap()
         except RuntimeError:
             pass # couldn't set the new file name
-        
+
     @pyqtSlot(str)
     def save_mask_file(self, mask_file):
         """ Save the mask data to mask_file """
         if self.mask is not None:
             self.mask.save_mask(mask_file)
-            
+
     @pyqtSlot(float, float)
     def set_mask_settings(self, min_depth, shelfbreak_dist):
         """ Mask settings update """
@@ -272,7 +271,7 @@ class MatplotlibWidget(QtGui.QWidget):
         self.shelfbreak_dist = shelfbreak_dist
         self.mask.min_depth = min_depth
         self.mask.shelfbreak_dist = shelfbreak_dist
-        
+
 class NemoNavigationToolbar(NavigationToolbar):
     """ This is custom toolbar for the nemo which includes additional buttons
     for drawing tool and (add,remove) for mask in addtion to default NavigationToolbar
@@ -316,7 +315,7 @@ class NemoNavigationToolbar(NavigationToolbar):
         self._actions['shelf_break_mask'].setIcon((set_icon('shelf_break.png')))
         self._actions['shelf_break_mask'].setCheckable(True)
         self.update_height_mask(0)
-        
+
     def reset(self, *dummy):
         """ Callback for reset button clicked"""
         self.parent.reset_mask()
@@ -372,19 +371,19 @@ class NemoNavigationToolbar(NavigationToolbar):
         elif self._actions['freehand'].isChecked() == True:
             return 'freehand'
         return None
-    
+
     def normal_mask(self, *dummy):
         """ enable the normal mask button """
         self.update_height_mask(0)
-    
+
     def max_depth_mask(self, *dummy):
         """ enables the minimum height mask """
         self.update_height_mask(1)
-    
+
     def shelf_break_mask(self, *dummy):
         """ enables the shelf break mask button """
         self.update_height_mask(2)
-    
+
     def update_height_mask(self, btn_id):
         """ update the height mask buttons in the interface """
         self._actions['normal_mask'].setChecked(False)
@@ -404,4 +403,3 @@ class NemoNavigationToolbar(NavigationToolbar):
 def set_icon(name):
     """ Creates an icon based on the file found in the module directory with input name"""
     return QtGui.QIcon(os.path.join(os.path.dirname(__file__), name))
-

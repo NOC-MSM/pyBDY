@@ -8,30 +8,30 @@ package:
 build:
   preserve_egg_dir: yes
 #  number: 0
-  
+
 requirements:
   build:
-    - python
-    - numpy
-    - setuptools
-    - scipy
-    - netcdf4 >=1.1.9
-    - matplotlib
-    - basemap
-    - thredds_crawler
-    - seawater
+  - python
+  - numpy
+  - setuptools
+  - scipy
+  - netcdf4 >=1.1.9
+  - matplotlib
+  - basemap
+  - thredds_crawler
+  - seawater
 
   run:
-    - python
-    - numpy
-    - scipy
-    - netcdf4 >=1.1.9
-    - matplotlib
-    - basemap
-    - thredds_crawler
-    - seawater
+  - python
+  - numpy
+  - scipy
+  - netcdf4 >=1.1.9
+  - matplotlib
+  - basemap
+  - thredds_crawler
+  - seawater
 
-	
+
 #test:
 #  files:
 #    - ../data/grid_C/NNA_R12_bathy_meter_bench.nc
@@ -40,6 +40,6 @@ requirements:
 #  imports:
 #    - nosetests
 about:
-  home: https://github.com/jdha/PyNEMO 
+  home: https://github.com/jdha/PyNEMO
   license: GPL v3
   summary: 'NEMO Regional Configuration Toolbox'

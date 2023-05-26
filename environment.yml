@@ -1,16 +1,15 @@
-name: pynemo
+# environment.yml: Mandatory dependencies only.
 channels:
 - conda-forge
-- defaults
+- nodefaults
 dependencies:
 - python=3.9
+- pip
 - numpy
-- setuptools
 - scipy
 - netcdf4
 - matplotlib
 - basemap
-- pip
 - qt
 - pyqt
 - cftime=1.4.1
