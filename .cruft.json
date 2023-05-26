@@ -1,0 +1,18 @@
+{
+  "template": "https://github.com/ecmwf-projects/cookiecutter-conda-package",
+  "commit": "f4c1ea7352ef61806d5ce7c4bff302f924387b71",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "PyNEMO",
+      "project_slug": "pynemo",
+      "project_short_description": "a Python based regional NEMO model configuration toolbox",
+      "copyright_holder": "NOC",
+      "copyright_year": "2023",
+      "mypy_strict": "False",
+      "integration_tests": "False",
+      "_template": "https://github.com/ecmwf-projects/cookiecutter-conda-package"
+    }
+  },
+  "directory": null
+}
