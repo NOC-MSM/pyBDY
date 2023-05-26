@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" location="http://esurgeod.noc.soton.ac.uk:8080/thredds/fileServer/PyNEMO/extra_data/NN_ORCA025-N206_19791206d05T.nc">
-  <variable name="votemper" orgName="temp" />
-  <variable name="vosaline" orgName="salt" />
-  <variable name="sossheig" orgName="ssh" />
-  <variable name="deptht" orgName="zt" />
-  <variable name="time_counter" orgName="t" />
-</netcdf>
