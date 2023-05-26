@@ -13,7 +13,7 @@ from netCDF4 import Dataset
 def CreateBDYNetcdfFile(
     filename, xb_len, x_len, y_len, depth_len, rw, h, orig, fv, calendar, grd
 ):
-    """Creats a template of bdy netcdf files. A common for T, I, U, V, E grid types."""
+    """Create a template of bdy netcdf files. A common for T, I, U, V, E grid types."""
     gridNames = ["T", "I", "U", "V", "E", "Z"]  # All possible grids
 
     # Additional dimension lengths

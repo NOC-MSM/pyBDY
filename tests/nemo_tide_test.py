@@ -61,7 +61,6 @@ import warnings
 import numpy as np
 import pandas as pd
 from netCDF4 import Dataset
-
 from pynemo import nemo_bdy_setup as setup
 
 # log to PyNEMO log file

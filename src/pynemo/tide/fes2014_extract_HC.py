@@ -338,7 +338,7 @@ def interpolate_data(lon, lat, data, mask, lonlat):
 
 
 def bilinear_interpolation(lon, lat, data, lon_new, lat_new):
-    """Does a bilinear interpolation of grid where the data values are NaN's."""
+    """Perform a bilinear interpolation of grid where the data values are NaN's."""
     glob = 0
     lon_resolution = lon[1] - lon[0]
     if lon[-1] - lon[1] == 360 - lon_resolution:

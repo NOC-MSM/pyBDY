@@ -13,7 +13,7 @@ class MyNormalize(Normalize):
         self, stretch="linear", exponent=5, vmid=None, vmin=None, vmax=None, clip=False
     ):
         """
-        Initalize an APLpyNormalize instance.
+        Initialise an APLpyNormalize instance.
 
         Optional Keyword Arguments:
 

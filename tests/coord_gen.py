@@ -98,7 +98,7 @@ def write_coord(
     e2f,
 ):
     """
-    Writes out a NEMO formatted coordinates file.
+    Write out a NEMO formatted coordinates file.
 
     Parameters
     ----------
@@ -213,7 +213,7 @@ def write_domcfg(
     kbot,
 ):
     """
-    Writes out a NEMO formatted domcfg file.
+    Write out a NEMO formatted domcfg file.
 
     Parameters
     ----------

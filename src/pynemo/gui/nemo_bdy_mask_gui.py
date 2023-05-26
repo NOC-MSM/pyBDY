@@ -37,7 +37,7 @@ class MatplotlibWidget(QtWidgets.QWidget):
         *args,
         **kwargs
     ):
-        """Initialises the mask, matplot and the navigation toolbar."""
+        """Initialise the mask, matplot and the navigation toolbar."""
         super(MatplotlibWidget, self).__init__(parent)
         # QtWidgets.QWidget.__init__(self, parent)
         self.figure = Figure(*args, **kwargs)
@@ -66,7 +66,7 @@ class MatplotlibWidget(QtWidgets.QWidget):
 
     @pyqtSlot(str)
     def drawing_tool_callback(self, toolname):
-        """Callback for the drawing tool when the signal of change of drawing tool is received."""
+        """Run callback for the drawing tool when the signal of change of drawing tool is received."""
         if (
             self._drawing_tool_name is not None and toolname == ""
         ):  # if tool is disabled
@@ -141,7 +141,7 @@ class MatplotlibWidget(QtWidgets.QWidget):
         self.create_basemap()
 
     def add_mask(self):
-        """Adds the selected region in the drawing tool to the mask."""
+        """Add the selected region in the drawing tool to the mask."""
         if self._drawing_tool_name != "" and self.mask is not None:
             if self._drawing_tool.polygon is not None:
                 x = np.arange(0, self.mask.lon.shape[0])
@@ -161,7 +161,7 @@ class MatplotlibWidget(QtWidgets.QWidget):
                 self.create_basemap()
 
     def remove_mask(self):
-        """Removes the selected region in the drawing tool from the mask."""
+        """Remove the selected region in the drawing tool from the mask."""
         if self._drawing_tool_name != "" and self.mask is not None:
             if self._drawing_tool.polygon is not None:
                 x = np.arange(0, self.mask.lon.shape[0])
@@ -277,11 +277,11 @@ class NemoNavigationToolbar(NavigationToolbar):
         self.update_height_mask(0)
 
     def reset(self, *dummy):
-        """Callback for reset button clicked."""
+        """Run callback for reset button clicked."""
         self.parent.reset_mask()
 
     def freehand(self, *dummy):
-        """Callback for freehand button clicked."""
+        """Run callback for freehand button clicked."""
         if self._actions["freehand"].isChecked() is True:
             if self._active == "PAN":
                 self.pan()
@@ -297,7 +297,7 @@ class NemoNavigationToolbar(NavigationToolbar):
             self.drawing_tool.emit("")
 
     def rectangle(self, *dummy):
-        """Callback for rectangel button clicked."""
+        """Run callback for rectangel button clicked."""
         if self._actions["rectangle"].isChecked() is True:
             if self._active == "PAN":
                 self.pan()
@@ -313,15 +313,15 @@ class NemoNavigationToolbar(NavigationToolbar):
             self.drawing_tool.emit("")
 
     def border(self, *dummy):
-        """Callback for border button clicked."""
+        """Run callback for border button clicked."""
         self.parent.apply_border_mask()
 
     def add_mask(self, *dummy):
-        """Callback for add mask button clicked."""
+        """Run callback for add mask button clicked."""
         self.parent.add_mask()
 
     def remove_mask(self, *dummy):
-        """Callback for remove mask button clicked."""
+        """Run callback for remove mask button clicked."""
         self.parent.remove_mask()
 
     def get_active_button(self):

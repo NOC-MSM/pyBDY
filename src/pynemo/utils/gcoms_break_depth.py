@@ -71,7 +71,7 @@ def gcoms_break_depth(bathy):
 
 def gcoms_boundary_masks(bathy, ov, lv):
     """
-    Description.
+    _Summary.
 
     Parameters
     ----------

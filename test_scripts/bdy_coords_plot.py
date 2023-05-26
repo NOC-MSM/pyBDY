@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 from netCDF4 import Dataset
-
 from pynemo.tests import bdy_coords as bdc
 
 bdc.process_bdy("/Users/thopri/Projects/PyNEMO/inputs/namelist_remote.bdy", False)

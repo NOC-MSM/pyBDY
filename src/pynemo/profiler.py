@@ -72,8 +72,11 @@ logging.basicConfig(filename="nrct.log", level=logging.INFO)
 
 def process_bdy(setup_filepath=0, mask_gui=False):
     """
-    Main entry for processing BDY lateral boundary conditions.
+    Handle all the calls to generate open boundary conditions for a given regional domain.
 
+    Notes
+    -----
+    This is main entry for processing BDY lateral boundary conditions.
     This is the main script that handles all the calls to generate open
     boundary conditions for a given regional domain. Input options are handled
     in a NEMO style namelist (namelist.bdy). There is an optional GUI allowing
@@ -352,7 +355,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
 def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
     """
-    Writes the tidal data to a NetCDF file.
+    Write the tidal data to a NetCDF file.
 
     Parameters
     ----------

@@ -18,7 +18,7 @@ logging.basicConfig(level=logging.INFO)
 
 def main():
     """
-    Main function.
+    Run main function.
 
     Checks the command line parameters and passes them to the profile module for processing.
     """

@@ -11,8 +11,6 @@ import logging
 from time import clock
 
 import numpy as np
-from PyQt5.QtWidgets import QMessageBox
-
 from pynemo import nemo_bdy_dst_coord as dst_coord
 from pynemo import nemo_bdy_gen_c as gen_grid
 from pynemo import nemo_bdy_ice, pynemo_settings_editor
@@ -23,6 +21,7 @@ from pynemo import nemo_bdy_source_coord as source_coord
 from pynemo import nemo_coord_gen_pop as coord
 from pynemo.gui.nemo_bdy_mask import Mask as Mask_File
 from pynemo.utils import Constants
+from PyQt5.QtWidgets import QMessageBox
 
 # import pickle
 
@@ -32,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 def process_bdy(setup_filepath=0, mask_gui=False):
     """
-    Main entry to the processing of the bdy.
+    Run main entry to the processing of the bdy.
 
     Parameters
     ----------

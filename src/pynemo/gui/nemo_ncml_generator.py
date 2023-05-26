@@ -24,7 +24,7 @@ class Ncml_generator(QtWidgets.QDialog):
     """
 
     def __init__(self, basefile):
-        """Initialises the UI components."""
+        """Initialise the UI components."""
         super(
             Ncml_generator, self
         ).__init__()  # no params yet, may be allow user to predefine an input ncml for edit????

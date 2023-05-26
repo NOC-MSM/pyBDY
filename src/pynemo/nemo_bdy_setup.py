@@ -46,7 +46,7 @@ class Setup(object):
 
     def __init__(self, setfile):
         """
-        Setup constructor.
+        Set up the constructor.
 
         Notes
         -----

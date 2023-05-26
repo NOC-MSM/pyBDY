@@ -26,7 +26,7 @@ class NameListEditor(QtWidgets.QWidget):
     )  # fires when there is mask settings update
 
     def __init__(self, setup):
-        """Constructor for setting up the gui using the settings."""
+        """Initialise the constructor for setting up the gui using the settings."""
         super(NameListEditor, self).__init__()
         self.settings = setup.settings
         self.bool_settings = setup.bool_settings
@@ -126,16 +126,16 @@ class NameListEditor(QtWidgets.QWidget):
         self.show()
 
     def label_changed(self, value, name):
-        """Callback when the text is changed in the text box."""
+        """Run callback when the text is changed in the text box."""
         self.new_settings[name] = str(value).encode("utf_8")
 
     def combo_index_changed(self, value, name):
         """
-        Callback for the dropdown in the settings.
+        Run callback for the dropdown in the settings.
 
         Notes
         -----
-        Callback when the True/False dropdown for the settings,
+        Run callback when the True/False dropdown for the settings,
           which has a boolean value, is changed.
         """
         if value == 0:
@@ -145,7 +145,7 @@ class NameListEditor(QtWidgets.QWidget):
 
     def state_changed(self, state, name):
         """
-        Callback when the check box state is changed.
+        Run callback when the check box state is changed.
 
         Notes
         -----
@@ -158,7 +158,7 @@ class NameListEditor(QtWidgets.QWidget):
 
     def _btn_save_callback(self):
         """
-        Callback when save button is clicked.
+        Run callback when save button is clicked.
 
         Notes
         -----
@@ -212,5 +212,5 @@ class NameListEditor(QtWidgets.QWidget):
             )
 
     def _btn_cancel_callback(self):
-        """Callback when cancel button is clicked."""
+        """Run callback when cancel button is clicked."""
         self.close()

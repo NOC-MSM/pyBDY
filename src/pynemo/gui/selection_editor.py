@@ -21,7 +21,7 @@ class PolygonEditor(object):
     epsilon = 3  # threshold
 
     def __init__(self, axis, canvas):
-        """Initialises the editable polygon object."""
+        """Initialise the editable polygon object."""
         self.axis = axis
         self.polygon = None
         self.line = None
@@ -152,7 +152,7 @@ class PolygonEditor(object):
         self.line.set_visible(vis)
 
     def get_index_under_point(self, event):
-        """Gets the index of the point under the event (mouse click)."""
+        """Get the index of the point under the event (mouse click)."""
         if self.xy_values.shape[0] == 0:
             return None
         xy_values = self.xy_values
@@ -165,7 +165,7 @@ class PolygonEditor(object):
         return ind
 
     def button_press_callback(self, event):
-        """Callback to mouse press event."""
+        """Run callback to mouse press event."""
         if not self.show_verts:
             return
         if event.inaxes is None:
@@ -177,7 +177,7 @@ class PolygonEditor(object):
             self.insert_datapoint(event)
 
     def button_release_callback(self, event):
-        """Callback to mouse release event."""
+        """Run callback to mouse release event."""
         if not self.show_verts:
             return
         if event.button == 2:
@@ -191,7 +191,7 @@ class PolygonEditor(object):
         self._ind = None
 
     def insert_datapoint(self, event):
-        """Inserts a new data point between the segment that is closest in polygon."""
+        """Insert a new data point between the segment that is closest in polygon."""
         if self.xy_values.shape[0] <= 2:
             self.add_point(event.xdata, event.ydata)
         else:
@@ -215,7 +215,7 @@ class PolygonEditor(object):
             self.refresh()
 
     def delete_datapoint(self, event):
-        """Deletes the data point under the point in event."""
+        """Delete the data point under the point in event."""
         ind = self.get_index_under_point(event)
         if ind is not None:
             self.xy_values = np.array(
@@ -226,7 +226,7 @@ class PolygonEditor(object):
 
     def motion_notify_callback(self, event):
         """
-        Callback for the mouse motion with button press.
+        Run callback for the mouse motion with button press.
 
         This is to move the edge points of the polygon.
         """
@@ -265,7 +265,7 @@ class BoxEditor(object):
     polygon = None
 
     def __init__(self, axes, canvas):
-        """Initialises class and creates a rectangle selector."""
+        """Initialise class and creates a rectangle selector."""
         self.axes = axes
         self.canvas = canvas
         self.rectangle_selector = RectangleSelector(
@@ -282,7 +282,7 @@ class BoxEditor(object):
         )
 
     def line_select_callback(self, eclick, erelease):
-        """Callback to the rectangleselector."""
+        """Run callback to the rectangleselector."""
         x1_val, y1_val = eclick.xdata, eclick.ydata
         x2_val, y2_val = erelease.xdata, erelease.ydata
         xy_values = np.array(
@@ -315,13 +315,13 @@ class BoxEditor(object):
         self.rectangle_selector.set_active(True)
 
     def disable(self):
-        """Disables or removes the box selector."""
+        """Disable or removes the box selector."""
         self.reset_polygon()
         self.rectangle_selector.set_active(False)
         self.canvas.draw()
 
     def reset_polygon(self):
-        """Resets rectangle polygon."""
+        """Reset rectangle polygon."""
         if self.polygon is not None:
             self.polygon.remove()
             self.polygon = None

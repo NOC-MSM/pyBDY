@@ -188,7 +188,7 @@ class Variable(object):
         )
 
     def __len__(self):
-        """Returns the length of the variable."""
+        """Return the length of the variable."""
         try:
             dataset = Dataset(self.file_names[0], "r")
             dvar = dataset.variables[self.variable]
@@ -202,7 +202,7 @@ class Variable(object):
         return None
 
     def __getitem__(self, val):
-        """Returns the data requested."""
+        """Return the data requested."""
         try:
             if self.time_dim_index == -1:
                 dataset = Dataset(self.file_names[0][0], "r")
@@ -254,7 +254,7 @@ class Variable(object):
         return None
 
     def get_attribute_values(self, attr_name):
-        """Returns the attribute value of the variable."""
+        """Return the attribute value of the variable."""
         try:
             dataset = Dataset(self.file_names[0][0], "r")
             dvar = dataset.variables[self.variable]
@@ -274,7 +274,7 @@ class Variable(object):
         return None
 
     def _get_dimensions(self):
-        """Returns the dimensions of the variables."""
+        """Return the dimensions of the variables."""
         try:
             dataset = Dataset(self.file_names[0][0], "r")
             dvar = dataset.variables[self.variable]
@@ -286,7 +286,7 @@ class Variable(object):
         return None
 
     def _set_time_dimension_index(self):
-        """Sets the time dimension index."""
+        """Set the time dimension index."""
         self.time_dim_index = -1
         for index in range(len(self.dimensions)):
             if self.dimensions[index] == self.time_counter_const:

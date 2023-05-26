@@ -7,7 +7,6 @@ import unittest
 
 import numpy as np
 from netCDF4 import Dataset
-
 from pynemo.utils import gcoms_break_depth
 
 

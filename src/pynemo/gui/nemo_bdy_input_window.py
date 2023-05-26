@@ -14,7 +14,7 @@ class InputWindow(QtWidgets.QDialog):
     """Input Window for editing pyNEMO settings."""
 
     def __init__(self, setup):
-        """Initialises the UI components."""
+        """Initialise the UI components."""
         super(InputWindow, self).__init__()
         # initialise NameListEditor
         self.nl_editor = NameListEditor(setup)
