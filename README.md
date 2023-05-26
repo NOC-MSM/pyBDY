@@ -69,7 +69,7 @@ $ pynemo -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 
 ## Contribution guidelines
 
-For best experience create a new conda environment (e.g. pynemo-develop) with Python 3.10:
+For best experience create a new conda environment (e.g. pynemo-develop):
 
 ```
 conda env create -f environment.yml
