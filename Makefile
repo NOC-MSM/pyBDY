@@ -3,7 +3,7 @@ CONDA := conda
 CONDAFLAGS :=
 COV_REPORT := html
 
-default: qa unit-tests type-check
+default: qa unit-tests
 
 qa:
 	pre-commit run --all-files
