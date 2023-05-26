@@ -82,8 +82,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     in a NEMO style namelist (namelist.bdy). There is an optional GUI allowing
     the user to create a mask that defines the extent of the regional model.
 
-    Args:
-    ----
+    Parameters
+    ----------
         setup_filepath (str) : file path to find namelist.bdy
         mask_gui       (bool): whether use of the GUI is required
 

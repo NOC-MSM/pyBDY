@@ -17,3 +17,4 @@ dependencies:
   - pyjnius
   - seawater
   - thredds-crawler
+  - sphinx_rtd_theme

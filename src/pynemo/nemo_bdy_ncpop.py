@@ -9,10 +9,11 @@ from netCDF4 import Dataset
 
 
 def write_data_to_file(filename, variable_name, data):
-    """Write the data to the netcdf templete file.
+    """
+    Write the data to the netcdf templete file.
 
-    Keyword Arguments:
-    -----------------
+    Parameters
+    ----------
     filename -- output filename
     variable_name -- variable name into which the data is written to.
     data -- data that will be written to variable in netcdf.
