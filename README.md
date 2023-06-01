@@ -50,20 +50,20 @@ This should result in PyNEMO being installed in the virtual environment,
 and can be checked by entering:
 
 ```
-$ pynemo -v
+pynemo -v
 ```
 
 Resulting in a help usage prompt:
 
 ```
-$ usage: pynemo -g -s <namelist.bdy>
+usage: pynemo -g -s <namelist.bdy>
 ```
 
 To use PyNEMO, the following command is entered: (the example will run
 an benchmarking test):
 
 ```
-$ pynemo -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
+pynemo -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 ```
 
 ## Contribution guidelines
@@ -101,7 +101,7 @@ following steps are required,
 
   ```
   cd $PYNEMO_DIR
-  $ pynemo -s /full/path/to/namelist/file
+  pynemo -s /full/path/to/namelist/file
   ```
 
 - This will create two output files coordinates.bdy.nc and
