@@ -2,15 +2,7 @@
 requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
 
 [options]
-install_requires = [
-  "netCDF4",
-  "scipy",
-  "numpy",
-  "matplotlib",
-  "basemap",
-  "thredds_crawler",
-  "seawater"
-]
+install_requires = []
 
 [project]
 authors = [
@@ -30,12 +22,44 @@ classifiers = [
   "Programming Language :: Python",
   "Programming Language :: Python :: 3.9"
 ]
+dependencies = [
+  "netCDF4",
+  "scipy",
+  "numpy",
+  "matplotlib",
+  "basemap",
+  "thredds_crawler",
+  "seawater",
+  "pyqt5",
+  "pyjnius",
+  "cftime"
+]
 description = "NEMO Regional Configuration Toolbox"
 dynamic = ["version"]
-keywords = ["Oceanography", "NEMO"]
+keywords = [
+  "Oceanography",
+  "NEMO"
+]
 license = {file = "LICENSE"}
 name = "PyNEMO"
 readme = "README.md"
+
+[project.optional-dependencies]
+dev = [
+  "mypy",
+  "commit"
+]
+docs = [
+  "sphinx",
+  "sphinx-autoapi",
+  "sphinx_rtd_theme",
+  "myst-parser",
+  "pydata-sphinx-theme"
+]
+tests = [
+  "pytest",
+  "pytest-cov"
+]
 
 [project.scripts]
 pynemo = "pynemo.pynemo_exe:main"
