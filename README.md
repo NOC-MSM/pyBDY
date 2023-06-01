@@ -5,46 +5,45 @@ Project](http://pynemo.readthedocs.io/en/latest/index.html).
 
 ## How do I get set up?
 
-Steps to take to install PyNEMO, creating a specific conda virtual
-environment is highly recommended. [click here for more about virtual
-enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html/)
+These are the steps to take to install PyNEMO:
 
 - Clone PyNEMO repository:
 
   ```
-  $ export PYNEMO_DIR=$PWD/PyNEMO
-  $ git clone https://github.com/NOC-MSM/PyNEMO.git
+  export PYNEMO_DIR=$PWD/PyNEMO
+  git clone https://github.com/NOC-MSM/PyNEMO.git
   ```
 
-- Create conda environment for PyNEMO:
+- Creating a specific conda virtual environment is highly recommended ([click here for more about virtual
+  enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html/)).
 
   ```
-  $ cd $PyNEMO_DIR
-  $ conda env create -f environment.yml
+  cd $PYNEMO_DIR
+  conda env create -n pynemo -f environment.yml python=3.9
   ```
 
 - Activate the new virtual environment:
 
   ```
-  $ conda activate pynemo
+  conda activate pynemo
   ```
 
 - To deactivate:
 
   ```
-  $ conda deactivate
+  conda deactivate
   ```
 
 - Make sure the Java Runtime Environment is set (e.g. livljobs\*):
 
   ```
-  $ export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.322.b06-1.el7_9.x86_64/
+  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.322.b06-1.el7_9.x86_64/
   ```
 
 - Install PyNEMO:
 
   ```
-  $ pip install .
+  pip install -e .
   ```
 
 This should result in PyNEMO being installed in the virtual environment,
@@ -69,11 +68,11 @@ $ pynemo -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 
 ## Contribution guidelines
 
-For best experience create a new conda environment (e.g. pynemo-develop):
+For best experience create a new conda environment (e.g. pynemo-dev):
 
 ```
-conda env create -f environment.yml
-conda activate pynemo-develop
+conda env create -n pynemo-dev -f environment.yml python=3.9
+conda activate pynemo-dev
 ```
 
 Before pushing to GitHub, run the following commands:
@@ -83,7 +82,7 @@ Before pushing to GitHub, run the following commands:
 1. Sync with the latest [template](https://github.com/ecmwf-projects/cookiecutter-conda-package) (optional): `make template-update`
 1. Run quality assurance checks: `make qa`
 1. Run tests: `make unit-tests`
-1. Run the static type checker: `make type-check`
+1. Run the static type checker (currently not working): `make type-check`
 1. Build the documentation (see [Sphinx tutorial](https://www.sphinx-doc.org/en/master/tutorial/)): `make docs-build`
 
 ## Bench Marking Tests
@@ -98,10 +97,11 @@ downloaded from
 following steps are required,
 
 - Run PyNEMO using the namelist file in the inputs folder
-  (namelist_local.bdy) e.g.:
+  (namelist_local.bdy) from inside the root PyNEMO directory, e.g.:
 
   ```
-  $ pynemo -s /path/to/namelist/file
+  cd $PYNEMO_DIR
+  $ pynemo -s /full/path/to/namelist/file
   ```
 
 - This will create two output files coordinates.bdy.nc and
