@@ -34,3 +34,11 @@ repos:
     args: [--autofix, --preserve-quotes]
   - id: pretty-format-toml
     args: [--autofix]
+- repo: https://github.com/roy-ht/pre-commit-jupyter
+  rev: v1.2.1
+  hooks:
+  - id: jupyter-notebook-cleanup
+    args:
+    - --remove-kernel-metadata
+    - --pin-patterns
+    - "[pin];[donotremove]"
