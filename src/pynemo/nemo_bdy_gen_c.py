@@ -55,7 +55,7 @@ class Boundary:
             # We need to copy this before changing, because the original will be
             # needed in calculating later grid boundary types
             bdy_msk = boundary_mask.copy()
-            grid_ind = np.zeros(bdy_msk.shape, dtype=np.bool, order="C")
+            grid_ind = np.zeros(bdy_msk.shape, dtype=bool, order="C")
             # NEMO works with a staggered 'C' grid. need to create a grid with staggered points
             for fval in [-1, 0]:  # -1 mask value, 0 Land, 1 Water/Ocean
                 if grid == "u":

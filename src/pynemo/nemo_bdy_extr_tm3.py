@@ -1008,7 +1008,7 @@ class Extract:
         # Take the difference of the first two time enteries to get delta t
 
         del_t = time_counter[1] - time_counter[0]
-        dstep = 86400 // np.int(del_t)
+        dstep = 86400 // int(del_t)
 
         # TODO: put in a test to check all deltaT are the same otherwise throw
         # an exception
