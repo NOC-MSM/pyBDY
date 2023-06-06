@@ -5,7 +5,8 @@
 Before making any changes to the code, it is recommended to create a new conda environment for development:
 
 ```bash
-conda env create -n pybdy-dev -f environment.yml python=3.9
+conda env create -n pybdy-dev python=3.9
+conda env update -n pybdy-dev -f environment.yml
 conda activate pybdy-dev
 ```
 
