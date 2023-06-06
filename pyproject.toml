@@ -62,7 +62,7 @@ tests = [
 ]
 
 [project.scripts]
-pybdy = "pybdy.pybdy:main"
+pybdy = "pybdy.pybdy_exe:main"
 pybdy_ncml_generator = "pybdy.pybdy_ncml_generator:main"
 pybdy_settings_editor = "pybdy.pybdy_settings_editor:main"
 
