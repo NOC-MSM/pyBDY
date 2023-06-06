@@ -1,17 +1,17 @@
 Examples
 ========
-Here we provide two worked examples using pyNEMO. The first is a setup of the Northwest European Shelf using
+Here we provide two worked examples using pyBDY. The first is a setup of the Northwest European Shelf using
 a remote dataset. The second is an end-to-end setup of a small regional model in the tropics.
 
 Example 1: Northwest European Shelf
 ===================================
 
 
-.. figure:: _static/eg1.png 
+.. figure:: _static/eg1.png
    :align:   center
 
    Northwest European Shelf Bathymetry
-   
+
 
 This example has been tested on the ARCHER HPC facillity *(22 Feb 2017)*.
 
@@ -35,11 +35,11 @@ THREDDS server so no addtional data are required.
    cd $WDIR
    mkdir OUTPUT
 
-Now we're ready to generate the boundary conditions using pyNEMO. 
+Now we're ready to generate the boundary conditions using pyBDY.
 If this is not installed follow the `installation guide` or a quick
 setup could be as follows:
 
-:: 
+::
 
    cd ~
    module load anaconda
@@ -58,13 +58,13 @@ setup could be as follows:
    cd $WDIR
 
 Next we need to modify the namelist.bdy file to point it to the correct
-data sources. First we need to create an ncml file to gather input data 
+data sources. First we need to create an ncml file to gather input data
 and map variable names. First we update *sn_src_dir*, *sn_dst_dir* and
-*cn_mask_file* to reflect the working path (e.g. sn_src_dir = '$WDIR/test.ncml', 
-sn_dst_dir = '$WDIR/OUTPUT' and cn_mask_file = '$WDIR/mask.nc'). 
+*cn_mask_file* to reflect the working path (e.g. sn_src_dir = '$WDIR/test.ncml',
+sn_dst_dir = '$WDIR/OUTPUT' and cn_mask_file = '$WDIR/mask.nc').
 Explicitly write out $WDIR. Next we need to generate test.ncml.
 
-.. note:: pynemo may have to be run on either espp1 or espp2 (e.g. ssh -Y espp1) 
+.. note:: pynemo may have to be run on either espp1 or espp2 (e.g. ssh -Y espp1)
           as the JVM doesn't have sufficient memory on the login nodes.
 
 ::
@@ -72,21 +72,21 @@ Explicitly write out $WDIR. Next we need to generate test.ncml.
    ssh -Y espp1
    module load anaconda
    source activate pynemo_env
-   cd $WDIR 
-   pynemo_ncml_generator   
+   cd $WDIR
+   pynemo_ncml_generator
 
 For each of the tracer and dynamics variables enter the following URL as
 the source directory:
 
 http://esurgeod.noc.soton.ac.uk:8080/thredds/dodsC/PyNEMO/data
 
-Add a regular expression for each (Temperature, Salinity and Sea Surface 
+Add a regular expression for each (Temperature, Salinity and Sea Surface
 Height each use: .\*T\\.nc$ and the velocities use .\*V\\.nc$ and .\*V\\.nc$)
-After each entry click the Add button. Finally fill in the output file 
+After each entry click the Add button. Finally fill in the output file
 including directory path (this should match *sn_src_dir*). Once this is complete
 click on the generate button and an ncml file should be written to $WDIR.
 
-Then using pynemo we define the area we want to model and generate some 
+Then using pynemo we define the area we want to model and generate some
 boundary conditions:
 
 .. note:: I've had to add the conda env path to the $PYTHONPATH as python does
@@ -97,7 +97,7 @@ boundary conditions:
    export LD_LIBRARY_PATH=/opt/java/jdk1.7.0_45/jre/lib/amd64/server:$LD_LIBRARY_PATH
    export PYTHONPATH=~/.conda/envs/pynemo_env/lib/python2.7/site-packages:$PYTHONPATH
    pynemo -g -s namelist.bdy
- 
+
 Once the area of interest is selected and the close button is clicked,
 open boundary data should be generated in $WDIR/OUTPUT.
 
@@ -105,15 +105,15 @@ open boundary data should be generated in $WDIR/OUTPUT.
 Example 2: Lighthouse Reef
 ==========================
 
-.. figure:: _static/eg2.png 
+.. figure:: _static/eg2.png
    :align:   center
 
    Regional Mask / SSH after 1 day / SST after 1 day
-   
+
 
 This example has been tested on the ARCHER HPC facillity.
 
-First, create a working directory into which the NEMO 
+First, create a working directory into which the NEMO
 source code can be checked out. Create an inputs directory
 to unpack the forcing tar ball.
 
@@ -135,10 +135,10 @@ to unpack the forcing tar ball.
    cp $WDIR/INPUTS/arch-XC30_ARCHER.* ./arch
    ./make_xios --full --prod --arch XC30_ARCHER --netcdf_lib netcdf4_par
 
-Next we setup our experiment directory and drop an updated 
-dtatsd.F90 into MY_SRC to allow the vertical interpolation 
-of initial conditions on to the new verictal coordinates. 
-We also apply several patches for bugs in the code. 
+Next we setup our experiment directory and drop an updated
+dtatsd.F90 into MY_SRC to allow the vertical interpolation
+of initial conditions on to the new verictal coordinates.
+We also apply several patches for bugs in the code.
 
 .. note:: when executing ./makenemo for the first time only choose OPA_SRC.
           For some reason even though LIM_2 is not chosen key_lim2 is
@@ -152,7 +152,7 @@ We also apply several patches for bugs in the code.
    export TDIR=$WDIR/dev_r4621_NOC4_BDY_VERT_INTERP/NEMOGCM/TOOLS
    cd $CDIR/../NEMO/OPA_SRC/SBC
    patch -b < $WDIR/INPUTS/fldread.patch
-   cd ../DOM 
+   cd ../DOM
    patch -b < $WDIR/INPUTS/dommsk.patch
    cd ../BDY
    patch -b < $WDIR/INPUTS/bdyini.patch
@@ -161,11 +161,11 @@ We also apply several patches for bugs in the code.
    cp $WDIR/INPUTS/arch-* ../ARCH
    ./makenemo -n LH_REEF -m XC_ARCHER_INTEL -j 10
    cp $WDIR/INPUTS/cpp_LH_REEF.fcm ./LH_REEF
-   cp $WDIR/INPUTS/dtatsd.F90 LH_REEF/MY_SRC/ 
+   cp $WDIR/INPUTS/dtatsd.F90 LH_REEF/MY_SRC/
 
 To generate bathymetry, initial conditions and grid information
 we first need to compile some of the NEMO TOOLS (after a small
-bugfix - and to allow direct passing of arguments). For some 
+bugfix - and to allow direct passing of arguments). For some
 reason GRIDGEN doesn't like INTEL:
 
 ::
@@ -189,14 +189,14 @@ reason GRIDGEN doesn't like INTEL:
 .. note:: my standard ARCHER ENV is intel with parallel netcdf you may need to edit accordingly
 
 Back in $WDIR/INPUTS, create a new coordinates file from the
-existing global 1/12 mesh and refine to 1/84 degree resolution: 
+existing global 1/12 mesh and refine to 1/84 degree resolution:
 
 ::
- 
+
    cd $TDIR/GRIDGEN
    cp $WDIR/INPUTS/namelist_R12 ./
    ln -s namelist_R12 namelist.input
-   ./create_coordinates.exe 
+   ./create_coordinates.exe
    cp 1_coordinates_ORCA_R12.nc $WDIR/INPUTS/coordinates.nc
 
 To create the bathymetry we use the gebco dataset. On ARCHER I
@@ -216,22 +216,22 @@ for some unknown reason.
    $TDIR/WEIGHTS/scripgrid.exe namelist_reshape_bilin_gebco
    $TDIR/WEIGHTS/scrip.exe namelist_reshape_bilin_gebco
    $TDIR/WEIGHTS/scripinterp.exe namelist_reshape_bilin_gebco
-    
+
 We perform a similar operation to create the initial conditions:
 
-.. note:: I've put a sosie pre-step in here to flood fill the land. 
+.. note:: I've put a sosie pre-step in here to flood fill the land.
           I tried using sosie for 3D intepolation, but not convinced.
 
 ::
 
    cd ~
-   mkdir local 
+   mkdir local
    svn co svn://svn.code.sf.net/p/sosie/code/trunk sosie
    cd sosie
    cp $WDIR/INPUTS/make.macro ./
    make
    make install
-   export PATH=~/local/bin:$PATH   
+   export PATH=~/local/bin:$PATH
    cd $WDIR/INPUTS
    sosie.x -f initcd_votemper.namelist
    sosie.x -f initcd_vosaline.namelist
@@ -251,15 +251,15 @@ Finally we setup weights files for the atmospheric forcing:
    $TDIR/WEIGHTS/scripshape.exe namelist_reshape_bicubic_atmos
 
 
-Next step is to create the mesh and mask files that will be used 
+Next step is to create the mesh and mask files that will be used
 in the generation of the open boundary conditions:
 
 ::
 
    cd $CDIR
    cp $WDIR/INPUTS/cpp_LH_REEF.fcm LH_REEF/
-   ln -s $WDIR/INPUTS/bathy_meter.nc $CDIR/LH_REEF/EXP00/bathy_meter.nc 
-   ln -s $WDIR/INPUTS/coordinates.nc $CDIR/LH_REEF/EXP00/coordinates.nc 
+   ln -s $WDIR/INPUTS/bathy_meter.nc $CDIR/LH_REEF/EXP00/bathy_meter.nc
+   ln -s $WDIR/INPUTS/coordinates.nc $CDIR/LH_REEF/EXP00/coordinates.nc
    cp $WDIR/INPUTS/runscript $CDIR/LH_REEF/EXP00
    cp $WDIR/INPUTS/namelist_cfg $CDIR/LH_REEF/EXP00/namelist_cfg
    cp $WDIR/INPUTS/namelist_ref $CDIR/LH_REEF/EXP00/namelist_ref
@@ -270,7 +270,7 @@ in the generation of the open boundary conditions:
    qsub -q short runscript
 
 
-If that works, we then need to rebuild the mesh and mask files in 
+If that works, we then need to rebuild the mesh and mask files in
 to single files for the next step:
 
 ::
@@ -282,11 +282,11 @@ to single files for the next step:
    rm mesh_* mask_* LH_REEF_0000*
    cd $WDIR/INPUTS
 
-Now we're ready to generate the boundary conditions using pyNEMO. 
+Now we're ready to generate the boundary conditions using pyBDY.
 If this is not installed follow the `installation guide` or a quick
 setup could be as follows:
 
-:: 
+::
 
    cd ~
    module load anaconda
@@ -307,7 +307,7 @@ Start up pynemo and generate boundary conditions. First we need to
 create a few ncml files to gather input data and map variable names.
 Then using pynemo we define the area we want to model:
 
-.. note:: pynemo may have to be run on either espp1 or espp2 (e.g. ssh -Y espp1) 
+.. note:: pynemo may have to be run on either espp1 or espp2 (e.g. ssh -Y espp1)
           as the JVM doesn't have sufficient memory on the login nodes.
 
 ::
@@ -315,8 +315,8 @@ Then using pynemo we define the area we want to model:
    ssh -Y espp1
    module load anaconda
    source activate pynemo_env
-   cd $WDIR/INPUTS 
-   pynemo_ncml_generator   
+   cd $WDIR/INPUTS
+   pynemo_ncml_generator
 
 .. note:: The ncml files already exist in the INPUTS directory. There is no need
           generate them. It's a little tricky at the momment as the ncml generator
@@ -336,7 +336,7 @@ Let's have a go at running the model after exiting espp1 (after a few variable
 renamings, due to inconsistencies to be ironed out):
 
 ::
- 
+
    exit
    cd $WDIR/INPUTS
    module unload cray-netcdf-hdf5parallel cray-hdf5-parallel
@@ -347,7 +347,7 @@ renamings, due to inconsistencies to be ironed out):
    module unload nco
    module load cray-netcdf-hdf5parallel cray-hdf5-parallel
    cd $CDIR/LH_REEF/EXP00
-   ln -s $WDIR/INPUTS/coordinates.bdy.nc $CDIR/LH_REEF/EXP00/coordinates.bdy.nc 
+   ln -s $WDIR/INPUTS/coordinates.bdy.nc $CDIR/LH_REEF/EXP00/coordinates.bdy.nc
    sed -e 's/nn_msh      =    3/nn_msh      =    0/' namelist_cfg > tmp
    sed -e 's/nn_itend    =      1/nn_itend    =       1440 /' tmp > namelist_cfg
    cp $WDIR/INPUTS/*.xml ./

@@ -1,6 +1,6 @@
 Installation
 ============
-This page provides a guide to installing pyNEMO. 
+This page provides a guide to installing pyBDY.
 
 Dependencies
 ^^^^^^^^^^^^
@@ -18,30 +18,30 @@ Dependencies
 Anaconda
 ^^^^^^^^
 
-Using conda: pyNEMO supports Win64, OSX and Linux. for other operating systems please build from source.
+Using conda: pyBDY supports Win64, OSX and Linux. for other operating systems please build from source.
 
-.. note:: It is recommended to create a seperate virtual environment for pyNEMO. 
+.. note:: It is recommended to create a seperate virtual environment for pyBDY.
           Please follow the instructions on doing this at http://www.continuum.io/blog/conda
 
 ::
 
-   conda install -c https://conda.anaconda.org/srikanthnagella pynemo
+   conda install -c https://conda.anaconda.org/srikanthnagella pybdy
 
-This will install pynemo and its dependencies. This build is generally outdated as development and
+This will install pyBDY and its dependencies. This build is generally outdated as development and
 bug fixes to the source are a regular occurrence. It may be better to install from source until a beta
 release is available.
 
 From Source
 ^^^^^^^^^^^
 
-Installing pyNEMO using other flavours of software or from source. Install all the dependencies and 
-download the source code from svn and install. 
+Installing pyBDY using other flavours of software or from source. Install all the dependencies and
+download the source code from svn and install.
 
 ::
 
    svn checkout http://ccpforge.cse.rl.ac.uk/svn/pynemo/trunk/Python/
    python setup.py install
-   
+
 .. note:: If building from source in the Anaconda environment all dependencies can
           be installed using conda apart from thredds_crawler and pyjnius which can
           be installed using the following Anaconda channel:

@@ -1,0 +1,18 @@
+{
+  "template": "https://github.com/ecmwf-projects/cookiecutter-conda-package",
+  "commit": "5d59b459cd43e5f527eb429e3546b5a22e4e9240",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "pyBDY",
+      "project_slug": "pybdy",
+      "project_short_description": "a Python based regional NEMO model configuration toolbox",
+      "copyright_holder": "NOC",
+      "copyright_year": "2023",
+      "mypy_strict": "False",
+      "integration_tests": "False",
+      "_template": "https://github.com/ecmwf-projects/cookiecutter-conda-package"
+    }
+  },
+  "directory": null
+}

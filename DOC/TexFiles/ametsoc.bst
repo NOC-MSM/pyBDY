@@ -8,7 +8,7 @@
 %% ----------------------------------------
 %% *** Bibliography style file for ALL AMS Journals...version 1.0  ***
 %% *** Brian Papa - American Meteorological Society ***
-%% 
+%%
 %% Copyright 1994-2004 Patrick W Daly
  % ===============================================================
  % IMPORTANT NOTICE:
@@ -1191,7 +1191,7 @@ FUNCTION {incollection}
   new.sentence
   crossref missing$
     { format.in.ed.booktitle "booktitle" output.check
-      format.publisher.address output      
+      format.publisher.address output
       format.bvolume output
       format.number.series output
       format.edition output

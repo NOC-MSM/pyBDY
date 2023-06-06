@@ -1,0 +1,123 @@
+[build-system]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.2"]
+
+[options]
+install_requires = []
+
+[project]
+authors = [
+  {name = "James Harle", email = "jdha@noc.ac.uk"},
+  {name = "John Kazimierz Farey"},
+  {name = "Srikanth Nagella"},
+  {name = "Shirley Crompton"},
+  {name = "Tom Prime"}
+]
+classifiers = [
+  "License :: OSI Approved :: GPL License",
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "Topic :: Oceonography Modelling",
+  "Topic :: Scientific/Engineering",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.9"
+]
+dependencies = [
+  "netCDF4",
+  "scipy",
+  "numpy",
+  "matplotlib",
+  "basemap",
+  "thredds_crawler",
+  "seawater",
+  "pyqt5",
+  "pyjnius",
+  "cftime"
+]
+description = "NEMO Regional Configuration Toolbox"
+dynamic = ["version"]
+keywords = [
+  "Oceanography",
+  "NEMO"
+]
+license = {file = "LICENSE"}
+name = "pyBDY"
+readme = "README.md"
+
+[project.optional-dependencies]
+dev = [
+  "mypy",
+  "commit"
+]
+docs = [
+  "sphinx",
+  "sphinx-autoapi",
+  "sphinx_rtd_theme",
+  "myst-parser",
+  "pydata-sphinx-theme"
+]
+tests = [
+  "pytest",
+  "pytest-cov"
+]
+
+[project.scripts]
+pybdy = "pybdy.pybdy_exe:main"
+pybdy_ncml_generator = "pybdy.pybdy_ncml_generator:main"
+pybdy_settings_editor = "pybdy.pybdy_settings_editor:main"
+
+[project.urls]
+documentation = "https://pynemo.readthedocs.io/en/latest/"
+repository = "https://github.com/NOC-MSM/pyBDY"
+
+[tool.coverage.run]
+branch = true
+
+[tool.mypy]
+strict = false
+
+[tool.ruff]
+ignore = [
+  # pydocstyle: Missing Docstrings
+  "D1",
+  # pydocstyle: numpy convention
+  "D107",
+  "D203",
+  "D212",
+  "D213",
+  "D402",
+  "D413",
+  "D415",
+  "D416",
+  "D417"
+]
+# Black line length is 88, but black does not format comments.
+line-length = 110
+select = [
+  # pyflakes
+  "F",
+  # pycodestyle
+  "E",
+  "W",
+  # isort
+  "I",
+  # pydocstyle
+  "D"
+]
+
+[tool.setuptools.package-data]
+gui = ["*.png", "*.ncml"]
+"pybdy" = ["*.info"]
+"reader.jars" = ["*.jar"]
+share = ["epsg"]
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["src"]
+
+[tool.setuptools_scm]
+write_to = "src/pybdy/version.py"
+write_to_template = '''
+# Do not change! Do not track in version control!
+__version__ = "{version}"
+'''

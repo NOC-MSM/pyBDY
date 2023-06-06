@@ -2,7 +2,7 @@
 !   s-coordinate or hybrid z-s-coordinate
 !-----------------------------------------------------------------------
    rn_sbot_min =   10.     !  minimum depth of s-bottom surface (>0) (m)
-   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface 
+   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface
                            !  (= ocean depth) (>0) (m)
    ln_s_sigma  = .false.   !  hybrid s-sigma coordinates
    rn_hc       =  150.0    !  critical depth with s-sigma

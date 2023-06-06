@@ -1,36 +1,36 @@
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !! NEMO/OPA  : namelist for BDY generation tool
-!!            
+!!
 !!             User inputs for generating open boundary conditions
 !!             employed by the BDY module in NEMO. Boundary data
 !!             can be set up for v3.2 NEMO and above.
-!!            
+!!
 !!             More info here.....
-!!            
+!!
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 !------------------------------------------------------------------------------
 !   vertical coordinate
 !------------------------------------------------------------------------------
-   ln_zco      = .false.   !  z-coordinate - full    steps   (T/F)  
+   ln_zco      = .false.   !  z-coordinate - full    steps   (T/F)
    ln_zps      = .true.    !  z-coordinate - partial steps   (T/F)
    ln_sco      = .false.   !  s- or hybrid z-s-coordinate    (T/F)
-   rn_hmin     =   -10     !  min depth of the ocean (>0) or 
+   rn_hmin     =   -10     !  min depth of the ocean (>0) or
                            !  min number of ocean level (<0)
 
 !------------------------------------------------------------------------------
 !   s-coordinate or hybrid z-s-coordinate
 !------------------------------------------------------------------------------
    rn_sbot_min =   10.     !  minimum depth of s-bottom surface (>0) (m)
-   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface 
+   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface
                            !  (= ocean depth) (>0) (m)
    ln_s_sigma  = .false.   !  hybrid s-sigma coordinates
    rn_hc       =  150.0    !  critical depth with s-sigma
 
 !------------------------------------------------------------------------------
-!  grid information 
+!  grid information
 !------------------------------------------------------------------------------
-   sn_src_hgr = './inputs/benchmark/grid_low_res_C/mesh_hgr.nc' 
+   sn_src_hgr = './inputs/benchmark/grid_low_res_C/mesh_hgr.nc'
    sn_src_zgr = './inputs/benchmark/grid_low_res_C/mesh_zgr.nc'
    sn_dst_hgr = './inputs/benchmark/grid_C/mesh_hgr_zps.nc'
    sn_dst_zgr = './inputs/benchmark/grid_C/mesh_zgr_zps.nc'
@@ -38,7 +38,7 @@
    sn_bathy   = './inputs/benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'
 
 !------------------------------------------------------------------------------
-!  I/O 
+!  I/O
 !------------------------------------------------------------------------------
    sn_src_dir = './inputs/src_data_local.ncml' ! src_files/'
    sn_dst_dir = './outputs'
@@ -48,26 +48,26 @@
    sn_dst_metainfo = 'Benchmarking Data'
 
 !------------------------------------------------------------------------------
-!  unstructured open boundaries                         
+!  unstructured open boundaries
 !------------------------------------------------------------------------------
     ln_coords_file = .true.               !  =T : produce bdy coordinates files
-    cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files 
+    cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files
                                           !  (if ln_coords_file=.TRUE.)
     ln_mask_file   = .false.              !  =T : read mask from file
-    cn_mask_file   = 'mask.nc'            !  name of mask file 
+    cn_mask_file   = 'mask.nc'            !  name of mask file
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .false.              !  boundary conditions for 
+    ln_dyn2d       = .false.              !  boundary conditions for
                                           !  barotropic fields
-    ln_dyn3d       = .false.              !  boundary conditions for 
+    ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
-    ln_tra         = .false.               !  boundary conditions for T and S
-    ln_ice         = .false.              !  ice boundary condition   
+    ln_tra         = .true.               !  boundary conditions for T and S
+    ln_ice         = .false.              !  ice boundary condition
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
-!  unstructured open boundaries tidal parameters                        
+!  unstructured open boundaries tidal parameters
 !------------------------------------------------------------------------------
-    ln_tide        = .true.              !  =T : produce bdy tidal conditions
+    ln_tide        = .false.              !  =T : produce bdy tidal conditions
     sn_tide_model  = 'FES2014'            !  Name of tidal model (FES2014|TPXO7p2)
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
@@ -94,13 +94,13 @@
 	! location of FES2014 data
 	sn_tide_fes      = './inputs/FES2014/'
 
-	
+
 !------------------------------------------------------------------------------
 !  Additional parameters
 !------------------------------------------------------------------------------
-    nn_wei  = 1                   !  smoothing filter weights 
+    nn_wei  = 1                   !  smoothing filter weights
     rn_r0   = 0.041666666         !  decorrelation distance use in gauss
-                                  !  smoothing onto dst points. Need to 
+                                  !  smoothing onto dst points. Need to
                                   !  make this a funct. of dlon
     sn_history  = 'Benchmarking test case'
                                   !  history for netcdf file

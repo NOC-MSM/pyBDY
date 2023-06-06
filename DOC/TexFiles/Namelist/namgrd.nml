@@ -1,5 +1,5 @@
 !-----------------------------------------------------------------------
-!  grid information 
+!  grid information
 !-----------------------------------------------------------------------
    cn_src_hgr = 'some_dir/mesh_hgr_src.nc'
    cn_src_zgr = 'some_dir/mesh_zgr_src.nc'

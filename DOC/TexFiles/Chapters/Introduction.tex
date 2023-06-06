@@ -6,40 +6,40 @@
 \chapter{Introduction}
 
 Implementing a model configuration that is limited to an oceanic region or a basin
-is being increasingly desired within the NEMO community. In doing so, the BDY 
+is being increasingly desired within the NEMO community. In doing so, the BDY
 sub-routines can be employed to communicate information from outside the regional
 model domain into the interior while supporting both outflow and inflow conditions.
-This set of tools was born out of a requirement to have a generic method by which 
+This set of tools was born out of a requirement to have a generic method by which
 to provide boundary data for use by these sub-routines.The original code for these
-tools was written in Mathworks Matlab. It was subsequently translated into Python 
-for wider distribution and to facilitate development. It is far easier to integrate 
-existing scripts into Python, should the need arise.In thier current form these 
+tools was written in Mathworks Matlab. It was subsequently translated into Python
+for wider distribution and to facilitate development. It is far easier to integrate
+existing scripts into Python, should the need arise.In thier current form these
 tools are by no means generic and polished, but it is hoped form a foundation from
-which something more formal can be developed if the desire within the community 
-exists.In the following section there is a summary of usage, along with summary 
+which something more formal can be developed if the desire within the community
+exists.In the following section there is a summary of usage, along with summary
 output from two examples that are included with the code.
 
 
 \subsubsection{Pre v3.4 NEMO}
 
 Prior to v3.4 NEMO the BDY code relies on time stamp information within the BDY
-files. For example if a simulation for March 2000 is run with open boundaries 
+files. For example if a simulation for March 2000 is run with open boundaries
 supplied with daily mean data, the BDY code requires an input file with 33 time entries:
 with a corresponding time\_counter equal to midday 29 February through to midday
 1 April. In v3.4 NEMO time stamp information is discarded with assumed equal time spacing
-employed. In the example above the BDY input files, if seperated monthly, would consist of 
+employed. In the example above the BDY input files, if seperated monthly, would consist of
 three files. One each for February, March and April containing 29, 31 and 30 time entries.
-However, this becomes an issue if using say 5 day means. For example at the end of March in 
-above example, the last 5 day mean in March may be centred on 28 at 12:00, thus the BDY 
+However, this becomes an issue if using say 5 day means. For example at the end of March in
+above example, the last 5 day mean in March may be centred on 28 at 12:00, thus the BDY
 takes the first entry in April to complete the boundary forcing data for March, interpolating
 in time between the two points. This would imply the 5 day mean in April is centred on
 2 at 12:00. All well and good. However, when the simulation is continued for April
 the first time entry in the April file is now assumed to be centred on 3 at 12:00 ($\delta t/2$
 into the month where $\delta t$ is the meaning period of input data. So there can be upto
 4 days missmatch in this example. Hence when using source data >daily mean < monthly mean
-all destination BDY files are linearly interpolated onto daily means to aviod this 
+all destination BDY files are linearly interpolated onto daily means to aviod this
 mismatch. Pre v3.4 BDY files are provided as monthly files with an additional time entry
-for the previous/proceeding month if required. If concatenating pre v3.4 files later, care 
+for the previous/proceeding month if required. If concatenating pre v3.4 files later, care
 should be given to the handling of addition time entries to avoid duplications.
 
 \subsubsection{Changes between releases}
@@ -67,12 +67,11 @@ $\bullet$ Additions to code :\\
 \item netcdf classic output files (currently only v4)
 \item have I accounted for EW wrap?
 \item GUI or generic method to provide dst\_msk
-\item temporal spacing in bdy files 
-\item convert matlab plot routines to interogate BDY output versus nearest neightbour 
+\item temporal spacing in bdy files
+\item convert matlab plot routines to interogate BDY output versus nearest neightbour
       source file
 \item optional output frequency
 \item optional temporal smoothing
 \item optional spatial smoothin - only 1-2-1 at the moment
 \item scale barotropic velocity by src\_dep over dst\_dep to maintain volume transport
 \end{enumerate}
-

@@ -1,7 +1,7 @@
-pyNEMO NcML Generator Usage
+pyBDY NcML Generator Usage
 ===========================
 
-This GUI tool facilitates the creation of a virtual dataset for input into pyNEMO.  The virtual dataset is defined using NetCDF Markup Language (`NcML <http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/ncml/Tutorial.html>`_ ).
+This GUI tool facilitates the creation of a virtual dataset for input into pyBDY.  The virtual dataset is defined using NetCDF Markup Language (`NcML <http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/ncml/Tutorial.html>`_ ).
 
 Using NcML, it is possible to:
 
@@ -29,7 +29,7 @@ Users need to follow three distinct steps when using the GUI to generate the vir
 Define a Target Output File
 ---------------------------
 
-User should provide the path and name of the target NcML file.  The convention is to use *.ncml* as the file suffix.  The target file can be specified manually using the input text box or visually using the *Select file* button.  Clicking the button will bring up a file dialogue. 
+User should provide the path and name of the target NcML file.  The convention is to use *.ncml* as the file suffix.  The target file can be specified manually using the input text box or visually using the *Select file* button.  Clicking the button will bring up a file dialogue.
 
 
 Define the Individual Data Variable
@@ -53,7 +53,7 @@ Users can access the required variable by selecting the tab widget and the varia
 
 For each variable, users must provide information for:
 
-*  Source directory - the location of the folder containing the input datasets.  User can provide an absolute path to a local file folder or an OPeNDAP endpoint, e.g. http://esurgeod.noc.soton.ac.uk:8080/thredds/dodsC/PyNEMO/data/ 
+*  Source directory - the location of the folder containing the input datasets.  User can provide an absolute path to a local file folder or an OPeNDAP endpoint, e.g. http://esurgeod.noc.soton.ac.uk:8080/thredds/dodsC/PyNEMO/data/
 *  Existing variable name - name used in the source datasets
 
 Users may further filter the source datasets using:
@@ -71,9 +71,9 @@ After adding all the variables, users can generate the NcML file by clicking the
 
 Regular Expression (Regex)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Regular expression is a special text string for describing a search pattern to match against some text.  You may compare using regex to filter what files to include in your datasets against using wildcard (*) to specify a file search pattern in your computer.  
+Regular expression is a special text string for describing a search pattern to match against some text.  You may compare using regex to filter what files to include in your datasets against using wildcard (*) to specify a file search pattern in your computer.
 
-A detailed description of how to define regular expression for filtering datasets in NcML is available at http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/ncml/AnnotatedSchema4.html#regexp.  
+A detailed description of how to define regular expression for filtering datasets in NcML is available at http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/ncml/AnnotatedSchema4.html#regexp.
 
 The following table provides some typical examples of regex:
 
