@@ -178,11 +178,11 @@ class NameListEditor(QtWidgets.QWidget):
         self.setup.settings = self.settings
         try:
             self.setup.write()  # write settings back to file
-            QMessageBox.information(self, "pyNEMO", "Setting saved to file")
+            QMessageBox.information(self, "pyBDY", "Setting saved to file")
         except Exception:
             QMessageBox.information(
                 self,
-                "pyNEMO",
+                "pyBDY",
                 "Error while saving the settings file, please check the permissions",
             )
 
@@ -195,7 +195,7 @@ class NameListEditor(QtWidgets.QWidget):
                 self.mask_update.emit(self.settings["mask_file"])
         except KeyError:
             QMessageBox.information(
-                self, "pyNEMO", "Set mask_file key in the setting .bdy file"
+                self, "pyBDY", "Set mask_file key in the setting .bdy file"
             )
 
         try:

@@ -41,7 +41,7 @@ keywords = [
   "NEMO"
 ]
 license = {file = "LICENSE"}
-name = "PyNEMO"
+name = "pyBDY"
 readme = "README.md"
 
 [project.optional-dependencies]
@@ -62,13 +62,13 @@ tests = [
 ]
 
 [project.scripts]
-pynemo = "pynemo.pynemo_exe:main"
-pynemo_ncml_generator = "pynemo.pynemo_ncml_generator:main"
-pynemo_settings_editor = "pynemo.pynemo_settings_editor:main"
+pybdy = "pybdy.pybdy:main"
+pybdy_ncml_generator = "pybdy.pybdy_ncml_generator:main"
+pybdy_settings_editor = "pybdy.pybdy_settings_editor:main"
 
 [project.urls]
 documentation = "https://pynemo.readthedocs.io/en/latest/"
-repository = "https://github.com/NOC-MSM/PyNEMO"
+repository = "https://github.com/NOC-MSM/pyBDY"
 
 [tool.coverage.run]
 branch = true
@@ -107,7 +107,7 @@ select = [
 
 [tool.setuptools.package-data]
 gui = ["*.png", "*.ncml"]
-"pynemo" = ["*.info"]
+"pybdy" = ["*.info"]
 "reader.jars" = ["*.jar"]
 share = ["epsg"]
 
@@ -116,7 +116,7 @@ namespaces = true
 where = ["src"]
 
 [tool.setuptools_scm]
-write_to = "src/pynemo/version.py"
+write_to = "src/pybdy/version.py"
 write_to_template = '''
 # Do not change! Do not track in version control!
 __version__ = "{version}"

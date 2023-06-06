@@ -9,17 +9,17 @@
 import os
 import sys
 
-import pynemo
+import pybdy
 
 sys.path.insert(0, os.path.abspath("../"))
 
 # -- Project information -----------------------------------------------------
 
-project = "pyNEMO"
+project = "pyBDY"
 copyright = "2023, NOC"
 author = "NOC"
-version = pynemo.__version__
-release = pynemo.__version__
+version = pybdy.__version__
+release = pybdy.__version__
 
 # -- General configuration ---------------------------------------------------
 
@@ -37,7 +37,7 @@ extensions = [
 autodoc_typehints = "none"
 
 # autoapi configuration
-autoapi_dirs = ["../../src/pynemo"]
+autoapi_dirs = ["../../src/pybdy"]
 autoapi_ignore = ["*/version.py"]
 autoapi_options = [
     "members",

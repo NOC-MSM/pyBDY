@@ -8,9 +8,9 @@ import logging
 
 import numpy as np
 
-from pynemo import nemo_bdy_grid_angle
-from pynemo.reader.factory import GetFile
-from pynemo.utils.nemo_bdy_lib import rot_rep
+from pybdy import nemo_bdy_grid_angle
+from pybdy.reader.factory import GetFile
+from pybdy.utils.nemo_bdy_lib import rot_rep
 
 from . import fes2014_extract_HC, tpxo_extract_HC
 

@@ -21,7 +21,7 @@ class Extract:
 
         dst_lon = np.array([x if x > 0 else x + 360 for x in dst_lon])
 
-        fileIDb = "/Users/jdha/Projects/pynemo_data/DATA/grid_tpxo7.2.nc"  # TPX bathymetry file
+        fileIDb = "/Users/jdha/Projects/pybdy_data/DATA/grid_tpxo7.2.nc"  # TPX bathymetry file
         nb = Dataset(
             fileIDb
         )  # Open the TPX bathybetry file using the NetCDF4-Python library
@@ -36,7 +36,7 @@ class Extract:
         #            self.gsin = T_GridAngles.sinval
 
         if self.g_type == "t":
-            self.fileID = "/Users/jdha/Projects/pynemo_data/DATA/h_tpxo7.2.nc"  # TPX sea surface height file
+            self.fileID = "/Users/jdha/Projects/pybdy_data/DATA/h_tpxo7.2.nc"  # TPX sea surface height file
             self.var_Im = "hIm"
             self.var_Re = "hRe"
             nc = Dataset(self.fileID)  # pass variable ids to nc
@@ -47,7 +47,9 @@ class Extract:
             bat = np.ravel(nb.variables["hz"][:, :])
             msk = np.ravel(nb.variables["mz"][:, :])
         elif self.g_type == "u":
-            self.fileID = "/Users/jdha/Projects/pynemo_data/DATA/u_tpxo7.2.nc"  # TPX velocity file
+            self.fileID = (
+                "/Users/jdha/Projects/pybdy_data/DATA/u_tpxo7.2.nc"  # TPX velocity file
+            )
             self.var_Im = "UIm"
             self.var_Re = "URe"
             self.key_tr = setup["tide_trans"]
@@ -57,7 +59,9 @@ class Extract:
             bat = np.ravel(nb.variables["hu"][:, :])
             msk = np.ravel(nb.variables["mu"][:, :])
         else:
-            self.fileID = "/Users/jdha/Projects/pynemo_data/DATA/u_tpxo7.2.nc"  # TPX velocity file
+            self.fileID = (
+                "/Users/jdha/Projects/pybdy_data/DATA/u_tpxo7.2.nc"  # TPX velocity file
+            )
             self.var_Im = "VIm"
             self.var_Re = "VRe"
             self.key_tr = setup["tide_trans"]

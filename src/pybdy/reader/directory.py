@@ -183,7 +183,7 @@ class Variable(object):
 
     def __str__(self):
         return (
-            "PyNEMO Data Object from files: %s and variable %s" % self.file_names,
+            "pyBDY Data Object from files: %s and variable %s" % self.file_names,
             self.variable,
         )
 

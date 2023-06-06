@@ -1,5 +1,5 @@
-import pynemo
+import pybdy
 
 
 def test_version() -> None:
-    assert pynemo.__version__ != "999"
+    assert pybdy.__version__ != "999"

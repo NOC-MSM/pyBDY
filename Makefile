@@ -1,4 +1,4 @@
-PROJECT := pynemo
+PROJECT := pybdy
 CONDA := conda
 CONDAFLAGS :=
 COV_REPORT := html

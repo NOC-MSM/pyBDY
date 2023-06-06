@@ -55,12 +55,12 @@ def main():
     try:
         opts, dummy_args = getopt.getopt(sys.argv[1:], "hs:", ["help", "setup="])
     except getopt.GetoptError:
-        print("usage: pynemo_settings_editor -s <namelist.bdy> ")
+        print("usage: pybdy_settings_editor -s <namelist.bdy> ")
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == "-h":
-            print("usage: pynemo_settings_editor -s <namelist.bdy> ")
+            print("usage: pybdy_settings_editor -s <namelist.bdy> ")
             sys.exit()
         elif opt in ("-s", "--setup"):
             setup_file = arg

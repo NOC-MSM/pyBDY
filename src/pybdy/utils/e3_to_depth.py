@@ -14,7 +14,7 @@ import numpy as np
 # Since the move from NEMOv3.6 to NEMOv4 we now need to compute the depth variables from e3[tw] metrics.
 # Older namelist_dst.ncml files did not have an e3w definition.
 # This is now needed to reconstruct depth at w-points.
-# However if e3w isn't defined in the *ncml file it is likely that PyNEMO will fail here.
+# However if e3w isn't defined in the *ncml file it is likely that pyBDY will fail here.
 def e3_to_depth(pe3t, pe3w, jpk):
     pdepw = np.zeros_like(pe3w)
     pdepw[0, :] = 0.0

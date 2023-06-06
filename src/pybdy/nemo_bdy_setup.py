@@ -179,7 +179,7 @@ class Setup(object):
         Notes
         -----
         This method reads the variable description data from 'variable.info' file
-        in the pynemo installation path if it can't find the file with the same
+        in the pybdy installation path if it can't find the file with the same
         name as input bdy file with extension .info
 
         Parameters

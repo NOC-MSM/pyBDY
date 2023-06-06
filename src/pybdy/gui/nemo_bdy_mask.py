@@ -11,7 +11,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox
 from scipy import ndimage
 
-from pynemo.utils import gcoms_break_depth
+from pybdy.utils import gcoms_break_depth
 
 
 class Mask(object):
@@ -139,7 +139,7 @@ class Mask(object):
         except (IOError, RuntimeError):
             QMessageBox.information(
                 None,
-                "pyNEMO",
+                "pyBDY",
                 "Failed to write the mask file, please check the permissions",
             )
             self.logger.info("Cannot open mask file for writing " + mask_file)

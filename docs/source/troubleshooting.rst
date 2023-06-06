@@ -1,11 +1,11 @@
 Troubleshooting
 ===============
 
-1. pyNEMO crashing in MacOSX (Yosemite)?
+1. pyBDY crashing in MacOSX (Yosemite)?
 
 *  Downgrade the scipy package to 0.15
 
-2. How to make pyNEMO to work behind firewall/proxy?
+2. How to make pyBDY to work behind firewall/proxy?
 
 *  Set the environment variable http_proxy. eg. in Linux export http_proxy=<proxy-server>:<proxy-port>
 

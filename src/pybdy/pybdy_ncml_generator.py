@@ -1,7 +1,7 @@
 """
 Created on 2 Jul 2015.
 
-The main application object for hosting the pynemo ncml editor.
+The main application object for hosting the pybdy ncml editor.
 Used for development purposes to display the ncml editor dialog.
 
 @author: Shirley Crompton, UK Science and Technology Facilities Council

@@ -1,8 +1,8 @@
 Usage
 =====
-There are two tools available in pyNEMO. They are described in detail below.
+There are two tools available in pyBDY. They are described in detail below.
 
-pynemo
+pybdy
 ------
 
 This command line tool reads a BDY file, extracts boundary data and prepares
@@ -15,18 +15,18 @@ file, which shares common syntax with the NEMO simulation namelist input file.
           The application picks the relative path from the current working
           directory.
 
-Syntax for pynemo command is
+Syntax for pybdy command is
 
 ::
 
-   > pynemo [-g] -s <bdy file>
+   > pybdy [-g] -s <bdy file>
 
 For help
 
 ::
 
-   > pynemo -h
-   > usage: pynemo [-g] -s <namelist.bdy>
+   > pybdy -h
+   > usage: pybdy [-g] -s <namelist.bdy>
    >        -g (optional) will open settings editor before extracting the data
    >        -s <bdy filename> file to use
 
@@ -34,19 +34,19 @@ Example comamnd
 
 ::
 
-   > pynemo -g -s namelist.bdy
+   > pybdy -g -s namelist.bdy
 
 
-pynemo_settings_editor
+pybdy_settings_editor
 ----------------------
 
 This tool will open a window where you can edit the mask and change the values of bdy parameters.
 
-Syntax for pynemo_settings_editor command is
+Syntax for pybdy_settings_editor command is
 
 ::
 
-   > pynemo_settings_editor [-s <bdy filename>]
+   > pybdy_settings_editor [-s <bdy filename>]
 
 .. note:: If no file name is specified then a file dialog box will open to select a file.
 
@@ -54,11 +54,11 @@ For help
 
 ::
 
-   > pynemo_settings_editor -h
-   > usage: pynemo_settings_editor -s <namelist.bdy>
+   > pybdy_settings_editor -h
+   > usage: pybdy_settings_editor -s <namelist.bdy>
 
 Example:
 
 ::
 
-   pynemo_settings_editor -s namelist.bdy
+   pybdy_settings_editor -s namelist.bdy

@@ -4,8 +4,8 @@
   "checkout": null,
   "context": {
     "cookiecutter": {
-      "project_name": "PyNEMO",
-      "project_slug": "pynemo",
+      "project_name": "pyBDY",
+      "project_slug": "pybdy",
       "project_short_description": "a Python based regional NEMO model configuration toolbox",
       "copyright_holder": "NOC",
       "copyright_year": "2023",

@@ -9,11 +9,11 @@ import os
 
 from netCDF4 import Dataset
 
-from pynemo.reader.directory import Reader as DirectoryReader
-from pynemo.reader.ncml import NcMLFile
+from pybdy.reader.directory import Reader as DirectoryReader
+from pybdy.reader.ncml import NcMLFile
 
 # Local Imports
-from pynemo.reader.ncml import Reader as NcMLReader
+from pybdy.reader.ncml import Reader as NcMLReader
 
 
 def GetReader(uri, t_adjust, reader_type=None):

@@ -1,2 +1,2 @@
-PyNEMO Description
+pyBDY Description
 ===================

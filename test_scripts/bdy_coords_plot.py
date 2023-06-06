@@ -12,12 +12,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 from mpl_toolkits.basemap import Basemap
 from netCDF4 import Dataset
-from pynemo.tests import bdy_coords as bdc
+from pybdy.tests import bdy_coords as bdc
 
-bdc.process_bdy("/Users/thopri/Projects/PyNEMO/inputs/namelist_remote.bdy", False)
+bdc.process_bdy("/Users/thopri/Projects/pyBDY/inputs/namelist_remote.bdy", False)
 
 rootgrp = Dataset(
-    "/Users/thopri/Projects/PyNEMO/outputs/NNA_R12_bdyT_y1979m11.nc",
+    "/Users/thopri/Projects/pyBDY/outputs/NNA_R12_bdyT_y1979m11.nc",
     "r",
     format="NETCDF4",
 )
@@ -27,7 +27,7 @@ bdy_lat = np.squeeze(rootgrp.variables["nav_lat"][:])
 rootgrp.close()
 
 rootgrp = Dataset(
-    "/Users/thopri/Projects/PyNEMO/outputs/coordinates.bdy.nc", "r", format="NETCDF4"
+    "/Users/thopri/Projects/pyBDY/outputs/coordinates.bdy.nc", "r", format="NETCDF4"
 )
 bdy_it = np.squeeze(rootgrp.variables["nbit"][:])
 bdy_jt = np.squeeze(rootgrp.variables["nbjt"][:])

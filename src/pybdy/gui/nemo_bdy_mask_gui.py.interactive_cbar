@@ -100,7 +100,7 @@ class DraggableColorbar(object):
         self.cbar.patch.figure.canvas.mpl_disconnect(self.cidmotion)
 
 class MatplotlibWidget(QtGui.QWidget):
-    """This class is a QWidget for pyNEMO mask plot"""
+    """This class is a QWidget for pyBDY mask plot"""
     min_depth = 200.0
     shelfbreak_dist = 200.0
     mask_type = 0

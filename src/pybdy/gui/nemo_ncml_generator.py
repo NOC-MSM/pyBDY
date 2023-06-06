@@ -20,7 +20,7 @@ class Ncml_generator(QtWidgets.QDialog):
 
     Notes
     -----
-    This is done for the purpose of generating NCML representation of pynemo source datasets.
+    This is done for the purpose of generating NCML representation of pybdy source datasets.
     """
 
     def __init__(self, basefile):
@@ -29,7 +29,7 @@ class Ncml_generator(QtWidgets.QDialog):
             Ncml_generator, self
         ).__init__()  # no params yet, may be allow user to predefine an input ncml for edit????
         # Logging for class
-        self.logger = logging.getLogger(__name__)  # logger config'ed in pynemo_exe.py
+        self.logger = logging.getLogger(__name__)  # logger config'ed in pybdy_exe.py
 
         if not basefile:
             testpath, file_name = os.path.split(__file__)
@@ -128,10 +128,10 @@ class Ncml_generator(QtWidgets.QDialog):
         # self.setLayout(grp_box)
         self.setWindowIcon(
             QtGui.QIcon(
-                "/Users/jdha/anaconda/lib/python2.7/site-packages/pynemo-0.2-py2.7.egg/pynemo/gui/nemo_icon.png"
+                "/Users/jdha/anaconda/lib/python2.7/site-packages/pybdy-0.2-py2.7.egg/pybdy/gui/nemo_icon.png"
             )
         )  # doesn't work
-        self.setWindowTitle("PyNEMO NcML Generator")
+        self.setWindowTitle("pyBDY NcML Generator")
         self.resize(650, 300)
 
         # has to change the default focus to stop the output file QTextedit

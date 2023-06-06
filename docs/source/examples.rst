@@ -1,6 +1,6 @@
 Examples
 ========
-Here we provide two worked examples using pyNEMO. The first is a setup of the Northwest European Shelf using
+Here we provide two worked examples using pyBDY. The first is a setup of the Northwest European Shelf using
 a remote dataset. The second is an end-to-end setup of a small regional model in the tropics.
 
 Example 1: Northwest European Shelf
@@ -35,7 +35,7 @@ THREDDS server so no addtional data are required.
    cd $WDIR
    mkdir OUTPUT
 
-Now we're ready to generate the boundary conditions using pyNEMO.
+Now we're ready to generate the boundary conditions using pyBDY.
 If this is not installed follow the `installation guide` or a quick
 setup could be as follows:
 
@@ -282,7 +282,7 @@ to single files for the next step:
    rm mesh_* mask_* LH_REEF_0000*
    cd $WDIR/INPUTS
 
-Now we're ready to generate the boundary conditions using pyNEMO.
+Now we're ready to generate the boundary conditions using pyBDY.
 If this is not installed follow the `installation guide` or a quick
 setup could be as follows:
 

@@ -9,7 +9,7 @@ from matplotlib.lines import Line2D
 from matplotlib.patches import Polygon
 from matplotlib.widgets import RectangleSelector
 
-from pynemo.utils.nemo_bdy_lib import dist_point_to_segment
+from pybdy.utils.nemo_bdy_lib import dist_point_to_segment
 
 polygon_alpha = 0.2
 

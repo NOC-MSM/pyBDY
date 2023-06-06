@@ -1,4 +1,4 @@
-# Welcome to pynemo's documentation!
+# Welcome to pybdy's documentation!
 
 a Python based regional NEMO model configuration toolbox.
 
@@ -6,7 +6,7 @@ a Python based regional NEMO model configuration toolbox.
 :caption: 'Contents:'
 :maxdepth: 2
 
-API Reference <_api/pynemo/index>
+API Reference <_api/pybdy/index>
 ```
 
 # Indices and tables

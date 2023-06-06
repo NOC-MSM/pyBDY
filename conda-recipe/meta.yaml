@@ -1,9 +1,9 @@
 package:
-  name: pynemo
+  name: pybdy
   version: "0.1.0"
 #source:
 #  path: ../
-#  git_url: https://github.com/jdha/PyNEMO
+#  git_url: https://github.com/jdha/pyBDY
 
 build:
   preserve_egg_dir: yes
@@ -40,6 +40,6 @@ requirements:
 #  imports:
 #    - nosetests
 about:
-  home: https://github.com/jdha/PyNEMO
+  home: https://github.com/jdha/pyBDY
   license: GPL v3
   summary: 'NEMO Regional Configuration Toolbox'

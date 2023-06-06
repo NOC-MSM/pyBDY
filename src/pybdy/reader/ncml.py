@@ -192,7 +192,7 @@ class Variable(object):
 
     def __str__(self):
         return (
-            "PyNEMO NcML Object from file: %s and variable %s" % self.file_name,
+            "pyBDY NcML Object from file: %s and variable %s" % self.file_name,
             self.variable,
         )
 

@@ -11,7 +11,7 @@ from .nemo_bdy_namelist_edit import NameListEditor
 
 
 class InputWindow(QtWidgets.QDialog):
-    """Input Window for editing pyNEMO settings."""
+    """Input Window for editing pyBDY settings."""
 
     def __init__(self, setup):
         """Initialise the UI components."""
@@ -50,7 +50,7 @@ class InputWindow(QtWidgets.QDialog):
         hbox.addWidget(splitter)
         self.setLayout(hbox)
         # set the Dialog title
-        self.setWindowTitle("PyNEMO Settings Editor")
+        self.setWindowTitle("pyBDY Settings Editor")
         QtWidgets.QApplication.setStyle(QtWidgets.QStyleFactory.create("Cleanlooks"))
         # show the window
         self.show()

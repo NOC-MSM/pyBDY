@@ -22,7 +22,7 @@ mask_alpha = 0.3
 
 
 class MatplotlibWidget(QtWidgets.QWidget):
-    """QWidget class for pyNEMO mask plot."""
+    """QWidget class for pyBDY mask plot."""
 
     min_depth = 200.0
     shelfbreak_dist = 200.0

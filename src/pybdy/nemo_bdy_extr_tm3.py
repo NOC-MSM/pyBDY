@@ -37,10 +37,10 @@ import scipy.spatial as sp
 from cftime import datetime, utime
 from scipy.interpolate import interp1d
 
-from pynemo import nemo_bdy_ncgen as ncgen
-from pynemo import nemo_bdy_ncpop as ncpop
-from pynemo.reader.factory import GetFile
-from pynemo.utils.nemo_bdy_lib import rot_rep, sub2ind
+from pybdy import nemo_bdy_ncgen as ncgen
+from pybdy import nemo_bdy_ncpop as ncpop
+from pybdy.reader.factory import GetFile
+from pybdy.utils.nemo_bdy_lib import rot_rep, sub2ind
 
 # Local Imports
 from . import nemo_bdy_grid_angle as ga

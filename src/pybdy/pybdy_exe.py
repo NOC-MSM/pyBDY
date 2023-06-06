@@ -29,12 +29,12 @@ def main():
             sys.argv[1:], "hs:g", ["help", "setup=", "mask_gui"]
         )
     except getopt.GetoptError:
-        print("usage: pynemo -g -s <namelist.bdy> ")
+        print("usage: pybdy -g -s <namelist.bdy> ")
         sys.exit(2)
 
     for opt, arg in opts:
         if opt == "-h":
-            print("usage: pynemo [-g] -s <namelist.bdy> ")
+            print("usage: pybdy [-g] -s <namelist.bdy> ")
             print(
                 "       -g (optional) will open settings editor before extracting the data"
             )
@@ -46,7 +46,7 @@ def main():
             mask_gui = True
 
     if setup_file == "":
-        print("usage: pynemo [-g] -s <namelist.bdy> ")
+        print("usage: pybdy [-g] -s <namelist.bdy> ")
         sys.exit(2)
 
     # Logger
@@ -56,7 +56,7 @@ def main():
         "f(x, y)",
         {"f": profiler.process_bdy, "x": setup_file, "y": mask_gui},
         {},
-        "pynemo_stats",
+        "pybdy_stats",
     )
     t1 = time.time()
     print("Execution Time: %s" % (t1 - t0))

@@ -1,7 +1,7 @@
-pyNEMO NcML Generator Usage
+pyBDY NcML Generator Usage
 ===========================
 
-This GUI tool facilitates the creation of a virtual dataset for input into pyNEMO.  The virtual dataset is defined using NetCDF Markup Language (`NcML <http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/ncml/Tutorial.html>`_ ).
+This GUI tool facilitates the creation of a virtual dataset for input into pyBDY.  The virtual dataset is defined using NetCDF Markup Language (`NcML <http://www.unidata.ucar.edu/software/thredds/current/netcdf-java/ncml/Tutorial.html>`_ ).
 
 Using NcML, it is possible to:
 

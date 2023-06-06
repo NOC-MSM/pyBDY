@@ -34,23 +34,23 @@ import time
 import numpy as np
 from PyQt5.QtWidgets import QMessageBox
 
-from pynemo import nemo_bdy_dst_coord as dst_coord
-from pynemo import nemo_bdy_extr_tm3 as extract
-from pynemo import nemo_bdy_gen_c as gen_grid
-from pynemo import nemo_bdy_ncpop as ncpop
-from pynemo import nemo_bdy_setup as setup
-from pynemo import nemo_bdy_source_coord as source_coord
-from pynemo import nemo_bdy_zgrv2 as zgrv
-from pynemo import nemo_coord_gen_pop as coord
+from pybdy import nemo_bdy_dst_coord as dst_coord
+from pybdy import nemo_bdy_extr_tm3 as extract
+from pybdy import nemo_bdy_gen_c as gen_grid
+from pybdy import nemo_bdy_ncpop as ncpop
+from pybdy import nemo_bdy_setup as setup
+from pybdy import nemo_bdy_source_coord as source_coord
+from pybdy import nemo_bdy_zgrv2 as zgrv
+from pybdy import nemo_coord_gen_pop as coord
 
 # Local imports
-from pynemo import pynemo_settings_editor
-from pynemo.gui.nemo_bdy_mask import Mask as Mask_File
-from pynemo.reader import factory
-from pynemo.reader.factory import GetFile
-from pynemo.tide import nemo_bdy_tide3 as tide
-from pynemo.tide import nemo_bdy_tide_ncgen
-from pynemo.utils import Constants
+from pybdy import pybdy_settings_editor
+from pybdy.gui.nemo_bdy_mask import Mask as Mask_File
+from pybdy.reader import factory
+from pybdy.reader.factory import GetFile
+from pybdy.tide import nemo_bdy_tide3 as tide
+from pybdy.tide import nemo_bdy_tide_ncgen
+from pybdy.utils import Constants
 
 
 class Grid(object):
@@ -474,7 +474,7 @@ def _get_mask(Setup, mask_gui):
     if mask_gui:  # Do we activate the GUI
         # TODO: I do not like the use of _ for a dummy variable - better way?
 
-        _, mask = pynemo_settings_editor.open_settings_dialog(Setup)
+        _, mask = pybdy_settings_editor.open_settings_dialog(Setup)
         bdy_msk = mask.data
         Setup.refresh()
         logger.info("Using GUI defined mask")
