@@ -99,7 +99,6 @@ downloaded from
 
 E.g. 
 ```
-mkdir -p $PYBDY_DIR/inputs/benchmark/ 
 cd $PYBDY_DIR/inputs/benchmark/
 wget -r -np -nH --cut-dirs=3 -erobots=off --reject="index.html*" http://gws-access.jasmin.ac.uk/public/jmmp/benchmark/
 ```
