@@ -35,14 +35,14 @@
    sn_dst_hgr = './tests/temp_test_001/child.nc'
    sn_dst_zgr = './tests/temp_test_001/child.nc'
    sn_src_msk = './tests/temp_test_001/parent.nc'
-   sn_bathy   = './tests/temp_test_001/parent.nc'
+   sn_bathy   = './tests/temp_test_001/child.nc'
 
 !------------------------------------------------------------------------------
 !  I/O
 !------------------------------------------------------------------------------
-   sn_src_dir = './tests/temp_test_001/variables.nc' ! src_files/'
+   sn_src_dir = './tests/namelists/src_data_namelist_test_001.ncml' ! src_files/k
    sn_dst_dir = './tests/temp_test_001/'
-   sn_fn      = 'NNA_R12'             ! prefix for output files
+   sn_fn      = 'child'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
    sn_dst_metainfo = 'Benchmarking Data'
