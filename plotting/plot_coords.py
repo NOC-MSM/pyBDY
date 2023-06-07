@@ -1,12 +1,19 @@
 #!/usr/bin/env python3
+"""
+Plot the domain boundaries and show the different locations of the rim width (increasing number should go inwards)
 
+Benchmark data example useage:
+python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc
+"""
 import sys
 
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits.basemap import Basemap
 from netCDF4 import Dataset
 
+# Read the input data
 rootgrp = Dataset(str(sys.argv[1]), "r", format="NETCDF4")
 bdy_msk = np.squeeze(rootgrp.variables["bdy_msk"][:]) - 1
 bdy_lon = np.squeeze(rootgrp.variables["nav_lon"][:])
@@ -19,42 +26,47 @@ bdy_jt = np.squeeze(rootgrp.variables["nbjt"][:])
 bdy_rt = np.squeeze(rootgrp.variables["nbrt"][:])
 rootgrp.close()
 
+# Mask the invalid values
 bdy_msk = np.ma.masked_where(bdy_msk < 0, bdy_msk)
+
+# Update the values in the mask
 for f in range(len(bdy_it)):
     bdy_msk[bdy_jt[f,], bdy_it[f,]] = bdy_rt[f,]
 
-# Plot to check output
-fig = plt.figure(figsize=(8, 8))
-ax = fig.add_subplot(111)
+# Define the projection
+crs = ccrs.LambertConformal(central_latitude=57.0, central_longitude=-12.5)
 
-map = Basemap(
-    llcrnrlat=37.0,
-    urcrnrlat=67.0,
-    llcrnrlon=-25.0,
-    urcrnrlon=10.0,
-    rsphere=(6378137.00, 6356752.3142),
-    resolution="l",
-    projection="lcc",
-    lat_1=57.0,
-    lon_0=-12.5,
-)
-map.drawcoastlines()
-map.drawcountries()
-map.fillcontinents(color="grey")
-map.drawmeridians(np.arange(-25.0, 10.0, 5), labels=[0, 0, 0, 1])
-map.drawparallels(np.arange(38.0, 66.0, 2), labels=[1, 0, 0, 0])
+# Create a figure and axes
+fig = plt.figure()
+ax = fig.add_subplot(111, projection=crs)
 
-cmap = plt.cm.get_cmap("jet", 10)
-cmaplist = [cmap(i) for i in range(cmap.N)]
-cmaplist[0] = (0.7, 0.7, 0.7, 1.0)
-cmap = cmap.from_list("Custom cmap", cmaplist, cmap.N)
+# Plot the data
+cs1 = ax.pcolormesh(bdy_lon[:, :], bdy_lat[:, :], bdy_msk, cmap="jet", vmin=-0.5, vmax=9.5, transform=crs)
 
-x1, y1 = map(bdy_lon[:, :], bdy_lat[:, :])
-im = map.pcolormesh(x1, y1, bdy_msk, cmap=cmap, vmin=-0.5, vmax=9.5)
-cb = plt.colorbar(
-    orientation="vertical", shrink=0.75, aspect=30, fraction=0.1, pad=0.05
-)
+# Add geographic features
+ax.add_feature(cfeature.NaturalEarthFeature('physical', 'land',
+            '50m', edgecolor='black', alpha=0.7,
+            facecolor=cfeature.COLORS['land']))
+
+# Coordinates to limit map area
+bounds = [-25, 20, 37, 67]
+ax.set_extent(bounds, crs=crs)
+
+# Add a title and labels
+ax.set_title("BDY Points")
+ax.set_xlabel("Longitude")
+ax.set_ylabel("Latitude")
+
+# Add gridlines
+gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
+                  linewidth=2, color='gray', alpha=0.5, linestyle='--')
+gl.top_labels = False
+gl.right_labels = False
+
+# Add a colorbar
+cb = plt.colorbar(cs1, orientation="vertical", shrink=0.75, aspect=30, fraction=0.1, pad=0.05)
 cb.set_label("RimWidth Number")
 cb.set_ticks(np.arange(10))
-th = plt.title(("BDY Points"), fontweight="bold")
+
+# Save the figure
 fig.savefig("coords.png")
