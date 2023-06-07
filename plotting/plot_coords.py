@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Plot the domain boundaries and show the different locations of the rim width (increasing number should go inwards)
+Plot the domain boundaries and show the different locations of the rim width.
 
+Map showing location of boundaries. Rim width number increases inwards.
 Benchmark data example useage:
 python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc
 """
@@ -41,12 +42,27 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection=crs)
 
 # Plot the data
-cs1 = ax.pcolormesh(bdy_lon[:, :], bdy_lat[:, :], bdy_msk, cmap="jet", vmin=-0.5, vmax=9.5, transform=crs)
+cs1 = ax.pcolormesh(
+    bdy_lon[:, :],
+    bdy_lat[:, :],
+    bdy_msk,
+    cmap="jet",
+    vmin=-0.5,
+    vmax=9.5,
+    transform=crs,
+)
 
 # Add geographic features
-ax.add_feature(cfeature.NaturalEarthFeature('physical', 'land',
-            '50m', edgecolor='black', alpha=0.7,
-            facecolor=cfeature.COLORS['land']))
+ax.add_feature(
+    cfeature.NaturalEarthFeature(
+        "physical",
+        "land",
+        "50m",
+        edgecolor="black",
+        alpha=0.7,
+        facecolor=cfeature.COLORS["land"],
+    )
+)
 
 # Coordinates to limit map area
 bounds = [-25, 20, 37, 67]
@@ -58,13 +74,21 @@ ax.set_xlabel("Longitude")
 ax.set_ylabel("Latitude")
 
 # Add gridlines
-gl = ax.gridlines(crs=ccrs.PlateCarree(), draw_labels=True,
-                  linewidth=2, color='gray', alpha=0.5, linestyle='--')
+gl = ax.gridlines(
+    crs=ccrs.PlateCarree(),
+    draw_labels=True,
+    linewidth=2,
+    color="gray",
+    alpha=0.5,
+    linestyle="--",
+)
 gl.top_labels = False
 gl.right_labels = False
 
 # Add a colorbar
-cb = plt.colorbar(cs1, orientation="vertical", shrink=0.75, aspect=30, fraction=0.1, pad=0.05)
+cb = plt.colorbar(
+    cs1, orientation="vertical", shrink=0.75, aspect=30, fraction=0.1, pad=0.05
+)
 cb.set_label("RimWidth Number")
 cb.set_ticks(np.arange(10))
 
