@@ -90,7 +90,7 @@ Before pushing to GitHub, run the following commands:
 The pyBDY module can be tested using the bench marking namelist bdy
 file in the inputs folder. To check the outputs of the benchmark test,
 these can be visualised using the plotting script within the
-test_scripts folder. A local version of the benchmark data can be
+plotting folder. A local version of the benchmark data can be
 downloaded from
 [here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/). The
 ./benchmark directory should reside as a subfolder of ./inputs. The
@@ -108,12 +108,9 @@ following steps are required,
   NNA_R12_bdyT_y1979_m11.nc in an ./outputs folder
 
 - To check the coordinates.bdy.nc has the correct boundary points, the
-  script bdy_coords_plot.py will plot the domain boundaries and shown
+  script plotting/plot_bdy.py will plot the domain boundaries and shown
   the different locations of the rim width (increasing number should
-  go inwards) This script is located in the test_scripts folder. There
-  are also two plotting scripts in ./plotting, one does a similar job
-  to bdy_coords_plot.py the other plots the tracer boundaries (as a
-  pcolormesh) to help visualise the output.
+  go inwards).
 
 - The result should look like this (if using the current benchmark
   data)
