@@ -124,14 +124,21 @@ following steps are required,
   script bdy_coords_plot.py will plot the domain boundaries and shown
   the different locations of the rim width (increasing number should
   go inwards) This script is located in the test_scripts folder. There
-  are also two plotting scripts in ./plotting, one does a similar job
-  to bdy_coords_plot.py the other plots the tracer boundaries (as a
+  are also two plotting scripts in `./plotting`. 
+  The script `plot_bdy.py` does a similar job
+  to `bdy_coords_plot.py`
+  E.g.
+  ```python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc```
+  ![Example plot_coords.py output](/screenshots/example_coords.png){width="800px"}
+  
+  The other script `plot_bdy.py` plots the tracer boundaries (as a
   pcolormesh) to help visualise the output.
+  E.g.
+  ```python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper```
+  ![Example plot_bdy.py output](/screenshots/example_bdy_data.png){width="800px"}
 
-- The result should look like this (if using the current benchmark
-  data)
 
-![Example BDY coords output](/screenshots/example_bdy_coords.png){width="800px"}
+
 
 ## Example: generating tidal boundary conditions on ARCHER2
 
