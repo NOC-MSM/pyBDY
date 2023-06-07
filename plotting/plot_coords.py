@@ -35,7 +35,7 @@ for f in range(len(bdy_it)):
     bdy_msk[bdy_jt[f,], bdy_it[f,]] = bdy_rt[f,]
 
 # Define the projection
-crs = ccrs.LambertConformal(central_latitude=57.0, central_longitude=-12.5)
+crs = ccrs.PlateCarree()
 
 # Create a figure and axes
 fig = plt.figure()
@@ -75,7 +75,7 @@ ax.set_ylabel("Latitude")
 
 # Add gridlines
 gl = ax.gridlines(
-    crs=ccrs.PlateCarree(),
+    crs=crs,
     draw_labels=True,
     linewidth=2,
     color="gray",
@@ -84,6 +84,8 @@ gl = ax.gridlines(
 )
 gl.top_labels = False
 gl.right_labels = False
+gl.bottom_labels = True
+gl.left_labels = True
 
 # Add a colorbar
 cb = plt.colorbar(
