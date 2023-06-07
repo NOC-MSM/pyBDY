@@ -95,4 +95,4 @@ cb.set_label("RimWidth Number")
 cb.set_ticks(np.arange(10))
 
 # Save the figure
-fig.savefig("coords.png")
+fig.savefig("coords.png", dpi=300)
