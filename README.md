@@ -34,12 +34,15 @@ These are the steps to take to install pyBDY:
   conda deactivate
   ```
 
-- Make sure the Java Runtime Environment is set (e.g. livljobs\*):
+- Make sure the Java Runtime Environment is set E.g.:
 
   ```
-  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64/ 
+  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64/ # e.g. for livljobs\*
   ```
-
+  Or (downloading from https://jdk.java.net/20/)
+  ```
+  export JAVA_HOME=/Users/<username>/Downloads/jdk-20.0.1.jdk/Contents/Home/ # e.g. for mac OSX
+  ```
 - Install pyBDY:
 
   ```
