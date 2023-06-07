@@ -28,7 +28,7 @@ bdy_rt = np.squeeze(rootgrp.variables["nbrt"][:])
 rootgrp.close()
 
 # Mask the invalid values
-bdy_msk = np.ma.masked_where(bdy_msk < 0, bdy_msk)
+bdy_msk = np.ma.masked_where(bdy_msk <= 0, bdy_msk)
 
 # Update the values in the mask
 for f in range(len(bdy_it)):
