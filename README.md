@@ -92,7 +92,14 @@ file in the inputs folder. To check the outputs of the benchmark test,
 these can be visualised using the plotting script within the
 test_scripts folder. A local version of the benchmark data can be
 downloaded from
-[here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/). The
+[here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/).
+
+E.g. 
+mkdir -p $PYBDY_DIR/inputs/benchmark/ 
+cd $PYBDY_DIR/inputs/benchmark/
+wget -r -np -nH --cut-dirs=3 -erobots=off --reject="index.html*" http://gws-access.jasmin.ac.uk/public/jmmp/benchmark/
+
+The
 ./benchmark directory should reside as a subfolder of ./inputs. The
 following steps are required,
 
