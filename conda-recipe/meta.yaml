@@ -18,7 +18,6 @@ requirements:
   - netcdf4 >=1.1.9
   - matplotlib
   - basemap
-  - cartopy
   - thredds_crawler
   - seawater
 
@@ -29,7 +28,6 @@ requirements:
   - netcdf4 >=1.1.9
   - matplotlib
   - basemap
-  - cartopy
   - thredds_crawler
   - seawater
 
