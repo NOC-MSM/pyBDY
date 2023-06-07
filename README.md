@@ -34,12 +34,15 @@ These are the steps to take to install pyBDY:
   conda deactivate
   ```
 
-- Make sure the Java Runtime Environment is set (e.g. livljobs\*):
+- Make sure the Java Runtime Environment is set E.g.:
 
   ```
-  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64/ 
+  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64/ # e.g. for livljobs\*
   ```
-
+  Or (downloading from https://jdk.java.net/20/)
+  ```
+  export JAVA_HOME=/Users/<username>/Downloads/jdk-20.0.1.jdk/Contents/Home/ # e.g. for mac OSX
+  ```
 - Install pyBDY:
 
   ```
@@ -92,7 +95,16 @@ file in the inputs folder. To check the outputs of the benchmark test,
 these can be visualised using the plotting script within the
 test_scripts folder. A local version of the benchmark data can be
 downloaded from
-[here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/). The
+[here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/).
+
+E.g. 
+```
+mkdir -p $PYBDY_DIR/inputs/benchmark/ 
+cd $PYBDY_DIR/inputs/benchmark/
+wget -r -np -nH --cut-dirs=3 -erobots=off --reject="index.html*" http://gws-access.jasmin.ac.uk/public/jmmp/benchmark/
+```
+
+The
 ./benchmark directory should reside as a subfolder of ./inputs. The
 following steps are required,
 
@@ -101,11 +113,12 @@ following steps are required,
 
   ```
   cd $PYBDY_DIR
-  pybdy -s /full/path/to/namelist/file
+  mkdir -p outputs
+  pybdy -s inputs/namelist_local.bdy
   ```
 
-- This will create two output files coordinates.bdy.nc and
-  NNA_R12_bdyT_y1979_m11.nc in an ./outputs folder
+- This will create two output files `coordinates.bdy.nc` and
+  `NNA_R12_bdyT_y1979_m11.nc` in an `./outputs` folder
 
 - To check the coordinates.bdy.nc has the correct boundary points, the
   script bdy_coords_plot.py will plot the domain boundaries and shown
