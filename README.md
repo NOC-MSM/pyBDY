@@ -110,11 +110,12 @@ following steps are required,
 
   ```
   cd $PYBDY_DIR
-  pybdy -s /full/path/to/namelist/file
+  mkdir -p outputs
+  pybdy -s inputs/namelist_local.bdy
   ```
 
-- This will create two output files coordinates.bdy.nc and
-  NNA_R12_bdyT_y1979_m11.nc in an ./outputs folder
+- This will create two output files `coordinates.bdy.nc` and
+  `NNA_R12_bdyT_y1979_m11.nc` in an `./outputs` folder
 
 - To check the coordinates.bdy.nc has the correct boundary points, the
   script bdy_coords_plot.py will plot the domain boundaries and shown
