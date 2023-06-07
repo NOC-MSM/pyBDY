@@ -27,7 +27,6 @@ dependencies = [
   "scipy",
   "numpy",
   "matplotlib",
-  "basemap",
   "cartopy",
   "thredds_crawler",
   "seawater",
