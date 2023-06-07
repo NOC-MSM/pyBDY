@@ -39,10 +39,13 @@ These are the steps to take to install pyBDY:
   ```
   export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64/ # e.g. for livljobs\*
   ```
+
   Or (downloading from https://jdk.java.net/20/)
+
   ```
   export JAVA_HOME=/Users/<username>/Downloads/jdk-20.0.1.jdk/Contents/Home/ # e.g. for mac OSX
   ```
+
 - Install pyBDY:
 
   ```
@@ -97,7 +100,8 @@ test_scripts folder. A local version of the benchmark data can be
 downloaded from
 [here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/).
 
-E.g. 
+E.g.
+
 ```
 cd $PYBDY_DIR/inputs/benchmark/
 wget -r -np -nH --cut-dirs=3 -erobots=off --reject="index.html*" http://gws-access.jasmin.ac.uk/public/jmmp/benchmark/
@@ -123,21 +127,18 @@ following steps are required,
   script bdy_coords_plot.py will plot the domain boundaries and shown
   the different locations of the rim width (increasing number should
   go inwards) This script is located in the test_scripts folder. There
-  are also two plotting scripts in `./plotting`. 
+  are also two plotting scripts in `./plotting`.
   The script `plot_bdy.py` does a similar job
   to `bdy_coords_plot.py`
   E.g.
-  ```python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc```
+  `python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc`
   ![Example plot_coords.py output](/screenshots/example_coords.png){width="800px"}
-  
+
   The other script `plot_bdy.py` plots the tracer boundaries (as a
   pcolormesh) to help visualise the output.
   E.g.
-  ```python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper```
+  `python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper`
   ![Example plot_bdy.py output](/screenshots/example_bdy_data.png){width="800px"}
-
-
-
 
 ## Example: generating tidal boundary conditions on ARCHER2
 
