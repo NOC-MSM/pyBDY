@@ -15,7 +15,7 @@ from pybdy.utils.nemo_bdy_lib import sub2ind
 from .bathymetry import Bathymetry, generate_variables, merge_z3_and_e3
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def handle_temp_dir(request: SubRequest) -> str:
     """
     Create and remove a temporary directory.
@@ -147,7 +147,7 @@ def _create_bathymetry(
 
 
 @pytest.mark.parametrize("handle_temp_dir", ["temp_test_001"], indirect=True)
-def test_child_grid_as_colocated_subregion(handle_temp_dir) -> None:
+def test_child_grid_colocated(handle_temp_dir) -> None:
     """
     Test the case where the child grid is as a 1:1 sub region of the parent grid.
 
@@ -239,6 +239,6 @@ def test_child_grid_as_colocated_subregion(handle_temp_dir) -> None:
         vosaline_parent_bdy[0, :-1, :] - ds_var_child["vosaline"][0, :-1, 0, :]
     )
 
-    # Compare two xarray array
+    # Compare values on the boundary of the subsampled parent grid and child grid
     assert np.all(np.abs(diff_votemper) < 1e-8)
     assert np.all(np.abs(diff_vosaline) < 1e-8)
