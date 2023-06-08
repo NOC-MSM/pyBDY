@@ -52,6 +52,8 @@ These are the steps to take to install pyBDY:
   export JAVA_HOME=$(readlink -f $(which java)) # UNIX
   export JAVA_HOME=$(/usr/libexec/java_home)    # Mac
 
+  ```
+
 - Install pyBDY:
 
   ```
