@@ -967,17 +967,48 @@ class Extract:
     #    trig = np.transpose(trig, (2, 1, 0)) # Matlab 2 0 1
     #    return np.tile(trig, (1, size, 1)) # Matlab size 1 1
 
+    def time_delta(self, time_counter):
+        """
+        Get time delta for time_counter and number of timesteps per day. Checks
+        if time steps are uniform.
+
+        Input
+        -----
+        time_counter: model time coordinate
+
+        Output
+        ------
+        deltaT: length of time step
+        """
+        
+        # get time derivative
+        deltaT = np.diff(time_counter)
+
+        # check for uniform time steps
+        if not np.all(deltaT == deltaT[0]):
+            self.logger.warning('time interpolation expects uniform time step.')
+            self.logger.warning('time_counter is not uniform.')
+         
+        # get  number of timesteps per day
+        dstep = 86400 // int(deltaT[0])
+
+        return deltaT[0], dstep
+
     def time_interp(self, year, month):
         """
-        Perform a time interpolation of the BDY data.
+        Perform a time interpolation of the BDY data to daily frequency.
 
         Notes
         -----
-        This method performs a time interpolation (if required). This is necessary
-        if the time frequency is not a factor of monthly output or the input and
-        output calendars differ. CF compliant calendar options accepted: gregorian
-        | standard, proleptic_gregorian, noleap | 365_day, 360_day or julian.*
+        This method performs a time interpolation (if required). This is
+        necessary if the time frequency is not a factor of monthly output or the
+        input and output calendars differ. CF compliant calendar options
+        accepted: gregorian | standard, proleptic_gregorian, noleap | 365_day,
+        360_day or julian.*
         """
+        
+        # RDP: this could be made more flexible to interpolate to other deltaTs
+
         # Extract time information
         # TODO: check that we can just use var_nam[0]. Rational is that if
         # we're grouping variables then they must all have the same date stamps
@@ -1005,13 +1036,8 @@ class Extract:
         time_000 = tmp_cal.date2num(date_000)
         time_end = tmp_cal.date2num(date_end)
 
-        # Take the difference of the first two time enteries to get delta t
-
-        del_t = time_counter[1] - time_counter[0]
-        dstep = 86400 // int(del_t)
-
-        # TODO: put in a test to check all deltaT are the same otherwise throw
-        # an exception
+        # get deltaT and number of time steps per day (dstep)
+        del_t, dstep = self.time_delta(time_counter)
 
         # If time freq. is greater than 86400s
         # TODO put in an error handler for the unlikely event of frequency not a
@@ -1028,7 +1054,7 @@ class Extract:
         else:
             varnams = self.var_nam
 
-        if del_t >= 86400.0:
+        if del_t >= 86400.0: # upsampling
             for v in varnams:
                 intfn = interp1d(
                     time_counter,
@@ -1040,7 +1066,7 @@ class Extract:
                     np.arange(time_000, time_end, 86400)
                 )
                 self.time_counter = np.arange(time_000, time_end, 86400)
-        else:
+        else:                # downsampling
             for v in varnams:
                 for t in range(dstep):
                     intfn = interp1d(
