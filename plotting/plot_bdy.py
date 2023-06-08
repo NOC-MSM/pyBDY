@@ -16,8 +16,8 @@ python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper
 
 To do:
 ------
-* labelling of plots : variable name
-* Which segment is where? x-axis label could be bdy index
+* labelling of plots : Add variable name
+* Which segment is where? Add x-axis label could be bdy index?
 * Not sure why sometime tmp.png (bdy index on map) is plotted and sometime not
 """
 import sys
