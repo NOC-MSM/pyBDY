@@ -34,7 +34,7 @@ def CreateBDYNetcdfFile(
     ncid.createDimension("time_counter", None)
 
     # define variable
-    vartcID = ncid.createVariable("time_counter", "f4", ("time_counter",))
+    vartcID = ncid.createVariable("time_counter", "f8", ("time_counter",))
     varlonID = ncid.createVariable(
         "nav_lon",
         "f4",

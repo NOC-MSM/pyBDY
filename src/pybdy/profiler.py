@@ -337,16 +337,17 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         for month in mns:
             for key, val in list(emap.items()):
                 # Extract the data for a given month and year
-
                 extract_obj[key].extract_month(year, month)
 
                 # Interpolate/stretch in time if time frequecy is not a factor
                 # of a month and/or parent:child calendars differ
-
-                extract_obj[key].time_interp(year, month)
+                if settings["time_interpolation"]:
+                    logger.info("Applying temporal interpolation from parent to child.")
+                    extract_obj[key].time_interp(year, month)
+                else:
+                    logger.info("Temporal interpolation not applied.")
 
                 # Finally write to file
-
                 extract_obj[key].write_out(year, month, bdy_ind[key], unit_origin)
 
     logger.info("End NRCT Logging: " + time.asctime())
