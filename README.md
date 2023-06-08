@@ -15,7 +15,8 @@ These are the steps to take to install pyBDY:
   ```
 
 - Creating a specific conda virtual environment is highly recommended ([click here for more about virtual
-  enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html/)).
+  enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)).
+  Use the latest version of anaconda (to be added in your .bashrc or load the module in the command line, e.g ` module load anaconda/5-2021`).
 
   ```
   cd $PYBDY_DIR
@@ -28,16 +29,30 @@ These are the steps to take to install pyBDY:
   conda activate pybdy
   ```
 
-- To deactivate:
+- To deactivate (not now!):
 
   ```
   conda deactivate
   ```
 
-- Make sure the Java Runtime Environment is set (e.g. livljobs\*):
+- Make sure the Java Runtime Environment is set e.g.:
 
   ```
-  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.322.b06-1.el7_9.x86_64/
+  export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64/ # e.g. for livljobs\*
+  ```
+
+  Or (downloading from https://jdk.java.net/20/)
+
+  ```
+  export JAVA_HOME=/Users/<username>/Downloads/jdk-20.0.1.jdk/Contents/Home/ # e.g. for mac OSX
+  ```
+
+  Genralised methods for defining paths are as follows:
+
+  ```
+  export JAVA_HOME=$(readlink -f $(which java)) # UNIX
+  export JAVA_HOME=$(/usr/libexec/java_home)    # Mac
+
   ```
 
 - Install pyBDY:
@@ -92,7 +107,16 @@ file in the inputs folder. To check the outputs of the benchmark test,
 these can be visualised using the plotting script within the
 plotting folder. A local version of the benchmark data can be
 downloaded from
-[here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/). The
+[here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/).
+
+E.g.
+
+```
+cd $PYBDY_DIR/inputs/benchmark/
+wget -r -np -nH --cut-dirs=3 -erobots=off --reject="index.html*" http://gws-access.jasmin.ac.uk/public/jmmp/benchmark/
+```
+
+The
 ./benchmark directory should reside as a subfolder of ./inputs. The
 following steps are required,
 
@@ -101,21 +125,28 @@ following steps are required,
 
   ```
   cd $PYBDY_DIR
-  pybdy -s /full/path/to/namelist/file
+  mkdir -p outputs
+  pybdy -s inputs/namelist_local.bdy
   ```
 
-- This will create two output files coordinates.bdy.nc and
-  NNA_R12_bdyT_y1979_m11.nc in an ./outputs folder
+- This will create two output files `coordinates.bdy.nc` and
+  `NNA_R12_bdyT_y1979_m11.nc` in an `./outputs` folder
 
 - To check the coordinates.bdy.nc has the correct boundary points, the
   script plotting/plot_bdy.py will plot the domain boundaries and shown
   the different locations of the rim width (increasing number should
   go inwards).
 
-- The result should look like this (if using the current benchmark
-  data)
+  E.g.
+  `python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc`
+  ![Example plot_coords.py output](/screenshots/example_coords.png)
 
-![Example BDY coords output](/screenshots/example_bdy_coords.png){width="800px"}
+  The other script `plot_bdy.py` plots the tracer boundaries (as a
+  pcolormesh) to help visualise the output.
+  E.g.
+  `python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper`
+  ![Example plot_bdy.py output](/screenshots/example_bdy_data.png)
+
 
 ## Example: generating tidal boundary conditions on ARCHER2
 
