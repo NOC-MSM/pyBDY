@@ -1,7 +1,6 @@
 # pyBDY
 
-To be updated soon. This work springboards from the [pyBDY
-Project](http://pynemo.readthedocs.io/en/latest/index.html).
+[pyBDY documentation](http://pynemo.readthedocs.io/en/latest/index.html). To be updated soon.
 
 ## How do I get set up?
 
