@@ -16,7 +16,7 @@ These are the steps to take to install pyBDY:
 
 - Creating a specific conda virtual environment is highly recommended ([click here for more about virtual
   enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)).
-  Use the latest version of anaconda (to be added in your .bahrc or load the module in the command line, e.g ``` module load anaconda/5-2021```).
+  Use the latest version of anaconda (to be added in your .bashrc or load the module in the command line, e.g ``` module load anaconda/5-2021```).
   
   ```
   cd $PYBDY_DIR
