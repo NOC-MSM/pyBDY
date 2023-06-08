@@ -482,7 +482,7 @@ class Extract:
         sc_time = self.sc_time
         sc_z_len = self.sc_z_len
         # define src/dst cals
-        if self.settings["time_interpolation"] is False:
+        if self.settings.get("time_interpolation", True) is False:
             # Source calender
             self.S_cal = utime(sc_time.units, sc_time.calendar)
             # First second of the target month
@@ -919,7 +919,7 @@ class Extract:
                     entry = self.d_bdy[self.var_nam[vn + 1]][year]
                 else:
                     entry = self.d_bdy[self.var_nam[vn]][year]
-                if entry["data"] is None or self.settings["time_interpolation"] is False:
+                if entry["data"] is None or self.settings.get("time_interpolation", True) is False:
                     # Create entry with singleton 3rd dimension
                     entry["data"] = np.array([data_out])
                 else:
