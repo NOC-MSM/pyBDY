@@ -1,8 +1,0 @@
-!-----------------------------------------------------------------------
-!   vertical coordinate
-!-----------------------------------------------------------------------
-   ln_zco      = .false.   !  z-coordinate - full    steps   (T/F)
-   ln_zps      = .true.    !  z-coordinate - partial steps   (T/F)
-   ln_sco      = .false.   !  s- or hybrid z-s-coordinate    (T/F)
-   rn_hmin     =   -10     !  min depth of the ocean (>0) or
-                           !  min number of ocean level (<0)

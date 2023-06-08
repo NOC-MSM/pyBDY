@@ -105,7 +105,7 @@ Before pushing to GitHub, run the following commands:
 The pyBDY module can be tested using the bench marking namelist bdy
 file in the inputs folder. To check the outputs of the benchmark test,
 these can be visualised using the plotting script within the
-test_scripts folder. A local version of the benchmark data can be
+plotting folder. A local version of the benchmark data can be
 downloaded from
 [here](https://gws-access.jasmin.ac.uk/public/jmmp/benchmark/).
 
@@ -133,18 +133,15 @@ following steps are required,
   `NNA_R12_bdyT_y1979_m11.nc` in an `./outputs` folder
 
 - To check the coordinates.bdy.nc has the correct boundary points, the
-  script bdy_coords_plot.py will plot the domain boundaries and shown
+  script `plotting/plot_coords.py` will plot the domain boundaries and show
   the different locations of the rim width (increasing number should
-  go inwards) This script is located in the test_scripts folder. There
-  are also two plotting scripts in `./plotting`.
-  The script `plot_bdy.py` does a similar job
-  to `bdy_coords_plot.py`
+  go inwards).
+
   E.g.
   `python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc`
   ![Example plot_coords.py output](/screenshots/example_coords.png)
 
-  The other script `plot_bdy.py` plots the tracer boundaries (as a
-  pcolormesh) to help visualise the output.
+  The other script `plot_bdy.py` plots extracted variables at the boundaries to help visualise the output (1D or 2D).
   E.g.
   `python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper`
   ![Example plot_bdy.py output](/screenshots/example_bdy_data.png)
