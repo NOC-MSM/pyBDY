@@ -16,8 +16,8 @@ These are the steps to take to install pyBDY:
 
 - Creating a specific conda virtual environment is highly recommended ([click here for more about virtual
   enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)).
-  Use the latest version of anaconda (to be added in your .bashrc or load the module in the command line, e.g ``` module load anaconda/5-2021```).
-  
+  Use the latest version of anaconda (to be added in your .bashrc or load the module in the command line, e.g ` module load anaconda/5-2021`).
+
   ```
   cd $PYBDY_DIR
   conda env create -n pybdy -f environment.yml python=3.9
@@ -141,13 +141,13 @@ following steps are required,
   to `bdy_coords_plot.py`
   E.g.
   `python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc`
-  ![Example plot_coords.py output](/screenshots/example_coords.png){width="800px"}
+  ![Example plot_coords.py output](/screenshots/example_coords.png)
 
   The other script `plot_bdy.py` plots the tracer boundaries (as a
   pcolormesh) to help visualise the output.
   E.g.
   `python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper`
-  ![Example plot_bdy.py output](/screenshots/example_bdy_data.png){width="800px"}
+  ![Example plot_bdy.py output](/screenshots/example_bdy_data.png)
 
 ## Example: generating tidal boundary conditions on ARCHER2
 
