@@ -133,7 +133,7 @@ following steps are required,
   `NNA_R12_bdyT_y1979_m11.nc` in an `./outputs` folder
 
 - To check the coordinates.bdy.nc has the correct boundary points, the
-  script plotting/plot_bdy.py will plot the domain boundaries and shown
+  script `plotting/plot_coords.py` will plot the domain boundaries and show
   the different locations of the rim width (increasing number should
   go inwards).
 
@@ -141,8 +141,7 @@ following steps are required,
   `python plotting/plot_coords.py outputs/NNA_R12_bdyT_y1979m11.nc outputs/coordinates.bdy.nc`
   ![Example plot_coords.py output](/screenshots/example_coords.png)
 
-  The other script `plot_bdy.py` plots the tracer boundaries (as a
-  pcolormesh) to help visualise the output.
+  The other script `plot_bdy.py` plots extracted variables at the boundaries to help visualise the output (1D or 2D).
   E.g.
   `python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper`
   ![Example plot_bdy.py output](/screenshots/example_bdy_data.png)
