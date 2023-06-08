@@ -1,5 +1,25 @@
 #!/usr/bin/env python3
+"""
+Script to plot extracted variables along boundary sections.
 
+Args:
+----
+fname     (str) : filename of BDY file
+variable  (str) : variable in file to plot.
+
+Example usage:
+--------------
+# 1D line plots of elevation
+python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc sossheig
+# 2D section plots of temperature
+python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper
+
+To do:
+------
+* labelling of plots : Add variable name
+* Which segment is where? Add x-axis label could be bdy index?
+* Not sure why sometime tmp.png (bdy index on map) is plotted and sometime not
+"""
 import sys
 
 import matplotlib.pyplot as plt
@@ -144,51 +164,16 @@ def nemo_bdy_order(fname):
     return bdy_ind, bdy_dst, bdy_brk
 
 
-def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
+def process_plot_2d_sections(var, gdep, bdy_brk, bdy_ind, rw):
     """
-    Determine the ordering and breaks in BDY files to aid plotting.
+    Plot 2d section along boundaries.
 
-    This function takes the i/j coordinates from BDY files and orders them sequentially
-    making it easier to visualise sections along the open boundary. Breaks in the open
-    boundary are also determined (i.e. where the distance between two points > 2**0.5)
+    Divide data into segments. Then (polgon patch) plot segments in separate panels as a function of depth
 
-    Args:
-    ----
-        fname     (str) : filename of BDY file
-
-    Returns:
+    Returns
     -------
-        bdy_ind   (dict): re-ordered indices
-        bdy_dst   (dict): distance (in model coords) between points
-        bdy_brk   (dict): location of the break points in the open boundary
+        f - figure handle
     """
-    # need to write in a check that either i or j are single values
-
-    rootgrp = Dataset(fname, "r", format="NETCDF4")
-    var = np.squeeze(rootgrp.variables[varnam][t, :])
-    mask = (var < -99999.98) | (var > 100000.00)
-    var = np.ma.MaskedArray(var, mask=mask)
-    nbr = np.squeeze(rootgrp.variables["nbrdta"][:, :]) - 1
-    var = var[:, nbr == rw]
-
-    # let us use gdept as the central depth irrespective of whether t, u or v
-
-    try:
-        gdep = np.squeeze(rootgrp.variables["deptht"][:, :, :])
-    except KeyError:
-        try:
-            gdep = np.squeeze(rootgrp.variables["gdept"][:, :, :])
-        except KeyError:
-            try:
-                gdep = np.squeeze(rootgrp.variables["depthu"][:, :, :])
-            except KeyError:
-                try:
-                    gdep = np.squeeze(rootgrp.variables["depthv"][:, :, :])
-                except KeyError:
-                    print("depth variable not found")
-
-    rootgrp.close()
-
     jpk = len(gdep[:, 0])
     nsc = len(bdy_brk[rw][:]) - 1
 
@@ -317,6 +302,111 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw):
         nax.set_ylim((0, np.max(bathy)))
         nax.invert_yaxis()
 
+    return f
+
+
+def process_plot_1d_sections(var, bdy_brk, bdy_ind, rw):
+    """
+    Plot 1d section along boundaries.
+
+    Divide data into segments. Then (line) plot segments in separate panels
+
+    Returns
+    -------
+        f - figure handle
+    """
+    nsc = len(bdy_brk[rw][:]) - 1  # number of sections
+    dta = {}
+
+    # divide data up into sections and re-order
+
+    print(nsc)
+    for n in range(nsc):
+        dta[n] = np.squeeze(var[bdy_ind[rw][bdy_brk[rw][n] : bdy_brk[rw][n + 1]]])
+
+    # loop over number of sections and plot
+
+    f, ax = plt.subplots(nrows=1, ncols=1, figsize=(11, 4))
+    ax.plot(dta[0][:])
+    ax.set_title("BDY points along section: 1")
+
+    f, ax = plt.subplots(nrows=nsc, ncols=1, figsize=(14, 10 * nsc))
+
+    for n in range(nsc):
+        if nsc > 1:
+            nax = ax[n]
+        else:
+            nax = ax
+
+        plt.sca(nax)
+
+        # Add line to axes
+        plt.plot(dta[n][:])
+        plt.title(f"BDY points along section {n}")
+
+    return f
+
+
+def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw=0):
+    """
+    Determine the ordering and breaks in BDY files to aid plotting.
+
+    This function takes the i/j coordinates from BDY files and orders them sequentially
+    making it easier to visualise sections along the open boundary. Breaks in the open
+    boundary are also determined (i.e. where the distance between two points > 2**0.5)
+
+    Args:
+    ----
+        fname     (str) : filename of BDY file
+
+    Returns:
+    -------
+        bdy_ind   (dict): re-ordered indices
+        bdy_dst   (dict): distance (in model coords) between points
+        bdy_brk   (dict): location of the break points in the open boundary
+    """
+    # need to write in a check that either i or j are single values
+
+    rootgrp = Dataset(fname, "r", format="NETCDF4")
+    var = np.squeeze(rootgrp.variables[varnam][t, :])
+    mask = (var < -99999.98) | (var > 100000.00)
+    var = np.ma.MaskedArray(var, mask=mask)
+    nbr = np.squeeze(rootgrp.variables["nbrdta"][:, :]) - 1
+    if rw != 0:
+        var = var[:, nbr == rw]
+
+    # let us use gdept as the central depth irrespective of whether t, u or v
+    if len(var.shape) == 2:
+        section_flag = True
+    elif len(var.shape) == 1:
+        section_flag = False
+    else:
+        print(f"Not expecting var.shape = {var.shape}")
+
+    try:
+        gdep = np.squeeze(rootgrp.variables["deptht"][:, :, :])
+    except KeyError:
+        try:
+            gdep = np.squeeze(rootgrp.variables["gdept"][:, :, :])
+        except KeyError:
+            try:
+                gdep = np.squeeze(rootgrp.variables["depthu"][:, :, :])
+            except KeyError:
+                try:
+                    gdep = np.squeeze(rootgrp.variables["depthv"][:, :, :])
+                except KeyError:
+                    print("depth variable not found")
+
+    rootgrp.close()
+
+    print(f"rimwidth {rw}")
+    print(f"section_flag {section_flag}")
+
+    if section_flag:
+        f = process_plot_2d_sections(var, gdep, bdy_brk, bdy_ind, rw)
+
+    else:
+        f = process_plot_1d_sections(var, bdy_brk, bdy_ind, rw)
     return f
 
 

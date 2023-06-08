@@ -155,7 +155,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         DstCoord.depths[grd]["bdy_z"] = z.zpoints[grd]
     logger.info("Depths defined")
 
-    # Gather vorizontal grid information
+    # Gather horizontal grid information
 
     nc = GetFile(settings["src_hgr"])
     SourceCoord.lon = nc["glamt"][:, :]
