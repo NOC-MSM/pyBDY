@@ -1,5 +1,6 @@
 """Module that tests the Bathymetry class."""
 
+import functools
 import os
 import shutil
 import subprocess
@@ -8,16 +9,46 @@ from typing import Tuple, Union
 import numpy as np
 import pytest
 import xarray as xr
+from _pytest.fixtures import SubRequest
+from pybdy.utils.nemo_bdy_lib import sub2ind
 
 from .bathymetry import Bathymetry, generate_variables, merge_z3_and_e3
 
 
 @pytest.fixture
-def create_temp_dir(tmp_path_factory) -> str:
-    """Create a temporary directory."""
-    path = tmp_path_factory.mktemp("temp_dir", numbered=True)
+def handle_temp_dir(request: SubRequest) -> str:
+    """
+    Create and remove a temporary directory.
 
-    return path
+    Parameters
+    ----------
+    request
+        Fixture request.
+
+    Returns
+    -------
+    Path to the temporary directory.
+    """
+
+    def rm_temp_dir(dir_to_rm: str) -> None:
+        """
+        Remove a temporary directory.
+
+        Parameters
+        ----------
+        dir_to_rm
+            Directory to remove.
+        """
+        shutil.rmtree(dir_to_rm)
+
+    # Create a temporary directory
+    temp_path = os.path.join("tests", request.param)
+    os.mkdir(temp_path)
+
+    # Add a finalizer that removes the temporary directory
+    request.addfinalizer(functools.partial(rm_temp_dir, temp_path))
+
+    return temp_path
 
 
 def _create_bathymetry(
@@ -115,18 +146,15 @@ def _create_bathymetry(
     return ds_domcfg_parent, ds_domcfg_child, ds_var_parent
 
 
-def test_child_grid_as_colocated_subregion() -> None:
+@pytest.mark.parametrize("handle_temp_dir", ["temp_test_001"], indirect=True)
+def test_child_grid_as_colocated_subregion(handle_temp_dir) -> None:
     """
     Test the case where the child grid is as a 1:1 sub region of the parent grid.
 
     Notes
     -----
-    For this case, longitude, latitude, depth grid points are all colocated in both parent and child grids.
+    Longitude, latitude, depth grid points are all colocated in both parent and child grids.
     """
-    # Create a temporary directory
-    temp_path = os.path.join("tests", "temp_test_001")
-    os.mkdir(temp_path)
-
     # Define lat and lon boundaries of parent and child grids
     dlon, dlat = (1.0, 1.0)
     lon_i_offset, lon_f_offset, lat_i_offset, lat_f_offset = (10, -10, 5, -5)
@@ -137,6 +165,8 @@ def test_child_grid_as_colocated_subregion() -> None:
         lat_i_parent + dlat * lat_i_offset,
         lat_f_parent + dlat * lat_f_offset,
     )
+    depth_i, depth_f, depth_thickness = (50.0, 5000.0, 100.0)
+    parent_rotation, child_rotation = (0.0, 0.0)
 
     # Create coordinates and bathymetry of parent and child
     ds_domcfg_parent, ds_domcfg_child, ds_var_parent = _create_bathymetry(
@@ -144,20 +174,25 @@ def test_child_grid_as_colocated_subregion() -> None:
         dlat,
         (lon_i_parent, lon_f_parent, lat_i_parent, lat_f_parent),
         (lon_i_child, lon_f_child, lat_i_child, lat_f_child),
-        (50.0, 5000.0, 100.0),
-        0.0,
-        0.0,
-        temp_path,
+        (depth_i, depth_f, depth_thickness),
+        parent_rotation,
+        child_rotation,
+        handle_temp_dir,
     )
 
     # Run pybdy
-    subprocess.run(
+    result = subprocess.run(
         ["pybdy", "-s", os.path.join("tests", "namelists", "namelist_test_001.bdy")]
     )
 
+    # Assert pybdy run successfully
+    assert result.returncode == 0
+
     # Load NetCDF files produced by pybdy
-    ds_coords_bdy = xr.open_dataset(os.path.join(temp_path, "coordinates.bdy.nc"))
-    ds_var_child = xr.open_dataset(os.path.join(temp_path, "child_bdyT_y2001m01.nc"))
+    ds_coords_bdy = xr.open_dataset(os.path.join(handle_temp_dir, "coordinates.bdy.nc"))
+    ds_var_child = xr.open_dataset(
+        os.path.join(handle_temp_dir, "child_bdyT_y2001m01.nc")
+    )
 
     # Subsample parent variables
     votemper_parent_sub = ds_var_parent["votemper"][
@@ -170,22 +205,40 @@ def test_child_grid_as_colocated_subregion() -> None:
     # Extract votemper and vosaline along the boundary from the subsampled parent
     nbit = ds_coords_bdy.nbit.values.squeeze() - 1
     nbjt = ds_coords_bdy.nbjt.values.squeeze() - 1
-    votemper_parent_bdy = votemper_parent_sub[:, :, nbit, nbjt]
-    vosaline_parent_bdy = vosaline_parent_sub[:, :, nbit, nbjt]
+    votemper_parent_bdy = votemper_parent_sub[:, :, nbit, nbjt].values
+    vosaline_parent_bdy = vosaline_parent_sub[:, :, nbit, nbjt].values
+
+    assert np.min(nbit) == 1
+    assert np.min(nbjt) == 1
+    assert np.max(nbit) == int(ds_var_child.dims["x"]) - 2
+    assert np.max(nbjt) == int(ds_var_child.dims["x"]) - 2
+
+    # Reshape the bdy of the subsampled parent grid
+    votemper_parent_bdy = votemper_parent_bdy.reshape(
+        votemper_parent_bdy.shape[0],
+        votemper_parent_bdy.shape[1],
+        votemper_parent_bdy.shape[2] * votemper_parent_bdy.shape[3],
+    )
+
+    vosaline_parent_bdy = vosaline_parent_bdy.reshape(
+        vosaline_parent_bdy.shape[0],
+        vosaline_parent_bdy.shape[1],
+        vosaline_parent_bdy.shape[2] * vosaline_parent_bdy.shape[3],
+    )
+
+    # Extract only the correct combination of nbit and nbjt indices
+    one_dim_idx = sub2ind(nbit.shape, nbit, nbjt)
+    votemper_parent_bdy = votemper_parent_bdy[:, :, one_dim_idx]
+    vosaline_parent_bdy = vosaline_parent_bdy[:, :, one_dim_idx]
 
     # Difference between parent and child temperature and salinity
     diff_votemper = (
-        votemper_parent_bdy[0, :, 0, :] - ds_var_child["votemper"][0, :, 0, :]
+        votemper_parent_bdy[0, :-1, :] - ds_var_child["votemper"][0, :-1, 0, :]
     )
     diff_vosaline = (
-        vosaline_parent_bdy[0, :, 0, :] - ds_var_child["vosaline"][0, :, 0, :]
+        vosaline_parent_bdy[0, :-1, :] - ds_var_child["vosaline"][0, :-1, 0, :]
     )
 
     # Compare two xarray array
-    # TODO: tests are currently failing because the last row of ds_var_child["votemper"][0, :, 0, :]
-    # See, e.g., ncdump -v vosaline child_bdyT_y2001m01.nc
-    assert not np.any(np.abs(diff_votemper) < 1e-8)
-    assert not np.any(np.abs(diff_vosaline) < 1e-8)
-
-    # Remove temporary directory
-    shutil.rmtree(temp_path)
+    assert np.all(np.abs(diff_votemper) < 1e-8)
+    assert np.all(np.abs(diff_vosaline) < 1e-8)
