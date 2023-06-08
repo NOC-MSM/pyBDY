@@ -34,7 +34,7 @@ These are the steps to take to install pyBDY:
   conda deactivate
   ```
 
-- Make sure the Java Runtime Environment is set E.g.:
+- Make sure the Java Runtime Environment is set e.g.:
 
   ```
   export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-1.8.0.372.b07-1.el7_9.x86_64/ # e.g. for livljobs\*
@@ -45,6 +45,12 @@ These are the steps to take to install pyBDY:
   ```
   export JAVA_HOME=/Users/<username>/Downloads/jdk-20.0.1.jdk/Contents/Home/ # e.g. for mac OSX
   ```
+
+  Genralised methods for defining paths are as follows:
+
+  ```
+  export JAVA_HOME=$(readlink -f $(which java)) # UNIX
+  export JAVA_HOME=$(/usr/libexec/java_home)    # Mac
 
 - Install pyBDY:
 
