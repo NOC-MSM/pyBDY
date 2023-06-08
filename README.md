@@ -147,7 +147,6 @@ following steps are required,
   `python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper`
   ![Example plot_bdy.py output](/screenshots/example_bdy_data.png)
 
-
 ## Example: generating tidal boundary conditions on ARCHER2
 
 - Activate the new virtual environment:
