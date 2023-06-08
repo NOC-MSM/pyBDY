@@ -3,13 +3,13 @@
 import functools
 import os
 import shutil
-import subprocess
 from typing import Tuple, Union
 
 import numpy as np
 import pytest
 import xarray as xr
 from _pytest.fixtures import SubRequest
+from pybdy.profiler import process_bdy
 from pybdy.utils.nemo_bdy_lib import sub2ind
 
 from .bathymetry import Bathymetry, generate_variables, merge_z3_and_e3
@@ -133,10 +133,13 @@ def _create_bathymetry(
     ds_domcfg_parent = merge_z3_and_e3(ds_bathy_parent, z3t, z3w, e3t, e3w)
     ds_domcfg_child = merge_z3_and_e3(ds_bathy_child, z3t, z3w, e3t, e3w)
 
+    if np.abs(degrees_parent) > 1e-8 or np.abs(degrees_child) > 1e-8:
+        rotation = True
+    else:
+        rotation = False
+
     # Generate variables to use as source data
-    ds_var_parent = generate_variables(
-        ds_domcfg_parent,
-    )
+    ds_var_parent = generate_variables(ds_domcfg_parent, rotation=rotation)
 
     # Save to file
     ds_domcfg_parent.to_netcdf(os.path.join(path, "parent.nc"))
@@ -181,12 +184,9 @@ def test_child_grid_colocated(handle_temp_dir) -> None:
     )
 
     # Run pybdy
-    result = subprocess.run(
-        ["pybdy", "-s", os.path.join("tests", "namelists", "namelist_test_001.bdy")]
+    process_bdy(
+        setup_filepath=os.path.join("tests", "namelists", "namelist_test_001.bdy")
     )
-
-    # Assert pybdy run successfully
-    assert result.returncode == 0
 
     # Load NetCDF files produced by pybdy
     ds_coords_bdy = xr.open_dataset(os.path.join(handle_temp_dir, "coordinates.bdy.nc"))
@@ -203,31 +203,31 @@ def test_child_grid_colocated(handle_temp_dir) -> None:
     ]
 
     # Extract votemper and vosaline along the boundary from the subsampled parent
-    nbit = ds_coords_bdy.nbit.values.squeeze() - 1
-    nbjt = ds_coords_bdy.nbjt.values.squeeze() - 1
-    votemper_parent_bdy = votemper_parent_sub[:, :, nbit, nbjt].values
-    vosaline_parent_bdy = vosaline_parent_sub[:, :, nbit, nbjt].values
+    # Note that nbit and nbjt indexing start at 1
+    nbit = ds_coords_bdy.nbit.values.squeeze()
+    nbjt = ds_coords_bdy.nbjt.values.squeeze()
+    votemper_parent_bdy = votemper_parent_sub[:, :, nbit - 1, nbjt - 1].values
+    vosaline_parent_bdy = vosaline_parent_sub[:, :, nbit - 1, nbjt - 1].values
 
-    assert np.min(nbit) == 1
-    assert np.min(nbjt) == 1
-    assert np.max(nbit) == int(ds_var_child.dims["x"]) - 2
-    assert np.max(nbjt) == int(ds_var_child.dims["x"]) - 2
+    assert np.min(nbit) == 2
+    assert np.min(nbjt) == 2
+    assert np.max(nbit) == int(ds_var_child.dims["x"]) - 1
+    assert np.max(nbjt) == int(ds_var_child.dims["x"]) - 1
+
+    # one_dim_idx = np.ravel_multi_index(np.transpose([*zip(nbit - 1, nbjt - 1)]),
+    #  vosaline_parent_bdy.shape[2:]))
 
     # Reshape the bdy of the subsampled parent grid
     votemper_parent_bdy = votemper_parent_bdy.reshape(
-        votemper_parent_bdy.shape[0],
-        votemper_parent_bdy.shape[1],
-        votemper_parent_bdy.shape[2] * votemper_parent_bdy.shape[3],
+        votemper_parent_bdy.shape[:-2] + (-1,)
     )
-
     vosaline_parent_bdy = vosaline_parent_bdy.reshape(
-        vosaline_parent_bdy.shape[0],
-        vosaline_parent_bdy.shape[1],
-        vosaline_parent_bdy.shape[2] * vosaline_parent_bdy.shape[3],
+        vosaline_parent_bdy.shape[:-2] + (-1,)
     )
 
     # Extract only the correct combination of nbit and nbjt indices
-    one_dim_idx = sub2ind(nbit.shape, nbit, nbjt)
+    # Note that nbit and nbjt must be passed with indexes starting at 1
+    one_dim_idx = sub2ind(nbit.shape, nbit - 1, nbjt - 1)
     votemper_parent_bdy = votemper_parent_bdy[:, :, one_dim_idx]
     vosaline_parent_bdy = vosaline_parent_bdy[:, :, one_dim_idx]
 
@@ -242,3 +242,35 @@ def test_child_grid_colocated(handle_temp_dir) -> None:
     # Compare values on the boundary of the subsampled parent grid and child grid
     assert np.all(np.abs(diff_votemper) < 1e-8)
     assert np.all(np.abs(diff_vosaline) < 1e-8)
+
+
+@pytest.mark.parametrize("handle_temp_dir", ["temp_test_002"], indirect=True)
+def test_child_grid_rotated(handle_temp_dir) -> None:
+    """Test the case where the child grid is rotated 45 degrees relatively to the parent grid."""
+    # Define lat and lon boundaries of parent and child grids
+    dlon, dlat = (1.0, 1.0)
+    lon_i_offset, lon_f_offset, lat_i_offset, lat_f_offset = (10, -10, 5, -5)
+    lon_i_parent, lon_f_parent, lat_i_parent, lat_f_parent = (-20.0, 10.0, 45.0, 65.0)
+    lon_i_child, lon_f_child, lat_i_child, lat_f_child = (
+        lon_i_parent + dlon * lon_i_offset,
+        lon_f_parent + dlon * lon_f_offset,
+        lat_i_parent + dlat * lat_i_offset,
+        lat_f_parent + dlat * lat_f_offset,
+    )
+    depth_i, depth_f, depth_thickness = (50.0, 5000.0, 100.0)
+    parent_rotation, child_rotation = (0.0, 45.0)
+
+    # Create coordinates and bathymetry of parent and child
+    ds_domcfg_parent, ds_domcfg_child, ds_var_parent = _create_bathymetry(
+        dlon,
+        dlat,
+        (lon_i_parent, lon_f_parent, lat_i_parent, lat_f_parent),
+        (lon_i_child, lon_f_child, lat_i_child, lat_f_child),
+        (depth_i, depth_f, depth_thickness),
+        parent_rotation,
+        child_rotation,
+        handle_temp_dir,
+    )
+
+    # Run pybdy
+    # process_bdy(setup_filepath=os.path.join("tests", "namelists", "namelist_test_002.bdy"))

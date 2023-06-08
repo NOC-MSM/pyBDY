@@ -420,15 +420,16 @@ def _add_mbathy(ds: Dataset) -> Dataset:
     return ds
 
 
-def generate_variables(
-    ds_domcfg,
-) -> Dataset:
+def generate_variables(ds_domcfg, rotation=False) -> Dataset:
     """
     Generate a Dataset of T/S/U/V given a NEMO bathy Dataset.
 
     Parameters
     ----------
     ds_domcfg: Dataset
+
+    rotation: bool
+        Whether the child grid is rotated.
 
     Returns
     -------
@@ -455,12 +456,17 @@ def generate_variables(
     vvel.attrs = dict(units="m/s", long_name="Meridional Velocity (m/s)")
     ssh.attrs = dict(units="m", long_name="Sea Surface Height (m)")
 
-    # Add to ds
     ds["votemper"] = temp
     ds["vosaline"] = salt
-    ds["uvel"] = uvel
-    ds["vvel"] = vvel
-    ds["ssh"] = ssh
+    # Add to ds
+    if rotation:
+        ds["vozocrtx"] = uvel
+        ds["vomecrty"] = vvel
+        ds["sossheig"] = ssh
+    else:
+        ds["uvel"] = uvel
+        ds["vvel"] = vvel
+        ds["ssh"] = ssh
 
     # Add t dim
     # times = pd.date_range("2020","2023",freq='Y')+ DateOffset(months=6)
