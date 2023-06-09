@@ -322,7 +322,7 @@ def _assign(data):
     for line in data:
         keyvalue = line.split("=", 1)
         _get_val(vars_dictionary, bool_vars_dictionary, keyvalue)
-        
+
     return vars_dictionary, bool_vars_dictionary
 
 

@@ -486,15 +486,22 @@ class Extract:
             # Source calender
             self.S_cal = utime(sc_time.units, sc_time.calendar)
             # First second of the target month
-            target_time   = self.S_cal.date2num( datetime(year, month, 1) )
+            target_time = self.S_cal.date2num(datetime(year, month, 1))
             # Find index in source time counter for target year and month
-            closest_time_ind = min( ind for ind, item in enumerate(sc_time.time_counter) if item >= target_time )
+            closest_time_ind = min(
+                ind
+                for ind, item in enumerate(sc_time.time_counter)
+                if item >= target_time
+            )
             # This is index for first and last date
             first_date = closest_time_ind
             last_date = first_date
-            self.logger.info( "matched month: " + str( self.S_cal.num2date(sc_time.time_counter[last_date]) ) )
+            self.logger.info(
+                "matched month: "
+                + str(self.S_cal.num2date(sc_time.time_counter[last_date]))
+            )
             # Set time counter for output as array
-            self.time_counter = sc_time.time_counter[last_date:last_date+1]
+            self.time_counter = sc_time.time_counter[last_date : last_date + 1]
         else:
             sf, ed = self.cal_trans(
                 sc_time.calendar,  # sc_time[0].calendar
@@ -505,21 +512,21 @@ class Extract:
             DstCal = utime("seconds since %d-1-1" % year, self.settings["dst_calendar"])
             dst_start = DstCal.date2num(datetime(year, month, 1))
             dst_end = DstCal.date2num(datetime(year, month, ed, 23, 59, 59))
-    
+
             self.S_cal = utime(
                 sc_time.units, sc_time.calendar
             )  # sc_time[0].units,sc_time[0].calendar)
-    
+
             self.D_cal = utime(
                 "seconds since %d-1-1" % self.settings["base_year"],
                 self.settings["dst_calendar"],
             )
-    
+
             src_date_seconds = np.zeros(len(sc_time.time_counter))
             for index in range(len(sc_time.time_counter)):
                 tmp_date = self.S_cal.num2date(sc_time.time_counter[index])
                 src_date_seconds[index] = DstCal.date2num(tmp_date) * sf
-    
+
             # Get first and last date within range, init to cover entire range
             first_date = 0
             last_date = len(sc_time.time_counter) - 1
@@ -919,7 +926,10 @@ class Extract:
                     entry = self.d_bdy[self.var_nam[vn + 1]][year]
                 else:
                     entry = self.d_bdy[self.var_nam[vn]][year]
-                if entry["data"] is None or self.settings.get("time_interpolation", True) is False:
+                if (
+                    entry["data"] is None
+                    or self.settings.get("time_interpolation", True) is False
+                ):
                     # Create entry with singleton 3rd dimension
                     entry["data"] = np.array([data_out])
                 else:
