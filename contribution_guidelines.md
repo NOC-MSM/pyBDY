@@ -36,7 +36,7 @@ If you don't have write permissions on [NOC-MSM/pyBDY](https://github.com/NOC-MS
 1. Solve any issues flagged by the pre-commit hooks
 1. Update already staged files: `git add -u`
 1. Commit changes once again: `git commit -m "#103 Remove pynemo traces"`
-1. Merge the remote master branch into your local branch: `git fetch && git merge origin/master` (you may need to [solve merge conflicts](<(https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-using-the-command-line)>) at this step)
+1. Merge the remote master branch into your local branch: `git fetch && git merge origin/master` (you may need to [solve merge conflicts](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-using-the-command-line) at this step)
 
 ## Pre-push steps
 
