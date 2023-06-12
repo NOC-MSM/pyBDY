@@ -972,13 +972,15 @@ class Extract:
         Get time delta for time_counter and number of timesteps per day. Checks
         if time steps are uniform.
 
-        Input
-        -----
-        time_counter: model time coordinate
+        Parameters
+        ----------
+        time_counter
+            model time coordinate
 
-        Output
-        ------
-        deltaT: length of time step
+        Returns
+        -------
+        deltaT
+            length of time step
         """
         
         # get time derivative
@@ -989,7 +991,7 @@ class Extract:
             self.logger.warning('time interpolation expects uniform time step.')
             self.logger.warning('time_counter is not uniform.')
          
-        # get  number of timesteps per day
+        # get  number of timesteps per day (zero if deltaT > 86400)
         dstep = 86400 // int(deltaT[0])
 
         return deltaT[0], dstep
