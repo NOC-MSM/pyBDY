@@ -969,8 +969,10 @@ class Extract:
 
     def time_delta(self, time_counter):
         """
-        Get time delta for time_counter and number of timesteps per day. Checks
-        if time steps are uniform.
+        Get time delta and number of time steps per day.
+
+        Calculates difference between time steps for time_counter and checks
+        these are uniform. Then retrives the number of time steps per day.
 
         Parameters
         ----------
@@ -981,16 +983,17 @@ class Extract:
         -------
         deltaT
             length of time step
+        dstep
+            number of time steps per day
         """
-        
         # get time derivative
         deltaT = np.diff(time_counter)
 
         # check for uniform time steps
         if not np.all(deltaT == deltaT[0]):
-            self.logger.warning('time interpolation expects uniform time step.')
-            self.logger.warning('time_counter is not uniform.')
-         
+            self.logger.warning("time interpolation expects uniform time step.")
+            self.logger.warning("time_counter is not uniform.")
+
         # get  number of timesteps per day (zero if deltaT > 86400)
         dstep = 86400 // int(deltaT[0])
 
@@ -1008,7 +1011,6 @@ class Extract:
         accepted: gregorian | standard, proleptic_gregorian, noleap | 365_day,
         360_day or julian.*
         """
-        
         # RDP: this could be made more flexible to interpolate to other deltaTs
 
         # Extract time information
@@ -1061,7 +1063,7 @@ class Extract:
 
         # interpolate
         for v in varnams:
-            if del_t >= 86400.0: # upsampling
+            if del_t >= 86400.0:  # upsampling
                 intfn = interp1d(
                     time_counter,
                     self.d_bdy[v][year]["data"][:, :, :],
@@ -1069,8 +1071,8 @@ class Extract:
                     bounds_error=True,
                 )
                 self.d_bdy[v][year]["data"] = intfn(target_time)
-                self.time_counter = target_time 
-            else:                # downsampling
+                self.time_counter = target_time
+            else:  # downsampling
                 for t in range(dstep):
                     intfn = interp1d(
                         time_counter[t::dstep],
