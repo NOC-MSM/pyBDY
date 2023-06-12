@@ -1031,7 +1031,7 @@ class Extract:
             time_counter[t] = tmp_cal.date2num(
                 self.d_bdy[self.var_nam[var_id]]["date"][t]
             )
- 
+
         date_000 = datetime(year, month, 1, 12, 0, 0)
         if month < 12:
             date_end = datetime(year, month + 1, 1, 12, 0, 0)
@@ -1066,7 +1066,7 @@ class Extract:
                 axis=0,
                 bounds_error=True,
             )
-            ds = intfn(target_time)
+            self.d_bdy[v][year]["data"] = intfn(target_time)
 
         # update time_counter
         self.time_counter = target_time
