@@ -1031,7 +1031,7 @@ class Extract:
             time_counter[t] = tmp_cal.date2num(
                 self.d_bdy[self.var_nam[var_id]]["date"][t]
             )
-
+ 
         date_000 = datetime(year, month, 1, 12, 0, 0)
         if month < 12:
             date_end = datetime(year, month + 1, 1, 12, 0, 0)
@@ -1060,28 +1060,19 @@ class Extract:
 
         # interpolate
         for v in varnams:
-            if del_t >= 86400.0:  # upsampling
-                intfn = interp1d(
-                    time_counter,
-                    self.d_bdy[v][year]["data"][:, :, :],
-                    axis=0,
-                    bounds_error=True,
-                )
-                self.d_bdy[v][year]["data"] = intfn(target_time)
-                self.time_counter = target_time
-            else:  # downsampling
-                for t in range(dstep):
-                    intfn = interp1d(
-                        time_counter[t::dstep],
-                        self.d_bdy[v].data[t::dstep, :, :],
-                        axis=0,
-                        bounds_error=True,
-                    )
-                    self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
+            intfn = interp1d(
+                time_counter,
+                self.d_bdy[v][year]["data"],
+                axis=0,
+                bounds_error=True,
+            )
+            ds = intfn(target_time)
 
-        # self.time_counter = time_counter
+        # update time_counter
+        self.time_counter = target_time
 
-    #        self.time_counter = len(self.d_bdy[v][year]['data'][:,0,0])
+        # RDP: self.d_bdy[v]["date"] is not updated during interpolation, but
+        #      self.time_counter is. This could be prone to unexpected errors.
 
     def write_out(self, year, month, ind, unit_origin):
         """
