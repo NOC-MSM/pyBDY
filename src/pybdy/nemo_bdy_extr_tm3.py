@@ -1043,9 +1043,6 @@ class Extract:
         # get deltaT and number of time steps per day (dstep)
         del_t, dstep = self.time_delta(time_counter)
 
-        # If time freq. is greater than 86400s
-        # TODO put in an error handler for the unlikely event of frequency not a
-        # multiple of 86400 | data are annual means
         if self.key_vec is True:
             if self.rot_dir == "i":
                 varnams = [
