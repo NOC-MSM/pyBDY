@@ -1056,20 +1056,21 @@ class Extract:
         else:
             varnams = self.var_nam
 
-        if del_t >= 86400.0: # upsampling
-            for v in varnams:
+        # target time index
+        target_time = np.arange(time_000, time_end, 86400)
+
+        # interpolate
+        for v in varnams:
+            if del_t >= 86400.0: # upsampling
                 intfn = interp1d(
                     time_counter,
                     self.d_bdy[v][year]["data"][:, :, :],
                     axis=0,
                     bounds_error=True,
                 )
-                self.d_bdy[v][year]["data"] = intfn(
-                    np.arange(time_000, time_end, 86400)
-                )
-                self.time_counter = np.arange(time_000, time_end, 86400)
-        else:                # downsampling
-            for v in varnams:
+                self.d_bdy[v][year]["data"] = intfn(target_time)
+                self.time_counter = target_time 
+            else:                # downsampling
                 for t in range(dstep):
                     intfn = interp1d(
                         time_counter[t::dstep],
@@ -1077,9 +1078,8 @@ class Extract:
                         axis=0,
                         bounds_error=True,
                     )
-                    self.d_bdy[v].data[t::dstep, :, :] = intfn(
-                        np.arange(time_000, time_end, 86400)
-                    )
+                    self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
+
         # self.time_counter = time_counter
 
     #        self.time_counter = len(self.d_bdy[v][year]['data'][:,0,0])
