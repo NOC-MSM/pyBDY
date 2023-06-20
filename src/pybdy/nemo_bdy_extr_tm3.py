@@ -1060,13 +1060,23 @@ class Extract:
 
         # interpolate
         for v in varnams:
-            intfn = interp1d(
-                time_counter,
-                self.d_bdy[v][year]["data"],
-                axis=0,
-                bounds_error=True,
-            )
-            self.d_bdy[v][year]["data"] = intfn(target_time)
+            if del_t >= 86400.0:  # upsampling
+                intfn = interp1d(
+                    time_counter,
+                    self.d_bdy[v][year]["data"][:, :, :],
+                    axis=0,
+                    bounds_error=True,
+                )
+                self.d_bdy[v][year]["data"] = intfn(target_time)
+            else:  # downsampling
+                for t in range(dstep):
+                    intfn = interp1d(
+                        time_counter[t::dstep],
+                        self.d_bdy[v].data[t::dstep, :, :],
+                        axis=0,
+                        bounds_error=True,
+                    )
+                    self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
 
         # update time_counter
         self.time_counter = target_time
