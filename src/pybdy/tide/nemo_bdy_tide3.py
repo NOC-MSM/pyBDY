@@ -12,7 +12,7 @@ from pybdy import nemo_bdy_grid_angle
 from pybdy.reader.factory import GetFile
 from pybdy.utils.nemo_bdy_lib import rot_rep
 
-from . import fes2014_extract_HC, tpxo_extract_HC
+from . import fes2014_extract_HC, tpxo9_extract_HC, tpxo_extract_HC
 
 
 def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
@@ -50,6 +50,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     # extract the surface elevation at each z-point
     if setup.settings["tide_model"].lower() == "tpxo7p2":
         tide_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
+    elif setup.settings["tide_model"].lower() == "tpxo9v5":
+        tide_z = tpxo9_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
     elif setup.settings["tide_model"].lower() == "fes2014":
         tide_z = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, g_type)
 
@@ -83,6 +85,13 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
             setup.settings, dst_lat, dst_lon, Grid_U.grid_type
         )
         tide_vx = tpxo_extract_HC.TpxoExtract(
+            setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+        )
+    elif setup.settings["tide_model"].lower() == "tpxo9v5":
+        tide_ux = tpxo9_extract_HC.TpxoExtract(
+            setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+        )
+        tide_vx = tpxo9_extract_HC.TpxoExtract(
             setup.settings, dst_lat, dst_lon, Grid_V.grid_type
         )
     elif setup.settings["tide_model"].lower() == "fes2014":
@@ -131,6 +140,13 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
             setup.settings, dst_lat, dst_lon, Grid_U.grid_type
         )
         tpxo_vy = tpxo_extract_HC.TpxoExtract(
+            setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+        )
+    elif setup.settings["tide_model"].lower() == "tpxo9v5":
+        tpxo_uy = tpxo9_extract_HC.TpxoExtract(
+            setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+        )
+        tpxo_vy = tpxo9_extract_HC.TpxoExtract(
             setup.settings, dst_lat, dst_lon, Grid_V.grid_type
         )
     elif setup.settings["tide_model"].lower() == "fes2014":
