@@ -18,6 +18,8 @@ import numpy as np
 import xarray as xr
 from scipy import interpolate
 
+from . import nemo_bdy_tide3
+
 
 class TpxoExtract(object):
     """TPXO model extract_hc.c implementation in python."""
@@ -28,7 +30,7 @@ class TpxoExtract(object):
         tide_model = "TPXO9"
 
         # Complete set of available constituents
-        self.cons = [
+        constituents = [
             "2N2",
             "K1",
             "K2",
@@ -74,6 +76,17 @@ class TpxoExtract(object):
             lon_z = self.grid[lon_z_name]
             lat_z = self.grid[lat_z_name]
             # generate_landmask_from_bathymetry()
+
+            # Extract the constituent subset requested by the namelist
+            compindx = [
+                icon.astype(int)
+                for icon in nemo_bdy_tide3.constituents_index(
+                    constituents, settings["clname"]
+                )
+            ]
+            self.cons = [constituents[i] for i in compindx]
+            print(f"self.cons:{self.cons}")
+
             # read in and concatenate height dataset files
             for icon, con in enumerate(self.cons):
                 # load in the data
@@ -96,7 +109,7 @@ class TpxoExtract(object):
 
             # read in and concatenate velocity transport dataset files
             if (grid_type == "u") or (grid_type == "v"):
-                for icon, con in enumerate(self.cons[0:3]):
+                for icon, con in enumerate(self.cons):
                     # load in the data
                     filename = f"u_{con.lower()}_tpxo9_atlas_30_v5.nc"
                     scale = 0.0001  # convert cm^2/s into m^2/s
