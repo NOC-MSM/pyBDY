@@ -27,7 +27,52 @@ class TpxoExtract(object):
     def __init__(self, settings, lat, lon, grid_type):
         """Initialise the Extract of tide information from the netcdf Tidal files."""
         # Set tide model
-        if settings["tide_model"].lower() == "tpxo9v5":
+        if settings["tide_model"].lower() == "tpxo7p2":
+            hRe_name = "hRe"
+            hIm_name = "hIm"
+            lon_z_name = "lon_z"
+            lat_z_name = "lat_z"
+            URe_name = "URe"
+            UIm_name = "UIm"
+            lon_u_name = "lon_u"
+            lat_u_name = "lat_u"
+            VRe_name = "VRe"
+            VIm_name = "VIm"
+            lon_v_name = "lon_v"
+            lat_v_name = "lat_v"
+            mz_name = "mz"
+            mu_name = "mu"
+            mv_name = "mv"
+            self.grid = xr.open_dataset(
+                settings["tide_grid"]
+            )  # ../data/tide/grid_tpxo7.2.nc')
+            # read the height_dataset file
+            self.height_dataset = xr.open_dataset(
+                settings["tide_h"]
+            )  # ../data/tide/h_tpxo7.2.nc')
+            # read the velocity_dataset file
+            self.velocity_dataset = xr.open_dataset(
+                settings["tide_u"]
+            )  # ../data/tide/u_tpxo7.2.nc')
+
+            height_z = self.grid.variables["hz"]
+            mask_z = self.grid.variables["mz"]
+            lon_z = self.height_dataset.variables[lon_z_name][:, 0]
+            lat_z = self.height_dataset.variables[lat_z_name][0, :]
+            lon_resolution = lon_z[1] - lon_z[0]
+            data_in_km = 0  # added to maintain the reference to matlab tmd code
+            # Pull out the constituents that are avaibable
+            self.cons = []
+            for ncon in range(self.height_dataset.variables["con"].shape[0]):
+                self.cons.append(
+                    self.height_dataset.con[ncon]
+                    .values.tostring()
+                    .strip()
+                    .decode("utf-8")
+                )
+            print(f"self.cons:{self.cons}")
+
+        elif settings["tide_model"].lower() == "tpxo9v5":
             # Complete set of available constituents
             constituents = [
                 "2N2",
