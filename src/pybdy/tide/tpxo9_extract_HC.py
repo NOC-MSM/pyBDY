@@ -3,7 +3,15 @@ Extract the tidal harmonic constants out of a tidal model for given locations.
 
 [amp,Gph] = tpxo_extract_HC(Model,lat,lon,type,Cid).
 
-@author: Mr. Srikanth Nagella
+original author: Mr. Srikanth Nagella
+
+
+TPXO data has a grid file and then data file for harmonic heights and harmonic currents
+In TPXO7.2 the resolution was sufficiently low that all the harmonics could be bundled together
+In TPXO9v5 the resolution increased such that separate files are issued for each constituent
+
+Files are processed in real and imaginary parts as they are easier to interpolate.
+
 """
 
 import numpy as np
@@ -61,9 +69,11 @@ class TpxoExtract(object):
                 settings["tide_grid"]
             )  # ../data/tide/grid_tpxo9_atlas_30_v5.nc')
             height_z = self.grid.hz
-            lon_z = self.grid.variables[lon_z_name][:]
-            lat_z = self.grid.variables[lat_z_name][:]
-
+            # lon_z = self.grid.variables[lon_z_name][:]
+            # lat_z = self.grid.variables[lat_z_name][:]
+            lon_z = self.grid[lon_z_name]
+            lat_z = self.grid[lat_z_name]
+            # generate_landmask_from_bathymetry()
             # read in and concatenate height dataset files
             for icon, con in enumerate(self.cons):
                 # load in the data
@@ -85,32 +95,47 @@ class TpxoExtract(object):
             self.height_dataset[lat_z_name] = ds[lat_z_name]
 
             # read in and concatenate velocity transport dataset files
-            for icon, con in enumerate(self.cons[0:3]):
-                # load in the data
-                filename = f"u_{con.lower()}_tpxo9_atlas_30_v5.nc"
-                scale = 0.0001  # convert cm^2/s into m^2/s
-                print(f"Extracting TPXO9v5 constituent:{con} from {filename}")
-                with xr.open_dataset(settings["tide_dir"] + filename) as ds:
-                    if icon == 0:
-                        data_uRe = ds[URe_name].expand_dims(dim={"con": 1})
-                        data_uIm = ds[UIm_name].expand_dims(dim={"con": 1})
-                        data_vRe = ds[VRe_name].expand_dims(dim={"con": 1})
-                        data_vIm = ds[VIm_name].expand_dims(dim={"con": 1})
-                    else:
-                        data_uRe = xr.concat([data_uRe, ds[URe_name]], dim="con")
-                        data_uIm = xr.concat([data_uIm, ds[UIm_name]], dim="con")
-                        data_vRe = xr.concat([data_vRe, ds[VRe_name]], dim="con")
-                        data_vIm = xr.concat([data_vIm, ds[VIm_name]], dim="con")
+            if (grid_type == "u") or (grid_type == "v"):
+                for icon, con in enumerate(self.cons[0:3]):
+                    # load in the data
+                    filename = f"u_{con.lower()}_tpxo9_atlas_30_v5.nc"
+                    scale = 0.0001  # convert cm^2/s into m^2/s
+                    print(f"Extracting TPXO9v5 constituent:{con} from {filename}")
+                    with xr.open_dataset(settings["tide_dir"] + filename) as ds:
+                        if icon == 0:
+                            if grid_type == "u":
+                                data_uRe = ds[URe_name].expand_dims(dim={"con": 1})
+                                data_uIm = ds[UIm_name].expand_dims(dim={"con": 1})
+                            elif grid_type == "v":
+                                data_vRe = ds[VRe_name].expand_dims(dim={"con": 1})
+                                data_vIm = ds[VIm_name].expand_dims(dim={"con": 1})
+                        else:
+                            if grid_type == "u":
+                                data_uRe = xr.concat(
+                                    [data_uRe, ds[URe_name]], dim="con"
+                                )
+                                data_uIm = xr.concat(
+                                    [data_uIm, ds[UIm_name]], dim="con"
+                                )
+                            elif grid_type == "v":
+                                data_vRe = xr.concat(
+                                    [data_vRe, ds[VRe_name]], dim="con"
+                                )
+                                data_vIm = xr.concat(
+                                    [data_vIm, ds[VIm_name]], dim="con"
+                                )
 
-            # combine two dataArrays into single DataSet. Apply scaling.
-            self.velocity_dataset = (data_uRe * scale).to_dataset()
-            self.velocity_dataset[UIm_name] = data_uIm * scale
-            self.velocity_dataset[lon_u_name] = ds[lon_u_name]
-            self.velocity_dataset[lat_u_name] = ds[lat_u_name]
-            self.velocity_dataset[VRe_name] = data_vRe * scale
-            self.velocity_dataset[VIm_name] = data_vIm * scale
-            self.velocity_dataset[lon_v_name] = ds[lon_v_name]
-            self.velocity_dataset[lat_v_name] = ds[lat_v_name]
+                # combine two dataArrays into single DataSet. Apply scaling.
+                if grid_type == "u":
+                    self.velocity_dataset = (data_uRe * scale).to_dataset()
+                    self.velocity_dataset[UIm_name] = data_uIm * scale
+                    self.velocity_dataset[lon_u_name] = ds[lon_u_name]
+                    self.velocity_dataset[lat_u_name] = ds[lat_u_name]
+                elif grid_type == "v":
+                    self.velocity_dataset = (data_vRe * scale).to_dataset()
+                    self.velocity_dataset[VIm_name] = data_vIm * scale
+                    self.velocity_dataset[lon_v_name] = ds[lon_v_name]
+                    self.velocity_dataset[lat_v_name] = ds[lat_v_name]
 
             print(f"{self.velocity_dataset}")
 
