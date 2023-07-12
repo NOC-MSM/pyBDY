@@ -289,12 +289,8 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
 
             # for velocity_dataset values
             if height_data is not None:
-                data_temp[cons_index, :, 0] = (
-                    data_temp[cons_index, :, 0] / height_data * 100
-                )
-                data_temp[cons_index, :, 1] = (
-                    data_temp[cons_index, :, 1] / height_data * 100
-                )
+                data_temp[cons_index, :, 0] = data_temp[cons_index, :, 0] / height_data
+                data_temp[cons_index, :, 1] = data_temp[cons_index, :, 1] / height_data
 
             zcomplex = np.array(data_temp[cons_index, :, 0], dtype=complex)
             zcomplex.imag = data_temp[cons_index, :, 1]

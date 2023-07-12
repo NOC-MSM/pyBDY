@@ -100,10 +100,12 @@ class FesExtract(object):
                 filename = "/eastward_velocity/"
                 amp_var = "Ua"
                 pha_var = "Ug"
+                scale = 0.01  # convert cm/s to m/s
             elif grid_type == "v":
                 filename = "/northward_velocity/"
                 amp_var = "Va"
                 pha_var = "Vg"
+                scale = 0.01  # convert amplitude from cm to metres
             else:
                 logging.error(f"Not expecting grid_type:{grid_type}")
 
