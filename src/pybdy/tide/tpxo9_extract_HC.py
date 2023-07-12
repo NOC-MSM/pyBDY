@@ -27,28 +27,26 @@ class TpxoExtract(object):
     def __init__(self, settings, lat, lon, grid_type):
         """Initialise the Extract of tide information from the netcdf Tidal files."""
         # Set tide model
-        tide_model = "TPXO9"
+        if settings["tide_model"].lower() == "tpxo9v5":
+            # Complete set of available constituents
+            constituents = [
+                "2N2",
+                "K1",
+                "K2",
+                "M2",
+                "M4",
+                "MF",
+                "MM",
+                "MN4",
+                "MS4",
+                "N2",
+                "O1",
+                "P1",
+                "Q1",
+                "S1",
+                "S2",
+            ]
 
-        # Complete set of available constituents
-        constituents = [
-            "2N2",
-            "K1",
-            "K2",
-            "M2",
-            "M4",
-            "MF",
-            "MM",
-            "MN4",
-            "MS4",
-            "N2",
-            "O1",
-            "P1",
-            "Q1",
-            "S1",
-            "S2",
-        ]
-
-        if tide_model == "TPXO9":  # Define stuff to generalise Tide model
             hRe_name = "hRe"
             hIm_name = "hIm"
             lon_z_name = "lon_z"
@@ -71,11 +69,11 @@ class TpxoExtract(object):
                 settings["tide_grid"]
             )  # ../data/tide/grid_tpxo9_atlas_30_v5.nc')
             height_z = self.grid.hz
+            mask_z = self.generate_landmask_from_bathymetry("hz")
             # lon_z = self.grid.variables[lon_z_name][:]
             # lat_z = self.grid.variables[lat_z_name][:]
             lon_z = self.grid[lon_z_name]
             lat_z = self.grid[lat_z_name]
-            # generate_landmask_from_bathymetry()
 
             # Extract the constituent subset requested by the namelist
             compindx = [
@@ -151,20 +149,6 @@ class TpxoExtract(object):
                     self.velocity_dataset[lat_v_name] = ds[lat_v_name]
                 print(f"{self.velocity_dataset}")
 
-            # read the height_dataset file
-            # self.height_dataset = Dataset(
-            #    settings["tide_h"]
-            # )  # h_m2_tpxo9_atlas_30_v5.nc')
-            # read the velocity_dataset file
-            # self.velocity_dataset = Dataset(
-            #    settings["tide_u"]
-            # )  # u_m2_tpxo9_atlas_30_v5.nc')
-
-            # height_z = self.grid.variables["hz"]
-            # mask_z = height_z.where(height_z > 0, 1, 0)  # water=1, land=0
-            # lon_z = self.grid.variables[lon_z_name][:]
-            # lat_z = self.grid.variables[lat_z_name][:]
-
             lon_resolution = lon_z[1] - lon_z[0]
             data_in_km = 0  # added to maintain the reference to matlab tmd code
         #            # Pull out the constituents that are avaibable
@@ -176,7 +160,7 @@ class TpxoExtract(object):
         #                    .strip()
         #                    .decode("utf-8")
         #                )
-        elif tide_model == "FES":
+        elif settings["tide_model"].lower() == "fes2014":
             print(
                 "did not actually code stuff for FES in this routine.\
 Though that would be ideal. Instead put it in fes_extract_HC.py"
@@ -212,6 +196,18 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
                 ),
                 axis=0,
             )
+            mask_z = np.concatenate(
+                (
+                    [
+                        mask_z[-1, :],
+                    ],
+                    mask_z,
+                    [
+                        mask_z[0, :],
+                    ],
+                ),
+                axis=0,
+            )
 
         # adjust lon convention
         xmin = np.min(lon)
@@ -222,8 +218,6 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
             if xmin > lon_z[-1]:
                 lon[lon > 180] = lon[lon > 180] - 360
 
-        # define mask_z after test for coordinate wrapping.
-        mask_z = xr.where(height_z > 0, 1, 0)  # water=1, land=0
         height_z[height_z == 0] = np.NaN
         lonlat = np.concatenate((lon, lat))
         lonlat = np.reshape(lonlat, (lon.size, 2), order="F")
@@ -279,6 +273,19 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
         else:
             print("Unknown grid_type")
             return
+
+    def generate_landmask_from_bathymetry(self, bathy_name):
+        """
+        Create a boolean mask xr.DataArray from bathymetry.
+
+        TPXO7.2 carries a binary variable called mask and a bathymetry variable
+        TPXO9v5 only carries the bathymetry variable
+        return: mask dataarray.
+
+        Useage:
+            self.grid[mask_name] = generate_landmask(bathy_name)
+        """
+        return xr.where(self.grid[bathy_name] > 0, 1, 0)  # water=1, land=0
 
     def interpolate_constituents(
         self,

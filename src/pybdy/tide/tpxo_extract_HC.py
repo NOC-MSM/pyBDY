@@ -17,9 +17,7 @@ class TpxoExtract(object):
     def __init__(self, settings, lat, lon, grid_type):
         """Initialise the Extract of tide information from the netcdf Tidal files."""
         # Set tide model
-        tide_model = "TPXO"
-
-        if tide_model == "TPXO":  # Define stuff to generalise Tide model
+        if settings["tide_model"].lower() == "tpxo7p2":
             hRe_name = "hRe"
             hIm_name = "hIm"
             lon_z_name = "lon_z"
@@ -60,7 +58,7 @@ class TpxoExtract(object):
                     .strip()
                     .decode("utf-8")
                 )
-        elif tide_model == "FES":
+        elif settings["tide_model"].lower() == "fes2014":
             print(
                 "did not actually code stuff for FES in this routine.\
 Though that would be ideal. Instead put it in fes_extract_HC.py"
