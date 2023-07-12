@@ -25,13 +25,15 @@ class FesExtract(object):
     Notes
     -----
     The source FES data are stored in one-file-per-constituent
-    Note the FES data are structre with lat and lon reversed relative to TPXO
+    Note the FES data are structured with lat and lon reversed relative to TPXO
     I.e. FES(lat,lon)
-    c.f. TPXO(con,lon,lat).
+    c.f. TPXO7(con,lon,lat).
+    c.f. TPXO9(lon,lat)
 
     Note the FES heights are in cm (need to convert to metres)
     The momentum vector quantities are depth integrated TRANSPORTS (m^2/s).
-    In TPXO both transport (m^2/s) and velocies (cm/s) are given.
+    In TPXO7 both transport (m^2/s) and velocies (cm/s) are given.
+    In TPXO9 only transport (cm^2/s) are given.
     Here we use the transport fluxes.
     """
 
