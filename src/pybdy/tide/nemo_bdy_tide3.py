@@ -263,14 +263,14 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
                 cosvY[h, :] = ampvY[c, :] * np.cos(np.deg2rad(phavY[c, :])) / depv
                 sinvY[h, :] = ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :])) / depv
             else:
-                cosuX[h, :] = 0.01 * ampuX[c, :] * np.cos(np.deg2rad(phauX[c, :]))
-                sinuX[h, :] = 0.01 * ampuX[c, :] * np.sin(np.deg2rad(phauX[c, :]))
-                cosvX[h, :] = 0.01 * ampvX[c, :] * np.cos(np.deg2rad(phavX[c, :]))
-                sinvX[h, :] = 0.01 * ampvX[c, :] * np.sin(np.deg2rad(phavX[c, :]))
-                cosuY[h, :] = 0.01 * ampuY[c, :] * np.cos(np.deg2rad(phauY[c, :]))
-                sinuY[h, :] = 0.01 * ampuY[c, :] * np.sin(np.deg2rad(phauY[c, :]))
-                cosvY[h, :] = 0.01 * ampvY[c, :] * np.cos(np.deg2rad(phavY[c, :]))
-                sinvY[h, :] = 0.01 * ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :]))
+                cosuX[h, :] = ampuX[c, :] * np.cos(np.deg2rad(phauX[c, :]))
+                sinuX[h, :] = ampuX[c, :] * np.sin(np.deg2rad(phauX[c, :]))
+                cosvX[h, :] = ampvX[c, :] * np.cos(np.deg2rad(phavX[c, :]))
+                sinvX[h, :] = ampvX[c, :] * np.sin(np.deg2rad(phavX[c, :]))
+                cosuY[h, :] = ampuY[c, :] * np.cos(np.deg2rad(phauY[c, :]))
+                sinuY[h, :] = ampuY[c, :] * np.sin(np.deg2rad(phauY[c, :]))
+                cosvY[h, :] = ampvY[c, :] * np.cos(np.deg2rad(phavY[c, :]))
+                sinvY[h, :] = ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :]))
 
     # TOD:: Do we need to rotate ??? And is this method  correct ????
     maxJ = DC.lonlat["t"]["lon"].shape[0]
