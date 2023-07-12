@@ -149,8 +149,7 @@ class TpxoExtract(object):
                     self.velocity_dataset[VIm_name] = data_vIm * scale
                     self.velocity_dataset[lon_v_name] = ds[lon_v_name]
                     self.velocity_dataset[lat_v_name] = ds[lat_v_name]
-
-            print(f"{self.velocity_dataset}")
+                print(f"{self.velocity_dataset}")
 
             # read the height_dataset file
             # self.height_dataset = Dataset(
