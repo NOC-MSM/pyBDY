@@ -6,6 +6,7 @@ Args:
 ----
 fname     (str) : filename of BDY file
 variable  (str) : variable in file to plot.
+filename  (str) : optional filename (png is added)
 
 Example usage:
 --------------
@@ -13,6 +14,8 @@ Example usage:
 python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc sossheig
 # 2D section plots of temperature
 python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper
+# specify filename
+python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper filename
 
 To do:
 ------
@@ -330,7 +333,7 @@ def process_plot_1d_sections(var, bdy_brk, bdy_ind, rw):
     ax.plot(dta[0][:])
     ax.set_title("BDY points along section: 1")
 
-    f, ax = plt.subplots(nrows=nsc, ncols=1, figsize=(14, 10 * nsc))
+    f, ax = plt.subplots(nrows=nsc, ncols=1, figsize=(7, 5 * nsc))
 
     for n in range(nsc):
         if nsc > 1:
@@ -412,4 +415,7 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw=0):
 
 ind, dst, brk = nemo_bdy_order(str(sys.argv[1]))
 f = plot_bdy(str(sys.argv[1]), ind, dst, brk, str(sys.argv[2]), 0, 0)
-f.savefig("bdy_data.png")
+if sys.argv[3] is not None:
+    f.savefig(f"{str(sys.argv[3])}.png")
+else:
+    f.savefig("bdy_data.png")
