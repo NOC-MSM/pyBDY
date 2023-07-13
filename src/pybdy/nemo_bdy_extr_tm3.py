@@ -967,17 +967,52 @@ class Extract:
     #    trig = np.transpose(trig, (2, 1, 0)) # Matlab 2 0 1
     #    return np.tile(trig, (1, size, 1)) # Matlab size 1 1
 
+    def time_delta(self, time_counter):
+        """
+        Get time delta and number of time steps per day.
+
+        Calculates difference between time steps for time_counter and checks
+        these are uniform. Then retrives the number of time steps per day.
+
+        Parameters
+        ----------
+        time_counter
+            model time coordinate
+
+        Returns
+        -------
+        deltaT
+            length of time step
+        dstep
+            number of time steps per day
+        """
+        # get time derivative
+        deltaT = np.diff(time_counter)
+
+        # check for uniform time steps
+        if not np.all(deltaT == deltaT[0]):
+            self.logger.warning("time interpolation expects uniform time step.")
+            self.logger.warning("time_counter is not uniform.")
+
+        # get  number of timesteps per day (zero if deltaT > 86400)
+        dstep = 86400 // int(deltaT[0])
+
+        return deltaT[0], dstep
+
     def time_interp(self, year, month):
         """
-        Perform a time interpolation of the BDY data.
+        Perform a time interpolation of the BDY data to daily frequency.
 
         Notes
         -----
-        This method performs a time interpolation (if required). This is necessary
-        if the time frequency is not a factor of monthly output or the input and
-        output calendars differ. CF compliant calendar options accepted: gregorian
-        | standard, proleptic_gregorian, noleap | 365_day, 360_day or julian.*
+        This method performs a time interpolation (if required). This is
+        necessary if the time frequency is not a factor of monthly output or the
+        input and output calendars differ. CF compliant calendar options
+        accepted: gregorian | standard, proleptic_gregorian, noleap | 365_day,
+        360_day or julian.*
         """
+        # RDP: this could be made more flexible to interpolate to other deltaTs
+
         # Extract time information
         # TODO: check that we can just use var_nam[0]. Rational is that if
         # we're grouping variables then they must all have the same date stamps
@@ -1005,17 +1040,9 @@ class Extract:
         time_000 = tmp_cal.date2num(date_000)
         time_end = tmp_cal.date2num(date_end)
 
-        # Take the difference of the first two time enteries to get delta t
+        # get deltaT and number of time steps per day (dstep)
+        del_t, dstep = self.time_delta(time_counter)
 
-        del_t = time_counter[1] - time_counter[0]
-        dstep = 86400 // int(del_t)
-
-        # TODO: put in a test to check all deltaT are the same otherwise throw
-        # an exception
-
-        # If time freq. is greater than 86400s
-        # TODO put in an error handler for the unlikely event of frequency not a
-        # multiple of 86400 | data are annual means
         if self.key_vec is True:
             if self.rot_dir == "i":
                 varnams = [
@@ -1028,20 +1055,20 @@ class Extract:
         else:
             varnams = self.var_nam
 
-        if del_t >= 86400.0:
-            for v in varnams:
+        # target time index
+        target_time = np.arange(time_000, time_end, 86400)
+
+        # interpolate
+        for v in varnams:
+            if del_t >= 86400.0:  # upsampling
                 intfn = interp1d(
                     time_counter,
                     self.d_bdy[v][year]["data"][:, :, :],
                     axis=0,
                     bounds_error=True,
                 )
-                self.d_bdy[v][year]["data"] = intfn(
-                    np.arange(time_000, time_end, 86400)
-                )
-                self.time_counter = np.arange(time_000, time_end, 86400)
-        else:
-            for v in varnams:
+                self.d_bdy[v][year]["data"] = intfn(target_time)
+            else:  # downsampling
                 for t in range(dstep):
                     intfn = interp1d(
                         time_counter[t::dstep],
@@ -1049,12 +1076,13 @@ class Extract:
                         axis=0,
                         bounds_error=True,
                     )
-                    self.d_bdy[v].data[t::dstep, :, :] = intfn(
-                        np.arange(time_000, time_end, 86400)
-                    )
-        # self.time_counter = time_counter
+                    self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
 
-    #        self.time_counter = len(self.d_bdy[v][year]['data'][:,0,0])
+        # update time_counter
+        self.time_counter = target_time
+
+        # RDP: self.d_bdy[v]["date"] is not updated during interpolation, but
+        #      self.time_counter is. This could be prone to unexpected errors.
 
     def write_out(self, year, month, ind, unit_origin):
         """
