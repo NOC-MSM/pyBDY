@@ -18,6 +18,8 @@ import numpy as np
 import xarray as xr
 from scipy import interpolate
 
+from . import nemo_bdy_tide3
+
 
 class TpxoExtract(object):
     """TPXO model extract_hc.c implementation in python."""
@@ -28,7 +30,7 @@ class TpxoExtract(object):
         tide_model = "TPXO9"
 
         # Complete set of available constituents
-        self.cons = [
+        constituents = [
             "2N2",
             "K1",
             "K2",
@@ -74,6 +76,17 @@ class TpxoExtract(object):
             lon_z = self.grid[lon_z_name]
             lat_z = self.grid[lat_z_name]
             # generate_landmask_from_bathymetry()
+
+            # Extract the constituent subset requested by the namelist
+            compindx = [
+                icon.astype(int)
+                for icon in nemo_bdy_tide3.constituents_index(
+                    constituents, settings["clname"]
+                )
+            ]
+            self.cons = [constituents[i] for i in compindx]
+            print(f"self.cons:{self.cons}")
+
             # read in and concatenate height dataset files
             for icon, con in enumerate(self.cons):
                 # load in the data
@@ -96,7 +109,7 @@ class TpxoExtract(object):
 
             # read in and concatenate velocity transport dataset files
             if (grid_type == "u") or (grid_type == "v"):
-                for icon, con in enumerate(self.cons[0:3]):
+                for icon, con in enumerate(self.cons):
                     # load in the data
                     filename = f"u_{con.lower()}_tpxo9_atlas_30_v5.nc"
                     scale = 0.0001  # convert cm^2/s into m^2/s
@@ -136,8 +149,7 @@ class TpxoExtract(object):
                     self.velocity_dataset[VIm_name] = data_vIm * scale
                     self.velocity_dataset[lon_v_name] = ds[lon_v_name]
                     self.velocity_dataset[lat_v_name] = ds[lat_v_name]
-
-            print(f"{self.velocity_dataset}")
+                print(f"{self.velocity_dataset}")
 
             # read the height_dataset file
             # self.height_dataset = Dataset(
@@ -371,12 +383,8 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
 
             # for velocity_dataset values
             if height_data is not None:
-                data_temp[cons_index, :, 0] = (
-                    data_temp[cons_index, :, 0] / height_data * 100
-                )
-                data_temp[cons_index, :, 1] = (
-                    data_temp[cons_index, :, 1] / height_data * 100
-                )
+                data_temp[cons_index, :, 0] = data_temp[cons_index, :, 0] / height_data
+                data_temp[cons_index, :, 1] = data_temp[cons_index, :, 1] / height_data
 
             zcomplex = np.array(data_temp[cons_index, :, 0], dtype=complex)
             zcomplex.imag = data_temp[cons_index, :, 1]
