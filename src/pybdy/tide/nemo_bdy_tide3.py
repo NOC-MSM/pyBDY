@@ -60,7 +60,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     # check if elevation data are missing
     ind = np.where((np.isnan(tide_z.amp)) | (np.isnan(tide_z.gph)))
     if ind[0].size > 0:
-        logger.warning("Missing elveation along the open boundary")
+        logger.warning("Missing elevation along the open boundary")
 
     ampz = tide_z.amp
     phaz = tide_z.gph

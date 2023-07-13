@@ -55,10 +55,10 @@ class TpxoExtract(object):
                 settings["tide_u"]
             )  # ../data/tide/u_tpxo7.2.nc')
 
-            height_z = self.grid.variables["hz"]
-            mask_z = self.grid.variables["mz"]
-            lon_z = self.height_dataset.variables[lon_z_name][:, 0]
-            lat_z = self.height_dataset.variables[lat_z_name][0, :]
+            height_z = self.grid.hz
+            mask_z = self.grid.mz
+            lon_z = self.grid[lon_z_name].isel(ny=0)  # [:, 0]
+            lat_z = self.grid[lat_z_name].isel(nx=0)  # [0, :]
             lon_resolution = lon_z[1] - lon_z[0]
             data_in_km = 0  # added to maintain the reference to matlab tmd code
             # Pull out the constituents that are avaibable
@@ -70,7 +70,7 @@ class TpxoExtract(object):
                     .strip()
                     .decode("utf-8")
                 )
-            print(f"self.cons:{self.cons}")
+            # print(f"self.cons:{self.cons}")
 
         elif settings["tide_model"].lower() == "tpxo9v5":
             # Complete set of available constituents
@@ -330,7 +330,7 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
         Useage:
             self.grid[mask_name] = generate_landmask(bathy_name)
         """
-        return xr.where(self.grid[bathy_name] > 0, 1, 0)  # water=1, land=0
+        return xr.where(self.grid[bathy_name] == 0, 0, 1)  # water=1, land=0
 
     def interpolate_constituents(
         self,
@@ -399,7 +399,7 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
         lonlat = np.concatenate((lon, lat))
         lonlat = np.reshape(lonlat, (lon.size, 2), order="F")
 
-        mask = xr.where(self.grid[maskname] > 0, 1, 0)  # water=1, land=0
+        mask = xr.where(self.grid[maskname] == 0, 0, 1)  # water=1, land=0
 
         mask = np.concatenate(
             (
