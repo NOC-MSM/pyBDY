@@ -36,11 +36,12 @@ class Boundary:
         bdy_r -- r index
         """
         self.logger = logging.getLogger(__name__)
-        bdy_msk = boundary_mask
+        self.bdy_msk = boundary_mask
         self.settings = settings
-        rw = self.settings["rimwidth"]
-        rm = rw - 1
+        self.rw = self.settings["rimwidth"]
+        self.rm = rw - 1
         self.grid_type = grid.lower()
+
         # Throw an error for wrong grid input type
         if grid not in ["t", "u", "v", "f"]:
             self.logger.error("Grid Type not correctly specified:" + grid)
@@ -49,7 +50,7 @@ class Boundary:
                                 must be 't', 'u', 'v' or 'f'"""
                 % grid
             )
-
+# funtion
         # Configure grid grid_type
         if grid != "t":
             # We need to copy this before changing, because the original will be
@@ -82,7 +83,10 @@ class Boundary:
                         grid_ind[:, :-1] == 1,
                     )
                     bdy_msk[grid_ind] = fval
+# end function
 
+
+# function
         # Create padded array for overlays
         msk = np.pad(bdy_msk, ((1, 1), (1, 1)), "constant", constant_values=(-1))
         # create index arrays of I and J coords
@@ -94,7 +98,9 @@ class Boundary:
         NBi, NBj = self._find_bdy(igrid, jgrid, msk, self._NORTH)
         EBi, EBj = self._find_bdy(igrid, jgrid, msk, self._EAST)
         WBi, WBj = self._find_bdy(igrid, jgrid, msk, self._WEST)
+# end function
 
+# function
         # create a 2D array index for the points that are on border
         tij = np.column_stack(
             (np.concatenate((SBi, NBi, WBi, EBi)), np.concatenate((SBj, NBj, WBj, EBj)))
@@ -103,7 +109,9 @@ class Boundary:
 
         bdy_i = np.transpose(bdy_i, (1, 2, 0))
         bdy_r = bdy_r = np.tile(np.arange(0, rw), (bdy_i.shape[0], 1))
+# end function
 
+# function
         # Add points for relaxation zone over rim width
         # In the relaxation zone with rim width. looking into the domain up to the rim width
         # and select the points. S head North (0,+1) N head South(0,-1) W head East (+1,0)
@@ -120,7 +128,9 @@ class Boundary:
         bdy_i = np.transpose(bdy_i, (1, 2, 0))
         bdy_i = np.reshape(bdy_i, (bdy_i.shape[0], bdy_i.shape[1] * bdy_i.shape[2]))
         bdy_r = bdy_r.flatten("F")
+# end function
 
+# function
         ##   Remove duplicate and open sea points  ##
 
         bdy_i, bdy_r = self._remove_duplicate_points(bdy_i, bdy_r)
@@ -146,7 +156,9 @@ class Boundary:
             for b in [self._SOUTH, self._NORTH, self._WEST, self._EAST]:
                 r_msk, r_msk_ref = self._fill(r_msk, r_msk_ref, b)
         self.logger.debug("done loop")
+# end function
 
+# function
         # update bdy_i and bdy_r
         new_ind = np.abs(r_msk - r_msk_orig) > 0
         # The transposing gets around the Fortran v C ordering thing.
@@ -159,6 +171,9 @@ class Boundary:
         bdy_r = np.hstack((bdy_r_tmp, bdy_r))
         bdy_r = bdy_r[uniqind]
 
+# end function
+
+# function
         # sort by rimwidth
         igrid = np.argsort(bdy_r, kind="mergesort")
         bdy_r = bdy_r[igrid]
@@ -168,6 +183,7 @@ class Boundary:
         self.bdy_r = bdy_r
 
         self.logger.debug("Final bdy_i: %s", self.bdy_i.shape)
+# end function
 
     def _remove_duplicate_points(self, bdy_i, bdy_r):
         """
