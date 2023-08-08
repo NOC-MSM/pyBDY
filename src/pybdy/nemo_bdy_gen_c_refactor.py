@@ -5,12 +5,14 @@ Creates indices for t, u and v points, plus rim gradient.
 The variable names have been renamed to keep consistent with python standards and generalizing
 the variable names eg. bdy_i is used instead of bdy_t
 
-Ported from Matlab code by James Harle
+Ported from Matlab code by James Harle.
 @author: John Kazimierz Farey
 @author: Srikanth Nagella.
+
+Refactoring by Joao Morado and Ryan Patmore.
 """
-# External Imports
 import logging
+from typing import List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -21,135 +23,226 @@ class Boundary:
     _SOUTH = [1, -1, 1, -1, None, -2, 1, -1]
     _EAST = [1, -1, 1, -1, 1, -1, 2, None]
     _WEST = [1, -1, 1, -1, 1, -1, None, -2]
+    _SUPPORTED_GRIDS = ["t", "u", "v", "f"]
 
-    def __init__(self, boundary_mask, settings, grid):
+    def __init__(self, boundary_mask: np.ndarray, settings: dict, grid: str) -> None:
         """
-        Generate the indices for NEMO Boundary and returns a Grid object with indices.
+        Generate the indices for NEMO Boundary and return a Grid object with indices.
 
-        Paramemters
-        -----------
-        boundary_mask -- boundary mask
-        settings -- dictionary of setting values
-        grid -- type of the grid 't', 'u', 'v'
-        Attributes:
-        bdy_i -- index
-        bdy_r -- r index
+        Parameters
+        ----------
+        boundary_mask
+            Mask for the boundary.
+        settings
+            Dictionary of setting values.
+        grid
+            Type of the grid 't', 'u', 'v' or 'f'.
         """
-
-        self.boundary_mask = boundary_mask
-        self.settings = settings
-        self.grid = grid
         self.logger = logging.getLogger(__name__)
-        self.rw = self.settings["rimwidth"]
-        self.rm = rw - 1
+
+        # We need to copy this before changing, because the original will be
+        # needed in calculating later grid boundary types
+        self.bdy_msk = boundary_mask.copy()
+        self.settings = settings
+
+        # Grid variables
+        if grid not in self._SUPPORTED_GRIDS:
+            error_msg = (
+                "Grid type {} is not supported. Supported grid types are: {}".format(
+                    grid, self._SUPPORTED_GRIDS
+                )
+            )
+            self.logger.error(error_msg)
+            raise ValueError(error_msg)
+
+        self.grid = grid
         self.grid_type = grid.lower()
 
-        # Throw an error for wrong grid input type
-        if grid not in ["t", "u", "v", "f"]:
-            self.logger.error("Grid Type not correctly specified:" + grid)
-            raise ValueError(
-                """%s is invalid grid grid_type;
-                                must be 't', 'u', 'v' or 'f'"""
-                % grid
-            )
+        # Rim variables
+        self.rw = self.settings["rimwidth"]
+        self.rm = self.rw - 1
 
-    def calculate_boundary_indexes(self):
-        """
-        Process coordinates indicies for boundaries.
-        """
+    def create_boundary(self):
+        """Create the boundary."""
+        # Create boundary mask
+        self._create_boundary_mask()
 
-        # generate index
-        self.configure_grid_type()
-        SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj = self.create_i_j_index()
-        bdyi, bdy_r = self.formalise_boundaries(SBi, SBj, NBi, NBj,
-                                                EBi, EBj, WBi, WBj)
+        # Calculate boundary indexes
+        self._calculate_boundary_indexes()
 
-        # process index
-        r_msk = self.smooth_interior_relaxation_gradients(bdy_i, bdy_r)
-        bdy_i, bdy_r = self.assign_smoothed_boundary_index(r_msk)
-        self.sort_by_rimwidth(bdy_i, bdy_r)
+    def _create_boundary_mask(self) -> None:
+        """Create the boundary mask based on u, v and f points."""
+        if self.grid_type != "t":
+            # Mask for the grid
+            grid_ind = np.zeros(self.bdy_msk.shape, dtype=bool, order="C")
 
-    def configure_grid_type(self):
-        """
-        Create mask based on u, v and f points.
-        """
+            # NEMO works with a staggered C-grid
+            # We need to create a grid with staggered points
 
-        if self.grid != "t":
-            # We need to copy this before changing, because the original will be
-            # needed in calculating later grid boundary types
-            bdy_msk = self.boundary_mask.copy()
-            grid_ind = np.zeros(bdy_msk.shape, dtype=bool, order="C")
-            # NEMO works with a staggered 'C' grid. need to create a grid with 
-            # staggered points
-            for fval in [-1, 0]:  # -1 mask value, 0 Land, 1 Water/Ocean
-                if grid == "u":
+            # -1: mask value
+            #  0: land
+            #  1: water/ocean
+            for fval in [-1, 0]:
+                if self.grid_type == "u":
+                    # Current point is 1 (water) and its neighboring point is either -1 or 0
                     grid_ind[:, :-1] = np.logical_and(
-                        bdy_msk[:, :-1] == 1, bdy_msk[:, 1:] == fval
+                        self.bdy_msk[:, :-1] == 1, self.bdy_msk[:, 1:] == fval
                     )
                     self.bdy_msk[grid_ind] = fval
-                elif grid == "v":
+                elif self.grid_type == "v":
                     grid_ind[:-1, :] = np.logical_and(
-                        bdy_msk[:-1, :] == 1, bdy_msk[1:, :] == fval
+                        self.bdy_msk[:-1, :] == 1, self.bdy_msk[1:, :] == fval
                     )
                     self.bdy_msk[grid_ind] = fval
-                elif grid == "f":
+                elif self.grid_type == "f":
                     grid_ind[:-1, :-1] = np.logical_and(
-                        bdy_msk[:-1, :-1] == 1, bdy_msk[1:, 1:] == fval
+                        self.bdy_msk[:-1, :-1] == 1, self.bdy_msk[1:, 1:] == fval
                     )
                     grid_ind[:-1, :] = np.logical_or(
-                        np.logical_and(bdy_msk[:-1, :] == 1, 
-                                       bdy_msk[1:, :] == fval),
+                        np.logical_and(
+                            self.bdy_msk[:-1, :] == 1, self.bdy_msk[1:, :] == fval
+                        ),
                         grid_ind[:-1, :] == 1,
                     )
 
                     grid_ind[:, :-1] = np.logical_or(
-                        np.logical_and(bdy_msk[:, :-1] == 1, 
-                                       bdy_msk[:, 1:] == fval),
+                        np.logical_and(
+                            self.bdy_msk[:, :-1] == 1, self.bdy_msk[:, 1:] == fval
+                        ),
                         grid_ind[:, :-1] == 1,
                     )
                     self.bdy_msk[grid_ind] = fval
 
-    def create_i_j_index(self):
-        """
-        Assign i,j positions of boundary mask along each boundary. 
-        """
+    def _calculate_boundary_indexes(self) -> None:
+        """Create and process boundary indexes."""
+        # Get i,j positions of boundary mask along each boundary
+        igrid, jgrid = self.__create_i_j_indexes()
+        # Create boundary indexes
+        SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj = self.__create_boundary_indexes(
+            igrid, jgrid
+        )
 
-        # Create padded array for overlays
-        msk = np.pad(self.bdy_msk, ((1, 1), (1, 1)), "constant",
-                     constant_values=(-1))
+        # Process rim width
+        bdy_i, bdy_r = self.__formalise_boundaries(
+            SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
+        )
 
-        # create index arrays of I and J coords
+        # Process the boundary indexes
+        r_msk, r_msk_orig = self.__smooth_interior_relaxation_gradients(bdy_i, bdy_r)
+        bdy_i, bdy_r = self.__assign_smoothed_boundary_index(
+            bdy_i, bdy_r, r_msk, r_msk_orig, igrid, jgrid
+        )
+        bdy_i, bdy_r = self.__sort_by_rimwidth(bdy_i, bdy_r)
+
+        # Assign the boundary indexes to the corresponding instance variables
+        self.bdy_i = bdy_i
+        self.bdy_r = bdy_r
+
+        self.logger.debug("Final bdy_i: %s", self.bdy_i.shape)
+
+    def __create_i_j_indexes(self) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Assign i, j positions of boundary mask along each boundary.
+
+        Returns
+        -------
+        igrid, jgrid
+            Index arrays of i and j coordinates.
+        """
+        # Create index arrays of i and j coordinates
         igrid, jgrid = np.meshgrid(
             np.arange(self.bdy_msk.shape[1]), np.arange(self.bdy_msk.shape[0])
         )
+        return igrid, jgrid
 
-        SBi, SBj = self._find_bdy(igrid, jgrid, msk, self._SOUTH)
-        NBi, NBj = self._find_bdy(igrid, jgrid, msk, self._NORTH)
-        EBi, EBj = self._find_bdy(igrid, jgrid, msk, self._EAST)
-        WBi, WBj = self._find_bdy(igrid, jgrid, msk, self._WEST)
+    def __create_boundary_indexes(
+        self, igrid: np.ndarray, jgrid: np.ndarray
+    ) -> Tuple[
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+        np.ndarray,
+    ]:
+        """
+        Get the boundary indexes.
+
+        Parameters
+        ----------
+        igrid
+            Index array of i coordinates.
+        jgrid
+            Index array of j coordinates.
+
+        Returns
+        -------
+        SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
+            Boundary indexes along each direction. Index arrays of i and j coordinates.
+        """
+        # Create padded array for overlays
+        msk = np.pad(self.bdy_msk, ((1, 1), (1, 1)), "constant", constant_values=(-1))
+
+        # Find boundary indexes
+        SBi, SBj = self.__find_bdy(igrid, jgrid, msk, self._SOUTH)
+        NBi, NBj = self.__find_bdy(igrid, jgrid, msk, self._NORTH)
+        EBi, EBj = self.__find_bdy(igrid, jgrid, msk, self._EAST)
+        WBi, WBj = self.__find_bdy(igrid, jgrid, msk, self._WEST)
 
         return SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
 
-    def formalise_boundaries(self, SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj):
+    def __formalise_boundaries(
+        self,
+        SBi: np.ndarray,
+        SBj: np.ndarray,
+        NBi: np.ndarray,
+        NBj: np.ndarray,
+        EBi: np.ndarray,
+        EBj: np.ndarray,
+        WBi: np.ndarray,
+        WBj: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Merge boundary indicies into a continuous array for all boundaries.
-        """
+        Merge boundary indexes into a continuous array for all boundaries.
 
-        # create a 2D array index for the points that are on border
+        Parameters
+        ----------
+        SBi
+            i position of south boundary.
+        SBj
+            j position of south boundary.
+        NBi
+            i position of north boundary.
+        NBj
+            j position of north boundary.
+        EBi
+            i position of east boundary.
+        EBj
+            j position of east boundary.
+        WBi
+            i position of west boundary.
+        WBj
+            j position of west boundary.
+
+        Returns
+        -------
+        bdy_i, bdy_r
+            Boundary indexes and rim values.
+        """
+        # Create a 2D array index for the points that are on the border
         tij = np.column_stack(
-            (np.concatenate((SBi, NBi, WBi, EBi)), 
-             np.concatenate((SBj, NBj, WBj, EBj)))
+            (np.concatenate((SBi, NBi, WBi, EBi)), np.concatenate((SBj, NBj, WBj, EBj)))
         )
-        bdy_i = np.tile(tij, (rw, 1, 1))
 
+        bdy_i = np.tile(tij, (self.rw, 1, 1))
         bdy_i = np.transpose(bdy_i, (1, 2, 0))
-        bdy_r = bdy_r = np.tile(np.arange(0, rw), (bdy_i.shape[0], 1))
+        bdy_r = bdy_r = np.tile(np.arange(0, self.rw), (bdy_i.shape[0], 1))
 
         # Add points for relaxation zone over rim width
-        # In the relaxation zone with rim width. looking into the domain up to
-        # the rim width and select the points. 
-        # S head North (0,+1) 
-        # N head South(0,-1) 
+        # S head North (0,+1)
+        # N head South(0,-1)
         # W head East (+1,0)
         # E head West (-1,0)
         temp = np.column_stack(
@@ -158,33 +251,86 @@ class Boundary:
                 np.concatenate((SBj * 0 + 1, NBj * 0 - 1, WBj * 0, EBj * 0)),
             )
         )
-        for i in range(rm):
+        for i in range(self.rm):
             bdy_i[:, :, i + 1] = bdy_i[:, :, i] + temp
 
         bdy_i = np.transpose(bdy_i, (1, 2, 0))
-        bdy_i = np.reshape(bdy_i, (bdy_i.shape[0], 
-                                   bdy_i.shape[1] * bdy_i.shape[2]))
+        bdy_i = np.reshape(bdy_i, (bdy_i.shape[0], bdy_i.shape[1] * bdy_i.shape[2]))
         bdy_r = bdy_r.flatten("F")
 
-        ##   Remove duplicate and open sea points  ##
-        bdy_i, bdy_r = self._remove_duplicate_points(bdy_i, bdy_r)
-        bdy_i, bdy_r, nonmask_index = self._remove_landpoints_open_ocean(
+        # Remove duplicate and open sea points
+        bdy_i, bdy_r = self.__remove_duplicate_points(bdy_i, bdy_r)
+        bdy_i, bdy_r, _ = self.__remove_landpoints_open_ocean(
             self.bdy_msk, bdy_i, bdy_r
         )
 
         return bdy_i, bdy_r
 
-    def smooth_interior_relaxation_gradients(self, bdy_i, bdy_r):
+    def __find_bdy(
+        self, igrid: np.ndarray, jgrid: np.ndarray, mask: np.ndarray, brg: list
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Find the border indexes by checking the change from ocean to land.
+
+        Parameters
+        ----------
+        igrid
+            I, x direction indexes.
+        jgrid
+            J, y direction indexes.
+        mask
+            Padded boundary mask.
+        brg
+            Mask index range.
+
+        Returns
+        -------
+        bdy_I, bdy_J
+            Border indexes.
+
+        Notes
+        -----
+        Returns the i and j index array where the shift happens.
+        """
+        # Subtract matrices to find boundaries, set to True
+        m1 = mask[brg[0] : brg[1], brg[2] : brg[3]]
+        m2 = mask[brg[4] : brg[5], brg[6] : brg[7]]
+        overlay = np.subtract(m1, m2)
+
+        # Create boolean array of bdy points in overlay
+        bool_arr = overlay == 2
+
+        # index I or J to find bdies
+        bdy_I = igrid[bool_arr]
+        bdy_J = jgrid[bool_arr]
+
+        return bdy_I, bdy_J
+
+    def __smooth_interior_relaxation_gradients(
+        self, bdy_i: np.ndarray, bdy_r: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Fill in any gradients between relaxation zone and internal domain.
+
+        Parameters
+        ----------
+        bdy_i
+            Boundary indexes.
+        bdy_r
+            Rim values.
+
+        Returns
+        -------
+        r_msk, r_msk_orig
+            Boundary rim mask and original rim mask.
 
         Notes
         -----
         bdy_msk matches matlabs incarnation, r_msk is pythonic
         """
         r_msk = self.bdy_msk.copy()
-        r_msk[r_msk == 1] = rw
-        r_msk = np.float16(r_msk)
+        r_msk[r_msk == 1] = self.rw
+        r_msk = r_msk.astype(np.float16)
         r_msk[r_msk < 1] = np.NaN
         r_msk[bdy_i[:, 1], bdy_i[:, 0]] = np.float16(bdy_r)
 
@@ -193,16 +339,45 @@ class Boundary:
 
         self.logger.debug("Start r_msk bearings loop")
         # Removes the shape gradients by smoothing it out
-        for i in range(rw - 1):
+        for _ in range(self.rw - 1):
             # Check each bearing
             for b in [self._SOUTH, self._NORTH, self._WEST, self._EAST]:
-                r_msk, _ = self._fill(r_msk, r_msk_ref, b)
+                r_msk, _ = self.__fill(r_msk, r_msk_ref, b)
         self.logger.debug("done loop")
-        return r_msk
 
-    def assign_smoothed_boundary_index(self, r_msk):
+        return r_msk, r_msk_orig
+
+    def __assign_smoothed_boundary_index(
+        self,
+        bdy_i: np.ndarray,
+        bdy_r: np.ndarray,
+        r_msk: np.ndarray,
+        r_msk_orig: np.ndarray,
+        igrid: np.ndarray,
+        jgrid: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Update boundary arrays with smoothed fields
+        Update boundary arrays with smoothed fields.
+
+        Parameters
+        ----------
+        bdy_i
+            Boundary indexes.
+        bdy_r
+            Rim values.
+        r_msk
+            Boundary rim mask.
+        r_msk_orig
+            Original rim mask.
+        igrid
+            I, x direction indexes.
+        jgrid
+            J, y direction indexes.
+
+        Returns
+        -------
+        bdy_i, bdy_r
+            Updated boundary indexes and rim values.
         """
         # update bdy_i and bdy_r
         new_ind = np.abs(r_msk - r_msk_orig) > 0
@@ -211,77 +386,108 @@ class Boundary:
         bdy_r_tmp = r_msk.T[new_ind.T]
         bdy_i = np.vstack((bdy_i_tmp.T, bdy_i))
 
-        uniqind = self._unique_rows(bdy_i)
+        uniqind = self.__unique_rows(bdy_i)
         bdy_i = bdy_i[uniqind, :]
         bdy_r = np.hstack((bdy_r_tmp, bdy_r))
         bdy_r = bdy_r[uniqind]
 
         return bdy_i, bdy_r
 
-    def sort_by_rimwidth(self, bdy_i, bdy_r):
+    def __sort_by_rimwidth(
+        self, bdy_i: np.ndarray, bdy_r: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Sort boundary index by rimwidth
+        Sort boundary index by rimwidth.
+
+        Parameters
+        ----------
+        bdy_i
+            Boundary indexes.
+        bdy_r
+            Rim values.
         """
         igrid = np.argsort(bdy_r, kind="mergesort")
         bdy_r = bdy_r[igrid]
         bdy_i = bdy_i[igrid, :]
 
-        self.bdy_i = bdy_i
-        self.bdy_r = bdy_r
+        return bdy_i, bdy_r
 
-        self.logger.debug("Final bdy_i: %s", self.bdy_i.shape)
-
-    def _remove_duplicate_points(self, bdy_i, bdy_r):
+    def __remove_duplicate_points(
+        self, bdy_i: np.ndarray, bdy_r: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Remove the duplicate points in the bdy_i and return the bdy_i and bdy_r.
 
         Parameters
         ----------
-        bdy_i -- bdy indexes
-        bdy_r -- bdy rim values.
+        bdy_i
+            Boundary indexes.
+        bdy_r
+            Boundary rim values.
+
+        Returns
+        -------
+        bdy_i, bdy_r
+            Boundary indexes and rim values without duplicate points.
         """
         bdy_i2 = np.transpose(bdy_i, (1, 0))
-        uniqind = self._unique_rows(bdy_i2)
+        uniqind = self.__unique_rows(bdy_i2)
 
         bdy_i = bdy_i2[uniqind]
         bdy_r = bdy_r[uniqind]
+
         return bdy_i, bdy_r
 
-    def _remove_landpoints_open_ocean(self, mask, bdy_i, bdy_r):
-        """Remove the land points and open ocean points."""
-        unmask_index = mask[bdy_i[:, 1], bdy_i[:, 0]] != 0
-        bdy_i = bdy_i[unmask_index, :]
-        bdy_r = bdy_r[unmask_index]
-        return bdy_i, bdy_r, unmask_index
-
-    def _find_bdy(self, igrid, jgrid, mask, brg):
+    def __remove_landpoints_open_ocean(
+        self, mask: np.ndarray, bdy_i: np.ndarray, bdy_r: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        Find the border indexes by checking the change from ocean to land.
-
-        Notes
-        -----
-        Returns the i and j index array where the shift happens.
+        Remove the land points and open ocean points.
 
         Parameters
         ----------
-        igrid -- I x direction indexes
-        jgrid -- J y direction indexes
-        mask -- mask data
-        brg -- mask index range
+        mask
+            Padded boundary mask.
+        bdy_i
+            Boundary indexes.
+        bdy_r
+            Boundary rim values.
+
+        Returns
+        -------
+        bdy_i, bdy_r, unmask_index
+            Boundary indexes and rim values without duplicate points.
+            Indexes of the removed points in the original mask.
         """
-        # subtract matrices to find boundaries, set to True
-        m1 = mask[brg[0] : brg[1], brg[2] : brg[3]]
-        m2 = mask[brg[4] : brg[5], brg[6] : brg[7]]
-        overlay = np.subtract(m1, m2)
-        # Create boolean array of bdy points in overlay
-        bool_arr = overlay == 2
-        # index I or J to find bdies
-        bdy_I = igrid[bool_arr]
-        bdy_J = jgrid[bool_arr]
+        unmask_index = mask[bdy_i[:, 1], bdy_i[:, 0]] != 0
+        bdy_i = bdy_i[unmask_index, :]
+        bdy_r = bdy_r[unmask_index]
 
-        return bdy_I, bdy_J
+        return bdy_i, bdy_r, unmask_index
 
-    def _fill(self, mask, ref, brg):
+    def __fill(
+        self,
+        mask: np.ndarray,
+        ref: np.ndarray,
+        brg: Union[np.ndarray, List[Optional[int]]],
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Fill in the border indexes by checking the change from ocean to land.
+
+        Parameters
+        ----------
+        mask
+            Padded boundary mask.
+        ref
+            Reference mask.
+        brg
+            Mask index range.
+
+        Returns
+        -------
+        mask, ref
+            Filled added boundary mask and reference mask.
+        """
         tmp = mask[brg[4] : brg[5], brg[6] : brg[7]]
         ind = (ref - tmp) > 1
         ref[ind] = tmp[ind] + 1
@@ -289,13 +495,19 @@ class Boundary:
 
         return mask, ref
 
-    def _unique_rows(self, t):
+    def __unique_rows(self, t: np.ndarray) -> np.ndarray:
         """
         Return indexes of unique rows in the input 2D array.
 
         Parameters
         ----------
-        t -- input 2D array.
+        t
+            Input 2D array
+
+        Returns
+        -------
+        indx
+            Indexes of unique rows in the input 2D array.
         """
         sh = np.shape(t)
         if (len(sh) > 2) or (sh[0] == 0) or (sh[1] == 0):
