@@ -509,21 +509,22 @@ class Boundary:
         indx
             Indexes of unique rows in the input 2D array.
         """
-        sh = np.shape(t)
-        if (len(sh) > 2) or (sh[0] == 0) or (sh[1] == 0):
-            print("Warning: Shape of expected 2D array:", sh)
+        if t.ndim != 2 or 0 in t.shape:
+            self.logger.warning("Shape of expected 2D array: {}".format(t.shape))
+
         tlist = t.tolist()
         sortt = []
         indx = list(zip(*sorted([(val, i) for i, val in enumerate(tlist)])))[1]
         indx = np.array(indx)
+
         for i in indx:
             sortt.append(tlist[i])
+
         del tlist
-        for i, x in enumerate(sortt):
+
+        # At this point, sortt has the unique rows in the first indexes
+        for i, x in enumerate(sortt[1:], start=1):
             if x == sortt[i - 1]:
                 indx[i] = -1
-        # all the rows are identical, set the first as the unique row
-        if sortt[0] == sortt[-1]:
-            indx[0] = 0
 
         return indx[indx != -1]
