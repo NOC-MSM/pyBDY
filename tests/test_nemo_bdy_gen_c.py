@@ -15,10 +15,13 @@ from pybdy.profiler import _get_mask
 # __assign_smoothed_boundary_index
 # __fill
 # __remove_landpoints_open_ocean
-# __sort_by_rimwidth
 
 
-# Mock boundary class
+# --------------------------------------------------------------------------------- #
+#                                                                                   #
+#                             Mock classes and fixtures                             #
+#                                                                                   #
+# --------------------------------------------------------------------------------- #
 class MockBoundary(gen_grid_refactor.Boundary):
     """Mock Boundary class that inherits all methods from the Boundary class."""
 
