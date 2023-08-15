@@ -142,11 +142,11 @@ def test_create_i_j_indexes(
 
     assert np.array_equal(
         igrid_ref, igrid
-    ), "Reference igrid in not equal to the igrid calculated in the Boundary class"
+    ), "Reference igrid in not equal to the igrid calculated in the MockBoundary class"
 
     assert np.array_equal(
         jgrid_ref, jgrid
-    ), "Reference jgrid in not equal to the grid calculated in the Boundary class"
+    ), "Reference jgrid in not equal to the grid calculated in the MockBoundary class"
 
 
 def test_unique_rows(get_boundary_instance: gen_grid_refactor.Boundary) -> None:
@@ -184,11 +184,14 @@ def test_find_bdy(
     brg_south = [1, -1, 1, -1, None, -2, 1, -1]
 
     # Expected indexes
-    bdy_I_ref = np.array([1, 2, 3, 4, 5, 6, 7, 8])
-    bdy_J_ref = np.array([1, 1, 1, 1, 1, 1, 1, 1])
+    bdy_I_ref = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    bdy_J_ref = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1])
+
+    # Create the padded boundary mask
+    msk = np.pad(bdy.bdy_msk, ((1, 1), (1, 1)), "constant", constant_values=(-1))
 
     # Create the boundary indexes references
-    bdy_I, bdy_J = bdy._Boundary__find_bdy(igrid, jgrid, bdy.bdy_msk, brg_south)
+    bdy_I, bdy_J = bdy._Boundary__find_bdy(igrid, jgrid, msk, brg_south)
 
     assert np.array_equal(
         bdy_I, bdy_I_ref
@@ -208,10 +211,11 @@ def test_find_bdy(
     bdy_I_ref = np.array([1, 2, 3])
     bdy_J_ref = np.array([0, 0, 0])
 
+    # Create the padded boundary mask
+    msk = np.pad(bdy_mock.bdy_msk, ((1, 1), (1, 1)), "constant", constant_values=(-1))
+
     # Create the boundary indexes references
-    bdy_I, bdy_J = bdy_mock._Boundary__find_bdy(
-        igrid, jgrid, bdy_mock.bdy_msk, brg_south
-    )
+    bdy_I, bdy_J = bdy_mock._Boundary__find_bdy(igrid, jgrid, msk, brg_south)
 
     assert np.array_equal(
         bdy_I, bdy_I_ref
