@@ -419,6 +419,77 @@ def test_remove_duplicate_points(
       Boundary class after removing duplicate points."""
 
 
+def test_sort_by_rimwidth(
+    get_boundary_instance: gen_grid_refactor.Boundary,
+) -> None:
+    """Test the __sort_by_rimwidth method."""
+    # Get an instance of the Boundary class
+    bdy = get_boundary_instance
+
+    # Create mock bdy_i and bdy_r unsorted
+    mock_bdy_i = np.array([[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]])
+    mock_bdy_r = np.array([1, 0, 1, 0, 0])
+
+    # Create the references bdy_i and bdy_r after removing duplicate points
+    bdy_i_ref = np.array([[1, 2], [1, 4], [1, 5], [1, 1], [1, 3]])
+    bdy_r_ref = np.array([0, 0, 0, 1, 1])
+
+    # Remove duplicate points
+    bdy_i, bdy_r = bdy._Boundary__sort_by_rimwidth(mock_bdy_i, mock_bdy_r)
+
+    assert np.array_equal(
+        bdy_i_ref, bdy_i
+    ), """Reference bdy_i is not equal to the bdy_i calculated in the
+    Boundary class after sorting by rimwidth."""
+
+    assert np.array_equal(
+        bdy_r_ref, bdy_r
+    ), """Reference bdy_r is not equal to the bdy_r calculated in the
+      Boundary class after sorting by rimwidth."""
+
+    # Create mock bdy_i and bdy_r sorted
+    mock_bdy_i = np.array([[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]])
+    mock_bdy_r = np.array([0, 0, 0, 1, 1])
+
+    # Create the references bdy_i and bdy_r after removing duplicate points
+    bdy_i_ref = mock_bdy_i
+    bdy_r_ref = mock_bdy_r
+
+    # Remove duplicate points
+    bdy_i, bdy_r = bdy._Boundary__sort_by_rimwidth(mock_bdy_i, mock_bdy_r)
+
+    assert np.array_equal(
+        bdy_i_ref, bdy_i
+    ), """Reference bdy_i is not equal to the bdy_i calculated in the
+    Boundary class after sorting by rimwidth."""
+
+    assert np.array_equal(
+        bdy_r_ref, bdy_r
+    ), """Reference bdy_r is not equal to the bdy_r calculated in the
+      Boundary class after sorting by rimwidth."""
+
+    # Create mock bdy_i and bdy_r sorted
+    mock_bdy_i = np.array([[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]])
+    mock_bdy_r = np.array([5, 4, 3, 2, 1])
+
+    # Create the references bdy_i and bdy_r after removing duplicate points
+    bdy_i_ref = mock_bdy_i[::-1, :]
+    bdy_r_ref = mock_bdy_r[::-1]
+
+    # Remove duplicate points
+    bdy_i, bdy_r = bdy._Boundary__sort_by_rimwidth(mock_bdy_i, mock_bdy_r)
+
+    assert np.array_equal(
+        bdy_i_ref, bdy_i
+    ), """Reference bdy_i is not equal to the bdy_i calculated in the
+    Boundary class after sorting by rimwidth."""
+
+    assert np.array_equal(
+        bdy_r_ref, bdy_r
+    ), """Reference bdy_r is not equal to the bdy_r calculated in the
+      Boundary class after sorting by rimwidth."""
+
+
 # --------------------------------------------------------------------------------- #
 #                                                                                   #
 #                                Functional tests                                   #
