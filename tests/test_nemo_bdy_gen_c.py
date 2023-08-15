@@ -8,6 +8,15 @@ from pybdy import nemo_bdy_gen_c_refactor as gen_grid_refactor
 from pybdy import nemo_bdy_setup as setup
 from pybdy.profiler import _get_mask
 
+# Unit tests TODO
+# _create_boundary_mask
+# __formalise_boundaries
+# __smooth_interior_relaxation_gradients
+# __assign_smoothed_boundary_index
+# __fill
+# __remove_landpoints_open_ocean
+# __sort_by_rimwidth
+
 
 # Mock boundary class
 class MockBoundary(gen_grid_refactor.Boundary):
@@ -337,6 +346,77 @@ def test_create_boundary_indexes(
     assert np.array_equal(
         WBj_ref, WBj
     ), "Reference WBj is not equal to the WBj calculated in the MockBoundary class."
+
+
+def test_remove_duplicate_points(
+    get_boundary_instance: gen_grid_refactor.Boundary,
+) -> None:
+    """Test the __remove_duplicate_points method."""
+    # Get an instance of the Boundary class
+    bdy = get_boundary_instance
+
+    # Create mock bdy_i and bdy_r with one repeated point
+    mock_bdy_i = np.array([[1, 1, 1, 1, 1], [1, 1, 3, 4, 5]])
+    mock_bdy_r = np.array([0, 0, 0, 1, 1])
+
+    # Create the references bdy_i and bdy_r after removing duplicate points
+    bdy_i_ref = np.array([[1, 1], [1, 3], [1, 4], [1, 5]])
+    bdy_r_ref = np.array([0, 0, 1, 1])
+
+    # Remove duplicate points
+    bdy_i, bdy_r = bdy._Boundary__remove_duplicate_points(mock_bdy_i, mock_bdy_r)
+
+    assert np.array_equal(
+        bdy_i_ref, bdy_i
+    ), """Reference bdy_i is not equal to the bdy_i calculated in the
+    Boundary class after removing duplicate points."""
+
+    assert np.array_equal(
+        bdy_r_ref, bdy_r
+    ), """Reference bdy_r is not equal to the bdy_r calculated in the
+      Boundary class after removing duplicate points."""
+
+    # Create mock bdy_i and bdy_r with no repeated points
+    mock_bdy_i = np.array([[1, 1, 1, 1, 1], [1, 2, 3, 4, 5]])
+    mock_bdy_r = np.array([0, 0, 0, 1, 1])
+
+    # Create the references bdy_i and bdy_r after removing duplicate points
+    bdy_i_ref = mock_bdy_i.T
+    bdy_r_ref = mock_bdy_r
+
+    # Remove duplicate points
+    bdy_i, bdy_r = bdy._Boundary__remove_duplicate_points(mock_bdy_i, mock_bdy_r)
+
+    assert np.array_equal(
+        bdy_i_ref, bdy_i
+    ), """Reference bdy_i is not equal to the bdy_i calculated in the
+      Boundary class after removing duplicate points."""
+
+    assert np.array_equal(
+        bdy_r_ref, bdy_r
+    ), """Reference bdy_r is not equal to the bdy_r calculated in the
+      Boundary class after removing duplicate points."""
+
+    # Create mock bdy_i and bdy_r with all repeated points
+    mock_bdy_i = np.array([[1, 1, 1, 1, 1], [2, 2, 2, 2, 2]])
+    mock_bdy_r = np.array([1, 1, 1, 1, 1])
+
+    # Create the references bdy_i and bdy_r after removing duplicate points
+    bdy_i_ref = mock_bdy_i.T[:1]
+    bdy_r_ref = mock_bdy_r[:1]
+
+    # Remove duplicate points
+    bdy_i, bdy_r = bdy._Boundary__remove_duplicate_points(mock_bdy_i, mock_bdy_r)
+
+    assert np.array_equal(
+        bdy_i_ref, bdy_i
+    ), """Reference bdy_i is not equal to the bdy_i calculated in the
+      Boundary class after removing duplicate points."""
+
+    assert np.array_equal(
+        bdy_r_ref, bdy_r
+    ), """Reference bdy_r is not equal to the bdy_r calculated in the
+      Boundary class after removing duplicate points."""
 
 
 # --------------------------------------------------------------------------------- #
