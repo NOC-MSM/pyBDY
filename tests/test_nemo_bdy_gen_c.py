@@ -8,12 +8,6 @@ from pybdy import nemo_bdy_gen_c_old as gen_grid_old
 from pybdy import nemo_bdy_setup as setup
 from pybdy.profiler import _get_mask
 
-# Unit tests TODO
-# __smooth_interior_relaxation_gradients
-# __assign_smoothed_boundary_index
-# __fill
-# __remove_landpoints_open_ocean
-
 
 # --------------------------------------------------------------------------------- #
 #                                                                                   #
@@ -55,9 +49,61 @@ class MockBoundary(gen_grid.Boundary):
 
 @pytest.fixture(scope="function")
 def get_mock_boundary() -> MockBoundary:
-    """Get a MockBoundary instance."""
+    """Get a MockBoundary instance and intermediate data."""
     mock_bdy = MockBoundary()
-    return mock_bdy
+
+    # Define intermediate variables calculated in the MockBoundary class for the "t" grid
+    igrid = np.array(
+        [
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        ]
+    )
+
+    jgrid = np.array(
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+        ]
+    )
+
+    SBi = np.array([2, 3, 4, 5, 6])
+    SBj = np.array([2, 2, 2, 2, 2])
+    NBi = np.array([2, 3, 4, 5, 6])
+    NBj = np.array([6, 6, 6, 6, 6])
+    EBi = np.array([6, 6, 6, 6, 6])
+    EBj = np.array([2, 3, 4, 5, 6])
+    WBi = np.array([2, 2, 2, 2, 2])
+    WBj = np.array([2, 3, 4, 5, 6])
+
+    data = {
+        "igrid": igrid,
+        "jgrid": jgrid,
+        "SBi": SBi,
+        "SBj": SBj,
+        "NBi": NBi,
+        "NBj": NBj,
+        "EBi": EBi,
+        "EBj": EBj,
+        "WBi": WBi,
+        "WBj": WBj,
+    }
+
+    return mock_bdy, data
 
 
 @pytest.fixture(scope="function")
@@ -80,168 +126,12 @@ def get_mask_settings() -> Tuple[np.ndarray, dict]:
 def get_boundary_instance(
     get_mask_settings: Tuple[np.ndarray, dict]
 ) -> gen_grid.Boundary:
-    """Get an instance of the Boundary refactored class."""
+    """Get an instance of the Boundary refactored class and intermediate data."""
     bdy_msk, settings = get_mask_settings
     bdy = gen_grid.Boundary(bdy_msk, settings, "t")
 
-    return bdy
-
-
-# --------------------------------------------------------------------------------- #
-#                                                                                   #
-#                                   Unit tests                                      #
-#                                                                                   #
-# --------------------------------------------------------------------------------- #
-def test_create_boundary_mask(
-    get_boundary_instance: gen_grid.Boundary, get_mock_boundary: MockBoundary
-) -> None:
-    """Test the _create_boundary_mask method."""
-    # Get an instance of the Boundary class
-    bdy = get_boundary_instance
-
-    # Create the reference boundary masks
-    t_bdy_msk_ref = bdy.bdy_msk.copy()
-    u_bdy_msk_ref = np.array(
-        [
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-        ]
-    )
-    f_bdy_msk_ref = np.array(
-        [
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-        ]
-    )
-
-    v_bdy_msk_ref = np.array(
-        [
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
-        ]
-    )
-
-    ref_bdy_msks = {
-        "t": t_bdy_msk_ref,
-        "u": u_bdy_msk_ref,
-        "v": v_bdy_msk_ref,
-        "f": f_bdy_msk_ref,
-    }
-
-    for grid, ref_bdy_msk in ref_bdy_msks.items():
-        # Set the original "t" boundary mask
-        bdy.bdy_msk = t_bdy_msk_ref
-        # Set the grid type
-        bdy.grid_type = grid
-        # Create the boundary mask and compare
-        bdy._create_boundary_mask()
-        assert np.array_equal(
-            ref_bdy_msk, bdy.bdy_msk
-        ), f"Reference bdy mask differs from the bdy mask calculated for the '{grid}' grid."
-
-    # Get an instance of the MockBoundary class
-    bdy = get_mock_boundary
-
-    # Create the reference boundary masks
-    t_bdy_msk_ref = bdy.bdy_msk.copy()
-
-    u_bdy_msk_ref = np.array(
-        [
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-        ]
-    )
-
-    v_bdy_msk_ref = np.array(
-        [
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-        ]
-    )
-
-    f_bdy_msk_ref = np.array(
-        [
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
-            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
-        ]
-    )
-
-    ref_bdy_msks = {
-        "t": t_bdy_msk_ref,
-        "u": u_bdy_msk_ref,
-        "v": v_bdy_msk_ref,
-        "f": f_bdy_msk_ref,
-    }
-
-    for grid, ref_bdy_msk in ref_bdy_msks.items():
-        # Set the original "t" boundary mask
-        bdy.bdy_msk = t_bdy_msk_ref
-        # Set the grid type
-        bdy.grid_type = grid
-        # Create the boundary mask and compare
-        bdy._create_boundary_mask()
-        assert np.array_equal(
-            ref_bdy_msk, bdy.bdy_msk
-        ), f"Reference bdy mask differs from the bdy mask calculated for the '{grid}' grid."
-
-
-def test_create_i_j_indexes(
-    get_boundary_instance: gen_grid.Boundary, get_mock_boundary: MockBoundary
-) -> None:
-    """Test the __create_i_j_indexes method."""
-    # Get an instance of the Boundary class
-    bdy = get_boundary_instance
-
-    # Generate the reference arrays
-    igrid_ref = np.array(
+    # Define intermediate variables calculated in the Boundary class for the "t" grid
+    igrid = np.array(
         [
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
             [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
@@ -257,7 +147,7 @@ def test_create_i_j_indexes(
         ]
     )
 
-    jgrid_ref = np.array(
+    jgrid = np.array(
         [
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -273,6 +163,188 @@ def test_create_i_j_indexes(
         ]
     )
 
+    SBi = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    SBj = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1])
+    NBi = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    NBj = np.array([9, 9, 9, 9, 9, 9, 9, 9, 9])
+    EBi = np.array([9, 9, 9, 9, 9, 9, 9, 9, 9])
+    EBj = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    WBi = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1])
+    WBj = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    data = {
+        "igrid": igrid,
+        "jgrid": jgrid,
+        "SBi": SBi,
+        "SBj": SBj,
+        "NBi": NBi,
+        "NBj": NBj,
+        "EBi": EBi,
+        "EBj": EBj,
+        "WBi": WBi,
+        "WBj": WBj,
+    }
+
+    return bdy, data
+
+
+# --------------------------------------------------------------------------------- #
+#                                                                                   #
+#                                   Unit tests                                      #
+#                                                                                   #
+# --------------------------------------------------------------------------------- #
+def test_create_boundary_mask(
+    get_boundary_instance: gen_grid.Boundary, get_mock_boundary: MockBoundary
+) -> None:
+    """Test the _create_boundary_mask method."""
+    # Get an instance of the Boundary class
+    bdy, _ = get_boundary_instance
+
+    # Create the reference boundary masks
+    t_bdy_msk_ref = bdy.bdy_msk.copy()
+    u_bdy_msk_ref = np.array(
+        [
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+        ]
+    )
+    f_bdy_msk_ref = np.array(
+        [
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+        ]
+    )
+
+    v_bdy_msk_ref = np.array(
+        [
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+        ]
+    )
+
+    ref_bdy_msks = {
+        "t": t_bdy_msk_ref,
+        "u": u_bdy_msk_ref,
+        "v": v_bdy_msk_ref,
+        "f": f_bdy_msk_ref,
+    }
+
+    for grid, ref_bdy_msk in ref_bdy_msks.items():
+        # Set the original "t" boundary mask
+        bdy.bdy_msk = t_bdy_msk_ref
+        # Set the grid type
+        bdy.grid_type = grid
+        # Create the boundary mask and compare
+        bdy._create_boundary_mask()
+        assert np.array_equal(
+            ref_bdy_msk, bdy.bdy_msk
+        ), f"Reference bdy mask differs from the bdy mask calculated for the '{grid}' grid."
+
+    # Get an instance of the MockBoundary class
+    bdy_mock, _ = get_mock_boundary
+
+    # Create the reference boundary masks
+    t_bdy_msk_ref = bdy_mock.bdy_msk.copy()
+
+    u_bdy_msk_ref = np.array(
+        [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+        ]
+    )
+
+    v_bdy_msk_ref = np.array(
+        [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+        ]
+    )
+
+    f_bdy_msk_ref = np.array(
+        [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+        ]
+    )
+
+    ref_bdy_msks = {
+        "t": t_bdy_msk_ref,
+        "u": u_bdy_msk_ref,
+        "v": v_bdy_msk_ref,
+        "f": f_bdy_msk_ref,
+    }
+
+    for grid, ref_bdy_msk in ref_bdy_msks.items():
+        # Set the original "t" boundary mask
+        bdy_mock.bdy_msk = t_bdy_msk_ref
+        # Set the grid type
+        bdy_mock.grid_type = grid
+        # Create the boundary mask and compare
+        bdy_mock._create_boundary_mask()
+        assert np.array_equal(
+            ref_bdy_msk, bdy_mock.bdy_msk
+        ), f"Reference bdy mask differs from the bdy mask calculated for the '{grid}' grid."
+
+
+def test_create_i_j_indexes(
+    get_boundary_instance: gen_grid.Boundary, get_mock_boundary: MockBoundary
+) -> None:
+    """Test the __create_i_j_indexes method."""
+    # Get an instance of the Boundary class
+    bdy, data = get_boundary_instance
+
+    # Generate the reference arrays
+    igrid_ref = data["igrid"]
+    jgrid_ref = data["jgrid"]
+
     # Create the i j indexes
     igrid, jgrid = bdy._Boundary__create_i_j_indexes()
 
@@ -284,36 +356,11 @@ def test_create_i_j_indexes(
     ), "Reference jgrid in not equal to the grid calculated in the Boundary class"
 
     # Get an instance of the MockBoundary class
-    bdy_mock = get_mock_boundary
+    bdy_mock, data_mock = get_mock_boundary
 
     # Generate the reference arrays
-    igrid_ref = np.array(
-        [
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-            [0, 1, 2, 3, 4, 5, 6, 7, 8],
-        ]
-    )
-
-    jgrid_ref = np.array(
-        [
-            [0, 0, 0, 0, 0, 0, 0, 0, 0],
-            [1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [2, 2, 2, 2, 2, 2, 2, 2, 2],
-            [3, 3, 3, 3, 3, 3, 3, 3, 3],
-            [4, 4, 4, 4, 4, 4, 4, 4, 4],
-            [5, 5, 5, 5, 5, 5, 5, 5, 5],
-            [6, 6, 6, 6, 6, 6, 6, 6, 6],
-            [7, 7, 7, 7, 7, 7, 7, 7, 7],
-            [8, 8, 8, 8, 8, 8, 8, 8, 8],
-        ]
-    )
+    igrid_ref = data_mock["igrid"]
+    jgrid_ref = data_mock["jgrid"]
 
     # Create the i j indexes
     igrid, jgrid = bdy_mock._Boundary__create_i_j_indexes()
@@ -330,7 +377,7 @@ def test_create_i_j_indexes(
 def test_unique_rows(get_boundary_instance: gen_grid.Boundary) -> None:
     """Test the __unique_rows method."""
     # Get an instance of the Boundary class
-    bdy = get_boundary_instance
+    bdy, _ = get_boundary_instance
 
     # Generate test 2d array with unique rows with indexes 0, 1 and 4
     test_array = np.ones((5, 5))
@@ -353,10 +400,11 @@ def test_find_bdy(
 ) -> None:
     """Test the __find_bdy method."""
     # Get an instance of the Boundary class
-    bdy = get_boundary_instance
+    bdy, data = get_boundary_instance
 
-    # Create the i and j indexes
-    igrid, jgrid = bdy._Boundary__create_i_j_indexes()
+    # Get the i and j indexes
+    igrid = data["igrid"]
+    jgrid = data["jgrid"]
 
     # Mask index range for south
     brg_south = [1, -1, 1, -1, None, -2, 1, -1]
@@ -380,10 +428,11 @@ def test_find_bdy(
     ), "Reference bdy_J is not equal to the bdy_J calculated in the Boundary class"
 
     # Get an instance of the MockBoundary class
-    bdy_mock = get_mock_boundary
+    bdy_mock, data_mock = get_mock_boundary
 
-    # Create the i and j indexes
-    igrid, jgrid = bdy_mock._Boundary__create_i_j_indexes()
+    # Get the i and j indexes
+    igrid = data_mock["igrid"]
+    jgrid = data_mock["jgrid"]
 
     # Expected indexes
     bdy_I_ref = np.array([2, 3, 4, 5, 6])
@@ -409,20 +458,21 @@ def test_create_boundary_indexes(
 ) -> None:
     """Test the __create_boundary_indexes method."""
     # Get an instance of the Boundary class
-    bdy = get_boundary_instance
+    bdy, data = get_boundary_instance
 
-    # Create the i and j indexes
-    igrid, jgrid = bdy._Boundary__create_i_j_indexes()
+    # Get the i and j indexes
+    igrid = data["igrid"]
+    jgrid = data["jgrid"]
 
-    # Create the boundary indexes references
-    SBi_ref = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    SBj_ref = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1])
-    NBi_ref = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    NBj_ref = np.array([9, 9, 9, 9, 9, 9, 9, 9, 9])
-    EBi_ref = np.array([9, 9, 9, 9, 9, 9, 9, 9, 9])
-    EBj_ref = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
-    WBi_ref = np.array([1, 1, 1, 1, 1, 1, 1, 1, 1])
-    WBj_ref = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    # Get the boundary indexes references
+    SBi_ref = data["SBi"]
+    SBj_ref = data["SBj"]
+    NBi_ref = data["NBi"]
+    NBj_ref = data["NBj"]
+    EBi_ref = data["EBi"]
+    EBj_ref = data["EBj"]
+    WBi_ref = data["WBi"]
+    WBj_ref = data["WBj"]
 
     # Create the boundary indexes
     SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj = bdy._Boundary__create_boundary_indexes(
@@ -456,20 +506,21 @@ def test_create_boundary_indexes(
     ), "Reference WBj is not equal to the WBj calculated in the Boundary class"
 
     # Get an instance of the MockBoundary class
-    bdy_mock = get_mock_boundary
+    bdy_mock, data_mock = get_mock_boundary
 
-    # Create the boundary indexes references
-    SBi_ref = np.array([2, 3, 4, 5, 6])
-    SBj_ref = np.array([2, 2, 2, 2, 2])
-    NBi_ref = np.array([2, 3, 4, 5, 6])
-    NBj_ref = np.array([6, 6, 6, 6, 6])
-    EBi_ref = np.array([6, 6, 6, 6, 6])
-    EBj_ref = np.array([2, 3, 4, 5, 6])
-    WBi_ref = np.array([2, 2, 2, 2, 2])
-    WBj_ref = np.array([2, 3, 4, 5, 6])
+    # Get the i and j indexes
+    igrid = data_mock["igrid"]
+    jgrid = data_mock["jgrid"]
 
-    # Create the i and j indexes
-    igrid, jgrid = bdy_mock._Boundary__create_i_j_indexes()
+    # Get the boundary indexes references
+    SBi_ref = data_mock["SBi"]
+    SBj_ref = data_mock["SBj"]
+    NBi_ref = data_mock["NBi"]
+    NBj_ref = data_mock["NBj"]
+    EBi_ref = data_mock["EBi"]
+    EBj_ref = data_mock["EBj"]
+    WBi_ref = data_mock["WBi"]
+    WBj_ref = data_mock["WBj"]
 
     # Create the boundary indexes
     (
@@ -522,7 +573,7 @@ def test_remove_duplicate_points(
 ) -> None:
     """Test the __remove_duplicate_points method."""
     # Get an instance of the Boundary class
-    bdy = get_boundary_instance
+    bdy, _ = get_boundary_instance
 
     # Create mock bdy_i and bdy_r with one repeated point
     mock_bdy_i = np.array([[1, 1, 1, 1, 1], [1, 1, 3, 4, 5]])
@@ -593,7 +644,7 @@ def test_sort_by_rimwidth(
 ) -> None:
     """Test the __sort_by_rimwidth method."""
     # Get an instance of the Boundary class
-    bdy = get_boundary_instance
+    bdy, _ = get_boundary_instance
 
     # Create mock bdy_i and bdy_r unsorted
     mock_bdy_i = np.array([[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]])
@@ -664,20 +715,18 @@ def test_formalise_boundaries(
 ) -> None:
     """Test the __formalise_boundaries method."""
     # Get an instance of the Boundary class
-    bdy = get_boundary_instance
+    bdy, data = get_boundary_instance
 
-    # Create boundary mask
-    bdy._create_boundary_mask()
+    # Get the boundary indexes
+    SBi = data["SBi"]
+    SBj = data["SBj"]
+    NBi = data["NBi"]
+    NBj = data["NBj"]
+    EBi = data["EBi"]
+    EBj = data["EBj"]
+    WBi = data["WBi"]
+    WBj = data["WBj"]
 
-    # Get i,j positions of boundary mask along each boundary
-    igrid, jgrid = bdy._Boundary__create_i_j_indexes()
-
-    # Create boundary indexes
-    SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj = bdy._Boundary__create_boundary_indexes(
-        igrid, jgrid
-    )
-
-    # Process rim width
     bdy_i, bdy_r = bdy._Boundary__formalise_boundaries(
         SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
     )
@@ -813,27 +862,18 @@ def test_formalise_boundaries(
     ), "Reference bdy_r is not equal to the bdy_r calculated by the __formalise_boundaries method."
 
     # Get an instance of the MockBoundary class
-    mock_bdy = get_mock_boundary
+    mock_bdy, data_mock = get_mock_boundary
 
-    # Create boundary mask
-    mock_bdy._create_boundary_mask()
+    # Get the boundary indexes
+    SBi = data_mock["SBi"]
+    SBj = data_mock["SBj"]
+    NBi = data_mock["NBi"]
+    NBj = data_mock["NBj"]
+    EBi = data_mock["EBi"]
+    EBj = data_mock["EBj"]
+    WBi = data_mock["WBi"]
+    WBj = data_mock["WBj"]
 
-    # Get i,j positions of boundary mask along each boundary
-    igrid, jgrid = mock_bdy._Boundary__create_i_j_indexes()
-
-    # Create boundary indexes
-    (
-        SBi,
-        SBj,
-        NBi,
-        NBj,
-        EBi,
-        EBj,
-        WBi,
-        WBj,
-    ) = mock_bdy._Boundary__create_boundary_indexes(igrid, jgrid)
-
-    # Process rim width
     bdy_i, bdy_r = bdy._Boundary__formalise_boundaries(
         SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
     )
@@ -878,6 +918,26 @@ def test_formalise_boundaries(
     assert np.array_equal(
         ref_bdy_r, bdy_r
     ), "Reference bdy_r is not equal to the bdy_r calculated by the __formalise_boundaries method."
+
+
+def test_smooth_interior_relaxation_gradients() -> None:
+    """Test the __smooth_interior_relaxation_gradients method."""
+    pass
+
+
+def test_assign_smoothed_boundary_index() -> None:
+    """Test the __assign_smoothed_boundary_index method."""
+    pass
+
+
+def test_fill() -> None:
+    """Test the __fill method."""
+    pass
+
+
+def test_remove_landpoints_open_ocean() -> None:
+    """Test the __remove_landpoints_open_ocean method."""
+    pass
 
 
 # --------------------------------------------------------------------------------- #
