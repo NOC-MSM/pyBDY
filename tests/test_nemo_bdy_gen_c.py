@@ -9,8 +9,6 @@ from pybdy import nemo_bdy_setup as setup
 from pybdy.profiler import _get_mask
 
 # Unit tests TODO
-# _create_boundary_mask
-# __formalise_boundaries
 # __smooth_interior_relaxation_gradients
 # __assign_smoothed_boundary_index
 # __fill
@@ -52,6 +50,7 @@ class MockBoundary(gen_grid.Boundary):
 
         # Grid
         self.grid = grid
+        self.grid_type = grid.lower()
 
 
 @pytest.fixture(scope="function")
@@ -229,7 +228,6 @@ def test_create_boundary_mask(
         bdy.grid_type = grid
         # Create the boundary mask and compare
         bdy._create_boundary_mask()
-        print(grid, bdy.bdy_msk)
         assert np.array_equal(
             ref_bdy_msk, bdy.bdy_msk
         ), f"Reference bdy mask differs from the bdy mask calculated for the '{grid}' grid."
@@ -659,6 +657,227 @@ def test_sort_by_rimwidth(
         bdy_r_ref, bdy_r
     ), """Reference bdy_r is not equal to the bdy_r calculated in the
       Boundary class after sorting by rimwidth."""
+
+
+def test_formalise_boundaries(
+    get_boundary_instance: gen_grid.Boundary, get_mock_boundary
+) -> None:
+    """Test the __formalise_boundaries method."""
+    # Get an instance of the Boundary class
+    bdy = get_boundary_instance
+
+    # Create boundary mask
+    bdy._create_boundary_mask()
+
+    # Get i,j positions of boundary mask along each boundary
+    igrid, jgrid = bdy._Boundary__create_i_j_indexes()
+
+    # Create boundary indexes
+    SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj = bdy._Boundary__create_boundary_indexes(
+        igrid, jgrid
+    )
+
+    # Process rim width
+    bdy_i, bdy_r = bdy._Boundary__formalise_boundaries(
+        SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
+    )
+
+    ref_bdy_i = np.array(
+        [
+            [1, 1],
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [1, 6],
+            [1, 7],
+            [1, 8],
+            [1, 9],
+            [2, 1],
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [2, 7],
+            [2, 8],
+            [2, 9],
+            [3, 1],
+            [3, 2],
+            [3, 8],
+            [3, 9],
+            [4, 1],
+            [4, 2],
+            [4, 8],
+            [4, 9],
+            [5, 1],
+            [5, 2],
+            [5, 8],
+            [5, 9],
+            [6, 1],
+            [6, 2],
+            [6, 8],
+            [6, 9],
+            [7, 1],
+            [7, 2],
+            [7, 8],
+            [7, 9],
+            [8, 1],
+            [8, 2],
+            [8, 3],
+            [8, 4],
+            [8, 5],
+            [8, 6],
+            [8, 7],
+            [8, 8],
+            [8, 9],
+            [9, 1],
+            [9, 2],
+            [9, 3],
+            [9, 4],
+            [9, 5],
+            [9, 6],
+            [9, 7],
+            [9, 8],
+            [9, 9],
+        ]
+    )
+
+    ref_bdy_r = np.array(
+        [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            0,
+            0,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            1,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+        ]
+    )
+
+    assert np.array_equal(
+        ref_bdy_i, bdy_i
+    ), "Reference bdy_i is not equal to the bdy_i calculated by the __formalise_boundaries method."
+
+    assert np.array_equal(
+        ref_bdy_r, bdy_r
+    ), "Reference bdy_r is not equal to the bdy_r calculated by the __formalise_boundaries method."
+
+    # Get an instance of the MockBoundary class
+    mock_bdy = get_mock_boundary
+
+    # Create boundary mask
+    mock_bdy._create_boundary_mask()
+
+    # Get i,j positions of boundary mask along each boundary
+    igrid, jgrid = mock_bdy._Boundary__create_i_j_indexes()
+
+    # Create boundary indexes
+    (
+        SBi,
+        SBj,
+        NBi,
+        NBj,
+        EBi,
+        EBj,
+        WBi,
+        WBj,
+    ) = mock_bdy._Boundary__create_boundary_indexes(igrid, jgrid)
+
+    # Process rim width
+    bdy_i, bdy_r = bdy._Boundary__formalise_boundaries(
+        SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
+    )
+
+    ref_bdy_i = np.array(
+        [
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [3, 2],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+            [3, 6],
+            [4, 2],
+            [4, 3],
+            [4, 5],
+            [4, 6],
+            [5, 2],
+            [5, 3],
+            [5, 4],
+            [5, 5],
+            [5, 6],
+            [6, 2],
+            [6, 3],
+            [6, 4],
+            [6, 5],
+            [6, 6],
+        ]
+    )
+
+    ref_bdy_r = np.array(
+        [0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0]
+    )
+
+    assert np.array_equal(
+        ref_bdy_i, bdy_i
+    ), "Reference bdy_i is not equal to the bdy_i calculated by the __formalise_boundaries method."
+
+    assert np.array_equal(
+        ref_bdy_r, bdy_r
+    ), "Reference bdy_r is not equal to the bdy_r calculated by the __formalise_boundaries method."
 
 
 # --------------------------------------------------------------------------------- #
