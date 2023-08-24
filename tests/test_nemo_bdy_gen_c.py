@@ -3,8 +3,8 @@ from typing import Tuple
 
 import numpy as np
 import pytest
-from pybdy import nemo_bdy_gen_c as gen_grid_orig
-from pybdy import nemo_bdy_gen_c_refactor as gen_grid_refactor
+from pybdy import nemo_bdy_gen_c as gen_grid
+from pybdy import nemo_bdy_gen_c_old as gen_grid_old
 from pybdy import nemo_bdy_setup as setup
 from pybdy.profiler import _get_mask
 
@@ -22,22 +22,28 @@ from pybdy.profiler import _get_mask
 #                             Mock classes and fixtures                             #
 #                                                                                   #
 # --------------------------------------------------------------------------------- #
-class MockBoundary(gen_grid_refactor.Boundary):
+class MockBoundary(gen_grid.Boundary):
     """Mock Boundary class that inherits all methods from the Boundary class."""
 
     def __init__(
         self,
         bdy_msk: np.ndarray = np.array(
             [
-                [0, 1, 1, 1, 0, 0],
-                [0, 1, 1, 1, 0, 0],
-                [0, 0, 0, 0, 0, 0],
-                [0, 1, 1, 0, 1, 0],
+                [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+                [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+                [-1, -1, 1, 1, 1, 1, 1, -1, -1],
+                [-1, -1, 1, 1, 1, 1, 1, -1, -1],
+                [-1, -1, 1, 1, 1, 1, 1, -1, -1],
+                [-1, -1, 1, 1, 1, 1, 1, -1, -1],
+                [-1, -1, 1, 1, 1, 1, 1, -1, -1],
+                [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+                [-1, -1, -1, -1, -1, -1, -1, -1, -1],
             ]
         ),
         rw: int = 2,
         grid: str = "t",
     ) -> None:
+        # Boundary mask
         self.bdy_msk = bdy_msk
 
         # Rim variables
@@ -74,10 +80,10 @@ def get_mask_settings() -> Tuple[np.ndarray, dict]:
 @pytest.fixture(scope="function")
 def get_boundary_instance(
     get_mask_settings: Tuple[np.ndarray, dict]
-) -> gen_grid_refactor.Boundary:
+) -> gen_grid.Boundary:
     """Get an instance of the Boundary refactored class."""
     bdy_msk, settings = get_mask_settings
-    bdy = gen_grid_refactor.Boundary(bdy_msk, settings, "t")
+    bdy = gen_grid.Boundary(bdy_msk, settings, "t")
 
     return bdy
 
@@ -87,8 +93,150 @@ def get_boundary_instance(
 #                                   Unit tests                                      #
 #                                                                                   #
 # --------------------------------------------------------------------------------- #
+def test_create_boundary_mask(
+    get_boundary_instance: gen_grid.Boundary, get_mock_boundary: MockBoundary
+) -> None:
+    """Test the _create_boundary_mask method."""
+    # Get an instance of the Boundary class
+    bdy = get_boundary_instance
+
+    # Create the reference boundary masks
+    t_bdy_msk_ref = bdy.bdy_msk.copy()
+    u_bdy_msk_ref = np.array(
+        [
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+        ]
+    )
+    f_bdy_msk_ref = np.array(
+        [
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+        ]
+    )
+
+    v_bdy_msk_ref = np.array(
+        [
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+            [-1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0],
+        ]
+    )
+
+    ref_bdy_msks = {
+        "t": t_bdy_msk_ref,
+        "u": u_bdy_msk_ref,
+        "v": v_bdy_msk_ref,
+        "f": f_bdy_msk_ref,
+    }
+
+    for grid, ref_bdy_msk in ref_bdy_msks.items():
+        # Set the original "t" boundary mask
+        bdy.bdy_msk = t_bdy_msk_ref
+        # Set the grid type
+        bdy.grid_type = grid
+        # Create the boundary mask and compare
+        bdy._create_boundary_mask()
+        assert np.array_equal(
+            ref_bdy_msk, bdy.bdy_msk
+        ), f"Reference bdy mask differs from the bdy mask calculated for the '{grid}' grid."
+
+    # Get an instance of the MockBoundary class
+    bdy = get_mock_boundary
+
+    # Create the reference boundary masks
+    t_bdy_msk_ref = bdy.bdy_msk.copy()
+
+    u_bdy_msk_ref = np.array(
+        [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+        ]
+    )
+
+    v_bdy_msk_ref = np.array(
+        [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, 1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+        ]
+    )
+
+    f_bdy_msk_ref = np.array(
+        [
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
+            [-1, -1, 1, 1, 1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+            [-1, -1, -1, -1, -1, -1, -1, -1, -1],
+        ]
+    )
+
+    ref_bdy_msks = {
+        "t": t_bdy_msk_ref,
+        "u": u_bdy_msk_ref,
+        "v": v_bdy_msk_ref,
+        "f": f_bdy_msk_ref,
+    }
+
+    for grid, ref_bdy_msk in ref_bdy_msks.items():
+        # Set the original "t" boundary mask
+        bdy.bdy_msk = t_bdy_msk_ref
+        # Set the grid type
+        bdy.grid_type = grid
+        # Create the boundary mask and compare
+        bdy._create_boundary_mask()
+        print(grid, bdy.bdy_msk)
+        assert np.array_equal(
+            ref_bdy_msk, bdy.bdy_msk
+        ), f"Reference bdy mask differs from the bdy mask calculated for the '{grid}' grid."
+
+
 def test_create_i_j_indexes(
-    get_boundary_instance: gen_grid_refactor.Boundary, get_mock_boundary: MockBoundary
+    get_boundary_instance: gen_grid.Boundary, get_mock_boundary: MockBoundary
 ) -> None:
     """Test the __create_i_j_indexes method."""
     # Get an instance of the Boundary class
@@ -142,11 +290,31 @@ def test_create_i_j_indexes(
 
     # Generate the reference arrays
     igrid_ref = np.array(
-        [[0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5], [0, 1, 2, 3, 4, 5]]
+        [
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+            [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        ]
     )
 
     jgrid_ref = np.array(
-        [[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 1], [2, 2, 2, 2, 2, 2], [3, 3, 3, 3, 3, 3]]
+        [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [2, 2, 2, 2, 2, 2, 2, 2, 2],
+            [3, 3, 3, 3, 3, 3, 3, 3, 3],
+            [4, 4, 4, 4, 4, 4, 4, 4, 4],
+            [5, 5, 5, 5, 5, 5, 5, 5, 5],
+            [6, 6, 6, 6, 6, 6, 6, 6, 6],
+            [7, 7, 7, 7, 7, 7, 7, 7, 7],
+            [8, 8, 8, 8, 8, 8, 8, 8, 8],
+        ]
     )
 
     # Create the i j indexes
@@ -161,7 +329,7 @@ def test_create_i_j_indexes(
     ), "Reference jgrid in not equal to the grid calculated in the MockBoundary class"
 
 
-def test_unique_rows(get_boundary_instance: gen_grid_refactor.Boundary) -> None:
+def test_unique_rows(get_boundary_instance: gen_grid.Boundary) -> None:
     """Test the __unique_rows method."""
     # Get an instance of the Boundary class
     bdy = get_boundary_instance
@@ -183,7 +351,7 @@ def test_unique_rows(get_boundary_instance: gen_grid_refactor.Boundary) -> None:
 
 
 def test_find_bdy(
-    get_boundary_instance: gen_grid_refactor.Boundary, get_mock_boundary: MockBoundary
+    get_boundary_instance: gen_grid.Boundary, get_mock_boundary: MockBoundary
 ) -> None:
     """Test the __find_bdy method."""
     # Get an instance of the Boundary class
@@ -220,8 +388,8 @@ def test_find_bdy(
     igrid, jgrid = bdy_mock._Boundary__create_i_j_indexes()
 
     # Expected indexes
-    bdy_I_ref = np.array([1, 2, 3])
-    bdy_J_ref = np.array([0, 0, 0])
+    bdy_I_ref = np.array([2, 3, 4, 5, 6])
+    bdy_J_ref = np.array([2, 2, 2, 2, 2])
 
     # Create the padded boundary mask
     msk = np.pad(bdy_mock.bdy_msk, ((1, 1), (1, 1)), "constant", constant_values=(-1))
@@ -239,7 +407,7 @@ def test_find_bdy(
 
 
 def test_create_boundary_indexes(
-    get_boundary_instance: gen_grid_refactor.Boundary, get_mock_boundary: MockBoundary
+    get_boundary_instance: gen_grid.Boundary, get_mock_boundary: MockBoundary
 ) -> None:
     """Test the __create_boundary_indexes method."""
     # Get an instance of the Boundary class
@@ -293,14 +461,14 @@ def test_create_boundary_indexes(
     bdy_mock = get_mock_boundary
 
     # Create the boundary indexes references
-    SBi_ref = np.array([1, 2, 3])
-    SBj_ref = np.array([0, 0, 0])
-    NBi_ref = np.array([1, 2, 4])
-    NBj_ref = np.array([3, 3, 3])
-    EBi_ref = np.array([])
-    EBj_ref = np.array([])
-    WBi_ref = np.array([])
-    WBj_ref = np.array([])
+    SBi_ref = np.array([2, 3, 4, 5, 6])
+    SBj_ref = np.array([2, 2, 2, 2, 2])
+    NBi_ref = np.array([2, 3, 4, 5, 6])
+    NBj_ref = np.array([6, 6, 6, 6, 6])
+    EBi_ref = np.array([6, 6, 6, 6, 6])
+    EBj_ref = np.array([2, 3, 4, 5, 6])
+    WBi_ref = np.array([2, 2, 2, 2, 2])
+    WBj_ref = np.array([2, 3, 4, 5, 6])
 
     # Create the i and j indexes
     igrid, jgrid = bdy_mock._Boundary__create_i_j_indexes()
@@ -352,7 +520,7 @@ def test_create_boundary_indexes(
 
 
 def test_remove_duplicate_points(
-    get_boundary_instance: gen_grid_refactor.Boundary,
+    get_boundary_instance: gen_grid.Boundary,
 ) -> None:
     """Test the __remove_duplicate_points method."""
     # Get an instance of the Boundary class
@@ -423,7 +591,7 @@ def test_remove_duplicate_points(
 
 
 def test_sort_by_rimwidth(
-    get_boundary_instance: gen_grid_refactor.Boundary,
+    get_boundary_instance: gen_grid.Boundary,
 ) -> None:
     """Test the __sort_by_rimwidth method."""
     # Get an instance of the Boundary class
@@ -504,11 +672,11 @@ def test_grid_refactor(get_mask_settings: Tuple[np.ndarray, dict]) -> None:
 
     for grd in ["t", "u", "v"]:
         # Refactored class
-        bdy_refactor = gen_grid_refactor.Boundary(bdy_msk, settings, grd)
+        bdy_refactor = gen_grid.Boundary(bdy_msk, settings, grd)
         bdy_refactor.create_boundary()
 
         # Original class
-        bdy_orig = gen_grid_orig.Boundary(bdy_msk, settings, grd)
+        bdy_orig = gen_grid_old.Boundary(bdy_msk, settings, grd)
 
         assert np.array_equal(
             bdy_refactor.bdy_i, bdy_orig.bdy_i
