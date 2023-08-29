@@ -157,6 +157,64 @@ def expected_data_mock_boundary():
         ]
     )
 
+    bdy_i_assign_smoothed_boundary_index = np.array(
+        [
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [3, 2],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+            [3, 6],
+            [4, 2],
+            [4, 3],
+            [4, 5],
+            [4, 6],
+            [5, 2],
+            [5, 3],
+            [5, 4],
+            [5, 5],
+            [5, 6],
+            [6, 2],
+            [6, 3],
+            [6, 4],
+            [6, 5],
+            [6, 6],
+        ]
+    )
+
+    bdy_r_assign_smoothed_boundary_index = np.array(
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+        ]
+    )
+
     data = {
         "igrid": igrid,
         "jgrid": jgrid,
@@ -172,6 +230,8 @@ def expected_data_mock_boundary():
         "bdy_r": bdy_r,
         "r_msk": r_msk,
         "r_msk_orig": r_msk_orig,
+        "bdy_i_assign_smoothed_boundary_index": bdy_i_assign_smoothed_boundary_index,
+        "bdy_r_assign_smoothed_boundary_index": bdy_r_assign_smoothed_boundary_index,
     }
 
     return data
@@ -402,6 +462,128 @@ def expected_data_boundary():
 
     r_msk_orig = r_msk.copy()
 
+    bdy_i_assign_smoothed_boundary_index = np.array(
+        [
+            [1, 1],
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [1, 6],
+            [1, 7],
+            [1, 8],
+            [1, 9],
+            [2, 1],
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [2, 7],
+            [2, 8],
+            [2, 9],
+            [3, 1],
+            [3, 2],
+            [3, 8],
+            [3, 9],
+            [4, 1],
+            [4, 2],
+            [4, 8],
+            [4, 9],
+            [5, 1],
+            [5, 2],
+            [5, 8],
+            [5, 9],
+            [6, 1],
+            [6, 2],
+            [6, 8],
+            [6, 9],
+            [7, 1],
+            [7, 2],
+            [7, 8],
+            [7, 9],
+            [8, 1],
+            [8, 2],
+            [8, 3],
+            [8, 4],
+            [8, 5],
+            [8, 6],
+            [8, 7],
+            [8, 8],
+            [8, 9],
+            [9, 1],
+            [9, 2],
+            [9, 3],
+            [9, 4],
+            [9, 5],
+            [9, 6],
+            [9, 7],
+            [9, 8],
+            [9, 9],
+        ]
+    )
+
+    bdy_r_assign_smoothed_boundary_index = np.array(
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+        ]
+    )
+
     data = {
         "igrid": igrid,
         "jgrid": jgrid,
@@ -417,6 +599,8 @@ def expected_data_boundary():
         "bdy_r": bdy_r,
         "r_msk": r_msk,
         "r_msk_orig": r_msk_orig,
+        "bdy_i_assign_smoothed_boundary_index": bdy_i_assign_smoothed_boundary_index,
+        "bdy_r_assign_smoothed_boundary_index": bdy_r_assign_smoothed_boundary_index,
     }
 
     return data
@@ -1036,7 +1220,51 @@ def test_assign_smoothed_boundary_index(
     expected_data_mock_boundary: dict,
 ) -> None:
     """Test the __assign_smoothed_boundary_index method."""
-    pass
+    # Get an instance of the Boundary class
+    bdy = get_boundary_instance
+
+    # Assign smoothed boundary index
+    bdy_i, bdy_r = bdy._Boundary__assign_smoothed_boundary_index(
+        expected_data_boundary["bdy_i"],
+        expected_data_boundary["bdy_r"],
+        expected_data_boundary["r_msk"],
+        expected_data_boundary["r_msk_orig"],
+        expected_data_boundary["igrid"],
+        expected_data_boundary["jgrid"],
+    )
+
+    assert np.array_equal(
+        bdy_i, expected_data_boundary["bdy_i_assign_smoothed_boundary_index"]
+    ), "Reference bdy_i is not equal to the bdy_i calculated by the\
+          __assign_smoothed_boundary_index method."
+
+    assert np.array_equal(
+        bdy_r, expected_data_boundary["bdy_r_assign_smoothed_boundary_index"]
+    ), "Reference bdy_r is not equal to the bdy_r calculated by the\
+          __assign_smoothed_boundary_index method."
+
+    # Get an instance of the MockBoundary class
+    bdy_mock = get_mock_boundary
+
+    # Assign smoothed boundary index
+    bdy_i, bdy_r = bdy_mock._Boundary__assign_smoothed_boundary_index(
+        expected_data_mock_boundary["bdy_i"],
+        expected_data_mock_boundary["bdy_r"],
+        expected_data_mock_boundary["r_msk"],
+        expected_data_mock_boundary["r_msk_orig"],
+        expected_data_mock_boundary["igrid"],
+        expected_data_mock_boundary["jgrid"],
+    )
+
+    assert np.array_equal(
+        bdy_i, expected_data_mock_boundary["bdy_i_assign_smoothed_boundary_index"]
+    ), "Reference bdy_i is not equal to the bdy_i calculated by the\
+          __assign_smoothed_boundary_index method."
+
+    assert np.array_equal(
+        bdy_r, expected_data_mock_boundary["bdy_r_assign_smoothed_boundary_index"]
+    ), "Reference bdy_r is not equal to the bdy_r calculated by the\
+          __assign_smoothed_boundary_index method."
 
 
 def test_fill(
