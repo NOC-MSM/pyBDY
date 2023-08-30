@@ -891,6 +891,8 @@ def expected_data_boundary():
 
     r_msk_orig = r_msk.copy()
 
+    r_msk_fill = r_msk_orig.copy()
+
     bdy_i_remove_landpoints_open_ocean = bdy_i_remove_duplicate_points.copy()
     bdy_r_remove_landpoints_open_ocean = bdy_r_remove_duplicate_points.copy()
 
@@ -1161,6 +1163,7 @@ def expected_data_boundary():
         "bdy_r_sort_by_rimwidth": bdy_r_sort_by_rimwidth,
         "r_msk": r_msk,
         "r_msk_orig": r_msk_orig,
+        "r_msk_fill": r_msk_fill,
     }
 
     return data
@@ -1942,11 +1945,23 @@ def test_find_bdy(
 def test_fill(
     get_boundary_instance: gen_grid.Boundary,
     expected_data_boundary: dict,
-    get_mock_boundary: MockBoundary,
-    expected_data_mock_boundary: dict,
 ) -> None:
     """Test the __fill method."""
-    pass
+    # Get an instance of the Boundary class
+    bdy = get_boundary_instance
+
+    # Mask index range for south
+    brg_south = [1, -1, 1, -1, None, -2, 1, -1]
+    # Fill
+    r_msk, _ = bdy._Boundary__fill(
+        expected_data_boundary["r_msk_orig"],
+        expected_data_boundary["r_msk_orig"][1:-1, 1:-1],
+        brg_south,
+    )
+
+    assert np.array_equal(
+        r_msk, expected_data_boundary["r_msk_orig"], equal_nan=True
+    ), "Reference r_msk is not equal to the r_msk calculated by the __fill method"
 
 
 # --------------------------------------------------------------------------------- #
