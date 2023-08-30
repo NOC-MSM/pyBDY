@@ -25,7 +25,13 @@ class Boundary:
     _WEST = [1, -1, 1, -1, 1, -1, None, -2]
     _SUPPORTED_GRIDS = ["t", "u", "v", "f"]
 
-    def __init__(self, boundary_mask: np.ndarray, settings: dict, grid: str) -> None:
+    def __init__(
+        self,
+        boundary_mask: np.ndarray,
+        settings: dict,
+        grid: str,
+        create_boundary: bool = True,
+    ) -> None:
         """
         Generate the indices for NEMO Boundary and return a Grid object with indices.
 
@@ -37,6 +43,8 @@ class Boundary:
             Dictionary of setting values.
         grid
             Type of the grid 't', 'u', 'v' or 'f'.
+        create_boundary
+            Whether to create the boundary upon initialisation.
         """
         self.logger = logging.getLogger(__name__)
 
@@ -60,6 +68,9 @@ class Boundary:
         # Rim variables
         self.rw = self.settings["rimwidth"]
         self.rm = self.rw - 1
+
+        if create_boundary:
+            self.create_boundary()
 
     def create_boundary(self):
         """Create the boundary."""
