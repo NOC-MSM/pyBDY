@@ -352,6 +352,63 @@ def expected_data_mock_boundary():
         ]
     )
 
+    bdy_i_sort_by_rimwidth = np.array(
+        [
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [3, 2],
+            [3, 6],
+            [4, 2],
+            [4, 6],
+            [5, 2],
+            [5, 6],
+            [6, 2],
+            [6, 3],
+            [6, 4],
+            [6, 5],
+            [6, 6],
+            [3, 3],
+            [3, 4],
+            [3, 5],
+            [4, 3],
+            [4, 5],
+            [5, 3],
+            [5, 4],
+            [5, 5],
+        ]
+    )
+    bdy_r_sort_by_rimwidth = np.array(
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+        ]
+    )
+
     data = {
         "igrid": igrid,
         "jgrid": jgrid,
@@ -371,6 +428,8 @@ def expected_data_mock_boundary():
         "bdy_r_remove_landpoints_open_ocean": bdy_r_remove_landpoints_open_ocean,
         "bdy_i_assign_smoothed_boundary_index": bdy_i_assign_smoothed_boundary_index,
         "bdy_r_assign_smoothed_boundary_index": bdy_r_assign_smoothed_boundary_index,
+        "bdy_i_sort_by_rimwidth": bdy_i_sort_by_rimwidth,
+        "bdy_r_sort_by_rimwidth": bdy_r_sort_by_rimwidth,
         "r_msk": r_msk,
         "r_msk_orig": r_msk_orig,
     }
@@ -835,6 +894,128 @@ def expected_data_boundary():
     bdy_i_remove_landpoints_open_ocean = bdy_i_remove_duplicate_points.copy()
     bdy_r_remove_landpoints_open_ocean = bdy_r_remove_duplicate_points.copy()
 
+    bdy_i_sort_by_rimwidth = np.array(
+        [
+            [1, 1],
+            [1, 2],
+            [1, 3],
+            [1, 4],
+            [1, 5],
+            [1, 6],
+            [1, 7],
+            [1, 8],
+            [1, 9],
+            [2, 1],
+            [2, 9],
+            [3, 1],
+            [3, 9],
+            [4, 1],
+            [4, 9],
+            [5, 1],
+            [5, 9],
+            [6, 1],
+            [6, 9],
+            [7, 1],
+            [7, 9],
+            [8, 1],
+            [8, 9],
+            [9, 1],
+            [9, 2],
+            [9, 3],
+            [9, 4],
+            [9, 5],
+            [9, 6],
+            [9, 7],
+            [9, 8],
+            [9, 9],
+            [2, 2],
+            [2, 3],
+            [2, 4],
+            [2, 5],
+            [2, 6],
+            [2, 7],
+            [2, 8],
+            [3, 2],
+            [3, 8],
+            [4, 2],
+            [4, 8],
+            [5, 2],
+            [5, 8],
+            [6, 2],
+            [6, 8],
+            [7, 2],
+            [7, 8],
+            [8, 2],
+            [8, 3],
+            [8, 4],
+            [8, 5],
+            [8, 6],
+            [8, 7],
+            [8, 8],
+        ]
+    )
+
+    bdy_r_sort_by_rimwidth = np.array(
+        [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+        ]
+    )
+
     bdy_i_assign_smoothed_boundary_index = np.array(
         [
             [1, 1],
@@ -976,6 +1157,8 @@ def expected_data_boundary():
         "bdy_r_remove_landpoints_open_ocean": bdy_r_remove_landpoints_open_ocean,
         "bdy_i_assign_smoothed_boundary_index": bdy_i_assign_smoothed_boundary_index,
         "bdy_r_assign_smoothed_boundary_index": bdy_r_assign_smoothed_boundary_index,
+        "bdy_i_sort_by_rimwidth": bdy_i_sort_by_rimwidth,
+        "bdy_r_sort_by_rimwidth": bdy_r_sort_by_rimwidth,
         "r_msk": r_msk,
         "r_msk_orig": r_msk_orig,
     }
@@ -1573,11 +1756,44 @@ def test_assign_smoothed_boundary_index(
 
 def test_sort_by_rimwidth(
     get_boundary_instance: gen_grid.Boundary,
+    expected_data_boundary: dict,
+    get_mock_boundary: MockBoundary,
+    expected_data_mock_boundary: dict,
 ) -> None:
     """Test the __sort_by_rimwidth method."""
     # Get an instance of the Boundary class
     bdy = get_boundary_instance
 
+    # Sort by rimwidth
+    bdy_i, bdy_r = bdy._Boundary__sort_by_rimwidth(
+        expected_data_boundary["bdy_i_assign_smoothed_boundary_index"],
+        expected_data_boundary["bdy_r_assign_smoothed_boundary_index"],
+    )
+
+    assert np.array_equal(
+        bdy_i, expected_data_boundary["bdy_i_sort_by_rimwidth"]
+    ), "Reference bdy_i is not equal to the bdy_i calculated by the __sort_by_rimwidth method."
+
+    assert np.array_equal(bdy_r, expected_data_boundary["bdy_r_sort_by_rimwidth"])
+
+    # Get an instance of the MockBoundary class
+    mock_bdy = get_mock_boundary
+
+    # Sort by rimwidth
+    bdy_i, bdy_r = mock_bdy._Boundary__sort_by_rimwidth(
+        expected_data_mock_boundary["bdy_i_assign_smoothed_boundary_index"],
+        expected_data_mock_boundary["bdy_r_assign_smoothed_boundary_index"],
+    )
+
+    assert np.array_equal(
+        bdy_i, expected_data_mock_boundary["bdy_i_sort_by_rimwidth"]
+    ), "Reference bdy_i is not equal to the bdy_i calculated by the __sort_by_rimwidth method."
+
+    assert np.array_equal(
+        bdy_r, expected_data_mock_boundary["bdy_r_sort_by_rimwidth"]
+    ), "Reference bdy_r is not equal to the bdy_r calculated by the __sort_by_rimwidth method."
+
+    # Other tests for sort_by_rimwidth
     # Create mock bdy_i and bdy_r unsorted
     mock_bdy_i = np.array([[1, 1], [1, 2], [1, 3], [1, 4], [1, 5]])
     mock_bdy_r = np.array([1, 0, 1, 0, 0])
