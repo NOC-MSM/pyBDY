@@ -52,7 +52,6 @@ class Boundary:
                     grid, self._SUPPORTED_GRIDS
                 )
             )
-            self.logger.error(error_msg)
             raise ValueError(error_msg)
 
         self.grid = grid
@@ -70,8 +69,15 @@ class Boundary:
         # Calculate boundary indexes
         self._calculate_boundary_indexes()
 
-    def _create_boundary_mask(self) -> None:
-        """Create the boundary mask based on u, v and f points."""
+    def _create_boundary_mask(self) -> np.ndarray:
+        """
+        Create the boundary mask based on u, v and f points.
+
+        Returns
+        -------
+        self.bdy_msk
+            New boundary mask for the respective grid.
+        """
         if self.grid_type != "t":
             # Mask for the grid
             grid_ind = np.zeros(self.bdy_msk.shape, dtype=bool, order="C")
@@ -113,10 +119,13 @@ class Boundary:
                     )
                     self.bdy_msk[grid_ind] = fval
 
+        return self.bdy_msk
+
     def _calculate_boundary_indexes(self) -> None:
         """Create and process boundary indexes."""
         # Get i,j positions of boundary mask along each boundary
         igrid, jgrid = self.__create_i_j_indexes()
+
         # Create boundary indexes
         SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj = self.__create_boundary_indexes(
             igrid, jgrid
@@ -127,6 +136,13 @@ class Boundary:
             SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
         )
 
+        # Remove duplicate points
+        bdy_i, bdy_r = self.__remove_duplicate_points(bdy_i, bdy_r)
+
+        # Remove land points and open ocean points
+        bdy_i, bdy_r, _ = self.__remove_landpoints_open_ocean(
+            self.bdy_msk, bdy_i, bdy_r
+        )
         # Process the boundary indexes
         r_msk, r_msk_orig = self.__smooth_interior_relaxation_gradients(bdy_i, bdy_r)
         bdy_i, bdy_r = self.__assign_smoothed_boundary_index(
@@ -137,8 +153,6 @@ class Boundary:
         # Assign the boundary indexes to the corresponding instance variables
         self.bdy_i = bdy_i
         self.bdy_r = bdy_r
-
-        self.logger.debug("Final bdy_i: %s", self.bdy_i.shape)
 
     def __create_i_j_indexes(self) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -258,12 +272,6 @@ class Boundary:
         bdy_i = np.reshape(bdy_i, (bdy_i.shape[0], bdy_i.shape[1] * bdy_i.shape[2]))
         bdy_r = bdy_r.flatten("F")
 
-        # Remove duplicate and open sea points
-        bdy_i, bdy_r = self.__remove_duplicate_points(bdy_i, bdy_r)
-        bdy_i, bdy_r, _ = self.__remove_landpoints_open_ocean(
-            self.bdy_msk, bdy_i, bdy_r
-        )
-
         return bdy_i, bdy_r
 
     def __find_bdy(
@@ -337,13 +345,11 @@ class Boundary:
         r_msk_orig = r_msk.copy()
         r_msk_ref = r_msk[1:-1, 1:-1]
 
-        self.logger.debug("Start r_msk bearings loop")
         # Removes the shape gradients by smoothing it out
         for _ in range(self.rw - 1):
             # Check each bearing
             for b in [self._SOUTH, self._NORTH, self._WEST, self._EAST]:
                 r_msk, _ = self.__fill(r_msk, r_msk_ref, b)
-        self.logger.debug("done loop")
 
         return r_msk, r_msk_orig
 
@@ -456,7 +462,7 @@ class Boundary:
         Returns
         -------
         bdy_i, bdy_r, unmask_index
-            Boundary indexes and rim values without duplicate points.
+            Boundary indexes and rim values with land and open ocean points removed.
             Indexes of the removed points in the original mask.
         """
         unmask_index = mask[bdy_i[:, 1], bdy_i[:, 0]] != 0
