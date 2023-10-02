@@ -46,7 +46,7 @@ These are the steps to take to install pyBDY:
   export JAVA_HOME=/Users/<username>/Downloads/jdk-20.0.1.jdk/Contents/Home/ # e.g. for mac OSX
   ```
 
-  Genralised methods for defining paths are as follows:
+  Generalised methods for defining paths are as follows:
 
   ```
   export JAVA_HOME=$(readlink -f $(which java)) # UNIX
