@@ -45,6 +45,9 @@ from pybdy.utils.nemo_bdy_lib import rot_rep, sub2ind
 # Local Imports
 from . import nemo_bdy_grid_angle as ga
 
+from typing import Any, Callable, Optional, TypeVar
+F = TypeVar("F", bound=Callable[..., Any])
+
 
 # TODO: Convert the 'F' ordering to 'C' to improve efficiency
 class Extract:
