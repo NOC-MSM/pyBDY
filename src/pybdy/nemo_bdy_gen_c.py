@@ -37,13 +37,13 @@ class Boundary:
 
         Parameters
         ----------
-        boundary_mask
+        boundary_mask: np.ndarray
             Mask for the boundary.
-        settings
+        settings: dict
             Dictionary of setting values.
-        grid
+        grid: str
             Type of the grid 't', 'u', 'v' or 'f'.
-        create_boundary
+        create_boundary: bool
             Whether to create the boundary upon initialisation.
         """
         self.logger = logging.getLogger(__name__)
@@ -86,7 +86,7 @@ class Boundary:
 
         Returns
         -------
-        self.bdy_msk
+        self.bdy_msk: np.ndarray
             New boundary mask for the respective grid.
         """
         if self.grid_type != "t":
@@ -171,7 +171,7 @@ class Boundary:
 
         Returns
         -------
-        igrid, jgrid
+        igrid, jgrid: Tuple[np.ndarray, np.ndarray]
             Index arrays of i and j coordinates.
         """
         # Create index arrays of i and j coordinates
@@ -197,14 +197,15 @@ class Boundary:
 
         Parameters
         ----------
-        igrid
+        igrid: np.ndarray
             Index array of i coordinates.
-        jgrid
+        jgrid: np.ndarray
             Index array of j coordinates.
 
         Returns
         -------
-        SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj
+        SBi, SBj, NBi, NBj, EBi, EBj, WBi, WBj: Tuple[np.ndarray, np.ndarray,
+            np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]
             Boundary indexes along each direction. Index arrays of i and j coordinates.
         """
         # Create padded array for overlays
@@ -234,26 +235,26 @@ class Boundary:
 
         Parameters
         ----------
-        SBi
+        SBi: np.ndarray
             i position of south boundary.
-        SBj
+        SBj: np.ndarray
             j position of south boundary.
-        NBi
+        NBi: np.ndarray
             i position of north boundary.
-        NBj
+        NBj: np.ndarray
             j position of north boundary.
-        EBi
+        EBi: np.ndarray
             i position of east boundary.
-        EBj
+        EBj: np.ndarray
             j position of east boundary.
-        WBi
+        WBi: np.ndarray
             i position of west boundary.
-        WBj
+        WBj: np.ndarray
             j position of west boundary.
 
         Returns
         -------
-        bdy_i, bdy_r
+        bdy_i, bdy_r: Tuple[np.ndarray, np.ndarray]
             Boundary indexes and rim values.
         """
         # Create a 2D array index for the points that are on the border
@@ -293,18 +294,18 @@ class Boundary:
 
         Parameters
         ----------
-        igrid
+        igrid: np.ndarray
             I, x direction indexes.
-        jgrid
+        jgrid: np.ndarray
             J, y direction indexes.
-        mask
+        mask: np.ndarray
             Padded boundary mask.
-        brg
+        brg: list
             Mask index range.
 
         Returns
         -------
-        bdy_I, bdy_J
+        bdy_I, bdy_J: Tuple[np.ndarray, np.ndarray]
             Border indexes.
 
         Notes
@@ -333,14 +334,14 @@ class Boundary:
 
         Parameters
         ----------
-        bdy_i
+        bdy_i: np.ndarray
             Boundary indexes.
-        bdy_r
+        bdy_r: np.ndarray
             Rim values.
 
         Returns
         -------
-        r_msk, r_msk_orig
+        r_msk, r_msk_orig: Tuple[np.ndarray, np.ndarray]
             Boundary rim mask and original rim mask.
 
         Notes
@@ -378,22 +379,22 @@ class Boundary:
 
         Parameters
         ----------
-        bdy_i
+        bdy_i: np.ndarray
             Boundary indexes.
-        bdy_r
+        bdy_r: np.ndarray
             Rim values.
-        r_msk
+        r_msk: np.ndarray
             Boundary rim mask.
-        r_msk_orig
+        r_msk_orig: np.ndarray
             Original rim mask.
         igrid
-            I, x direction indexes.
-        jgrid
+            I, : np.ndarrayx direction indexes.
+        jgrid: np.ndarray
             J, y direction indexes.
 
         Returns
         -------
-        bdy_i, bdy_r
+        bdy_i, bdy_r: Tuple[np.ndarray, np.ndarray]
             Updated boundary indexes and rim values.
         """
         # update bdy_i and bdy_r
@@ -418,10 +419,15 @@ class Boundary:
 
         Parameters
         ----------
-        bdy_i
+        bdy_i: np.ndarray
             Boundary indexes.
-        bdy_r
+        bdy_r: np.ndarray
             Rim values.
+
+        Returns
+        -------
+        bdy_i, bdy_r: Tuple[np.ndarray, np.ndarray]
+            Sorted boundary indexes and rim values by rimwidth.
         """
         igrid = np.argsort(bdy_r, kind="mergesort")
         bdy_r = bdy_r[igrid]
@@ -437,14 +443,14 @@ class Boundary:
 
         Parameters
         ----------
-        bdy_i
+        bdy_i: np.ndarray
             Boundary indexes.
-        bdy_r
+        bdy_r: np.ndarray
             Boundary rim values.
 
         Returns
         -------
-        bdy_i, bdy_r
+        bdy_i, bdy_r: Tuple[np.ndarray, np.ndarray]
             Boundary indexes (transposed) and rim values without duplicate points.
         """
         bdy_i2 = np.transpose(bdy_i, (1, 0))
@@ -472,7 +478,7 @@ class Boundary:
 
         Returns
         -------
-        bdy_i, bdy_r, unmask_index
+        bdy_i, bdy_r, unmask_index: Tuple[np.ndarray, np.ndarray, np.ndarray]
             Boundary indexes and rim values with land and open ocean points removed.
             Indexes of the removed points in the original mask.
         """
@@ -493,16 +499,16 @@ class Boundary:
 
         Parameters
         ----------
-        mask
+        mask: np.ndarray
             Padded boundary mask.
-        ref
+        ref: np.ndarray
             Reference mask.
-        brg
+        brg: Union[np.ndarray, List[Optional[int]]]
             Mask index range.
 
         Returns
         -------
-        mask, ref
+        mask, ref: Tuple[np.ndarray, np.ndarray]
             Filled added boundary mask and reference mask.
         """
         tmp = mask[brg[4] : brg[5], brg[6] : brg[7]]
@@ -518,12 +524,12 @@ class Boundary:
 
         Parameters
         ----------
-        t
+        t: np.ndarray
             Input 2D array
 
         Returns
         -------
-        indx
+        indx: np.ndarray
             Indexes of unique rows in the input 2D array.
         """
         if t.ndim != 2 or 0 in t.shape:
