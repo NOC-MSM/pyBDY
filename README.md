@@ -145,6 +145,10 @@ following steps are required,
   `python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper`
   ![Example plot_bdy.py output](/screenshots/example_bdy_data.png)
 
+  which also works on 2D tidal boundary data (note you can specify an output file name):
+- `python plotting/plot_bdy.py outputs/NNA_R12_bdytide_TPXO7p2_M2_grd_Z.nc z1 output.png`
+- ![Example plot_bdy.py output for tides](/screenshots/example_bdy_1d_data.png)
+- 
 ## Example: generating tidal boundary conditions on ARCHER2
 
 - Activate the new virtual environment:
