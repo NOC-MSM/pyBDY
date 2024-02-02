@@ -10,7 +10,7 @@ channels:
 dependencies:
 - pip
 - numpy
-- scipy
+- scipy=1.10.1
 - netcdf4
 - matplotlib
 - cartopy

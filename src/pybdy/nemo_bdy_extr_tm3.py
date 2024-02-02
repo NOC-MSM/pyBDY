@@ -482,43 +482,64 @@ class Extract:
         sc_time = self.sc_time
         sc_z_len = self.sc_z_len
         # define src/dst cals
-        sf, ed = self.cal_trans(
-            sc_time.calendar,  # sc_time[0].calendar
-            self.settings["dst_calendar"],
-            year,
-            month,
-        )
-        DstCal = utime("seconds since %d-1-1" % year, self.settings["dst_calendar"])
-        dst_start = DstCal.date2num(datetime(year, month, 1))
-        dst_end = DstCal.date2num(datetime(year, month, ed, 23, 59, 59))
+        if self.settings.get("time_interpolation", True) is False:
+            # Source calender
+            self.S_cal = utime(sc_time.units, sc_time.calendar)
+            # First second of the target month
+            target_time = self.S_cal.date2num(datetime(year, month, 1))
+            # Find index in source time counter for target year and month
+            closest_time_ind = min(
+                ind
+                for ind, item in enumerate(sc_time.time_counter)
+                if item >= target_time
+            )
+            # This is index for first and last date
+            first_date = closest_time_ind
+            last_date = first_date
+            self.logger.info(
+                "matched month: "
+                + str(self.S_cal.num2date(sc_time.time_counter[last_date]))
+            )
+            # Set time counter for output as array
+            self.time_counter = sc_time.time_counter[last_date : last_date + 1]
+        else:
+            sf, ed = self.cal_trans(
+                sc_time.calendar,  # sc_time[0].calendar
+                self.settings["dst_calendar"],
+                year,
+                month,
+            )
+            DstCal = utime("seconds since %d-1-1" % year, self.settings["dst_calendar"])
+            dst_start = DstCal.date2num(datetime(year, month, 1))
+            dst_end = DstCal.date2num(datetime(year, month, ed, 23, 59, 59))
 
-        self.S_cal = utime(
-            sc_time.units, sc_time.calendar
-        )  # sc_time[0].units,sc_time[0].calendar)
+            self.S_cal = utime(
+                sc_time.units, sc_time.calendar
+            )  # sc_time[0].units,sc_time[0].calendar)
 
-        self.D_cal = utime(
-            "seconds since %d-1-1" % self.settings["base_year"],
-            self.settings["dst_calendar"],
-        )
+            self.D_cal = utime(
+                "seconds since %d-1-1" % self.settings["base_year"],
+                self.settings["dst_calendar"],
+            )
 
-        src_date_seconds = np.zeros(len(sc_time.time_counter))
-        for index in range(len(sc_time.time_counter)):
-            tmp_date = self.S_cal.num2date(sc_time.time_counter[index])
-            src_date_seconds[index] = DstCal.date2num(tmp_date) * sf
+            src_date_seconds = np.zeros(len(sc_time.time_counter))
+            for index in range(len(sc_time.time_counter)):
+                tmp_date = self.S_cal.num2date(sc_time.time_counter[index])
+                src_date_seconds[index] = DstCal.date2num(tmp_date) * sf
 
-        # Get first and last date within range, init to cover entire range
-        first_date = 0
-        last_date = len(sc_time.time_counter) - 1
-        rev_seq = list(range(len(sc_time.time_counter)))
-        rev_seq.reverse()
-        for date in rev_seq:
-            if src_date_seconds[date] < dst_start:
-                first_date = date
-                break
-        for date in range(len(sc_time.time_counter)):
-            if src_date_seconds[date] > dst_end:
-                last_date = date
-                break
+            # Get first and last date within range, init to cover entire range
+            first_date = 0
+            last_date = len(sc_time.time_counter) - 1
+            rev_seq = list(range(len(sc_time.time_counter)))
+            rev_seq.reverse()
+            for date in rev_seq:
+                if src_date_seconds[date] < dst_start:
+                    first_date = date
+                    break
+            for date in range(len(sc_time.time_counter)):
+                if src_date_seconds[date] > dst_end:
+                    last_date = date
+                    break
 
         self.logger.info("first/last dates: %s %s", first_date, last_date)
 
@@ -905,7 +926,10 @@ class Extract:
                     entry = self.d_bdy[self.var_nam[vn + 1]][year]
                 else:
                     entry = self.d_bdy[self.var_nam[vn]][year]
-                if entry["data"] is None:
+                if (
+                    entry["data"] is None
+                    or self.settings.get("time_interpolation", True) is False
+                ):
                     # Create entry with singleton 3rd dimension
                     entry["data"] = np.array([data_out])
                 else:
@@ -967,17 +991,52 @@ class Extract:
     #    trig = np.transpose(trig, (2, 1, 0)) # Matlab 2 0 1
     #    return np.tile(trig, (1, size, 1)) # Matlab size 1 1
 
+    def time_delta(self, time_counter):
+        """
+        Get time delta and number of time steps per day.
+
+        Calculates difference between time steps for time_counter and checks
+        these are uniform. Then retrives the number of time steps per day.
+
+        Parameters
+        ----------
+        time_counter
+            model time coordinate
+
+        Returns
+        -------
+        deltaT
+            length of time step
+        dstep
+            number of time steps per day
+        """
+        # get time derivative
+        deltaT = np.diff(time_counter)
+
+        # check for uniform time steps
+        if not np.all(deltaT == deltaT[0]):
+            self.logger.warning("time interpolation expects uniform time step.")
+            self.logger.warning("time_counter is not uniform.")
+
+        # get  number of timesteps per day (zero if deltaT > 86400)
+        dstep = 86400 // int(deltaT[0])
+
+        return deltaT[0], dstep
+
     def time_interp(self, year, month):
         """
-        Perform a time interpolation of the BDY data.
+        Perform a time interpolation of the BDY data to daily frequency.
 
         Notes
         -----
-        This method performs a time interpolation (if required). This is necessary
-        if the time frequency is not a factor of monthly output or the input and
-        output calendars differ. CF compliant calendar options accepted: gregorian
-        | standard, proleptic_gregorian, noleap | 365_day, 360_day or julian.*
+        This method performs a time interpolation (if required). This is
+        necessary if the time frequency is not a factor of monthly output or the
+        input and output calendars differ. CF compliant calendar options
+        accepted: gregorian | standard, proleptic_gregorian, noleap | 365_day,
+        360_day or julian.*
         """
+        # RDP: this could be made more flexible to interpolate to other deltaTs
+
         # Extract time information
         # TODO: check that we can just use var_nam[0]. Rational is that if
         # we're grouping variables then they must all have the same date stamps
@@ -1005,17 +1064,9 @@ class Extract:
         time_000 = tmp_cal.date2num(date_000)
         time_end = tmp_cal.date2num(date_end)
 
-        # Take the difference of the first two time enteries to get delta t
+        # get deltaT and number of time steps per day (dstep)
+        del_t, dstep = self.time_delta(time_counter)
 
-        del_t = time_counter[1] - time_counter[0]
-        dstep = 86400 // int(del_t)
-
-        # TODO: put in a test to check all deltaT are the same otherwise throw
-        # an exception
-
-        # If time freq. is greater than 86400s
-        # TODO put in an error handler for the unlikely event of frequency not a
-        # multiple of 86400 | data are annual means
         if self.key_vec is True:
             if self.rot_dir == "i":
                 varnams = [
@@ -1028,20 +1079,20 @@ class Extract:
         else:
             varnams = self.var_nam
 
-        if del_t >= 86400.0:
-            for v in varnams:
+        # target time index
+        target_time = np.arange(time_000, time_end, 86400)
+
+        # interpolate
+        for v in varnams:
+            if del_t >= 86400.0:  # upsampling
                 intfn = interp1d(
                     time_counter,
                     self.d_bdy[v][year]["data"][:, :, :],
                     axis=0,
                     bounds_error=True,
                 )
-                self.d_bdy[v][year]["data"] = intfn(
-                    np.arange(time_000, time_end, 86400)
-                )
-                self.time_counter = np.arange(time_000, time_end, 86400)
-        else:
-            for v in varnams:
+                self.d_bdy[v][year]["data"] = intfn(target_time)
+            else:  # downsampling
                 for t in range(dstep):
                     intfn = interp1d(
                         time_counter[t::dstep],
@@ -1049,12 +1100,13 @@ class Extract:
                         axis=0,
                         bounds_error=True,
                     )
-                    self.d_bdy[v].data[t::dstep, :, :] = intfn(
-                        np.arange(time_000, time_end, 86400)
-                    )
-        # self.time_counter = time_counter
+                    self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
 
-    #        self.time_counter = len(self.d_bdy[v][year]['data'][:,0,0])
+        # update time_counter
+        self.time_counter = target_time
+
+        # RDP: self.d_bdy[v]["date"] is not updated during interpolation, but
+        #      self.time_counter is. This could be prone to unexpected errors.
 
     def write_out(self, year, month, ind, unit_origin):
         """
