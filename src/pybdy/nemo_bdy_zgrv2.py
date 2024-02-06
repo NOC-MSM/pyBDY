@@ -25,7 +25,7 @@ class Depth:
         self.logger.debug("init Depth")
         hc = settings["hc"]
         nc = GetFile(settings["dst_zgr"])  # Dataset(settings['dst_zgr'], 'r')
-        mbathy = nc["mbathy"][
+        mbathy = nc["bottom_level"][
             :, :, :
         ].squeeze()  # nc.variables['mbathy'][:,:,:].squeeze()
         # numpy requires float dtype to use NaNs
@@ -67,7 +67,7 @@ class Depth:
         v_ind2 = sub2ind(mbathy.shape, bdy_v[:, 0], bdy_v[:, 1] + 1)
 
         [tmp_zt, tmp_zw] = e3_to_depth(
-            np.squeeze(nc["e3t"][:, :, :, :]), np.squeeze(nc["e3w"][:, :, :, :]), nz
+            np.squeeze(nc["e3t_0"][:, :, :, :]), np.squeeze(nc["e3w_0"][:, :, :, :]), nz
         )
         # This is very slow
         self.logger.debug("starting nc reads loop")

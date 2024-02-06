@@ -32,17 +32,20 @@
 !------------------------------------------------------------------------------
    sn_src_hgr = './inputs/benchmark/grid_low_res_C/mesh_hgr.nc'
    sn_src_zgr = './inputs/benchmark/grid_low_res_C/mesh_zgr.nc'
-   sn_dst_hgr = './inputs/benchmark/grid_C/mesh_hgr_zps.nc'
-   sn_dst_zgr = './inputs/benchmark/grid_C/mesh_zgr_zps.nc'
+   !sn_dst_hgr = './inputs/benchmark/grid_C/mesh_hgr_zps.nc'
+   sn_dst_hgr = './inputs/amm7_surge_domain_cfg.nc'
+   !sn_dst_zgr = './inputs/benchmark/grid_C/mesh_zgr_zps.nc'
+   sn_dst_zgr = './inputs/amm7_surge_domain_cfg.nc'
    sn_src_msk = './inputs/benchmark/grid_low_res_C/mask.nc'
-   sn_bathy   = './inputs/benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'
+   !sn_bathy   = './inputs/benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'
+   sn_bathy = './inputs/amm7_surge_bathy0.nc'
 
 !------------------------------------------------------------------------------
 !  I/O
 !------------------------------------------------------------------------------
    sn_src_dir = './inputs/src_data_local.ncml' ! src_files/'
    sn_dst_dir = './outputs'
-   sn_fn      = 'NNA_R12'             ! prefix for output files
+   sn_fn      = 'AMM7_surge'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
    sn_dst_metainfo = 'Benchmarking Data'
@@ -50,32 +53,32 @@
 !------------------------------------------------------------------------------
 !  unstructured open boundaries
 !------------------------------------------------------------------------------
-    ln_coords_file = .true.               !  =T : produce bdy coordinates files
+    ln_coords_file = .false.               !  =T : produce bdy coordinates files
     cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files
                                           !  (if ln_coords_file=.TRUE.)
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .true.              !  boundary conditions for
+    ln_dyn2d       = .false.              !  boundary conditions for
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
-    ln_tra         = .true.               !  boundary conditions for T and S
+    ln_tra         = .false.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition
-    nn_rimwidth    = 9                    !  width of the relaxation zone
+    nn_rimwidth    = 1                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters
 !------------------------------------------------------------------------------
-    ln_tide        = .false.              !  =T : produce bdy tidal conditions
-    sn_tide_model  = 'FES2014'            !  Name of tidal model. Accepts FES2014, TPXO7p2, or TPXO9v5
+    ln_tide        = .true.              !  =T : produce bdy tidal conditions
+    sn_tide_model  = 'fes2014'            !  Name of tidal model. Accepts FES2014, TPXO7p2, or TPXO9v5
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
-    clname(3)      = 'K2'
-    clname(4)      = 'O1'
-    clname(5)      = 'P1'
-    clname(6)      = 'Q1'
-    clname(7)      = 'M4'
+    !clname(3)      = 'K2'
+    !clname(4)      = 'O1'
+    !clname(5)      = 'P1'
+    !clname(6)      = 'Q1'
+    !clname(7)      = 'M4'
     ln_trans       = .true.               !  interpolate transport rather than
                                           !  velocities
 !------------------------------------------------------------------------------

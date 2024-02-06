@@ -180,15 +180,15 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     # extract the depths along the U-point open boundary
     zgr = GetFile(setup.settings["dst_zgr"])  # Dataset(settings['dst_zgr'], 'r')
-    mbathy = zgr["mbathy"][:, :, :].squeeze()  # zgr.variables['mbathy'][:,:,:]
+    mbathy = zgr["bottom_level"][:, :, :].squeeze()  # zgr.variables['mbathy'][:,:,:]
 
     # summing over scale factors as zps doesn't have hbat variable
     # e3X = zgr.variables['e3u']
     # e3X = np.squeeze(e3X)
     try:  # Read in either 3D or 4D data.
-        e3X = zgr["e3u"][:, :, :].squeeze()
+        e3X = zgr["e3u_0"][:, :, :].squeeze()
     except ValueError:
-        e3X = zgr["e3u"][:, :, :, :].squeeze()
+        e3X = zgr["e3u_0"][:, :, :, :].squeeze()
     if len(np.shape(e3X)) != 3:
         logger.warning("Expected a 3D array for e3u field")
 
@@ -211,9 +211,9 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     # e3X = zgr.variables['e3v']
     # e3X = np.squeeze(e3X)
     try:  # Read in either 3D or 4D data.
-        e3X = zgr["e3v"][:, :, :].squeeze()
+        e3X = zgr["e3v_0"][:, :, :].squeeze()
     except ValueError:
-        e3X = zgr["e3v"][:, :, :, :].squeeze()
+        e3X = zgr["e3v_0"][:, :, :, :].squeeze()
     if len(np.shape(e3X)) != 3:
         logger.warning("Expected a 3D array for e3v field")
 
