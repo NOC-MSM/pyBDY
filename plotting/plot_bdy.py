@@ -415,7 +415,8 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw=0):
 
 ind, dst, brk = nemo_bdy_order(str(sys.argv[1]))
 f = plot_bdy(str(sys.argv[1]), ind, dst, brk, str(sys.argv[2]), 0, 0)
-if sys.argv[3] is not None:
+print(len(sys.argv))
+if len(sys.argv) > 3:
     f.savefig(f"{str(sys.argv[3])}.png")
 else:
     f.savefig("bdy_data.png")

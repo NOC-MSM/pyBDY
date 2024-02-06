@@ -90,14 +90,14 @@
     ln_time_interpolation = .true. !  set to false to use parent frequency and calender
                                    !  for monthly only
 	! location of TPXO7.2 data
-	sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
-	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
-	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
+	sn_tide_grid_7p2   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+	sn_tide_h          = './inputs/tpxo7.2/h_tpxo7.2.nc'
+	sn_tide_u          = './inputs/tpxo7.2/u_tpxo7.2.nc'
 	! location of TPXO9v5 data: single constituents per file
-	sn_tide_grid   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
-	sn_tide_dir    = './inputs/TPXO9_atlas_v5_nc/'
+	sn_tide_grid_9p5   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
+	sn_tide_dir        = './inputs/TPXO9_atlas_v5_nc/'
 	! location of FES2014 data
-	sn_tide_fes      = './inputs/FES2014/'
+	sn_tide_fes        = './inputs/FES2014/'
 
 
 !------------------------------------------------------------------------------

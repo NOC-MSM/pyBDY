@@ -44,7 +44,7 @@ class TpxoExtract(object):
             mu_name = "mu"
             mv_name = "mv"
             self.grid = xr.open_dataset(
-                settings["tide_grid"]
+                settings["tide_grid_7p2"]
             )  # ../data/tide/grid_tpxo7.2.nc')
             # read the height_dataset file
             self.height_dataset = xr.open_dataset(
@@ -111,7 +111,7 @@ class TpxoExtract(object):
             # read in the grid file
             # self.grid = Dataset(settings["tide_grid"])  # ../data/tide/grid_tpxo9_atlas_30_v5.nc')
             self.grid = xr.open_dataset(
-                settings["tide_grid"]
+                settings["tide_grid_9p5"]
             )  # ../data/tide/grid_tpxo9_atlas_30_v5.nc')
             height_z = self.grid.hz
             mask_z = self.generate_landmask_from_bathymetry("hz")
