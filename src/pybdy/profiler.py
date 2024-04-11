@@ -139,10 +139,37 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # Define z at t/u/v points
 
-    z = zgrv.Depth(bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, settings)
-
     # TODO: put conditional here as we may want to keep data on parent
     #       vertical grid
+
+    ln_vert_interp = True
+
+    if ln_vert_interp:
+        z = zgrv.Depth(bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, settings)
+    else: # Assume classic ZCO z-level with w-levels at mid-points
+        # Set up arrays
+        t_nbdy = len(bdy_ind["t"].bdy_i[:, 0])
+        u_nbdy = len(bdy_ind["u"].bdy_i[:, 0])
+        v_nbdy = len(bdy_ind["v"].bdy_i[:, 0])
+        zp = ["t", "wt", "u", "wu", "v", "wv"]
+        self.zpoints = {}
+        for z in zp:
+            if "t" in z:
+                nbdy = t_nbdy
+            elif "u" in z:
+                nbdy = u_nbdy
+            elif "v" in z:
+                nbdy = v_nbdy
+            z.zpoints[z] = np.zeros((len(SourceCoord.zt), nbdy))
+        zp = ["t", "u", "v"]
+        for z in zp:
+            z.zpoints[z] += SourceCoord.zt 
+        zp = ["wt", "wu", "wv"]
+        for z in zp:
+            z.zpoints[z][1:] += SourceCoord.zt[:-1] + np.diff(SourceCoord.zt)/2
+
+        print(z.zpoints['t'])
+        print(z.zpoints['wt'])
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
 
@@ -154,7 +181,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         )
         DstCoord.depths[grd]["bdy_z"] = z.zpoints[grd]
     logger.info("Depths defined")
-
     # Gather horizontal grid information
 
     nc = GetFile(settings["src_hgr"])
