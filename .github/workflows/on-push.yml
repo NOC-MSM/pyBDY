@@ -25,7 +25,7 @@ jobs:
     - uses: actions/checkout@v4
     - uses: actions/setup-python@v5
       with:
-        python-version: 3.x
+        python-version: 3.11
     - uses: pre-commit/action@v3.0.1
 
   combine-environments:
@@ -57,7 +57,7 @@ jobs:
         python-version: ['3.9']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Download combined environments
       uses: actions/download-artifact@v4
       with:
@@ -83,9 +83,9 @@ jobs:
   #   runs-on: ubuntu-latest
 
   #   steps:
-  #   - uses: actions/checkout@v3
+  #   - uses: actions/checkout@v4
   #   - name: Download combined environments
-  #     uses: actions/download-artifact@v3
+  #     uses: actions/download-artifact@v4
   #     with:
   #       name: combined-environments
   #       path: ci
@@ -143,9 +143,9 @@ jobs:
           extra: -integration
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Download combined environments
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: combined-environments
         path: ci
@@ -175,7 +175,7 @@ jobs:
   #     (needs.integration-tests.result == 'success' || needs.integration-tests.result == 'skipped')
 
   #   steps:
-  #   - uses: actions/checkout@v3
+  #   - uses: actions/checkout@v4
   #   - name: Install packages
   #     run: |
   #       $CONDA/bin/python -m pip install build twine
