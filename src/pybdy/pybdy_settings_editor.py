@@ -28,7 +28,7 @@ def open_settings_window(fname):
     setup = nemo_bdy_setup.Setup(fname)  #'../../data/namelisttest.bdy')
     ex = InputWindow(setup)
     ex.nl_editor.btn_cancel.clicked.connect(lambda: sys.exit(0))
-    return app.exec_(), ex.mpl_widget.mask
+    return app.exec(), ex.mpl_widget.mask
 
 
 def open_settings_dialog(setup):
@@ -42,7 +42,7 @@ def open_settings_dialog(setup):
     app = QtWidgets.QApplication(sys.argv)
     ex = InputWindow(setup)
     ex.nl_editor.btn_cancel.clicked.connect(app.quit)
-    return app.exec_(), ex.mpl_widget.mask
+    return app.exec(), ex.mpl_widget.mask
 
 
 def main():

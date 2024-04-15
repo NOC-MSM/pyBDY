@@ -7,8 +7,8 @@ import os.path
 
 import matplotlib.pyplot as plt
 import numpy as np
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import NavigationToolbar2QT as NavigationToolbar
 from matplotlib.figure import Figure
 from matplotlib.path import Path
 from PyQt6 import QtGui, QtWidgets
@@ -51,8 +51,12 @@ class MatplotlibWidget(QtWidgets.QWidget):
         self.toolbar = NemoNavigationToolbar(self.canvas, self)
         self.toolbar.locLabel.setMinimumWidth(100)
         self.toolbar.locLabel.setMaximumWidth(170)
-        self.toolbar.locLabel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.toolbar.locLabel.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.toolbar.locLabel.setSizePolicy(
+            QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed
+        )
+        self.toolbar.locLabel.setAlignment(
+            Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+        )
         self.toolbar.drawing_tool.connect(self.drawing_tool_callback)
         self.axes = self.figure.add_subplot(111)
         self.cbar = None

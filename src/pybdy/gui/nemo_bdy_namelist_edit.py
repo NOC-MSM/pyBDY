@@ -46,7 +46,9 @@ class NameListEditor(QtWidgets.QWidget):
             label = QtWidgets.QLabel(setting)
             qlabel = QtWidgets.QPushButton("")
             qlabel.setIcon(
-                self.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxQuestion)
+                self.style().standardIcon(
+                    QtWidgets.QStyle.StandardPixmap.SP_MessageBoxQuestion
+                )
             )
             if type(self.settings[setting]).__name__ in [
                 "str",

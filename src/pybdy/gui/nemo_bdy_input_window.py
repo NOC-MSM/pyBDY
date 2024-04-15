@@ -42,7 +42,7 @@ class InputWindow(QtWidgets.QDialog):
             float(setup.settings["mask_shelfbreak_dist"]),
         )
 
-        splitter = QtWidgets.QSplitter(Qt.Horizontal)
+        splitter = QtWidgets.QSplitter(Qt.Orientation.Horizontal)
         splitter.addWidget(self.nl_editor)
         splitter.addWidget(self.mpl_widget)
 
