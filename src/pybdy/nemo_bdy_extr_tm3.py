@@ -127,8 +127,16 @@ class Extract:
             dst_dep = np.zeros([1])
 
         isslab = len(dst_dep) == 1
+
         if dst_dep.size == len(dst_dep):
             dst_dep = np.ones([1, len(dst_lon)])
+
+        ## Quick fix if not vertical interpolation required.
+        #if not self.settings['interp']:
+        #    #dst_dep = sc_z.repeat(len(dst_lon))
+        #    # RDP the leads to 1d array with z,x,y flattened
+        #    # below leads to (z,x*y) shape which appears to be the desired result
+        #    dst_dep = np.tile(sc_z, (len(dst_lon),1)).T
 
         # ??? Should this be read from settings?
         wei_121 = np.array([0.5, 0.25, 0.25])
@@ -441,6 +449,7 @@ class Extract:
         self.tmp_filt_2d = tmp_filt_2d
         self.tmp_filt_3d = tmp_filt_3d
         self.dist_tot = dist_tot
+        self.vinterp = self.settings['interp']
 
         self.d_bdy = {}
 
@@ -874,7 +883,9 @@ class Extract:
                     id_121 = self.id_121_3d
                     tmp_filt = self.tmp_filt_3d
 
-                tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
+                #tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
+                # awise
+                tmp_valid = np.invert(dst_bdy.flatten('F')[id_121] == 0 )
 
                 dst_bdy = np.nansum(
                     dst_bdy.flatten("F")[id_121] * tmp_filt, 2
@@ -1102,7 +1113,7 @@ class Extract:
                     )
                     self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
 
-        # update time_counter
+        # update time_counter for saving
         self.time_counter = target_time
 
         # RDP: self.d_bdy[v]["date"] is not updated during interpolation, but
@@ -1195,8 +1206,6 @@ class Extract:
                     ncpop.write_data_to_file(f_out, "vobtcrtx", tmp_var)
                 else:
                     ncpop.write_data_to_file(f_out, "vobtcrty", tmp_var)
-
-            # else: # Replace NaNs with specified fill value
 
             tmp_var = np.where(
                 np.isnan(self.d_bdy[v][year]["data"][:, :, :]),
