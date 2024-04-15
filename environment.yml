@@ -8,6 +8,7 @@ channels:
 # - package2
 # DO NOT EDIT ABOVE THIS LINE, ADD DEPENDENCIES BELOW AS SHOWN IN THE EXAMPLE
 dependencies:
+- python=3.9
 - pip
 - numpy
 - xarray
@@ -16,9 +17,9 @@ dependencies:
 - matplotlib
 - cartopy
 - qt
-- pyqt
 - cftime=1.4.1
 - pip:
   - pyjnius
   - seawater
   - thredds-crawler
+  - pyqt6

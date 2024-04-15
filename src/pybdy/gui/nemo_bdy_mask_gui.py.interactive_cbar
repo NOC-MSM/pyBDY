@@ -9,14 +9,14 @@ from mpl_toolkits.basemap import Basemap, cm
 import numpy as np
 from .selection_editor import PolygonEditor, BoxEditor
 import os.path
-from PyQt5.QtCore import pyqtSignal, pyqtSlot, Qt
+from PyQt6.QtCore import pyqtSignal, pyqtSlot, Qt
 from nemo_bdy_mask import Mask
 import logging
-from PyQt5.QtGui import QSizePolicy
+from PyQt6.QtGui import QSizePolicy
 
 mask_alpha = 0.3
 
-from PyQt4 import QtGui
+from PyQt6 import QtGui
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.path import Path

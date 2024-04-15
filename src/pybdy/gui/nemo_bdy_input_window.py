@@ -3,8 +3,8 @@ Created on 21 Jan 2015.
 
 @author: Mr. Srikanth Nagella
 """
-from PyQt5 import QtWidgets
-from PyQt5.Qt import Qt
+from PyQt6 import QtWidgets
+from PyQt6.QtCore import Qt
 
 from .nemo_bdy_mask_gui import MatplotlibWidget
 from .nemo_bdy_namelist_edit import NameListEditor

@@ -6,7 +6,7 @@ Created on 7 Jan 2015.
 import getopt
 import sys
 
-from PyQt5 import QtWidgets
+from PyQt6 import QtWidgets
 
 from . import nemo_bdy_setup
 from .gui.nemo_bdy_input_window import InputWindow
