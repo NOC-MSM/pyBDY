@@ -53,9 +53,10 @@ These are the steps to take to install pyBDY:
   export JAVA_HOME=$(/usr/libexec/java_home)    # Mac
 
   ```
+
   NB the above may not land at the correct directory level, but should find
   the correct root. PyBDY expects this to be the directory level with `lib`
-  in which might be e.g. 3 directories back. 
+  in which might be e.g. 3 directories back.
 
 - Install pyBDY:
 
