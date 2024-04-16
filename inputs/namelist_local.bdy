@@ -18,7 +18,7 @@
    rn_hmin     =   -10     !  min depth of the ocean (>0) or
                            !  min number of ocean level (<0)
    ln_interp   = .false.   !  interpolate onto the new vertical grid (T)
-                           !  or keep the parent vertical coordinates 
+                           !  or keep the parent vertical coordinates
 
 !------------------------------------------------------------------------------
 !   s-coordinate or hybrid z-s-coordinate
