@@ -46,13 +46,17 @@ These are the steps to take to install pyBDY:
   export JAVA_HOME=/Users/<username>/Downloads/jdk-20.0.1.jdk/Contents/Home/ # e.g. for mac OSX
   ```
 
-  Genralised methods for defining paths are as follows:
+  Generalised methods for defining paths are as follows:
 
   ```
   export JAVA_HOME=$(readlink -f $(which java)) # UNIX
   export JAVA_HOME=$(/usr/libexec/java_home)    # Mac
 
   ```
+
+  NB the above may not land at the correct directory level, but should find
+  the correct root. PyBDY expects this to be the directory level with `lib`
+  in which might be e.g. 3 directories back.
 
 - Install pyBDY:
 
@@ -129,6 +133,10 @@ following steps are required,
   E.g.
   `python plotting/plot_bdy.py outputs/NNA_R12_bdyT_y1979m11.nc votemper`
   ![Example plot_bdy.py output](/screenshots/example_bdy_data.png)
+
+  which also works on 2D tidal boundary data (note you can specify an output file name):
+  `python plotting/plot_bdy.py outputs/NNA_R12_bdytide_TPXO7p2_M2_grd_Z.nc z1 example_bdy_1d_data.png`
+  ![Example plot_bdy.py output for tides](/screenshots/example_bdy_1d_data.png)
 
 ## Example: generating tidal boundary conditions on ARCHER2
 

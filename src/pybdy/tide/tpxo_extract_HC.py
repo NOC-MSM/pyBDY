@@ -3,12 +3,22 @@ Extract the tidal harmonic constants out of a tidal model for given locations.
 
 [amp,Gph] = tpxo_extract_HC(Model,lat,lon,type,Cid).
 
-@author: Mr. Srikanth Nagella
+original author: Mr. Srikanth Nagella
+
+
+TPXO data has a grid file and then data file for harmonic heights and harmonic currents
+In TPXO7.2 the resolution was sufficiently low that all the harmonics could be bundled together
+In TPXO9v5 the resolution increased such that separate files are issued for each constituent
+
+Files are processed in real and imaginary parts as they are easier to interpolate.
+
 """
 
 import numpy as np
-from netCDF4 import Dataset
+import xarray as xr
 from scipy import interpolate
+
+from . import nemo_bdy_tide3
 
 
 class TpxoExtract(object):
@@ -17,9 +27,7 @@ class TpxoExtract(object):
     def __init__(self, settings, lat, lon, grid_type):
         """Initialise the Extract of tide information from the netcdf Tidal files."""
         # Set tide model
-        tide_model = "TPXO"
-
-        if tide_model == "TPXO":  # Define stuff to generalise Tide model
+        if settings["tide_model"].lower() == "tpxo7p2":
             hRe_name = "hRe"
             hIm_name = "hIm"
             lon_z_name = "lon_z"
@@ -35,32 +43,169 @@ class TpxoExtract(object):
             mz_name = "mz"
             mu_name = "mu"
             mv_name = "mv"
-            self.grid = Dataset(settings["tide_grid"])  # ../data/tide/grid_tpxo7.2.nc')
+            self.grid = xr.open_dataset(
+                settings["tide_grid_7p2"]
+            )  # ../data/tide/grid_tpxo7.2.nc')
             # read the height_dataset file
-            self.height_dataset = Dataset(
+            self.height_dataset = xr.open_dataset(
                 settings["tide_h"]
             )  # ../data/tide/h_tpxo7.2.nc')
             # read the velocity_dataset file
-            self.velocity_dataset = Dataset(
+            self.velocity_dataset = xr.open_dataset(
                 settings["tide_u"]
             )  # ../data/tide/u_tpxo7.2.nc')
 
-            height_z = self.grid.variables["hz"]
-            mask_z = self.grid.variables["mz"]
-            lon_z = self.height_dataset.variables[lon_z_name][:, 0]
-            lat_z = self.height_dataset.variables[lat_z_name][0, :]
+            height_z = self.grid.hz
+            mask_z = self.grid.mz
+            lon_z = self.grid[lon_z_name].isel(ny=0)  # [:, 0]
+            lat_z = self.grid[lat_z_name].isel(nx=0)  # [0, :]
             lon_resolution = lon_z[1] - lon_z[0]
             data_in_km = 0  # added to maintain the reference to matlab tmd code
             # Pull out the constituents that are avaibable
             self.cons = []
             for ncon in range(self.height_dataset.variables["con"].shape[0]):
                 self.cons.append(
-                    self.height_dataset.variables["con"][ncon, :]
-                    .tostring()
+                    self.height_dataset.con[ncon]
+                    .values.tostring()
                     .strip()
                     .decode("utf-8")
                 )
-        elif tide_model == "FES":
+            # print(f"self.cons:{self.cons}")
+
+        elif settings["tide_model"].lower() == "tpxo9v5":
+            # Complete set of available constituents
+            constituents = [
+                "2N2",
+                "K1",
+                "K2",
+                "M2",
+                "M4",
+                "MF",
+                "MM",
+                "MN4",
+                "MS4",
+                "N2",
+                "O1",
+                "P1",
+                "Q1",
+                "S1",
+                "S2",
+            ]
+
+            hRe_name = "hRe"
+            hIm_name = "hIm"
+            lon_z_name = "lon_z"
+            lat_z_name = "lat_z"
+            URe_name = "uRe"
+            UIm_name = "uIm"
+            lon_u_name = "lon_u"
+            lat_u_name = "lat_u"
+            VRe_name = "vRe"
+            VIm_name = "vIm"
+            lon_v_name = "lon_v"
+            lat_v_name = "lat_v"
+            mz_name = "hz"
+            mu_name = "hu"
+            mv_name = "hv"
+
+            # read in the grid file
+            # self.grid = Dataset(settings["tide_grid"])  # ../data/tide/grid_tpxo9_atlas_30_v5.nc')
+            self.grid = xr.open_dataset(
+                settings["tide_grid_9p5"]
+            )  # ../data/tide/grid_tpxo9_atlas_30_v5.nc')
+            height_z = self.grid.hz
+            mask_z = self.generate_landmask_from_bathymetry("hz")
+            # lon_z = self.grid.variables[lon_z_name][:]
+            # lat_z = self.grid.variables[lat_z_name][:]
+            lon_z = self.grid[lon_z_name]
+            lat_z = self.grid[lat_z_name]
+
+            # Extract the constituent subset requested by the namelist
+            compindx = [
+                icon.astype(int)
+                for icon in nemo_bdy_tide3.constituents_index(
+                    constituents, settings["clname"]
+                )
+            ]
+            self.cons = [constituents[i] for i in compindx]
+            print(f"self.cons:{self.cons}")
+
+            # read in and concatenate height dataset files
+            for icon, con in enumerate(self.cons):
+                # load in the data
+                filename = f"h_{con.lower()}_tpxo9_atlas_30_v5.nc"
+                scale = 0.001  # convert mm into m
+                print(f"Extracting TPXO9v5 constituent:{con} from {filename}")
+                with xr.open_dataset(settings["tide_dir"] + filename) as ds:
+                    if icon == 0:
+                        data_Re = ds[hRe_name].expand_dims(dim={"con": 1})
+                        data_Im = ds[hIm_name].expand_dims(dim={"con": 1})
+                    else:
+                        data_Re = xr.concat([data_Re, ds[hRe_name]], dim="con")
+                        data_Im = xr.concat([data_Im, ds[hIm_name]], dim="con")
+
+            # combine two dataArrays into single DataSet. Apply scaling.
+            self.height_dataset = (data_Re * scale).to_dataset()
+            self.height_dataset[hIm_name] = data_Im * scale
+            self.height_dataset[lon_z_name] = ds[lon_z_name]
+            self.height_dataset[lat_z_name] = ds[lat_z_name]
+
+            # read in and concatenate velocity transport dataset files
+            if (grid_type == "u") or (grid_type == "v"):
+                for icon, con in enumerate(self.cons):
+                    # load in the data
+                    filename = f"u_{con.lower()}_tpxo9_atlas_30_v5.nc"
+                    scale = 0.0001  # convert cm^2/s into m^2/s
+                    print(f"Extracting TPXO9v5 constituent:{con} from {filename}")
+                    with xr.open_dataset(settings["tide_dir"] + filename) as ds:
+                        if icon == 0:
+                            if grid_type == "u":
+                                data_uRe = ds[URe_name].expand_dims(dim={"con": 1})
+                                data_uIm = ds[UIm_name].expand_dims(dim={"con": 1})
+                            elif grid_type == "v":
+                                data_vRe = ds[VRe_name].expand_dims(dim={"con": 1})
+                                data_vIm = ds[VIm_name].expand_dims(dim={"con": 1})
+                        else:
+                            if grid_type == "u":
+                                data_uRe = xr.concat(
+                                    [data_uRe, ds[URe_name]], dim="con"
+                                )
+                                data_uIm = xr.concat(
+                                    [data_uIm, ds[UIm_name]], dim="con"
+                                )
+                            elif grid_type == "v":
+                                data_vRe = xr.concat(
+                                    [data_vRe, ds[VRe_name]], dim="con"
+                                )
+                                data_vIm = xr.concat(
+                                    [data_vIm, ds[VIm_name]], dim="con"
+                                )
+
+                # combine two dataArrays into single DataSet. Apply scaling.
+                if grid_type == "u":
+                    self.velocity_dataset = (data_uRe * scale).to_dataset()
+                    self.velocity_dataset[UIm_name] = data_uIm * scale
+                    self.velocity_dataset[lon_u_name] = ds[lon_u_name]
+                    self.velocity_dataset[lat_u_name] = ds[lat_u_name]
+                elif grid_type == "v":
+                    self.velocity_dataset = (data_vRe * scale).to_dataset()
+                    self.velocity_dataset[VIm_name] = data_vIm * scale
+                    self.velocity_dataset[lon_v_name] = ds[lon_v_name]
+                    self.velocity_dataset[lat_v_name] = ds[lat_v_name]
+                print(f"{self.velocity_dataset}")
+
+            lon_resolution = lon_z[1] - lon_z[0]
+            data_in_km = 0  # added to maintain the reference to matlab tmd code
+        #            # Pull out the constituents that are avaibable
+        #            self.cons = []
+        #            for ncon in range(self.height_dataset.variables["con"].shape[0]):
+        #                self.cons.append(
+        #                    self.height_dataset.variables["con"][ncon, :]
+        #                    .tostring()
+        #                    .strip()
+        #                    .decode("utf-8")
+        #                )
+        elif settings["tide_model"].lower() == "fes2014":
             print(
                 "did not actually code stuff for FES in this routine.\
 Though that would be ideal. Instead put it in fes_extract_HC.py"
@@ -70,7 +215,7 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
 
         # Wrap coordinates in longitude if the domain is global
         glob = 0
-        if lon_z[-1] - lon_z[0] == 360 - lon_resolution:
+        if np.abs(lon_z[-1] - lon_z[0]) - (360 - lon_resolution) <= 1e-6:
             glob = 1
         if glob == 1:
             lon_z = np.concatenate(
@@ -117,24 +262,6 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
                 lon[lon < 0] = lon[lon < 0] + 360
             if xmin > lon_z[-1]:
                 lon[lon > 180] = lon[lon > 180] - 360
-
-        # height_z[height_z==0] = np.NaN
-        #        f=interpolate.RectBivariateSpline(lon_z,lat_z,height_z,kx=1,ky=1)
-        #        depth = np.zeros(lon.size)
-        #        for idx in range(lon.size):
-        #            depth[idx] = f(lon[idx],lat[idx])
-        #        print depth[369:371]
-
-        #        H2 = np.ravel(height_z)
-        #        H2[H2==0] = np.NaN
-        #        points= np.concatenate((np.ravel(self.height_dataset.variables['lon_z']),
-        #                                np.ravel(self.height_dataset.variables['lat_z'])))
-        #        points= np.reshape(points,(points.shape[0]/2,2),order='F')
-        #        print points.shape
-        #        print np.ravel(height_z).shape
-        #        depth = interpolate.griddata(points,H2,(lon,lat))
-        #        print depth
-        #        print depth.shape
 
         height_z[height_z == 0] = np.NaN
         lonlat = np.concatenate((lon, lat))
@@ -192,6 +319,19 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
             print("Unknown grid_type")
             return
 
+    def generate_landmask_from_bathymetry(self, bathy_name):
+        """
+        Create a boolean mask xr.DataArray from bathymetry.
+
+        TPXO7.2 carries a binary variable called mask and a bathymetry variable
+        TPXO9v5 only carries the bathymetry variable
+        return: mask dataarray.
+
+        Useage:
+            self.grid[mask_name] = generate_landmask(bathy_name)
+        """
+        return xr.where(self.grid[bathy_name] == 0, 0, 1)  # water=1, land=0
+
     def interpolate_constituents(
         self,
         nc_dataset,
@@ -207,28 +347,33 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
         """Interpolate the tidal constituents along the given lat lon coordinates."""
         amp = np.zeros(
             (
-                nc_dataset.variables["con"].shape[0],
+                nc_dataset["con"].shape[0],
                 lon.shape[0],
             )
         )
         gph = np.zeros(
             (
-                nc_dataset.variables["con"].shape[0],
+                nc_dataset["con"].shape[0],
                 lon.shape[0],
             )
         )
-        data = np.array(np.ravel(nc_dataset.variables[real_var_name]), dtype=complex)
-        data.imag = np.array(np.ravel(nc_dataset.variables[img_var_name]))
+        data = np.array(np.ravel(nc_dataset[real_var_name]), dtype=complex)
+        data.imag = np.array(np.ravel(nc_dataset[img_var_name]))
 
-        data = data.reshape(nc_dataset.variables[real_var_name].shape)
+        data = data.reshape(nc_dataset[real_var_name].shape)
         # data[data==0] = np.NaN
 
         # Lat Lon values
-        x_values = nc_dataset.variables[lon_var_name][:, 0]
-        y_values = nc_dataset.variables[lat_var_name][0, :]
+        if len(nc_dataset[lon_var_name].dims) > 1:
+            x_values = nc_dataset[lon_var_name][:, 0]
+            y_values = nc_dataset[lat_var_name][0, :]
+        else:
+            x_values = nc_dataset[lon_var_name]
+            y_values = nc_dataset[lat_var_name]
         x_resolution = x_values[1] - x_values[0]
         glob = 0
-        if x_values[-1] - x_values[0] == 360 - x_resolution:
+        # if x_values[-1] - x_values[0] == 360 - x_resolution:
+        if np.abs(x_values[-1] - x_values[0]) - (360 - x_resolution) <= 1e-6:
             glob = 1
 
         if glob == 1:
@@ -254,7 +399,8 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
         lonlat = np.concatenate((lon, lat))
         lonlat = np.reshape(lonlat, (lon.size, 2), order="F")
 
-        mask = self.grid.variables[maskname]
+        mask = xr.where(self.grid[maskname] == 0, 0, 1)  # water=1, land=0
+
         mask = np.concatenate(
             (
                 [
@@ -269,7 +415,8 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
         )
         # interpolate the mask values
         maskedpoints = interpolate.interpn((x_values, y_values), mask, lonlat)
-
+        self.maskpoints = maskedpoints
+        self.mask = mask
         data_temp = np.zeros(
             (
                 data.shape[0],
@@ -289,12 +436,8 @@ Though that would be ideal. Instead put it in fes_extract_HC.py"
 
             # for velocity_dataset values
             if height_data is not None:
-                data_temp[cons_index, :, 0] = (
-                    data_temp[cons_index, :, 0] / height_data * 100
-                )
-                data_temp[cons_index, :, 1] = (
-                    data_temp[cons_index, :, 1] / height_data * 100
-                )
+                data_temp[cons_index, :, 0] = data_temp[cons_index, :, 0] / height_data
+                data_temp[cons_index, :, 1] = data_temp[cons_index, :, 1] / height_data
 
             zcomplex = np.array(data_temp[cons_index, :, 0], dtype=complex)
             zcomplex.imag = data_temp[cons_index, :, 1]
@@ -335,7 +478,8 @@ def bilinear_interpolation(lon, lat, data, lon_new, lat_new):
     """Do a bilinear interpolation of grid where the data values are NaN's."""
     glob = 0
     lon_resolution = lon[1] - lon[0]
-    if lon[-1] - lon[1] == 360 - lon_resolution:
+    # if lon[-1] - lon[1] == 360 - lon_resolution:
+    if np.abs(lon[-1] - lon[0]) - (360 - lon_resolution) <= 1e-6:
         glob = 1
     inan = np.where(np.isnan(data))
     data[inan] = 0

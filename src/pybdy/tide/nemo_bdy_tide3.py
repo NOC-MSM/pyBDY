@@ -50,6 +50,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     # extract the surface elevation at each z-point
     if setup.settings["tide_model"].lower() == "tpxo7p2":
         tide_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
+    elif setup.settings["tide_model"].lower() == "tpxo9v5":
+        tide_z = tpxo_extract_HC.TpxoExtract(setup.settings, dst_lat, dst_lon, g_type)
     elif setup.settings["tide_model"].lower() == "fes2014":
         tide_z = fes2014_extract_HC.FesExtract(setup.settings, dst_lat, dst_lon, g_type)
 
@@ -58,7 +60,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     # check if elevation data are missing
     ind = np.where((np.isnan(tide_z.amp)) | (np.isnan(tide_z.gph)))
     if ind[0].size > 0:
-        logger.warning("Missing elveation along the open boundary")
+        logger.warning("Missing elevation along the open boundary")
 
     ampz = tide_z.amp
     phaz = tide_z.gph
@@ -79,6 +81,13 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0] + 360.0
 
     if setup.settings["tide_model"].lower() == "tpxo7p2":
+        tide_ux = tpxo_extract_HC.TpxoExtract(
+            setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+        )
+        tide_vx = tpxo_extract_HC.TpxoExtract(
+            setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+        )
+    elif setup.settings["tide_model"].lower() == "tpxo9v5":
         tide_ux = tpxo_extract_HC.TpxoExtract(
             setup.settings, dst_lat, dst_lon, Grid_U.grid_type
         )
@@ -127,6 +136,13 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     # convert the U-longitudes into the TMD conventions (0/360E)
     dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0] + 360.0
     if setup.settings["tide_model"].lower() == "tpxo7p2":
+        tpxo_uy = tpxo_extract_HC.TpxoExtract(
+            setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+        )
+        tpxo_vy = tpxo_extract_HC.TpxoExtract(
+            setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+        )
+    elif setup.settings["tide_model"].lower() == "tpxo9v5":
         tpxo_uy = tpxo_extract_HC.TpxoExtract(
             setup.settings, dst_lat, dst_lon, Grid_U.grid_type
         )
@@ -247,14 +263,14 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
                 cosvY[h, :] = ampvY[c, :] * np.cos(np.deg2rad(phavY[c, :])) / depv
                 sinvY[h, :] = ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :])) / depv
             else:
-                cosuX[h, :] = 0.01 * ampuX[c, :] * np.cos(np.deg2rad(phauX[c, :]))
-                sinuX[h, :] = 0.01 * ampuX[c, :] * np.sin(np.deg2rad(phauX[c, :]))
-                cosvX[h, :] = 0.01 * ampvX[c, :] * np.cos(np.deg2rad(phavX[c, :]))
-                sinvX[h, :] = 0.01 * ampvX[c, :] * np.sin(np.deg2rad(phavX[c, :]))
-                cosuY[h, :] = 0.01 * ampuY[c, :] * np.cos(np.deg2rad(phauY[c, :]))
-                sinuY[h, :] = 0.01 * ampuY[c, :] * np.sin(np.deg2rad(phauY[c, :]))
-                cosvY[h, :] = 0.01 * ampvY[c, :] * np.cos(np.deg2rad(phavY[c, :]))
-                sinvY[h, :] = 0.01 * ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :]))
+                cosuX[h, :] = ampuX[c, :] * np.cos(np.deg2rad(phauX[c, :]))
+                sinuX[h, :] = ampuX[c, :] * np.sin(np.deg2rad(phauX[c, :]))
+                cosvX[h, :] = ampvX[c, :] * np.cos(np.deg2rad(phavX[c, :]))
+                sinvX[h, :] = ampvX[c, :] * np.sin(np.deg2rad(phavX[c, :]))
+                cosuY[h, :] = ampuY[c, :] * np.cos(np.deg2rad(phauY[c, :]))
+                sinuY[h, :] = ampuY[c, :] * np.sin(np.deg2rad(phauY[c, :]))
+                cosvY[h, :] = ampvY[c, :] * np.cos(np.deg2rad(phavY[c, :]))
+                sinvY[h, :] = ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :]))
 
     # TOD:: Do we need to rotate ??? And is this method  correct ????
     maxJ = DC.lonlat["t"]["lon"].shape[0]
