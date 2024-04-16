@@ -37,9 +37,13 @@ nn_month_000 = month start (default = 1 is years>1)
 nn_month_end = month end (default = 12 is years>1)
 sn_dst_calendar = output calendar format
 nn_base_year = base year for time counter
-sn_tide_grid =
-sn_tide_h =
-sn_tide_u =
+ln_time_interpolation = Move from source to destination calendar
+sn_tide_grid_7p2   =
+sn_tide_h          =
+sn_tide_u          =
+sn_tide_grid_9p5   =
+sn_tide_dir        =
+sn_tide_fes        =
 nn_wei = smoothing filter weights
 rn_r0 = decorrelation distance use in gauss smoothing onto dst points.Need to make this a funct. of dlon
 sn_history = history for netcdf file
