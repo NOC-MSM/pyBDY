@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<netcdf title="aggregation example" xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+  <aggregation type="union" >
+     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+        <aggregation type="joinExisting" dimName="t" >
+		<netcdf location="../../tests/temp_test_002/variables.nc"/>
+        </aggregation>
+     </netcdf>
+  </aggregation>
+  <variable name="time_counter" orgName="t"/>
+</netcdf>
