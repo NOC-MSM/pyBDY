@@ -94,11 +94,18 @@ def _add_mask(ds: Dataset) -> Dataset:
     ----------
     ds: Dataset
         Dataset with Bathymetry variable
+
     Returns
     -------
     Dataset.
     """
-    ds["mask"] = xr.where(ds["Bathymetry"] > 0, 1, 0)  # TODO: should this be bool?
+    # ds["tmask"] = xr.where(ds["Bathymetry"] > 0, 1, 0).expand_dims(
+    # dim={"z": np.arange(len(50))}, axis=0)  # TODO: should this be bool?
+    ds_tmp = xr.where(ds["Bathymetry"] > 0, 1, 0).values
+    ds_tmp = np.tile(ds_tmp, (50, 1, 1))
+
+    ds["tmask"] = (("z", "y", "x"), ds_tmp)
+
     return ds
 
 
@@ -117,7 +124,7 @@ def _add_attributes(ds: Dataset) -> Dataset:
     """
     attrs_dict: dict = {
         "Bathymetry": dict(standard_name="sea_floor_depth_below_geoid", units="m"),
-        "mask": dict(standard_name="sea_binary_mask", units="1"),
+        "tmask": dict(standard_name="sea_binary_mask", units="1"),
     }
 
     if "rmax" in ds:
@@ -366,24 +373,26 @@ def merge_z3_and_e3(
     {z,e}3{t,w} are coordinates of the returned dataset.
     """
     # Merge computed variables with bathymetry
-    ds = xr.Dataset({"z3t": z3t, "z3w": z3w, "e3t": e3t, "e3w": e3w})
+    ds = xr.Dataset({"gdept_0": z3t, "gdeptw_0": z3w, "e3t": e3t, "e3w": e3w})
     ds = ds.broadcast_like(ds_bathy["Bathymetry"])
     ds = ds.set_coords(ds.variables)
     ds = ds.merge(ds_bathy)
 
     # Merge 1d variables with bathymetry
-    ds_1d = xr.Dataset({"z3t_1d": z3t, "z3w_1d": z3w, "e3t_1d": e3t, "e3w_1d": e3w})
+    ds_1d = xr.Dataset(
+        {"gdept_1d": z3t, "gdeptw_1d": z3w, "e3t_1d": e3t, "e3w_1d": e3w}
+    )
     ds_1d = ds_1d.set_coords(ds_1d.variables)
     ds = ds_1d.merge(ds)
 
     # Add CF attributes
     ds["z"] = ds["nav_lev"] = ds["z"]
     ds["z"].attrs = dict(axis="Z", long_name="z-dimension index")
-    for var in ["z3t", "z3w", "z3t_1d", "z3w_1d"]:
+    for var in ["gdept_0", "gdeptw_0", "gdept_1d", "gdeptw_1d"]:
         ds[var].attrs = dict(
             standard_name="depth", long_name="Depth", units="m", positive="down"
         )
-    for var in ["e3t", "e3w", "e3t_1d", "e3w_1d"]:
+    for var in ["gdept_0", "gdeptw_0", "gdept_1d", "gdeptw_1d"]:
         ds[var].attrs = dict(
             standard_name="cell_thickness", long_name="Thickness", units="m"
         )
@@ -411,15 +420,16 @@ def _add_mbathy(ds: Dataset) -> Dataset:
     return ds
 
 
-def generate_variables(
-    ds_domcfg,
-) -> Dataset:
+def generate_variables(ds_domcfg, rotation=False) -> Dataset:
     """
     Generate a Dataset of T/S/U/V given a NEMO bathy Dataset.
 
     Parameters
     ----------
     ds_domcfg: Dataset
+
+    rotation: bool
+        Whether the child grid is rotated.
 
     Returns
     -------
@@ -446,12 +456,17 @@ def generate_variables(
     vvel.attrs = dict(units="m/s", long_name="Meridional Velocity (m/s)")
     ssh.attrs = dict(units="m", long_name="Sea Surface Height (m)")
 
+    ds["votemper"] = temp
+    ds["vosaline"] = salt
     # Add to ds
-    ds["temp"] = temp
-    ds["salt"] = salt
-    ds["uvel"] = uvel
-    ds["vvel"] = vvel
-    ds["ssh"] = ssh
+    if rotation:
+        ds["vozocrtx"] = uvel
+        ds["vomecrty"] = vvel
+        ds["sossheig"] = ssh
+    else:
+        ds["uvel"] = uvel
+        ds["vvel"] = vvel
+        ds["ssh"] = ssh
 
     # Add t dim
     # times = pd.date_range("2020","2023",freq='Y')+ DateOffset(months=6)
