@@ -216,8 +216,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Extract source data on dst grid
 
     if settings["tide"]:
-        if (settings["tide_model"].lower() == "tpxo7p2") or (
-            settings["tide_model"].lower() == "fes2014"
+        if (
+            (settings["tide_model"].lower() == "tpxo7p2")
+            or (settings["tide_model"].lower() == "tpxo9v5")
+            or (settings["tide_model"].lower() == "fes2014")
         ):
             cons = tide.nemo_bdy_tide_rot(
                 Setup,
