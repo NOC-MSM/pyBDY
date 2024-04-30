@@ -29,7 +29,7 @@ def write_data_to_file(filename, variable_name, data):
         "N5s",
         "e3t",
         "e3u",
-        "e3v"
+        "e3v",
     ]
 
     two_dim_variables = [

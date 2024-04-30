@@ -131,11 +131,11 @@ class Extract:
             dst_dep = np.ones([1, len(dst_lon)])
 
         # Quick fix if not vertical interpolation required.
-        if not self.settings['interp']:
-            #dst_dep = sc_z.repeat(len(dst_lon))
+        if not self.settings["interp"]:
+            # dst_dep = sc_z.repeat(len(dst_lon))
             # RDP the leads to 1d array with z,x,y flattened
             # below leads to (z,x*y) shape which appears to be the desired result
-            dst_dep = np.tile(sc_z, (len(dst_lon),1)).T
+            dst_dep = np.tile(sc_z, (len(dst_lon), 1)).T
 
         # ??? Should this be read from settings?
         wei_121 = np.array([0.5, 0.25, 0.25])
@@ -371,12 +371,10 @@ class Extract:
         )
         # Fig not implemented
 
-        #if self.settings["interp"] and  not isslab:  # TODO or no vertical interpolation required
         if not isslab:  # TODO or no vertical interpolation required
             # Determine vertical weights for the linear interpolation
             # onto Dst grid
             # Allocate vertical index array
-            print (dst_dep.max())
             dst_dep_rv = dst_dep.ravel(order="F")
             z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
             source_tree = None
@@ -450,7 +448,7 @@ class Extract:
         self.tmp_filt_2d = tmp_filt_2d
         self.tmp_filt_3d = tmp_filt_3d
         self.dist_tot = dist_tot
-        self.vinterp = self.settings['interp']
+        self.vinterp = self.settings["interp"]
 
         self.d_bdy = {}
 
@@ -479,7 +477,7 @@ class Extract:
                 if self.key_vec is True:
                     if self.rot_dir == "i":
                         self.d_bdy[self.var_nam[v * 2]][year]
-                    else: 
+                    else:
                         self.d_bdy[self.var_nam[v * 2 + 1]][year]
                 else:
                     self.d_bdy[self.var_nam[v]][year]
@@ -487,7 +485,7 @@ class Extract:
                 if self.key_vec is True:
                     empty_dict = {"data": None, "date": {}}
                     if self.rot_dir == "i":
-                        self.d_bdy[self.var_nam[v * 2]][year] =  empty_dict
+                        self.d_bdy[self.var_nam[v * 2]][year] = empty_dict
                     else:
                         self.d_bdy[self.var_nam[v * 2 + 1]][year] = empty_dict
                 else:
@@ -599,18 +597,19 @@ class Extract:
                 meta_data[v][x] = np.ones((self.nvar, 1)) * np.NaN
 
         for v in range(self.nvar):
+            if self.key_vec:
+                if self.rot_dir == "i":
+                    f_ind = v * 2
+                else:
+                    f_ind = v * 2 + 1
+                meta_data[f_ind] = self.fnames_2.get_meta_data(
+                    self.var_nam[f_ind], meta_data[f_ind]
+                )
 
-           if self.key_vec:
-               if self.rot_dir == "i":
-                   f_ind = v * 2
-               else:
-                   f_ind = v * 2 + 1
-               meta_data[f_ind] = self.fnames_2.get_meta_data(self.var_nam[f_ind], meta_data[f_ind])
-
-           else:
-               #            meta_data[v] = self._get_meta_data(sc_time[first_date].file_name,
-               #                                               self.var_nam[v], meta_data[v])
-               meta_data[v] = sc_time.get_meta_data(self.var_nam[v], meta_data[v])
+            else:
+                #            meta_data[v] = self._get_meta_data(sc_time[first_date].file_name,
+                #                                               self.var_nam[v], meta_data[v])
+                meta_data[v] = sc_time.get_meta_data(self.var_nam[v], meta_data[v])
 
         for vn in range(self.nvar):
             if self.key_vec is True:
@@ -665,12 +664,10 @@ class Extract:
 
                 
                 if self.key_vec:
-                    sc_bdy[vn * 2] = np.zeros((sc_z_len,
-                                               ind.shape[0],
-                                               ind.shape[1]))
-                    sc_bdy[vn * 2 + 1] = np.zeros((sc_z_len,
-                                               ind.shape[0],
-                                               ind.shape[1]))
+                    sc_bdy[vn * 2] = np.zeros((sc_z_len, ind.shape[0], ind.shape[1]))
+                    sc_bdy[vn * 2 + 1] = np.zeros((
+                        sc_z_len, ind.shape[0], ind.shape[1])
+                    )
                 else:
                     sc_bdy[vn] = np.zeros((sc_z_len, ind.shape[0], ind.shape[1]))
 
@@ -929,9 +926,9 @@ class Extract:
                     id_121 = self.id_121_3d
                     tmp_filt = self.tmp_filt_3d
 
-                #tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
+                # tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
                 # awise
-                tmp_valid = np.invert(dst_bdy.flatten('F')[id_121] == 0 )
+                tmp_valid = np.invert(dst_bdy.flatten("F")[id_121] == 0 )
 
                 dst_bdy = np.nansum(
                     dst_bdy.flatten("F")[id_121] * tmp_filt, 2

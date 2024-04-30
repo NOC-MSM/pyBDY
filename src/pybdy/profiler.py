@@ -138,9 +138,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     nc.close()
 
     # Define z at t/u/v points
-    z = zgrv.Depth(
-          bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, settings
-        )
+    z = zgrv.Depth(bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, settings)
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
 
@@ -313,7 +311,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     if ln_ice:
         var_in["t"].extend(["ice1", "ice2", "ice3"])
-
 
     # As variables are associated with grd there must be a filename attached
     # to each variable
