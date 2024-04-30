@@ -665,8 +665,8 @@ class Extract:
                 
                 if self.key_vec:
                     sc_bdy[vn * 2] = np.zeros((sc_z_len, ind.shape[0], ind.shape[1]))
-                    sc_bdy[vn * 2 + 1] = np.zeros((
-                        sc_z_len, ind.shape[0], ind.shape[1])
+                    sc_bdy[vn * 2 + 1] = np.zeros(
+                        (sc_z_len, ind.shape[0], ind.shape[1])
                     )
                 else:
                     sc_bdy[vn] = np.zeros((sc_z_len, ind.shape[0], ind.shape[1]))
@@ -928,7 +928,7 @@ class Extract:
 
                 # tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
                 # awise
-                tmp_valid = np.invert(dst_bdy.flatten("F")[id_121] == 0 )
+                tmp_valid = np.invert(dst_bdy.flatten("F")[id_121] == 0)
 
                 dst_bdy = np.nansum(
                     dst_bdy.flatten("F")[id_121] * tmp_filt, 2
@@ -1227,7 +1227,6 @@ class Extract:
         if self.key_vec is True:
             if self.rot_dir == "i":
                 varnams = self.var_nam[0::2]
-                
             else:
                 varnams = self.var_nam[1::2]
         else:
