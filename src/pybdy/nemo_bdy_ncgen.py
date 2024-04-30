@@ -145,6 +145,17 @@ def CreateBDYNetcdfFile(
             ),
             fill_value=fv,
         )
+        vare3tID = ncid.createVariable(
+            "e3t",
+            "f4",
+            (
+                "time_counter",
+                "z",
+                "yb",
+                "xb",
+            ),
+            fill_value=fv,
+        )
         varsshID = ncid.createVariable(
             "sossheig",
             "f4",
@@ -218,6 +229,17 @@ def CreateBDYNetcdfFile(
             ),
             fill_value=fv,
         )
+        vare3uID = ncid.createVariable(
+            "e3u",
+            "f4",
+            (
+                "time_counter",
+                "z",
+                "yb",
+                "xb",
+            ),
+            fill_value=fv,
+        )
     elif grd == "V":
         varztID = ncid.createVariable(
             "depthv",
@@ -240,6 +262,17 @@ def CreateBDYNetcdfFile(
         )
         vartovID = ncid.createVariable(
             "vomecrty",
+            "f4",
+            (
+                "time_counter",
+                "z",
+                "yb",
+                "xb",
+            ),
+            fill_value=fv,
+        )
+        vare3vID = ncid.createVariable(
+            "e3v",
             "f4",
             (
                 "time_counter",

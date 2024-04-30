@@ -84,7 +84,6 @@ class Extract:
         bdy_r = copy.deepcopy(Grid[grd].bdy_r)
 
         # Extract time and variable information
-
         sc_time = Grid[grd].source_time
         self.var_nam = var_nam
         sc_z = SC.zt[:]
@@ -131,12 +130,12 @@ class Extract:
         if dst_dep.size == len(dst_dep):
             dst_dep = np.ones([1, len(dst_lon)])
 
-        ## Quick fix if not vertical interpolation required.
-        #if not self.settings['interp']:
-        #    #dst_dep = sc_z.repeat(len(dst_lon))
-        #    # RDP the leads to 1d array with z,x,y flattened
-        #    # below leads to (z,x*y) shape which appears to be the desired result
-        #    dst_dep = np.tile(sc_z, (len(dst_lon),1)).T
+        # Quick fix if not vertical interpolation required.
+        if not self.settings['interp']:
+            #dst_dep = sc_z.repeat(len(dst_lon))
+            # RDP the leads to 1d array with z,x,y flattened
+            # below leads to (z,x*y) shape which appears to be the desired result
+            dst_dep = np.tile(sc_z, (len(dst_lon),1)).T
 
         # ??? Should this be read from settings?
         wei_121 = np.array([0.5, 0.25, 0.25])
@@ -372,10 +371,12 @@ class Extract:
         )
         # Fig not implemented
 
+        #if self.settings["interp"] and  not isslab:  # TODO or no vertical interpolation required
         if not isslab:  # TODO or no vertical interpolation required
             # Determine vertical weights for the linear interpolation
             # onto Dst grid
             # Allocate vertical index array
+            print (dst_dep.max())
             dst_dep_rv = dst_dep.ravel(order="F")
             z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
             source_tree = None
@@ -455,8 +456,10 @@ class Extract:
 
         # Need to qualify for key_vec
         for v in range(self.nvar):
-            if grd == "v":
-                self.d_bdy[self.var_nam[v + 1]] = {}
+            if grd == "u":
+                self.d_bdy[self.var_nam[v * 2]] = {}
+            elif grd == "v":
+                self.d_bdy[self.var_nam[v * 2 + 1]] = {}
             else:
                 self.d_bdy[self.var_nam[v]] = {}
 
@@ -473,13 +476,20 @@ class Extract:
         # Check year entry exists in d_bdy, if not create it.
         for v in range(self.nvar):
             try:
-                if self.key_vec is True and self.rot_dir == "j":
-                    self.d_bdy[self.var_nam[v + 1]][year]
+                if self.key_vec is True:
+                    if self.rot_dir == "i":
+                        self.d_bdy[self.var_nam[v * 2]][year]
+                    else: 
+                        self.d_bdy[self.var_nam[v * 2 + 1]][year]
                 else:
                     self.d_bdy[self.var_nam[v]][year]
             except KeyError:
-                if self.key_vec is True and self.rot_dir == "j":
-                    self.d_bdy[self.var_nam[v + 1]][year] = {"data": None, "date": {}}
+                if self.key_vec is True:
+                    empty_dict = {"data": None, "date": {}}
+                    if self.rot_dir == "i":
+                        self.d_bdy[self.var_nam[v * 2]][year] =  empty_dict
+                    else:
+                        self.d_bdy[self.var_nam[v * 2 + 1]][year] = empty_dict
                 else:
                     self.d_bdy[self.var_nam[v]][year] = {"data": None, "date": {}}
 
@@ -582,27 +592,36 @@ class Extract:
         meta_data = []
         meta_range = self.nvar
         if self.key_vec:
-            meta_range += 1
+            meta_range += self.nvar
         for v in range(meta_range):
             meta_data.append({})
             for x in "mv", "sf", "os", "fv":
                 meta_data[v][x] = np.ones((self.nvar, 1)) * np.NaN
 
         for v in range(self.nvar):
-            #            meta_data[v] = self._get_meta_data(sc_time[first_date].file_name,
-            #                                               self.var_nam[v], meta_data[v])
-            meta_data[v] = sc_time.get_meta_data(self.var_nam[v], meta_data[v])
 
-        if self.key_vec:
-            #  n = self.nvar
-            #            meta_data[n] = self.fnames_2[first_date].get_meta_data(self.var_nam[n], meta_data[n])
-            meta_data[1] = self.fnames_2.get_meta_data(self.var_nam[1], meta_data[1])
+           if self.key_vec:
+               if self.rot_dir == "i":
+                   f_ind = v * 2
+               else:
+                   f_ind = v * 2 + 1
+               meta_data[f_ind] = self.fnames_2.get_meta_data(self.var_nam[f_ind], meta_data[f_ind])
+
+           else:
+               #            meta_data[v] = self._get_meta_data(sc_time[first_date].file_name,
+               #                                               self.var_nam[v], meta_data[v])
+               meta_data[v] = sc_time.get_meta_data(self.var_nam[v], meta_data[v])
 
         for vn in range(self.nvar):
-            if self.key_vec is True and self.rot_dir == "j":
-                self.d_bdy[self.var_nam[vn + 1]]["date"] = sc_time.date_counter[
-                    first_date : last_date + 1
-                ]
+            if self.key_vec is True:
+                if self.rot_dir == "i":
+                    self.d_bdy[self.var_nam[vn * 2]]["date"] = sc_time.date_counter[
+                        first_date : last_date + 1
+                    ]
+                else:
+                    self.d_bdy[self.var_nam[vn * 2 + 1]]["date"] = sc_time.date_counter[
+                        first_date : last_date + 1
+                    ]
             else:
                 self.d_bdy[self.var_nam[vn]]["date"] = sc_time.date_counter[
                     first_date : last_date + 1
@@ -626,9 +645,14 @@ class Extract:
                 varid = sc_time[self.var_nam[vn]]
                 # If extracting vector quantities open second var
                 if self.key_vec:
-                    varid_2 = self.fnames_2[
-                        self.var_nam[vn + 1]
-                    ]  # nc_2.variables[self.var_nam[vn + 1]]
+                    if self.rot_dir == "i":
+                        varid_2 = self.fnames_2[
+                            self.var_nam[vn * 2]
+                        ]  # nc_2.variables[self.var_nam[vn + 1]]
+                    else:
+                        varid_2 = self.fnames_2[
+                            self.var_nam[vn * 2 + 1]
+                        ]  # nc_2.variables[self.var_nam[vn + 1]]
 
                 # Determine if slab or not
                 isslab = len(varid._get_dimensions()) == 3
@@ -639,9 +663,16 @@ class Extract:
                 else:
                     sc_z_len = self.sc_z_len
 
-                sc_bdy[vn] = np.zeros((sc_z_len, ind.shape[0], ind.shape[1]))
+                
                 if self.key_vec:
-                    sc_bdy[vn + 1] = np.zeros((sc_z_len, ind.shape[0], ind.shape[1]))
+                    sc_bdy[vn * 2] = np.zeros((sc_z_len,
+                                               ind.shape[0],
+                                               ind.shape[1]))
+                    sc_bdy[vn * 2 + 1] = np.zeros((sc_z_len,
+                                               ind.shape[0],
+                                               ind.shape[1]))
+                else:
+                    sc_bdy[vn] = np.zeros((sc_z_len, ind.shape[0], ind.shape[1]))
 
                 # Extract 3D scalar variables
                 if not isslab and not self.key_vec:
@@ -709,17 +740,24 @@ class Extract:
                     np.nanmin(sc_array[0]),
                     np.nanmax(sc_array[0]),
                 )
-                if not np.isnan(np.sum(meta_data[vn]["sf"])):
-                    sc_array[0] *= meta_data[vn]["sf"]
-                if not np.isnan(np.sum(meta_data[vn]["os"])):
-                    sc_array[0] += meta_data[vn]["os"]
 
                 if self.key_vec:
-                    sc_array[1][t_mask == 0] = np.NaN
-                    if not np.isnan(np.sum(meta_data[vn + 1]["sf"])):
-                        sc_array[1] *= meta_data[vn + 1]["sf"]
-                    if not np.isnan(np.sum(meta_data[vn + 1]["os"])):
-                        sc_array[1] += meta_data[vn + 1]["os"]
+                    if self.rot_dir == "i":
+                        if not np.isnan(np.sum(meta_data[vn * 2]["sf"])):
+                            sc_array[0] *= meta_data[vn * 2]["sf"]
+                        if not np.isnan(np.sum(meta_data[vn * 2]["os"])):
+                            sc_array[0] += meta_data[vn * 2]["os"]
+                    else:
+                        sc_array[1][t_mask == 0] = np.NaN
+                        if not np.isnan(np.sum(meta_data[vn * 2 + 1]["sf"])):
+                            sc_array[1] *= meta_data[vn * 2 + 1]["sf"]
+                        if not np.isnan(np.sum(meta_data[vn * 2 + 1]["os"])):
+                            sc_array[1] += meta_data[vn * 2 + 1]["os"]
+                else:
+                    if not np.isnan(np.sum(meta_data[vn]["sf"])):
+                        sc_array[0] *= meta_data[vn]["sf"]
+                    if not np.isnan(np.sum(meta_data[vn]["os"])):
+                        sc_array[0] += meta_data[vn]["os"]
 
                 # Now collapse the extracted data to an array
                 # containing only nearest neighbours to dest bdy points
@@ -734,12 +772,12 @@ class Extract:
                         tmp_arr[1] = sc_array[1][0, dep, :, :].flatten("F")  # [:,:,dep]
                         # Include in the collapse the rotation from the
                         # grid to real zonal direction, ie ij -> e
-                        sc_bdy[vn][dep, :] = (
+                        sc_bdy[vn * 2][dep, :] = (
                             tmp_arr[0][ind[:]] * self.gcos
                             - tmp_arr[1][ind[:]] * self.gsin
                         )
                         # Include... meridinal direction, ie ij -> n
-                        sc_bdy[vn + 1][dep, :] = (
+                        sc_bdy[vn * 2 + 1][dep, :] = (
                             tmp_arr[1][ind[:]] * self.gcos
                             + tmp_arr[0][ind[:]] * self.gsin
                         )
@@ -832,12 +870,20 @@ class Extract:
                 self.logger.info(
                     " sc_bdy %s %s", np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn])
                 )
-                dst_bdy = np.zeros_like(dist_fac)
-                ind_valid = dist_fac > 0.0
-                dst_bdy[ind_valid] = (
-                    np.nansum(sc_bdy[vn][:, :, :] * dist_wei, 2)[ind_valid]
-                    / dist_fac[ind_valid]
-                )
+                if self.key_vec:
+                    dst_bdy = np.zeros_like(dist_fac)
+                    ind_valid = dist_fac > 0.0
+                    dst_bdy[ind_valid] = (
+                        np.nansum(sc_bdy[vn * 2][:, :, :] * dist_wei, 2)[ind_valid]
+                        / dist_fac[ind_valid]
+                    )
+                else:
+                    dst_bdy = np.zeros_like(dist_fac)
+                    ind_valid = dist_fac > 0.0
+                    dst_bdy[ind_valid] = (
+                        np.nansum(sc_bdy[vn][:, :, :] * dist_wei, 2)[ind_valid]
+                        / dist_fac[ind_valid]
+                    )
                 # dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
                 #           dist_fac)
                 self.logger.info(
@@ -855,7 +901,7 @@ class Extract:
                     dst_bdy_2 = np.zeros_like(dist_fac)
                     ind_valid = dist_fac > 0.0
                     dst_bdy_2[ind_valid] = (
-                        np.nansum(sc_bdy[vn + 1][:, :, :] * dist_wei, 2)[ind_valid]
+                        np.nansum(sc_bdy[vn * 2 + 1][:, :, :] * dist_wei, 2)[ind_valid]
                         / dist_fac[ind_valid]
                     )
                     # dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
@@ -916,10 +962,12 @@ class Extract:
                     dst_bdy = dst_bdy.flatten("F")
                     dst_bdy += (dst_bdy == 0) * dst_bdy[data_ind].repeat(sc_z_len)
                     # Weighted averaged on new vertical grid
-                    dst_bdy = (
-                        dst_bdy[self.z_ind[:, 0]] * self.z_dist[:, 0]
-                        + dst_bdy[self.z_ind[:, 1]] * self.z_dist[:, 1]
-                    )
+                    # RDP: mirror anna's change for removing vertical interp
+                    if self.settings["interp"]:
+                        dst_bdy = (
+                            dst_bdy[self.z_ind[:, 0]] * self.z_dist[:, 0]
+                            + dst_bdy[self.z_ind[:, 1]] * self.z_dist[:, 1]
+                        )
                     data_out = dst_bdy.reshape(self.dst_dep.shape, order="F")
 
                     # If z-level replace data below bed !!! make stat
@@ -933,8 +981,11 @@ class Extract:
                 else:
                     data_out = dst_bdy
                     data_out[:, np.isnan(self.bdy_z)] = np.NaN
-                if self.key_vec is True and self.rot_dir == "j":
-                    entry = self.d_bdy[self.var_nam[vn + 1]][year]
+                if self.key_vec is True:
+                    if self.rot_dir == "i":
+                        entry = self.d_bdy[self.var_nam[vn * 2]][year]
+                    else:
+                        entry = self.d_bdy[self.var_nam[vn * 2 + 1]][year]
                 else:
                     entry = self.d_bdy[self.var_nam[vn]][year]
                 if (
@@ -1080,13 +1131,9 @@ class Extract:
 
         if self.key_vec is True:
             if self.rot_dir == "i":
-                varnams = [
-                    self.var_nam[0],
-                ]
+                varnams = self.var_nam[0::2]
             else:
-                varnams = [
-                    self.var_nam[1],
-                ]
+                varnams = self.var_nam[1::2]
         else:
             varnams = self.var_nam
 
@@ -1182,13 +1229,10 @@ class Extract:
         #        for v in self.variables:
         if self.key_vec is True:
             if self.rot_dir == "i":
-                varnams = [
-                    self.var_nam[0],
-                ]
+                varnams = self.var_nam[0::2]
+                
             else:
-                varnams = [
-                    self.var_nam[1],
-                ]
+                varnams = self.var_nam[1::2]
         else:
             varnams = self.var_nam
 
