@@ -296,17 +296,25 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         var_in[grd[g]] = []
 
     if ln_tra:
-        var_in["t"].extend(["votemper", "vosaline","e3t"])
+        var_in["t"].extend(["votemper", "vosaline"])
+
+        if settings["interp"]: # on-the-fly interp requires e3
+            var_in["t"].extend["e3t"]
 
     if ln_dyn2d or ln_dyn3d:
-        var_in["u"].extend(["vozocrtx", "vomecrty","e3u","e3v"])
-        var_in["v"].extend(["vozocrtx", "vomecrty","e3u","e3v"])
+        var_in["u"].extend(["vozocrtx", "vomecrty"])
+        var_in["v"].extend(["vozocrtx", "vomecrty"])
+
+        if settings["interp"]: # on-the-fly interp requires e3
+            var_in["u"].extend["e3u","e3v"]
+            var_in["v"].extend["e3u","e3v"]
 
     if ln_dyn2d:
         var_in["t"].extend(["sossheig"])
 
     if ln_ice:
         var_in["t"].extend(["ice1", "ice2", "ice3"])
+
 
     # As variables are associated with grd there must be a filename attached
     # to each variable
