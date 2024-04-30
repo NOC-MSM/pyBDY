@@ -661,7 +661,7 @@ class Extract:
                     sc_z_len = 1
                 else:
                     sc_z_len = self.sc_z_len
-                
+
                 if self.key_vec:
                     sc_bdy[vn * 2] = np.zeros((sc_z_len, ind.shape[0], ind.shape[1]))
                     sc_bdy[vn * 2 + 1] = np.zeros(
