@@ -416,6 +416,11 @@ def CreateBDYNetcdfFile(
         varsalID.long_name = "Salinity"
         varsalID.grid = "bdyT"
 
+        vare3tID.units = "m"
+        vare3tID.short_name = "e3t"
+        vare3tID.long_name = "vertical scale factor on t-points"
+        vare3tID.grid = "bdyT"
+
         if grd == "I":
             varildID.units = "%"
             varildID.short_name = "ildsconc"
@@ -447,6 +452,11 @@ def CreateBDYNetcdfFile(
         vartouID.long_name = "Zonal Current"
         vartouID.grid = "bdyU"
 
+        vare3uID.units = "m"
+        vare3uID.short_name = "e3u"
+        vare3uID.long_name = "vertical scale factor on u-points"
+        vare3uID.grid = "bdyU"
+
     elif grd == "V":
         varztID.axis = "Depth"
         varztID.short_name = "depthv"
@@ -462,6 +472,11 @@ def CreateBDYNetcdfFile(
         vartovID.short_name = "vomecrty"
         vartovID.long_name = "Meridional Current"
         vartovID.grid = "bdyV"
+
+        vare3vID.units = "m"
+        vare3vID.short_name = "e3v"
+        vare3vID.long_name = "vertical scale factor on v-points"
+        vare3vID.grid = "bdyV"
 
     elif grd == "Z":
         varsshID.units = "m"

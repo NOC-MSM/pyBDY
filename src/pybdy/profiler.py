@@ -138,10 +138,9 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     nc.close()
 
     # Define z at t/u/v points
-    z = zgrv.Depth(bdy_ind["t"].bdy_i,
-                   bdy_ind["u"].bdy_i,
-                   bdy_ind["v"].bdy_i,
-                   settings)
+    z = zgrv.Depth(
+          bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, settings
+        )
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
 
@@ -298,16 +297,16 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     if ln_tra:
         var_in["t"].extend(["votemper", "vosaline"])
 
-        if settings["interp"]: # on-the-fly interp requires e3
+        if settings["interp"]:  # on-the-fly interp requires e3
             var_in["t"].extend["e3t"]
 
     if ln_dyn2d or ln_dyn3d:
         var_in["u"].extend(["vozocrtx", "vomecrty"])
         var_in["v"].extend(["vozocrtx", "vomecrty"])
 
-        if settings["interp"]: # on-the-fly interp requires e3
-            var_in["u"].extend["e3u","e3v"]
-            var_in["v"].extend["e3u","e3v"]
+        if settings["interp"]:  # on-the-fly interp requires e3
+            var_in["u"].extend["e3u", "e3v"]
+            var_in["v"].extend["e3u", "e3v"]
 
     if ln_dyn2d:
         var_in["t"].extend(["sossheig"])
@@ -506,7 +505,7 @@ def _get_mask(Setup, mask_gui):
                 mask.apply_border_mask(Constants.DEFAULT_MASK_PIXELS)
                 bdy_msk = mask.data
         except Exception as E:
-            print (E)
+            print(E)
             return
 
     if np.amin(bdy_msk) == 0:  # Mask is not set, so set border to 1px
