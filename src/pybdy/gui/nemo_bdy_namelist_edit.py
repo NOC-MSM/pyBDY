@@ -5,10 +5,10 @@ Editor for namelist.bdy file.
 """
 import ast
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtGui import QCursor
-from PyQt5.QtWidgets import QMessageBox, QToolTip
+from PyQt6 import QtCore, QtWidgets
+from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtGui import QCursor
+from PyQt6.QtWidgets import QMessageBox, QToolTip
 
 
 class NameListEditor(QtWidgets.QWidget):
@@ -46,7 +46,9 @@ class NameListEditor(QtWidgets.QWidget):
             label = QtWidgets.QLabel(setting)
             qlabel = QtWidgets.QPushButton("")
             qlabel.setIcon(
-                self.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxQuestion)
+                self.style().standardIcon(
+                    QtWidgets.QStyle.StandardPixmap.SP_MessageBoxQuestion
+                )
             )
             if type(self.settings[setting]).__name__ in [
                 "str",

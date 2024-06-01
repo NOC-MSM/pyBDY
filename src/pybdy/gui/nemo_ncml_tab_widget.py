@@ -6,8 +6,8 @@ Created on 2 Jul 2015.
 import logging
 import os
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import pyqtSlot
 
 
 class Ncml_tab(QtWidgets.QWidget):

@@ -17,9 +17,9 @@ dependencies:
 - matplotlib
 - cartopy
 - qt
-- pyqt
 - cftime=1.4.1
 - pip:
   - pyjnius
   - seawater
   - thredds-crawler
+  - pyqt6

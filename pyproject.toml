@@ -30,7 +30,7 @@ dependencies = [
   "cartopy",
   "thredds_crawler",
   "seawater",
-  "pyqt5",
+  "pyqt6",
   "pyjnius",
   "cftime"
 ]

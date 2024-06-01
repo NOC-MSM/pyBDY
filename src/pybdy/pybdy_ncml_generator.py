@@ -9,7 +9,7 @@ Used for development purposes to display the ncml editor dialog.
 import logging
 import sys
 
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 
 from .gui import nemo_ncml_generator as ncml_generator
 

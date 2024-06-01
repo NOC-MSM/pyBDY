@@ -7,8 +7,8 @@ import logging
 import os
 import xml.etree.ElementTree as ET
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot
+from PyQt6 import QtCore, QtGui, QtWidgets
+from PyQt6.QtCore import pyqtSlot
 from thredds_crawler.crawl import Crawl
 
 from . import nemo_ncml_tab_widget

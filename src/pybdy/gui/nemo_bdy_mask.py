@@ -7,8 +7,8 @@ import logging
 
 import numpy as np
 from netCDF4 import Dataset
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6 import QtCore
+from PyQt6.QtWidgets import QMessageBox
 from scipy import ndimage
 
 from pybdy.utils import gcoms_break_depth
