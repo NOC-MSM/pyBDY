@@ -138,7 +138,7 @@ def CreateBDYTideNetcdfFile(filename, xb_len, x_len, y_len, h, fv, grd):
     ncid.file_name = filename
     ncid.creation_date = str(datetime.datetime.now())
     ncid.history = h
-    ncid.institution = "National Oceanography Centre, Livepool, U.K."
+    ncid.institution = "National Oceanography Centre, Liverpool, U.K."
 
     # Longitude axis attributes
     varlonID.axis = "Longitude"
