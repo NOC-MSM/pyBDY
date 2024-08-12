@@ -301,7 +301,7 @@ def CreateBDYNetcdfFile(
     ncid.creation_date = str(datetime.datetime.now())
     ncid.rim_width = rw
     ncid.history = h
-    ncid.institution = "National Oceanography Centre, Livepool, U.K."
+    ncid.institution = "National Oceanography Centre, Liverpool, U.K."
 
     # Time axis attributes
     vartcID.axis = "T"
