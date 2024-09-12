@@ -32,7 +32,7 @@ import logging
 import time
 
 import numpy as np
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox
 
 from pybdy import nemo_bdy_dst_coord as dst_coord
 from pybdy import nemo_bdy_extr_tm3 as extract
