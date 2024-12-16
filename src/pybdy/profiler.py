@@ -106,6 +106,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     logger.info("Reading mask completed")
 
+    # TODO: Add a function to split the mask into several boundary chunks
+    
     bdy_ind = {}  # define a dictionary to hold the grid information
 
     for grd in ["t", "u", "v"]:
