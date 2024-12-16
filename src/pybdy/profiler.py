@@ -107,6 +107,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     logger.info("Reading mask completed")
 
     # TODO: Add a function to split the mask into several boundary chunks
+    bdy_msk_chunks = _chunk_mask(bdy_msk)
     
     bdy_ind = {}  # define a dictionary to hold the grid information
 
@@ -514,3 +515,20 @@ def _get_mask(Setup, mask_gui):
             bdy_msk[tmp] = -1
 
     return bdy_msk
+
+def _chunk_mask(bdy_mask):
+    """
+    Takes the mask and returns several masks to provide muliple boundary chunks.
+    This is done by changing -1 (not in domain) to 0 (land).
+    
+        Args:
+    ----
+        numpy.array     : a mask array of the regional domain
+
+    Returns:
+    -------
+        List of numpy.array     : a list of masked arrays of the regional domain
+    """
+    chunk_mask = []
+    
+    return chunk_mask
