@@ -540,43 +540,48 @@ def _chunk_bdy(bdy):
     bdy_size = np.shape(bdy.bdy_i)
     chunk_bdy = []
     
-    # Find natural breaks in the boundary looking for gaps in i and j
+    # Find natural breaks in the boundary looking for gaps in i and j 
     
     ibdy = bdy.bdy_i[:, 0]
-    ibdy_p = ibdy + 1
-    ibdy_m = ibdy - 1
     jbdy = bdy.bdy_i[:, 1]
-    jbdy_p = jbdy + 1
-    jbdy_m = jbdy - 1
+    chunk_number = np.zeros_like(bdy.bdy_r) -1
+    chk = 0
     
-    chunk_number = np.zeros_like(bdy.bdy_r)
-    
-    for r in range(rw):
-        r_ind = np.nonzero(bdy.bdy_r == r)[0]
-        chk_st = r_ind[0]
-        chk = 0
-
-        for i in range(r_ind[0], r_ind[-1]):
-            i_continue = ((ibdy[i] == ibdy_p[i + 1]) 
-                          | (ibdy[i] == ibdy_m[i + 1]) 
-                          | (ibdy[i] == ibdy[i + 1]))
-            j_continue = ((jbdy[i] == jbdy_p[i + 1]) 
-                          | (jbdy[i] == jbdy_m[i + 1]) 
-                          | (jbdy[i] == jbdy[i + 1]))
-            print(ibdy[i], ibdy[i + 1], jbdy[i], jbdy[i + 1], i_continue, j_continue)
-            
-            if (i_continue == False) | (j_continue == False):
-                # end of chunk
-                chk_en = i + 1
-                chunk_number[chk_st:chk_en] = chk
-                chk_st = chk_en * 1
-                chk = chk + 1
-        chunk_number[chk_st:] = chk
+    for i in range(bdy_size[0]):
+        # Subtract i and j index of point from the rest and test abs value
+        i_abs = np.abs(ibdy - ibdy[i])
+        j_abs = np.abs(jbdy - jbdy[i])
+        closeness_test = (i_abs <= 1) & (j_abs <= 1)
         
+        # Check if any of these points already has a chunk number
+        chk_true = (chunk_number[closeness_test] != -1)
+        if any(chk_true):
+            lowest_chk = np.min(chunk_number[closeness_test][chk_true])
+            other_chk = np.unique(chunk_number[closeness_test][chk_true])
+            chunk_number[closeness_test] = lowest_chk
+            for c in range(len(other_chk)):
+                chunk_number[chunk_number == other_chk[c]] = lowest_chk
+        else:
+            lowest_chk = chk * 1
+            chk = chk + 1
+            chunk_number[closeness_test] = lowest_chk
+        
+    # Rectify the chunk numbers
+    all_chunk = np.unique(chunk_number)
+    max_chunk = np.max(chunk_number)
+    chunk_number_s = np.zeros_like(bdy.bdy_r) -1
+    c = 0
+    for i in range(len(all_chunk)):
+        chunk_number_s[chunk_number == all_chunk[i]] = c
+        c = c + 1        
+    chunk_number = chunk_number_s * 1
+
     plt.scatter(ibdy, jbdy, c=chunk_number)
     plt.show()
     
+    
     # Find corners and split beyond the rim width
+    
     
     
     # Find midpoint of chunks
