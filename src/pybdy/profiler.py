@@ -105,9 +105,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     DstCoord.bdy_msk = bdy_msk == 1
 
     logger.info("Reading mask completed")
-
-    # TODO: Add a function to split the mask into several boundary chunks
-    bdy_msk_chunks = _chunk_mask(bdy_msk)
     
     bdy_ind = {}  # define a dictionary to hold the grid information
 
@@ -116,8 +113,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger.info("Generated BDY %s information", grd)
         logger.info("Grid %s has shape %s", grd, bdy_ind[grd].bdy_i.shape)
 
-    # TODO: Write in option to seperate out disconnected LBCs
-
+        # TODO: Write in option to seperate out disconnected LBCs
+        # Add a function to split the bdy into several boundary chunks
+        bdy_msk_chunks = _chunk_bdy(bdy_ind[grd])
+    
     # Write out grid information to coordinates.bdy.nc
 
     co_set = coord.Coord(settings["dst_dir"] + "/coordinates.bdy.nc", bdy_ind)
@@ -516,19 +515,72 @@ def _get_mask(Setup, mask_gui):
 
     return bdy_msk
 
-def _chunk_mask(bdy_mask):
+def _chunk_bdy(bdy):
     """
-    Takes the mask and returns several masks to provide muliple boundary chunks.
-    This is done by changing -1 (not in domain) to 0 (land).
+    Takes the boundary indicies and turns them into a list of boundary chunks.
+    The boundary is first split at natural breaks like land or the east-west wrap.
+    The chunks are then split near corners.
+    The chunks are then optionally split in the middle if they're above a certain size.
     
         Args:
     ----
-        numpy.array     : a mask array of the regional domain
+        Boundary object     : object with indices of the boundary organised as 
+                              bdy.bdy_i[bdy point, i/j grid]
+                              and rim width number
+                              bdy.bdy_r[bdy_point]
 
     Returns:
     -------
-        List of numpy.array     : a list of masked arrays of the regional domain
+        List of Boundary objects     : list of objects with indices of the boundary
     """
-    chunk_mask = []
+    import matplotlib.pyplot as plt
     
-    return chunk_mask
+    rw = bdy.settings["rimwidth"]
+    mid_split = False #bdy.settings["midsplit"] # True/False
+    bdy_size = np.shape(bdy.bdy_i)
+    chunk_bdy = []
+    
+    # Find natural breaks in the boundary looking for gaps in i and j
+    
+    ibdy = bdy.bdy_i[:, 0]
+    ibdy_p = ibdy + 1
+    ibdy_m = ibdy - 1
+    jbdy = bdy.bdy_i[:, 1]
+    jbdy_p = jbdy + 1
+    jbdy_m = jbdy - 1
+    
+    chunk_number = np.zeros_like(bdy.bdy_r)
+    
+    for r in range(rw):
+        r_ind = np.nonzero(bdy.bdy_r == r)[0]
+        chk_st = r_ind[0]
+        chk = 0
+
+        for i in range(r_ind[0], r_ind[-1]):
+            i_continue = ((ibdy[i] == ibdy_p[i + 1]) 
+                          | (ibdy[i] == ibdy_m[i + 1]) 
+                          | (ibdy[i] == ibdy[i + 1]))
+            j_continue = ((jbdy[i] == jbdy_p[i + 1]) 
+                          | (jbdy[i] == jbdy_m[i + 1]) 
+                          | (jbdy[i] == jbdy[i + 1]))
+            print(ibdy[i], ibdy[i + 1], jbdy[i], jbdy[i + 1], i_continue, j_continue)
+            
+            if (i_continue == False) | (j_continue == False):
+                # end of chunk
+                chk_en = i + 1
+                chunk_number[chk_st:chk_en] = chk
+                chk_st = chk_en * 1
+                chk = chk + 1
+        chunk_number[chk_st:] = chk
+        
+    plt.scatter(ibdy, jbdy, c=chunk_number)
+    plt.show()
+    
+    # Find corners and split beyond the rim width
+    
+    
+    # Find midpoint of chunks
+    if mid_split:
+        None
+    
+    return chunk_bdy
