@@ -536,11 +536,10 @@ def _chunk_bdy(bdy):
     import matplotlib.pyplot as plt
     
     rw = bdy.settings["rimwidth"]
-    mid_split = False #bdy.settings["midsplit"] # True/False
     bdy_size = np.shape(bdy.bdy_i)
-    chunk_bdy = []
     
     # Find natural breaks in the boundary looking for gaps in i and j 
+    # TODO: check if it also splits over east-west line
     
     ibdy = bdy.bdy_i[:, 0]
     jbdy = bdy.bdy_i[:, 1]
@@ -579,13 +578,65 @@ def _chunk_bdy(bdy):
     plt.scatter(ibdy, jbdy, c=chunk_number)
     plt.show()
     
-    
     # Find corners and split beyond the rim width
+    # Try spliting near a corner and see if it makes more closely clustered chunks
     
+    all_chunk = np.unique(chunk_number)
+    chk = np.max(all_chunk) + 1
+    mid_split = [] # list of chunks to split in the middle
+
+    for i in range(len(all_chunk)):
+        i_chk = ibdy[chunk_number == all_chunk[i]]
+        j_chk = jbdy[chunk_number == all_chunk[i]]
+        i_range1 = np.max(i_chk) - np.min(i_chk)
+        j_range1 = np.max(j_chk) - np.min(j_chk)
+
+        # check if we need a corner split
+        if (i_range1 > (rw + 10)) & (j_range1 > (rw + 10)):
+            
+            # work out which corner
+            i_split1 = np.min(i_chk) + rw + 1
+            i_split2 = np.max(i_chk) - rw - 1
+
+            # check which directional cut makes more closely clustered chunks
+            i_range2 = np.max(i_chk[i_chk >= i_split1]) - np.min(i_chk[i_chk >= i_split1])
+            i_range3 = np.max(i_chk[i_chk >= i_split2]) - np.min(i_chk[i_chk >= i_split2])
+            
+            if ((i_range1 - i_range2) > (rw + 10)) & ((i_range1 - i_range3) > (rw + 10)):
+                # The boundary is probably diagonal and so we need to split in middle instead
+                mid_split.append(all_chunk[i])
+            if (i_range1 - i_range2) > (i_range1 - i_range3):
+                chunk_number[(chunk_number == all_chunk[i]) & (ibdy >= i_split2)] = chk
+            else:
+                chunk_number[(chunk_number == all_chunk[i]) & (ibdy >= i_split1)] = chk
+            chk = chk + 1
     
+    # Find midpoint of chunks if splitting at corner didn't make it smaller
+
+    if len(mid_split):
+        
+        # Find average i and j for a chunk and orient a slice
+        all_chunk = np.unique(chunk_number)
+        chk = np.max(all_chunk) + 1
+        
+        for c in mid_split:
+            i_chk = ibdy[chunk_number == c]
+            j_chk = jbdy[chunk_number == c]
+            i_split = np.mean(i_chk)
+            j_split = np.mean(j_chk)
+
+            # check which directional cut makes more closely clustered chunks
+            i_range1 = np.max(i_chk) - np.min(i_chk)
+            j_range1 = np.max(j_chk) - np.min(j_chk)
+            i_range2 = np.max(i_chk[i_chk >= i_split]) - np.min(i_chk[i_chk >= i_split])
+            j_range2 = np.max(j_chk[j_chk >= j_split]) - np.min(j_chk[j_chk >= j_split])
+            if (i_range1 - i_range2) > (j_range1 - j_range2):
+                chunk_number[(chunk_number == c) & (ibdy >= i_split)] = chk
+            else:
+                chunk_number[(chunk_number == c) & (jbdy >= j_split)] = chk
+            chk = chk + 1
+                    
+    plt.scatter(ibdy, jbdy, c=chunk_number)
+    plt.show()   
     
-    # Find midpoint of chunks
-    if mid_split:
-        None
-    
-    return chunk_bdy
+    return chunk_number
