@@ -25,7 +25,6 @@ The main application script for the NRCT.
 @author John Kazimierz Farey
 @author Srikanth Nagella
 @author Benjamin Barton
-$Last commit on:$
 """
 
 # External imports
