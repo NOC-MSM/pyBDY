@@ -32,37 +32,62 @@ $Last commit on:$
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Local imports
-
 
 def chunk_bdy(bdy):
     """
+    Master chunking function.
     Takes the boundary indicies and turns them into a list of boundary chunks.
     The boundary is first split at natural breaks like land or the east-west wrap.
     The chunks are then split near corners.
-    The chunks are then optionally split in the middle if they're above a certain size.
+    The chunks are then optionally split in the middle if they're above a certain size
+    after attempting to split at corners.
     
-        Args:
+    Args:
     ----
-        Boundary object     : object with indices of the boundary organised as 
-                              bdy.bdy_i[bdy point, i/j grid]
-                              and rim width number
-                              bdy.bdy_r[bdy_point]
+        bdy (Boundary object)   : object with indices of the boundary organised as 
+                                  bdy.bdy_i[bdy point, i/j grid]
+                                  and rim width number
+                                  bdy.bdy_r[bdy_point]
 
     Returns:
     -------
-        List of Boundary objects     : list of objects with indices of the boundary
+        numpy.array             : array of chunk numbers
     """
     
     rw = bdy.settings["rimwidth"]
     bdy_size = np.shape(bdy.bdy_i)
-    
-    # Find natural breaks in the boundary looking for gaps in i and j 
-    # TODO: check if it also splits over east-west line
-    
+
     ibdy = bdy.bdy_i[:, 0]
     jbdy = bdy.bdy_i[:, 1]
     chunk_number = np.zeros_like(bdy.bdy_r) -1
+
+    chunk_number = chunk_land(ibdy, jbdy, chunk_number, rw, bdy_size)
+    chunk_number, mid_split = chunk_corner(ibdy, jbdy, chunk_number, rw)
+    chunk_number = chunk_mid(ibdy, jbdy, chunk_number, mid_split)
+
+    plt.scatter(ibdy, jbdy, c=chunk_number)
+    plt.show()  
+
+
+def chunk_land(ibdy, jbdy, chunk_number, rw, bdy_size):
+    """
+    Find natural breaks in the boundary looking for gaps in i and j 
+    # TODO: check if it also splits over east-west line
+    
+    Args:
+    ----
+        ibdy (numpy.array)         : index in i direction
+        ibdy (numpy.array)         : index in i direction
+        chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
+        rw (int)                   : rimwidth
+        bdy_size (tuple)           : dimensions of ibdy
+
+
+    Returns:
+    -------
+        numpy.array          : array of chunk numbers
+    """
+    
     chk = 0
     
     for i in range(bdy_size[0]):
@@ -87,7 +112,7 @@ def chunk_bdy(bdy):
     # Rectify the chunk numbers
     all_chunk = np.unique(chunk_number)
     max_chunk = np.max(chunk_number)
-    chunk_number_s = np.zeros_like(bdy.bdy_r) -1
+    chunk_number_s = np.zeros_like(chunk_number) -1
     c = 0
     for i in range(len(all_chunk)):
         chunk_number_s[chunk_number == all_chunk[i]] = c
@@ -97,8 +122,26 @@ def chunk_bdy(bdy):
     plt.scatter(ibdy, jbdy, c=chunk_number)
     plt.show()
     
-    # Find corners and split beyond the rim width
-    # Try spliting near a corner and see if it makes more closely clustered chunks
+    return chunk_number
+    
+
+def chunk_corner(ibdy, jbdy, chunk_number, rw):
+    """ 
+    Find corners and split beyond the rim width.
+    To do this we try spliting near a corner and see if it 
+    makes more closely clustered chunks.
+    
+    Args:
+    ----
+        ibdy (numpy.array)         : index in i direction
+        ibdy (numpy.array)         : index in i direction
+        chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
+        rw (int)                   : rimwidth
+
+    Returns:
+    -------
+        numpy.array          : array of chunk numbers
+    """
     
     all_chunk = np.unique(chunk_number)
     chk = np.max(all_chunk) + 1
@@ -129,9 +172,26 @@ def chunk_bdy(bdy):
             else:
                 chunk_number[(chunk_number == all_chunk[i]) & (ibdy >= i_split1)] = chk
             chk = chk + 1
+            
+    return chunk_number, mid_split
     
-    # Find midpoint of chunks if splitting at corner didn't make it smaller
 
+def chunk_mid(ibdy, jbdy, chunk_number, mid_split):
+    """
+    Find midpoint of chunks if splitting at corners didn't make the chunk smaller.
+    
+    Args:
+    ----
+        ibdy (numpy.array)         : index in i direction
+        ibdy (numpy.array)         : index in i direction
+        chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
+        mid_split (list)           : list of chunk numbers that need splitting
+
+    Returns:
+    -------
+        numpy.array          : array of chunk numbers
+    """
+    
     if len(mid_split):
         
         # Find average i and j for a chunk and orient a slice
@@ -153,9 +213,6 @@ def chunk_bdy(bdy):
                 chunk_number[(chunk_number == c) & (ibdy >= i_split)] = chk
             else:
                 chunk_number[(chunk_number == c) & (jbdy >= j_split)] = chk
-            chk = chk + 1
-                    
-    plt.scatter(ibdy, jbdy, c=chunk_number)
-    plt.show()   
+            chk = chk + 1 
     
     return chunk_number
