@@ -95,7 +95,7 @@ def test_chunk_corner_4():
     plt.show()
     
     errors = []
-    if all(np.unique(chunk_number) == np.array([0, 1, 2, 4])):
+    if not all(np.unique(chunk_number) == np.array([0, 1, 2, 4])):
         errors.append("The chunk numbers are not correct.")
     if len(mid_split) > 0:
         errors.append("The middle split chunk is not correct.")
@@ -114,7 +114,7 @@ def test_chunk_corner_3():
     print(np.unique(chunk_number))
     
     errors = []
-    if all(np.unique(chunk_number) == np.array([0, 1, 2])):
+    if not all(np.unique(chunk_number) == np.array([0, 1, 2])):
         errors.append("The chunk numbers are not correct.")
     if len(mid_split) > 0:
         errors.append("The middle split chunk is not correct.")
@@ -134,9 +134,9 @@ def test_chunk_corner_diag():
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
-    if np.unique(chunk_number) == np.array([0]):
+    if not np.unique(chunk_number) == np.array([0]):
         errors.append("The chunk numbers are not correct.")
-    if mid_split == 0:
+    if mid_split != 0:
         errors.append("The middle split chunk is not correct.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
@@ -163,7 +163,6 @@ def gen_synth_bdy(map=1):
 
     lon_range = np.arange(-10, 10, 0.2)
     lat_range = np.arange(30, 50, 0.2)
-    print(len(lon_range))
     
     setup_filepath = './namelist_synthetic.bdy'
     Setup = setup.Setup(setup_filepath) 
