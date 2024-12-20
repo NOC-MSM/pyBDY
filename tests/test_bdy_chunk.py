@@ -141,7 +141,41 @@ def test_chunk_corner_diag():
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
     
-#def test_chunk_mid():
+    
+def test_chunk_mid_4():
+    bdy = gen_synth_bdy(1)
+    rw = bdy.settings["rimwidth"]
+    bdy_size = np.shape(bdy.bdy_i)
+    chunk_number = np.zeros_like(bdy.bdy_r) -1
+    
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    mid_split = []
+    chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
+    assert all(np.unique(chunk_number) == np.array([0]))
+    
+    
+def test_chunk_mid_3():
+    bdy = gen_synth_bdy(2)
+    rw = bdy.settings["rimwidth"]
+    bdy_size = np.shape(bdy.bdy_i)
+    chunk_number = np.zeros_like(bdy.bdy_r) -1
+    
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    mid_split = [0, 1, 2]
+    chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
+    assert all(np.unique(chunk_number) == np.array([0, 1, 2, 3, 4, 5]))
+
+    
+def test_chunk_mid_diag():
+    bdy = gen_synth_bdy(3)
+    rw = bdy.settings["rimwidth"]
+    bdy_size = np.shape(bdy.bdy_i)
+    chunk_number = np.zeros_like(bdy.bdy_r) -1
+    
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    mid_split = [0]
+    chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
+    assert all(np.unique(chunk_number) == np.array([0, 1]))
     
     
 #def test_chunk_bdy():
