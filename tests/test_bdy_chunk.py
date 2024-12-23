@@ -46,7 +46,7 @@ def test_chunk_land_4():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    assert np.unique(chunk_number) == np.array([0])
+    assert all(np.unique(chunk_number) == np.array([0]))
     
     
 def test_chunk_land_3():
@@ -66,7 +66,25 @@ def test_chunk_land_diag():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    assert np.unique(chunk_number) == np.array([0])    
+    assert all(np.unique(chunk_number) == np.array([0]))
+def test_chunk_land_part():
+    bdy = gen_synth_bdy(4)
+    rw = bdy.settings["rimwidth"]
+    bdy_size = np.shape(bdy.bdy_i)
+    chunk_number = np.zeros_like(bdy.bdy_r) -1
+    
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    assert all(np.unique(chunk_number) == np.array([0])) 
+
+    
+def test_chunk_land_wrap():
+    bdy = gen_synth_bdy(5)
+    rw = bdy.settings["rimwidth"]
+    bdy_size = np.shape(bdy.bdy_i)
+    chunk_number = np.zeros_like(bdy.bdy_r) -1
+    
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    assert all(np.unique(chunk_number) == np.array([0, 1])) 
     
 """
 def test_chunk_east_west():
@@ -112,9 +130,10 @@ def test_chunk_corner_3():
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
     chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     print(np.unique(chunk_number))
-    
+    plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
+    plt.show()
     errors = []
-    if not all(np.unique(chunk_number) == np.array([0, 1, 2])):
+    if not all(np.unique(chunk_number) == np.array([0, 1, 2, 3])):
         errors.append("The chunk numbers are not correct.")
     if len(mid_split) > 0:
         errors.append("The middle split chunk is not correct.")
@@ -137,6 +156,46 @@ def test_chunk_corner_diag():
     if not np.unique(chunk_number) == np.array([0]):
         errors.append("The chunk numbers are not correct.")
     if mid_split != 0:
+        errors.append("The middle split chunk is not correct.")
+    # assert no error message has been registered, else print messages
+    assert not errors, "errors occured:\n{}".format("\n".join(errors))
+    
+    
+def test_chunk_corner_part():
+    bdy = gen_synth_bdy(4)
+    rw = bdy.settings["rimwidth"]
+    bdy_size = np.shape(bdy.bdy_i)
+    chunk_number = np.zeros_like(bdy.bdy_r) -1
+    
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
+    print(np.unique(chunk_number), mid_split)
+    plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
+    plt.show()
+    errors = []
+    if not np.unique(chunk_number) == np.array([0, 1]):
+        errors.append("The chunk numbers are not correct.")
+    if mid_split != 0:
+        errors.append("The middle split chunk is not correct.")
+    # assert no error message has been registered, else print messages
+    assert not errors, "errors occured:\n{}".format("\n".join(errors))    
+    
+    
+def test_chunk_corner_wrap():
+    bdy = gen_synth_bdy(5)
+    rw = bdy.settings["rimwidth"]
+    bdy_size = np.shape(bdy.bdy_i)
+    chunk_number = np.zeros_like(bdy.bdy_r) -1
+    
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
+    print(np.unique(chunk_number), mid_split)
+    plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
+    plt.show()
+    errors = []
+    if not np.unique(chunk_number) == np.array([0, 1, 2, 3]):
+        errors.append("The chunk numbers are not correct.")
+    if len(mid_split) > 0:
         errors.append("The middle split chunk is not correct.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
@@ -189,7 +248,7 @@ def gen_synth_bdy(map=1):
     on the selected map type.
 
     Args:
-        map (int): Map type (1, 2, 3 or 4).
+        map (int): Map type (1, 2, 3, 4 or 5).
 
     Returns:
         numpy.ndarray: Generated 2D array.
@@ -209,11 +268,11 @@ def gen_synth_bdy(map=1):
         bdy_msk[40:60, 40:60] = 0 # land
     
     elif map == 2:
-        # 3 open boundaries split by land in the corners
+        # 3 open boundaries split by land in the corner and side
         bdy_msk = np.zeros((len(lat_range), len(lon_range))) + 1 # water
         bdy_msk[90:, :] = 0 # land
         bdy_msk[:10, :10] = 0 # land
-        bdy_msk[:10, 90:] = 0 # land
+        bdy_msk[:10, 50:60] = 0 # land
         
     elif map == 3:
         # a single diagonal boundary
@@ -224,16 +283,27 @@ def gen_synth_bdy(map=1):
             bdy_msk[:100 - i, :i] = -1 # out of domain
             
     elif map == 4:
-        # a domain that crosses east-west
-        lon_range = np.arange(170, 190.2, 0.2)
-        lat_range = np.arange(30, 50.2, 0.2)
+        # a single diagonal boundary
+        bdy_msk = np.zeros((len(lat_range), len(lon_range))) + 1 # water
+        bdy_msk[90:, :] = 0 # land
+        bdy_msk[:, 90:] = 0 # land
+        bdy_msk[:10, :] = -1 # out of domain
+        bdy_msk[:, :10] = -1 # out of domain
+        for i in range(60):
+            bdy_msk[:60 - i, :i] = -1 # out of domain
+        
+    elif map == 5:
+        # a domain that crosses east-west around the southern ocean
+        lon_range = np.arange(-180, 180, 3.6)
+        lat_range = np.arange(-55, -75, -0.2)
     
-        bdy_msk = np.zeros((len(lat_range), len(lon_range))) # land
-        bdy_msk[10:90, 10:90] = 0 # water
-        bdy_msk[10:90, :20] = -1 # out of domain
-    
+        bdy_msk = np.zeros((len(lat_range), len(lon_range))) -1 # out of domain
+        bdy_msk[:10, :] = 0 # land
+        bdy_msk[10:50, :30] = 1 # water
+        bdy_msk[10:50, -30:] = 1 # water
+        
     else:
-        raise ValueError("Invalid map type. Choose 1, 2, 3 or 4.")
+        raise ValueError("Invalid map type. Choose 1, 2, 3, 4 or 5.")
         
     bdy_ind = gen_grid.Boundary(bdy_msk, settings, "t")
     return bdy_ind
