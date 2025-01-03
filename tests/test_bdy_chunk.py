@@ -19,11 +19,7 @@
 """
 Created on Thu Dec 19 10:39:46 2024.
 
-The main application script for the NRCT.
-
 @author James Harle
-@author John Kazimierz Farey
-@author Srikanth Nagella
 @author Benjamin Barton
 """
 
@@ -46,7 +42,7 @@ def test_chunk_land_4():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    assert all(np.unique(chunk_number) == np.array([0]))
+    assert (np.unique(chunk_number) == np.array([0])).all()
     
     
 def test_chunk_land_3():
@@ -56,7 +52,7 @@ def test_chunk_land_3():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    assert all(np.unique(chunk_number) == np.array([0, 1, 2]))
+    assert (np.unique(chunk_number) == np.array([0, 1, 2])).all()
     
     
 def test_chunk_land_diag():
@@ -66,15 +62,17 @@ def test_chunk_land_diag():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    assert all(np.unique(chunk_number) == np.array([0]))
-def test_chunk_land_part():
+    assert (np.unique(chunk_number) == np.array([0])).all()
+    
+    
+def test_chunk_land_comp():
     bdy = gen_synth_bdy(4)
     rw = bdy.settings["rimwidth"]
     bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    assert all(np.unique(chunk_number) == np.array([0])) 
+    assert (np.unique(chunk_number) == np.array([0])).all() 
 
     
 def test_chunk_land_wrap():
@@ -84,21 +82,8 @@ def test_chunk_land_wrap():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    assert all(np.unique(chunk_number) == np.array([0, 1])) 
+    assert (np.unique(chunk_number) == np.array([0, 1])).all() 
     
-"""
-def test_chunk_east_west():
-    bdy = gen_synth_east_west()
-    rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
-
-    ibdy = bdy.bdy_i[:, 0]
-    jbdy = bdy.bdy_i[:, 1]
-    chunk_number = np.zeros_like(bdy.bdy_r) -1
-    
-    chunk_number = chunk.chunk_land(ibdy, jbdy, chunk_number, rw, bdy_size)
-    assert np.unique(chunk_number) == np.array([0])
-"""    
     
 def test_chunk_corner_4():
     bdy = gen_synth_bdy(1)
@@ -107,13 +92,13 @@ def test_chunk_corner_4():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
+    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     
     errors = []
-    if not all(np.unique(chunk_number) == np.array([0, 1, 2, 4])):
+    if not (np.unique(chunk_number) == np.array([0, 1, 2, 4])).all():
         errors.append("The chunk numbers are not correct.")
     if len(mid_split) > 0:
         errors.append("The middle split chunk is not correct.")
@@ -128,12 +113,12 @@ def test_chunk_corner_3():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
+    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
-    if not all(np.unique(chunk_number) == np.array([0, 1, 2, 3])):
+    if not (np.unique(chunk_number) == np.array([0, 1, 2, 3])).all():
         errors.append("The chunk numbers are not correct.")
     if len(mid_split) > 0:
         errors.append("The middle split chunk is not correct.")
@@ -148,12 +133,12 @@ def test_chunk_corner_diag():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
+    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
-    if not np.unique(chunk_number) == np.array([0]):
+    if not (np.unique(chunk_number) == np.array([0])).all():
         errors.append("The chunk numbers are not correct.")
     if mid_split != 0:
         errors.append("The middle split chunk is not correct.")
@@ -161,19 +146,19 @@ def test_chunk_corner_diag():
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
     
     
-def test_chunk_corner_part():
+def test_chunk_corner_comp():
     bdy = gen_synth_bdy(4)
     rw = bdy.settings["rimwidth"]
     bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
+    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
-    if not np.unique(chunk_number) == np.array([0, 1]):
+    if not (np.unique(chunk_number) == np.array([0, 1])).all():
         errors.append("The chunk numbers are not correct.")
     if mid_split != 0:
         errors.append("The middle split chunk is not correct.")
@@ -188,12 +173,12 @@ def test_chunk_corner_wrap():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
+    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
-    if not np.unique(chunk_number) == np.array([0, 1, 2, 3]):
+    if not (np.unique(chunk_number) == np.array([0, 1, 2, 3])).all():
         errors.append("The chunk numbers are not correct.")
     if len(mid_split) > 0:
         errors.append("The middle split chunk is not correct.")
@@ -210,7 +195,7 @@ def test_chunk_mid_4():
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
     mid_split = []
     chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
-    assert all(np.unique(chunk_number) == np.array([0]))
+    assert (np.unique(chunk_number) == np.array([0])).all()
     
     
 def test_chunk_mid_3():
@@ -222,7 +207,7 @@ def test_chunk_mid_3():
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
     mid_split = [0, 1, 2]
     chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
-    assert all(np.unique(chunk_number) == np.array([0, 1, 2, 3, 4, 5]))
+    assert (np.unique(chunk_number) == np.array([0, 1, 2, 3, 4, 5])).all()
 
     
 def test_chunk_mid_diag():
@@ -234,7 +219,7 @@ def test_chunk_mid_diag():
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
     mid_split = [0]
     chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
-    assert all(np.unique(chunk_number) == np.array([0, 1]))
+    assert (np.unique(chunk_number) == np.array([0, 1])).all()
     
     
 #def test_chunk_bdy():
@@ -283,14 +268,17 @@ def gen_synth_bdy(map=1):
             bdy_msk[:100 - i, :i] = -1 # out of domain
             
     elif map == 4:
-        # a single diagonal boundary
+        # a complex diagonal boundaries
         bdy_msk = np.zeros((len(lat_range), len(lon_range))) + 1 # water
         bdy_msk[90:, :] = 0 # land
         bdy_msk[:, 90:] = 0 # land
         bdy_msk[:10, :] = -1 # out of domain
-        bdy_msk[:, :10] = -1 # out of domain
+        #bdy_msk[:, :10] = -1 # out of domain
+        bdy_msk[:20, 80:] = -1 # out of domain
         for i in range(60):
-            bdy_msk[:60 - i, :i] = -1 # out of domain
+            bdy_msk[:61 - i, :i] = -1 # out of domain
+        for i in range(31):
+            bdy_msk[i + 40:, :i] = -1 # out of domain
         
     elif map == 5:
         # a domain that crosses east-west around the southern ocean
