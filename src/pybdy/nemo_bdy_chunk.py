@@ -52,13 +52,12 @@ def chunk_bdy(bdy):
     """
     
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
 
     ibdy = bdy.bdy_i[:, 0]
     jbdy = bdy.bdy_i[:, 1]
     chunk_number = np.zeros_like(bdy.bdy_r) -1
 
-    chunk_number = chunk_land(ibdy, jbdy, chunk_number, rw, bdy_size)
+    chunk_number = chunk_land(ibdy, jbdy, chunk_number, rw)
     chunk_number, mid_split = chunk_corner(ibdy, jbdy, bdy.bdy_r, chunk_number, rw)
     chunk_number = chunk_mid(ibdy, jbdy, chunk_number, mid_split)
 
@@ -66,7 +65,7 @@ def chunk_bdy(bdy):
     plt.show()  
 
 
-def chunk_land(ibdy, jbdy, chunk_number, rw, bdy_size):
+def chunk_land(ibdy, jbdy, chunk_number, rw):
     """
     Find natural breaks in the boundary looking for gaps in i and j 
     
@@ -76,17 +75,18 @@ def chunk_land(ibdy, jbdy, chunk_number, rw, bdy_size):
         jbdy (numpy.array)         : index in j direction
         chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
         rw (int)                   : rimwidth
-        bdy_size (tuple)           : dimensions of ibdy
-
 
     Returns:
     -------
         numpy.array          : array of chunk numbers
     """
     
-    chk = 0
+    if np.min(chunk_number) <= -1:
+        chk = 0
+    else:
+        chk = np.min(chunk_number)
     
-    for i in range(bdy_size[0]):
+    for i in range(np.shape(ibdy)[0]):
         # Subtract i and j index of point from the rest and test abs value
         i_abs = np.abs(ibdy - ibdy[i])
         j_abs = np.abs(jbdy - jbdy[i])
@@ -280,8 +280,25 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw, mid_split=[]):
                     else:
                         # found corner
                         corner_index = np.nonzero((rbdy == r) & (chunk_number == all_chunk[i]))[0][p]
-                        print(corner_index)
                         corner[corner_index] = 1
+                        
+                        # make corners 2 points wider
+                        corner_index = np.nonzero(((ir_chk[p] + 1) == ibdy) & (jr_chk[p] == jbdy))[0]
+                        corner[corner_index] = 1
+                        corner_index = np.nonzero((ir_chk[p] == ibdy) & ((jr_chk[p] + 1) == jbdy))[0]
+                        corner[corner_index] = 1
+                        corner_index = np.nonzero(((ir_chk[p] - 1) == ibdy) & (jr_chk[p] == jbdy))[0]
+                        corner[corner_index] = 1
+                        corner_index = np.nonzero((ir_chk[p] == ibdy) & ((jr_chk[p] - 1) == jbdy))[0]
+                        corner[corner_index] = 1
+                        
+    # Reset chunk number of chunks with corners
+    corner_chunk = np.unique(chunk_number[corner])
+    for ch in range(len(corner_chunk)):
+        chunk_number[chunk_number == corner_chunk[ch]] = -1
+        
+    chunk_land
+        
                         # remove corner points then do something similar to chunk_land 
                         # then add them to the highest neighbouring chunk number
     plt.scatter(ibdy, jbdy, c=corner)

@@ -38,60 +38,54 @@ from src.pybdy import nemo_bdy_setup as setup
 def test_chunk_land_4():
     bdy = gen_synth_bdy(1)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     assert (np.unique(chunk_number) == np.array([0])).all()
     
     
 def test_chunk_land_3():
     bdy = gen_synth_bdy(2)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     assert (np.unique(chunk_number) == np.array([0, 1, 2])).all()
     
     
 def test_chunk_land_diag():
     bdy = gen_synth_bdy(3)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     assert (np.unique(chunk_number) == np.array([0])).all()
     
     
 def test_chunk_land_comp():
     bdy = gen_synth_bdy(4)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     assert (np.unique(chunk_number) == np.array([0])).all() 
 
     
 def test_chunk_land_wrap():
     bdy = gen_synth_bdy(5)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     assert (np.unique(chunk_number) == np.array([0, 1])).all() 
     
     
 def test_chunk_corner_4():
     bdy = gen_synth_bdy(1)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
@@ -109,10 +103,9 @@ def test_chunk_corner_4():
 def test_chunk_corner_3():
     bdy = gen_synth_bdy(2)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
@@ -129,10 +122,9 @@ def test_chunk_corner_3():
 def test_chunk_corner_diag():
     bdy = gen_synth_bdy(3)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
@@ -149,10 +141,9 @@ def test_chunk_corner_diag():
 def test_chunk_corner_comp():
     bdy = gen_synth_bdy(4)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
@@ -169,10 +160,9 @@ def test_chunk_corner_comp():
 def test_chunk_corner_wrap():
     bdy = gen_synth_bdy(5)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
@@ -189,10 +179,9 @@ def test_chunk_corner_wrap():
 def test_chunk_mid_4():
     bdy = gen_synth_bdy(1)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     mid_split = []
     chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
     assert (np.unique(chunk_number) == np.array([0])).all()
@@ -201,10 +190,9 @@ def test_chunk_mid_4():
 def test_chunk_mid_3():
     bdy = gen_synth_bdy(2)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     mid_split = [0, 1, 2]
     chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
     assert (np.unique(chunk_number) == np.array([0, 1, 2, 3, 4, 5])).all()
@@ -213,10 +201,9 @@ def test_chunk_mid_3():
 def test_chunk_mid_diag():
     bdy = gen_synth_bdy(3)
     rw = bdy.settings["rimwidth"]
-    bdy_size = np.shape(bdy.bdy_i)
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
-    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw, bdy_size)
+    chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     mid_split = [0]
     chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
     assert (np.unique(chunk_number) == np.array([0, 1])).all()
