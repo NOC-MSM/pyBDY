@@ -86,16 +86,14 @@ def test_chunk_corner_4():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
+    chunk_number = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     
     errors = []
-    if not (np.unique(chunk_number) == np.array([0, 1, 2, 4])).all():
+    if not (np.unique(chunk_number) == np.array([0, 1, 2, 3])).all():
         errors.append("The chunk numbers are not correct.")
-    if len(mid_split) > 0:
-        errors.append("The middle split chunk is not correct.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
@@ -106,15 +104,13 @@ def test_chunk_corner_3():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
+    chunk_number = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
     if not (np.unique(chunk_number) == np.array([0, 1, 2, 3])).all():
         errors.append("The chunk numbers are not correct.")
-    if len(mid_split) > 0:
-        errors.append("The middle split chunk is not correct.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
     
@@ -125,15 +121,13 @@ def test_chunk_corner_diag():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
+    chunk_number = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
     if not (np.unique(chunk_number) == np.array([0])).all():
         errors.append("The chunk numbers are not correct.")
-    if mid_split != 0:
-        errors.append("The middle split chunk is not correct.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
     
@@ -144,15 +138,13 @@ def test_chunk_corner_comp():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
+    chunk_number = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
-    if not (np.unique(chunk_number) == np.array([0, 1])).all():
+    if not (np.unique(chunk_number) == np.array([0, 1, 2, 3, 4])).all():
         errors.append("The chunk numbers are not correct.")
-    if mid_split != 0:
-        errors.append("The middle split chunk is not correct.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))    
     
@@ -163,15 +155,13 @@ def test_chunk_corner_wrap():
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    chunk_number, mid_split = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
+    chunk_number = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
     print(np.unique(chunk_number), mid_split)
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
     if not (np.unique(chunk_number) == np.array([0, 1, 2, 3])).all():
         errors.append("The chunk numbers are not correct.")
-    if len(mid_split) > 0:
-        errors.append("The middle split chunk is not correct.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
     
