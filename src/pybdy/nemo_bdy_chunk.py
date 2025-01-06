@@ -196,7 +196,7 @@ def chunk_corner_old(ibdy, jbdy, chunk_number, rw, mid_split=[]):
     return chunk_number, mid_split
 
 
-def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw, mid_split=[]):
+def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
     """ 
     Find corners and split along the change in direction.
     To do this we look for a change in direction along each rim.
@@ -292,19 +292,40 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw, mid_split=[]):
                         corner_index = np.nonzero((ir_chk[p] == ibdy) & ((jr_chk[p] - 1) == jbdy))[0]
                         corner[corner_index] = 1
                         
-    # Reset chunk number of chunks with corners
-    corner_chunk = np.unique(chunk_number[corner])
-    for ch in range(len(corner_chunk)):
-        chunk_number[chunk_number == corner_chunk[ch]] = -1
-        
-    chunk_land
-        
-                        # remove corner points then do something similar to chunk_land 
-                        # then add them to the highest neighbouring chunk number
     plt.scatter(ibdy, jbdy, c=corner)
     plt.show()
     
-    return chunk_number, mid_split
+    # Reset chunk number
+    chunk_number[:] = -1
+    
+    # remove corner points then do something similar to chunk_land()
+    chunk_number[corner == 0] = chunk_land(
+        ibdy[corner == 0], jbdy[corner == 0], chunk_number[corner == 0], rw)
+        
+    max_chunk = np.max(chunk_number) + 1
+    chunk_number[corner == 1] = chunk_land(
+        ibdy[corner == 1], jbdy[corner == 1], chunk_number[corner == 1], rw) + max_chunk
+        
+    # add corner points to the highest neighbouring chunk number
+    corner_chunk = np.unique(chunk_number[corner == 1])
+    
+    for c in range(len(corner_chunk)):
+        icorn = ibdy[chunk_number == corner_chunk[c]]
+        jcorn = jbdy[chunk_number == corner_chunk[c]]
+        b_check = np.zeros(ibdy.shape, dtype=bool)
+        for p in range(len(icorn)):
+            b_check = b_check | (((icorn[p] + 1) == ibdy)
+                 & (jcorn[p] == jbdy))
+            b_check = b_check | (((icorn[p] - 1) == ibdy)
+                 & (jcorn[p] == jbdy))
+            b_check = b_check | ((icorn[p] == ibdy)
+                 & ((jcorn[p] + 1) == jbdy))
+            b_check = b_check | (((icorn[p] + 1) == ibdy)
+                 & ((jcorn[p] - 1) == jbdy))
+        new_chunk = np.min(chunk_number[b_check])
+        chunk_number[chunk_number == corner_chunk[c]] = new_chunk
+        
+    return chunk_number
 
     
 def chunk_mid(ibdy, jbdy, chunk_number, mid_split):
