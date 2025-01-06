@@ -122,7 +122,7 @@ def test_chunk_corner_diag():
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
-    print(np.unique(chunk_number), mid_split)
+    print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
@@ -139,7 +139,7 @@ def test_chunk_corner_comp():
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
-    print(np.unique(chunk_number), mid_split)
+    print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
@@ -156,7 +156,7 @@ def test_chunk_corner_wrap():
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number = chunk.chunk_corner(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw)
-    print(np.unique(chunk_number), mid_split)
+    print(np.unique(chunk_number))
     plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
     plt.show()
     errors = []
@@ -238,11 +238,13 @@ def gen_synth_bdy(map=1):
         
     elif map == 3:
         # a single diagonal boundary
+        lon_range = np.arange(-10, 10, 0.02)
+        lat_range = np.arange(30, 50, 0.02)
         bdy_msk = np.zeros((len(lat_range), len(lon_range))) + 1 # water
-        bdy_msk[90:, :] = 0 # land
-        bdy_msk[:, 90:] = 0 # land
+        bdy_msk[(bdy_msk.shape[0] - 10):, :] = 0 # land
+        bdy_msk[:, (bdy_msk.shape[0] - 10):] = 0 # land
         for i in range(bdy_msk.shape[0]):
-            bdy_msk[:100 - i, :i] = -1 # out of domain
+            bdy_msk[:bdy_msk.shape[0] - i, :i] = -1 # out of domain
             
     elif map == 4:
         # a complex diagonal boundaries
