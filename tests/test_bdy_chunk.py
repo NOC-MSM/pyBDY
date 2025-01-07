@@ -166,40 +166,35 @@ def test_chunk_corner_wrap():
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
     
     
-def test_chunk_mid_4():
+def test_chunk_large_4():
     bdy = gen_synth_bdy(1)
     rw = bdy.settings["rimwidth"]
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    mid_split = []
-    chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
-    assert (np.unique(chunk_number) == np.array([0])).all()
+    chunk_number = chunk.chunk_large(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number)
+    assert (np.unique(chunk_number) == np.array([0, 1])).all()
     
     
-def test_chunk_mid_3():
+def test_chunk_large_3():
     bdy = gen_synth_bdy(2)
     rw = bdy.settings["rimwidth"]
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    mid_split = [0, 1, 2]
-    chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
-    assert (np.unique(chunk_number) == np.array([0, 1, 2, 3, 4, 5])).all()
+    chunk_number = chunk.chunk_large(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number)
+    assert (np.unique(chunk_number) == np.array([0, 1, 2])).all()
 
     
-def test_chunk_mid_diag():
+def test_chunk_large_diag():
     bdy = gen_synth_bdy(3)
     rw = bdy.settings["rimwidth"]
     chunk_number = np.zeros_like(bdy.bdy_r) -1
     
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    mid_split = [0]
-    chunk_number = chunk.chunk_mid(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, mid_split)
-    assert (np.unique(chunk_number) == np.array([0, 1])).all()
+    chunk_number = chunk.chunk_large(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number)
+    assert (np.unique(chunk_number) == np.array([0, 1, 2, 3, 4])).all()
     
-    
-#def test_chunk_bdy():
     
     
 # Synthetic test cases
