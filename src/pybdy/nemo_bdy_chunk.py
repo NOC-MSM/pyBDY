@@ -58,8 +58,8 @@ def chunk_bdy(bdy):
     chunk_number = np.zeros_like(bdy.bdy_r) -1
 
     chunk_number = chunk_land(ibdy, jbdy, chunk_number, rw)
-    chunk_number, mid_split = chunk_corner(ibdy, jbdy, bdy.bdy_r, chunk_number, rw)
-    chunk_number = chunk_mid(ibdy, jbdy, chunk_number, mid_split)
+    chunk_number = chunk_corner(ibdy, jbdy, bdy.bdy_r, chunk_number, rw)
+    chunk_number = chunk_large(ibdy, jbdy, chunk_number)
 
     plt.scatter(ibdy, jbdy, c=chunk_number)
     plt.show()  
@@ -123,77 +123,6 @@ def chunk_land(ibdy, jbdy, chunk_number, rw):
     #plt.show()
     
     return chunk_number
-    
-def chunk_corner_old(ibdy, jbdy, chunk_number, rw, mid_split=[]):
-    """ 
-    Find corners and split beyond the rim width.
-    To do this we try spliting near a corner and see if it 
-    makes more closely clustered chunks.
-    Do this recusively.
-    
-    Args:
-    ----
-        ibdy (numpy.array)         : index in i direction
-        jbdy (numpy.array)         : index in j direction
-        chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
-        rw (int)                   : rimwidth
-        change (bool)              : on the last iteration was there a change in the number of chunks
-        mid_split (list)           : list of chunk numbers that need splitting
-
-    Returns:
-    -------
-        numpy.array          : array of chunk numbers
-    """
-
-    change = False
-    all_chunk = np.unique(chunk_number)
-    chk = np.max(all_chunk) + 1
-
-    for i in range(len(all_chunk)):
-        i_chk = ibdy[chunk_number == all_chunk[i]]
-        j_chk = jbdy[chunk_number == all_chunk[i]]
-        i_range1 = np.max(i_chk) - np.min(i_chk)
-        j_range1 = np.max(j_chk) - np.min(j_chk)
-
-        # check if we need a corner split
-        if (i_range1 > (rw + 10)) & (j_range1 > (rw + 10)):
-
-            # work out which corner
-            i_split1 = np.min(i_chk) + rw
-            i_split2 = np.max(i_chk) - rw
-            j_split1 = np.min(j_chk) + rw
-            j_split2 = np.max(j_chk) - rw
-            
-            # check which directional cut makes more closely clustered chunks
-            i_range2 = np.max(i_chk[j_chk >= j_split1]) - np.min(i_chk[j_chk >= j_split1])
-            i_range3 = np.max(i_chk[j_chk >= j_split2]) - np.min(i_chk[j_chk >= j_split2])
-            j_range2 = np.max(j_chk[i_chk >= i_split1]) - np.min(j_chk[i_chk >= i_split1])
-            j_range3 = np.max(j_chk[i_chk >= i_split2]) - np.min(j_chk[i_chk >= i_split2])
-
-            if (((i_range1 - i_range2) > (rw + 10)) & ((i_range1 - i_range3) > (rw + 10))
-                & ((j_range1 - j_range2) > (rw + 10)) & ((j_range1 - j_range3) > (rw + 10))):
-                # The boundary is probably diagonal and so we need to split in middle instead
-                mid_split.append(all_chunk[i])
-                continue
-                
-            if (j_range1 - j_range2) > (j_range1 - j_range3):
-                chunk_number[(chunk_number == all_chunk[i]) & (ibdy >= i_split2)] = chk
-                change = True
-            elif (j_range1 - j_range2) < (j_range1 - j_range3):
-                chunk_number[(chunk_number == all_chunk[i]) & (ibdy >= i_split1)] = chk
-                change = True
-            elif (i_range1 - i_range2) >= (i_range1 - i_range3):
-                chunk_number[(chunk_number == all_chunk[i]) & (jbdy >= j_split2)] = chk
-                change = True
-            else:
-                chunk_number[(chunk_number == all_chunk[i]) & (jbdy >= j_split1)] = chk
-                change = True
-            chk = chk + 1
-            
-    if change:
-        # Recusion to look for more corners
-        chunk_number, mid_split = chunk_corner(ibdy, jbdy, chunk_number, rw, mid_split)
-    return chunk_number, mid_split
 
 
 def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
@@ -292,8 +221,8 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
                         corner_index = np.nonzero((ir_chk[p] == ibdy) & ((jr_chk[p] - 1) == jbdy))[0]
                         corner[corner_index] = 1
                         
-    plt.scatter(ibdy, jbdy, c=corner)
-    plt.show()
+    #plt.scatter(ibdy, jbdy, c=corner)
+    #plt.show()
     
     # Reset chunk number
     chunk_number[:] = -1
@@ -301,10 +230,11 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
     # remove corner points then do something similar to chunk_land()
     chunk_number[corner == 0] = chunk_land(
         ibdy[corner == 0], jbdy[corner == 0], chunk_number[corner == 0], rw)
-        
-    max_chunk = np.max(chunk_number) + 1
-    chunk_number[corner == 1] = chunk_land(
-        ibdy[corner == 1], jbdy[corner == 1], chunk_number[corner == 1], rw) + max_chunk
+    
+    if np.sum(corner == 1) > 0:
+        max_chunk = np.max(chunk_number) + 1
+        chunk_number[corner == 1] = chunk_land(
+            ibdy[corner == 1], jbdy[corner == 1], chunk_number[corner == 1], rw) + max_chunk
         
     # add corner points to the highest neighbouring chunk number
     corner_chunk = np.unique(chunk_number[corner == 1])
@@ -312,59 +242,110 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
     for c in range(len(corner_chunk)):
         icorn = ibdy[chunk_number == corner_chunk[c]]
         jcorn = jbdy[chunk_number == corner_chunk[c]]
-        b_check = np.zeros(ibdy.shape, dtype=bool)
-        for p in range(len(icorn)):
-            b_check = b_check | (((icorn[p] + 1) == ibdy)
-                 & (jcorn[p] == jbdy))
-            b_check = b_check | (((icorn[p] - 1) == ibdy)
-                 & (jcorn[p] == jbdy))
-            b_check = b_check | ((icorn[p] == ibdy)
-                 & ((jcorn[p] + 1) == jbdy))
-            b_check = b_check | (((icorn[p] + 1) == ibdy)
-                 & ((jcorn[p] - 1) == jbdy))
-        new_chunk = np.min(chunk_number[b_check])
-        chunk_number[chunk_number == corner_chunk[c]] = new_chunk
+        if len(icorn) <= (rw * 4):
+            b_check = np.zeros(ibdy.shape, dtype=bool)
+            for p in range(len(icorn)):
+                b_check = b_check | (((icorn[p] + 1) == ibdy)
+                     & (jcorn[p] == jbdy))
+                b_check = b_check | (((icorn[p] - 1) == ibdy)
+                     & (jcorn[p] == jbdy))
+                b_check = b_check | ((icorn[p] == ibdy)
+                     & ((jcorn[p] + 1) == jbdy))
+                b_check = b_check | (((icorn[p] + 1) == ibdy)
+                     & ((jcorn[p] - 1) == jbdy))
+            b_check[corner == 1] = False
+            new_chunk = np.min(chunk_number[b_check])
+            chunk_number[chunk_number == corner_chunk[c]] = new_chunk
+    
+    # Need to add chunks that are too small together
+    all_chunk = np.unique(chunk_number)
+    chunk_size = [np.sum(chunk_number == all_chunk[i]) for i in range(len(all_chunk))]
+    all_chunk = [x for _, x in sorted(zip(chunk_size, all_chunk))]
+    chunk_size = np.array(sorted(chunk_size))
+    
+    for i in range(len(all_chunk)):
+        if chunk_size[i] <= (rw ** 2):
+            icorn = ibdy[chunk_number == all_chunk[i]]
+            jcorn = jbdy[chunk_number == all_chunk[i]]
+
+            b_check = np.zeros(ibdy.shape, dtype=bool)
+            for p in range(len(icorn)):
+                b_check = b_check | (((icorn[p] + 1) == ibdy)
+                     & (jcorn[p] == jbdy))
+                b_check = b_check | (((icorn[p] - 1) == ibdy)
+                     & (jcorn[p] == jbdy))
+                b_check = b_check | ((icorn[p] == ibdy)
+                     & ((jcorn[p] + 1) == jbdy))
+                b_check = b_check | (((icorn[p] + 1) == ibdy)
+                     & ((jcorn[p] - 1) == jbdy))
+            b_check[chunk_number == all_chunk[i]] = False
+            new_chunk = np.min(chunk_number[b_check])
+            chunk_number[chunk_number == all_chunk[i]] = new_chunk
+
+            chunk_size[i] = np.sum(chunk_number == all_chunk[i])
+            chunk_size[all_chunk == new_chunk] = np.sum(chunk_number == new_chunk)
         
+    # Rectify the chunk numbers
+    all_chunk = np.unique(chunk_number)
+    max_chunk = np.max(chunk_number)
+    chunk_number_s = np.zeros_like(chunk_number) -1
+    c = 0
+    for i in range(len(all_chunk)):
+        chunk_number_s[chunk_number == all_chunk[i]] = c
+        c = c + 1        
+    chunk_number = chunk_number_s * 1
+    
     return chunk_number
 
     
-def chunk_mid(ibdy, jbdy, chunk_number, mid_split):
+def chunk_large(ibdy, jbdy, chunk_number):
     """
-    Find midpoint of chunks if splitting at corners didn't make the chunk smaller.
+    Split boundaries that are too large (> 2000 points).
     
     Args:
     ----
         ibdy (numpy.array)         : index in i direction
         jbdy (numpy.array)         : index in j direction
         chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
-        mid_split (list)           : list of chunk numbers that need splitting
 
     Returns:
     -------
         numpy.array          : array of chunk numbers
     """
+
+    # Calculate which boundaries are too big (> 2000 points)
+    threshold = 2000
     
-    if len(mid_split):
-        
+    all_chunk = np.unique(chunk_number)
+    chunk_size = np.array([np.sum(chunk_number == all_chunk[i]) for i in range(len(all_chunk))])
+    large_split = all_chunk[(chunk_size / threshold) > 1]
+    n_part = np.ceil(chunk_size / threshold).astype(int)
+    n_part = n_part[n_part > 1]
+    print(large_split, n_part)
+    
+    if len(large_split):
         # Find average i and j for a chunk and orient a slice
-        all_chunk = np.unique(chunk_number)
         chk = np.max(all_chunk) + 1
         
-        for c in mid_split:
-            i_chk = ibdy[chunk_number == c]
-            j_chk = jbdy[chunk_number == c]
-            i_split = np.mean(i_chk)
-            j_split = np.mean(j_chk)
+        for c in range(len(large_split)):
+            i_chk = ibdy[chunk_number == large_split[c]]
+            j_chk = jbdy[chunk_number == large_split[c]]
+            chunk_to_split = large_split[c]
+            for p in range(n_part[c] - 1):
+                i_split = np.percentile(i_chk, ((100 / n_part[c]) * (p + 1)))
+                j_split = np.percentile(j_chk, ((100 / n_part[c]) * (p + 1)))
 
-            # check which directional cut makes more closely clustered chunks
-            i_range1 = np.max(i_chk) - np.min(i_chk)
-            j_range1 = np.max(j_chk) - np.min(j_chk)
-            i_range2 = np.max(i_chk[i_chk >= i_split]) - np.min(i_chk[i_chk >= i_split])
-            j_range2 = np.max(j_chk[j_chk >= j_split]) - np.min(j_chk[j_chk >= j_split])
-            if (i_range1 - i_range2) > (j_range1 - j_range2):
-                chunk_number[(chunk_number == c) & (ibdy >= i_split)] = chk
-            else:
-                chunk_number[(chunk_number == c) & (jbdy >= j_split)] = chk
-            chk = chk + 1 
+                # check which directional cut makes more closely clustered chunks
+                i_range1 = np.max(i_chk) - np.min(i_chk)
+                j_range1 = np.max(j_chk) - np.min(j_chk)
+                i_range2 = np.max(i_chk[i_chk >= i_split]) - np.min(i_chk[i_chk >= i_split])
+                j_range2 = np.max(j_chk[j_chk >= j_split]) - np.min(j_chk[j_chk >= j_split])
+                if (i_range1 - i_range2) > (j_range1 - j_range2):
+                    chunk_number[(chunk_number == chunk_to_split) & (ibdy >= i_split)] = chk
+                else:
+                    chunk_number[(chunk_number == chunk_to_split) & (jbdy >= j_split)] = chk
+                if np.sum(chunk_number == chunk_to_split) < np.sum(chunk_number == chk):
+                    chunk_to_split = chk
+                chk = chk + 1 
     
     return chunk_number
