@@ -321,7 +321,6 @@ def chunk_large(ibdy, jbdy, chunk_number):
     large_split = all_chunk[(chunk_size / threshold) > 1]
     n_part = np.ceil(chunk_size / threshold).astype(int)
     n_part = n_part[n_part > 1]
-    print(large_split, n_part)
     
     if len(large_split):
         # Find average i and j for a chunk and orient a slice

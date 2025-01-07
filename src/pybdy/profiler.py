@@ -115,7 +115,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger.info("Generated BDY %s information", grd)
         logger.info("Grid %s has shape %s", grd, bdy_ind[grd].bdy_i.shape)
 
-        # TODO: Write in option to seperate out disconnected LBCs
         # Add a function to split the bdy into several boundary chunks
         bdy_chunk_number[grd] = chunk.chunk_bdy(bdy_ind[grd])
     
