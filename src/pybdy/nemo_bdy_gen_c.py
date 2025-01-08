@@ -187,6 +187,7 @@ class Boundary:
 
     def _remove_landpoints_open_ocean(self, mask, bdy_i, bdy_r):
         """Remove the land points and open ocean points."""
+        # TODO: remove out of domain points
         unmask_index = mask[bdy_i[:, 1], bdy_i[:, 0]] != 0
         bdy_i = bdy_i[unmask_index, :]
         bdy_r = bdy_r[unmask_index]
