@@ -242,12 +242,11 @@ def gen_synth_bdy(map=1):
             bdy_msk[:bdy_msk.shape[0] - i, :i] = -1 # out of domain
             
     elif map == 4:
-        # a complex diagonal boundaries
+        # complex diagonal boundaries
         bdy_msk = np.zeros((len(lat_range), len(lon_range))) + 1 # water
         bdy_msk[90:, :] = 0 # land
         bdy_msk[:, 90:] = 0 # land
         bdy_msk[:10, :] = -1 # out of domain
-        #bdy_msk[:, :10] = -1 # out of domain
         bdy_msk[:20, 80:] = -1 # out of domain
         for i in range(60):
             bdy_msk[:61 - i, :i] = -1 # out of domain
