@@ -108,15 +108,14 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     logger.info("Reading mask completed")
     
     bdy_ind = {}  # define a dictionary to hold the grid information
-    bdy_chunk_number = {}
     
     for grd in ["t", "u", "v"]:
         bdy_ind[grd] = gen_grid.Boundary(bdy_msk, settings, grd)
         logger.info("Generated BDY %s information", grd)
         logger.info("Grid %s has shape %s", grd, bdy_ind[grd].bdy_i.shape)
 
-        # Add a function to split the bdy into several boundary chunks
-        bdy_chunk_number[grd] = chunk.chunk_bdy(bdy_ind[grd])
+        # function to split the bdy into several boundary chunks
+        bdy_ind[grd].chunk_number = chunk.chunk_bdy(bdy_ind[grd])
     
     # Write out grid information to coordinates.bdy.nc
 
