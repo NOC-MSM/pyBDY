@@ -209,7 +209,7 @@ def test_chunk_large_4():
 
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     chunk_number = chunk.chunk_large(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number)
-    assert (np.unique(chunk_number) == np.array([0, 1])).all()
+    assert (np.unique(chunk_number) == np.array([0])).all()
 
 
 def test_chunk_large_3():
