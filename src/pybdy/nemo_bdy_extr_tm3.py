@@ -158,8 +158,7 @@ class Extract:
         # take each chunk individually to reduce source data required
 
         # set up holding arrays
-        ########################
-        ########################
+
         num_bdy = len(dst_lon)
         chunk_number = Grid[grd].chunk_number
         all_chunk = np.unique(chunk_number)
@@ -338,7 +337,7 @@ class Extract:
             sc_ind["imin"], sc_ind["imax"] = imin, imax
             sc_ind["jmin"], sc_ind["jmax"] = jmin, jmax
 
-            # End of chunk loop put variables in arrays
+            # End of chunk loop put variables in list and array
 
             sc_ind_ch.append(sc_ind)
             self.dist_tot[chunk, :] = dist_tot
@@ -346,13 +345,13 @@ class Extract:
         # Fig not implemented
         # Sri TODO::: key_vec compare to assign gcos and gsin
         # Determine 1-2-1 filter indices
-        id_121 = np.zeros((self.num_bdy_ch[c], 3), dtype=np.int64)
-        for r in range(int(np.amax(bdy_r[chunk])) + 1):
-            r_id = bdy_r[chunk] != r
-            rr_id = bdy_r[chunk] == r
-            tmp_lon = dst_lon_ch.copy()
+        id_121 = np.zeros((num_bdy, 3), dtype=np.int64)
+        for r in range(int(np.amax(bdy_r)) + 1):
+            r_id = bdy_r != r
+            rr_id = bdy_r == r
+            tmp_lon = dst_lon.copy()
             tmp_lon[r_id] = -9999
-            tmp_lat = dst_lat_ch.copy()
+            tmp_lat = dst_lat.copy()
             tmp_lat[r_id] = -9999
             source_tree = None
             try:
@@ -367,53 +366,46 @@ class Extract:
                 )
 
             dst_pts = list(
-                zip(
-                    dst_lon_ch[rr_id].ravel(order="F"),
-                    dst_lat_ch[rr_id].ravel(order="F"),
-                )
+                zip(dst_lon[rr_id].ravel(order="F"), dst_lat[rr_id].ravel(order="F"))
             )
             junk, an_id = source_tree.query(dst_pts, k=3, distance_upper_bound=fr)
             id_121[rr_id, :] = an_id
-        #            id_121[id_121 == len(dst_lon_ch)] = 0
+        #            id_121[id_121 == len(dst_lon)] = 0
 
         reptile = np.tile(id_121[:, 0], 3).reshape(id_121.shape, order="F")
-        tmp_reptile = reptile * (id_121 == len(dst_lon_ch))
-        id_121[id_121 == len(dst_lon_ch)] = 0
-        tmp_reptile[tmp_reptile == len(dst_lon_ch)] = 0
+        tmp_reptile = reptile * (id_121 == len(dst_lon))
+        id_121[id_121 == len(dst_lon)] = 0
+        tmp_reptile[tmp_reptile == len(dst_lon)] = 0
         id_121 = id_121 + tmp_reptile
-        #        id_121 = id_121 + reptile * (id_121 == len(dst_lon_ch))
+        #        id_121 = id_121 + reptile * (id_121 == len(dst_lon))
 
         rep_dims = (id_121.shape[0], id_121.shape[1], sc_z_len)
         rep_dims_2d = (id_121.shape[0], id_121.shape[1], 1)
         # These tran/tiles work like matlab. Tested with same Data.
         id_121_2d = id_121.repeat(1).reshape(rep_dims_2d).transpose(2, 0, 1)
-        reptile = np.arange(1).repeat(self.num_bdy_ch[c]).reshape(1, self.num_bdy_ch[c])
-        reptile = (
-            reptile.repeat(3).reshape(num_bdy[c], 3, 1, order="F").transpose(2, 0, 1)
-        )
+        reptile = np.arange(1).repeat(num_bdy).reshape(1, num_bdy)
+        reptile = reptile.repeat(3).reshape(num_bdy, 3, 1, order="F").transpose(2, 0, 1)
 
-        id_121_2d = sub2ind((1, num_bdy[c]), id_121_2d, reptile)
+        id_121_2d = sub2ind((1, num_bdy), id_121_2d, reptile)
 
         id_121 = id_121.repeat(sc_z_len).reshape(rep_dims).transpose(2, 0, 1)
-        reptile = np.arange(sc_z_len).repeat(num_bdy[c]).reshape(sc_z_len, num_bdy[c])
+        reptile = np.arange(sc_z_len).repeat(num_bdy).reshape(sc_z_len, num_bdy)
         reptile = (
             reptile.repeat(3)
-            .reshape(num_bdy[c], 3, sc_z_len, order="F")
+            .reshape(num_bdy, 3, sc_z_len, order="F")
             .transpose(2, 0, 1)
         )
 
-        id_121_3d = sub2ind((sc_z_len, num_bdy[c]), id_121, reptile)
+        id_121_3d = sub2ind((sc_z_len, num_bdy), id_121, reptile)
 
-        tmp_filt = wei_121.repeat(num_bdy[c]).reshape(
-            num_bdy[c], len(wei_121), order="F"
-        )
+        tmp_filt = wei_121.repeat(num_bdy).reshape(num_bdy, len(wei_121), order="F")
         tmp_filt_2d = (
-            tmp_filt.repeat(1).reshape(num_bdy[c], len(wei_121), 1).transpose(2, 0, 1)
+            tmp_filt.repeat(1).reshape(num_bdy, len(wei_121), 1).transpose(2, 0, 1)
         )
 
         tmp_filt_3d = (
             tmp_filt.repeat(sc_z_len)
-            .reshape(num_bdy[c], len(wei_121), sc_z_len)
+            .reshape(num_bdy, len(wei_121), sc_z_len)
             .transpose(2, 0, 1)
         )
 
