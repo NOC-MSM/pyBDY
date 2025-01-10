@@ -156,11 +156,6 @@ class Extract:
         self.logger.info("key vec: %s", self.key_vec)
 
         # Find subset of source data set required to produce bdy points
-        # take each chunk individually to reduce source data required
-        
-        #all_chunk = np.unique(chunk_number)
-        #for c in range(len(all_chunk)):
-        #    chunk = chunk_number == all_chunk[c]
 
         ind_e = SC.lon < np.amax(dst_lon)
         ind_w = SC.lon > np.amin(dst_lon)
