@@ -167,6 +167,10 @@ class Extract:
         self.sc_chunk = np.array([])
         sc_ind_ch = []
         self.dist_tot = np.zeros((len(dst_lon), 9))
+        self.tmp_filt_2d = np.zeros((1, len(dst_lon), len(wei_121)))
+        self.tmp_filt_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
+        self.id_121_2d = np.zeros((1, len(dst_lon), len(wei_121)))
+        self.id_121_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
         num_bdy = np.zeros((len(all_chunk)))
         if self.key_vec:
             self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
@@ -420,10 +424,10 @@ class Extract:
             sc_ind_ch.append(sc_ind)
             self.dist_tot[chunk, :] = dist_tot
             self.dst_chunk[chunk] = np.zeros((ind.shape[0])) + all_chunk[c]
-            self.tmp_filt_2d[:] = tmp_filt_2d
-            self.tmp_filt_3d[:] = tmp_filt_3d
-            self.id_121_2d[:] = id_121_2d
-            self.id_121_3d[:] = id_121_2d
+            self.tmp_filt_2d[:, chunk, :] = tmp_filt_2d
+            self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
+            self.id_121_2d[:, chunk, :] = id_121_2d
+            self.id_121_3d[:, chunk, :] = id_121_2d
             print(sc_ind["ind"].shape, sc_ind["imin"])
             if self.key_vec:
                 print(self.gcos.shape, self.dst_gcos.shape)
