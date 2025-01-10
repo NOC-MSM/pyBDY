@@ -138,7 +138,6 @@ class Extract:
 
         # Check that we're only dealing with one pair of vectors
 
-        num_bdy = len(dst_lon)
         self.nvar = len(self.var_nam)
 
         if self.key_vec:
@@ -157,216 +156,278 @@ class Extract:
 
         # Find subset of source data set required to produce bdy points
         # take each chunk individually to reduce source data required
-        
-        #all_chunk = np.unique(chunk_number)
-        #for c in range(len(all_chunk)):
-        #    chunk = chunk_number == all_chunk[c]
 
-        ind_e = SC.lon < np.amax(dst_lon)
-        ind_w = SC.lon > np.amin(dst_lon)
-        ind_ew = np.logical_and(ind_e, ind_w)
-        ind_s = SC.lat > np.amin(dst_lat)
-        ind_n = SC.lat < np.amax(dst_lat)
-        ind_sn = np.logical_and(ind_s, ind_n)
+        # set up holding arrays
+        ########################
+        ########################
+        chunk_number = Grid[grd].chunk_number
+        all_chunk = np.unique(chunk_number)
 
-        ind = np.where(np.logical_and(ind_ew, ind_sn) != 0)
-        ind_s = np.argsort(ind[1])
-
-        sub_j = ind[0][ind_s]
-        sub_i = ind[1][ind_s]
-
-        # Find I/J range
-
-        imin = np.maximum(np.amin(sub_i) - 2, 0)
-        imax = np.minimum(np.amax(sub_i) + 2, len(SC.lon[0, :]) - 1) + 1
-        jmin = np.maximum(np.amin(sub_j) - 2, 0)
-        jmax = np.minimum(np.amax(sub_j) + 2, len(SC.lon[:, 0]) - 1) + 1
-
-        # Summarise subset region
-
-        self.logger.info("Extract __init__: subset region limits")
-        self.logger.info(
-            " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n", imin, imax, jmin, jmax
-        )
-
-        # Reduce the source coordinates to the sub region identified
-
-        SC.lon = SC.lon[jmin:jmax, imin:imax]
-        SC.lat = SC.lat[jmin:jmax, imin:imax]
-
-        # Initialise gsin* and gcos* for rotation of vectors
-
+        self.dst_chunk = np.zeros((len(dst_lon)))
+        self.sc_chunk = np.array([])
+        sc_ind_ch = []
+        self.dist_tot = np.zeros((len(dst_lon), 9))
+        num_bdy = np.zeros((len(all_chunk)))
         if self.key_vec:
-            bdy_ind = Grid[grd].bdy_i
+            self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
+            self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
+            self.gcos = np.array([])
+            self.gsin = np.array([])
 
-            maxI = DC.lonlat["t"]["lon"].shape[1]
-            maxJ = DC.lonlat["t"]["lon"].shape[0]
-            dst_gcos = np.ones([maxJ, maxI])
-            dst_gsin = np.zeros([maxJ, maxI])
+        # loop over chunks
 
-            # TODO: allow B-Grid Extraction
+        for c in range(len(all_chunk)):
+            chunk = chunk_number == all_chunk[c]
+            dst_lon_ch = dst_lon[chunk]
+            dst_lat_ch = dst_lat[chunk]
+            num_bdy[c] = np.len(dst_lon_ch)
 
-            # Extract the source rotation angles on the T-Points as the C-Grid
-            # U/V points naturally average onto these
+            ind_e = SC.lon < np.amax(dst_lon_ch)
+            ind_w = SC.lon > np.amin(dst_lon_ch)
+            ind_ew = np.logical_and(ind_e, ind_w)
+            ind_s = SC.lat > np.amin(dst_lat_ch)
+            ind_n = SC.lat < np.amax(dst_lat_ch)
+            ind_sn = np.logical_and(ind_s, ind_n)
 
-            src_ga = ga.GridAngle(self.settings["src_hgr"], imin, imax, jmin, jmax, "t")
+            ind = np.where(np.logical_and(ind_ew, ind_sn) != 0)
+            ind_s = np.argsort(ind[1])
 
-            # Extract the rotation angles for the bdy velocities points
+            sub_j = ind[0][ind_s]
+            sub_i = ind[1][ind_s]
 
-            dst_ga = ga.GridAngle(self.settings["dst_hgr"], 1, maxI, 1, maxJ, grd)
+            # Find I/J range
 
-            self.gcos = src_ga.cosval
-            self.gsin = src_ga.sinval
-            dst_gcos[1:, 1:] = dst_ga.cosval
-            dst_gsin[1:, 1:] = dst_ga.sinval
+            imin = np.maximum(np.amin(sub_i) - 2, 0)
+            imax = np.minimum(np.amax(sub_i) + 2, len(SC.lon[0, :]) - 1) + 1
+            jmin = np.maximum(np.amin(sub_j) - 2, 0)
+            jmax = np.minimum(np.amax(sub_j) + 2, len(SC.lon[:, 0]) - 1) + 1
 
-            # Retain only boundary points rotation information
+            # Summarise subset region
 
-            tmp_gcos = np.zeros((1, bdy_ind.shape[0]))
-            tmp_gsin = np.zeros((1, bdy_ind.shape[0]))
-
-            # TODO: can this be converted to an ind op rather than a loop?
-
-            for p in range(bdy_ind.shape[0]):
-                tmp_gcos[:, p] = dst_gcos[bdy_ind[p, 1], bdy_ind[p, 0]]
-                tmp_gsin[:, p] = dst_gsin[bdy_ind[p, 1], bdy_ind[p, 0]]
-
-            self.dst_gcos = np.tile(tmp_gcos, (sc_z_len, 1))
-            self.dst_gsin = np.tile(tmp_gsin, (sc_z_len, 1))
-
-        # Determine size of source data subset
-        dst_len_z = len(dst_dep[:, 0])
-
-        source_dims = SC.lon.shape
-
-        # Find nearest neighbour on the source grid to each dst bdy point
-        # Ann Query substitute
-        source_tree = None
-        try:
-            source_tree = sp.cKDTree(
-                list(zip(SC.lon.ravel(order="F"), SC.lat.ravel(order="F"))),
-                balanced_tree=False,
-                compact_nodes=False,
+            self.logger.info("Extract __init__: subset region limits")
+            self.logger.info(
+                " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n",
+                imin,
+                imax,
+                jmin,
+                jmax,
             )
-        except TypeError:  # added this fix to make it compatible with scipy 0.16.0
-            source_tree = sp.cKDTree(
-                list(zip(SC.lon.ravel(order="F"), SC.lat.ravel(order="F")))
-            )
-        dst_pts = list(zip(dst_lon[:].ravel(order="F"), dst_lat[:].ravel(order="F")))
-        nn_dist, nn_id = source_tree.query(dst_pts, k=1)
 
-        # Find surrounding points
-        j_sp, i_sp = np.unravel_index(nn_id, source_dims, order="F")
-        j_sp = np.vstack((j_sp, j_sp + 1, j_sp - 1))
-        j_sp = np.vstack((j_sp, j_sp, j_sp))
-        i_sp = np.vstack((i_sp, i_sp, i_sp))
-        i_sp = np.vstack((i_sp, i_sp + 1, i_sp - 1))
+            # Reduce the source coordinates to the sub region identified
 
-        # Index out of bounds error check not implemented
+            SC.lon_ch = SC.lon[jmin:jmax, imin:imax]
+            SC.lat_ch = SC.lat[jmin:jmax, imin:imax]
 
-        # Determine 9 nearest neighbours based on distance
-        ind = sub2ind(source_dims, i_sp, j_sp)
-        ind_rv = np.ravel(ind, order="F")
-        sc_lon_rv = np.ravel(SC.lon, order="F")
-        sc_lat_rv = np.ravel(SC.lat, order="F")
-        sc_lon_ind = sc_lon_rv[ind_rv]
+            # Initialise gsin* and gcos* for rotation of vectors
 
-        diff_lon = sc_lon_ind - np.repeat(dst_lon, 9).T
-        diff_lon = diff_lon.reshape(ind.shape, order="F")
-        out = np.abs(diff_lon) > 180
-        diff_lon[out] = -np.sign(diff_lon[out]) * (360 - np.abs(diff_lon[out]))
+            if self.key_vec:
+                bdy_ind = Grid[grd].bdy_i[chunk, :]
 
-        dst_lat_rep = np.repeat(dst_lat.T, 9)
-        diff_lon_rv = np.ravel(diff_lon, order="F")
-        dist_merid = diff_lon_rv * np.cos(dst_lat_rep * np.pi / 180)
-        dist_zonal = sc_lat_rv[ind_rv] - dst_lat_rep
+                maxI = DC.lonlat["t"]["lon"].shape[1]
+                maxJ = DC.lonlat["t"]["lon"].shape[0]
+                dst_gcos = np.ones([maxJ, maxI])
+                dst_gsin = np.zeros([maxJ, maxI])
 
-        dist_tot = np.power((np.power(dist_merid, 2) + np.power(dist_zonal, 2)), 0.5)
-        dist_tot = dist_tot.reshape(ind.shape, order="F").T
-        # Get sort inds, and sort
-        dist_ind = np.argsort(dist_tot, axis=1, kind="mergesort")
-        dist_tot = dist_tot[np.arange(dist_tot.shape[0])[:, None], dist_ind]
+                # TODO: allow B-Grid Extraction
 
-        # Shuffle ind to reflect ascending dist of source and dst points
-        ind = ind.T
-        for p in range(ind.shape[0]):
-            ind[p, :] = ind[p, dist_ind[p, :]]
+                # Extract the source rotation angles on the T-Points as the C-Grid
+                # U/V points naturally average onto these
 
-        if self.key_vec:
-            self.gcos = self.gcos.flatten("F")[ind].reshape(ind.shape, order="F")
-            self.gsin = self.gsin.flatten("F")[ind].reshape(ind.shape, order="F")
+                src_ga = ga.GridAngle(
+                    self.settings["src_hgr"], imin, imax, jmin, jmax, "t"
+                )
 
-        sc_ind = {}
-        sc_ind["ind"] = ind
-        sc_ind["imin"], sc_ind["imax"] = imin, imax
-        sc_ind["jmin"], sc_ind["jmax"] = jmin, jmax
+                # Extract the rotation angles for the bdy velocities points
 
-        # Fig not implemented
-        # Sri TODO::: key_vec compare to assign gcos and gsin
-        # Determine 1-2-1 filter indices
-        id_121 = np.zeros((num_bdy, 3), dtype=np.int64)
-        for r in range(int(np.amax(bdy_r)) + 1):
-            r_id = bdy_r != r
-            rr_id = bdy_r == r
-            tmp_lon = dst_lon.copy()
-            tmp_lon[r_id] = -9999
-            tmp_lat = dst_lat.copy()
-            tmp_lat[r_id] = -9999
+                dst_ga = ga.GridAngle(self.settings["dst_hgr"], 1, maxI, 1, maxJ, grd)
+
+                sc_gcos = src_ga.cosval
+                sc_gsin = src_ga.sinval
+                dst_gcos[1:, 1:] = dst_ga.cosval
+                dst_gsin[1:, 1:] = dst_ga.sinval
+
+                # Retain only boundary points rotation information
+
+                tmp_gcos = np.zeros((1, bdy_ind.shape[0]))
+                tmp_gsin = np.zeros((1, bdy_ind.shape[0]))
+
+                # TODO: can this be converted to an ind op rather than a loop?
+
+                for p in range(bdy_ind.shape[0]):
+                    tmp_gcos[:, p] = dst_gcos[bdy_ind[p, 1], bdy_ind[p, 0]]
+                    tmp_gsin[:, p] = dst_gsin[bdy_ind[p, 1], bdy_ind[p, 0]]
+
+                self.dst_gcos[:, chunk] = np.tile(tmp_gcos, (sc_z_len, 1))
+                self.dst_gsin[:, chunk] = np.tile(tmp_gsin, (sc_z_len, 1))
+
+            # Determine size of source data subset
+            dst_len_z = len(dst_dep[:, 0])
+
+            source_dims = SC.lon_ch.shape
+
+            # Find nearest neighbour on the source grid to each dst bdy point
+            # Ann Query substitute
             source_tree = None
             try:
                 source_tree = sp.cKDTree(
-                    list(zip(tmp_lon.ravel(order="F"), tmp_lat.ravel(order="F"))),
+                    list(zip(SC.lon_ch.ravel(order="F"), SC.lat_ch.ravel(order="F"))),
                     balanced_tree=False,
                     compact_nodes=False,
                 )
-            except TypeError:  # fix for scipy 0.16.0
+            except TypeError:  # added this fix to make it compatible with scipy 0.16.0
                 source_tree = sp.cKDTree(
-                    list(zip(tmp_lon.ravel(order="F"), tmp_lat.ravel(order="F")))
+                    list(zip(SC.lon_ch.ravel(order="F"), SC.lat_ch.ravel(order="F")))
+                )
+            dst_pts = list(
+                zip(dst_lon_ch.ravel(order="F"), dst_lat_ch.ravel(order="F"))
+            )
+            nn_dist, nn_id = source_tree.query(dst_pts, k=1)
+
+            # Find surrounding points
+            j_sp, i_sp = np.unravel_index(nn_id, source_dims, order="F")
+            j_sp = np.vstack((j_sp, j_sp + 1, j_sp - 1))
+            j_sp = np.vstack((j_sp, j_sp, j_sp))
+            i_sp = np.vstack((i_sp, i_sp, i_sp))
+            i_sp = np.vstack((i_sp, i_sp + 1, i_sp - 1))
+
+            # Index out of bounds error check not implemented
+
+            # Determine 9 nearest neighbours based on distance
+            ind = sub2ind(source_dims, i_sp, j_sp)
+            ind_rv = np.ravel(ind, order="F")
+            sc_lon_rv = np.ravel(SC.lon_ch, order="F")
+            sc_lat_rv = np.ravel(SC.lat_ch, order="F")
+            sc_lon_ind = sc_lon_rv[ind_rv]
+
+            diff_lon = sc_lon_ind - np.repeat(dst_lon_ch, 9).T
+            diff_lon = diff_lon.reshape(ind.shape, order="F")
+            out = np.abs(diff_lon) > 180
+            diff_lon[out] = -np.sign(diff_lon[out]) * (360 - np.abs(diff_lon[out]))
+
+            dst_lat_rep = np.repeat(dst_lat_ch.T, 9)
+            diff_lon_rv = np.ravel(diff_lon, order="F")
+            dist_merid = diff_lon_rv * np.cos(dst_lat_rep * np.pi / 180)
+            dist_zonal = sc_lat_rv[ind_rv] - dst_lat_rep
+
+            dist_tot = np.power(
+                (np.power(dist_merid, 2) + np.power(dist_zonal, 2)), 0.5
+            )
+            dist_tot = dist_tot.reshape(ind.shape, order="F").T
+            # Get sort inds, and sort
+            dist_ind = np.argsort(dist_tot, axis=1, kind="mergesort")
+            dist_tot = dist_tot[np.arange(dist_tot.shape[0])[:, None], dist_ind]
+
+            # Shuffle ind to reflect ascending dist of source and dst points
+            ind = ind.T
+            for p in range(ind.shape[0]):
+                ind[p, :] = ind[p, dist_ind[p, :]]
+
+            if self.key_vec:
+                self.gcos = np.append(
+                    self.gcos, sc_gcos.flatten("F")[ind].reshape(ind.shape, order="F")
+                )
+                self.gsin = np.append(
+                    self.gsin, sc_gsin.flatten("F")[ind].reshape(ind.shape, order="F")
                 )
 
-            dst_pts = list(
-                zip(dst_lon[rr_id].ravel(order="F"), dst_lat[rr_id].ravel(order="F"))
+            sc_ind = {}
+            sc_ind["ind"] = ind
+            sc_ind["imin"], sc_ind["imax"] = imin, imax
+            sc_ind["jmin"], sc_ind["jmax"] = jmin, jmax
+
+            # Fig not implemented
+            # Sri TODO::: key_vec compare to assign gcos and gsin
+            # Determine 1-2-1 filter indices
+            id_121 = np.zeros((num_bdy[c], 3), dtype=np.int64)
+            for r in range(int(np.amax(bdy_r[chunk])) + 1):
+                r_id = bdy_r[chunk] != r
+                rr_id = bdy_r[chunk] == r
+                tmp_lon = dst_lon_ch.copy()
+                tmp_lon[r_id] = -9999
+                tmp_lat = dst_lat_ch.copy()
+                tmp_lat[r_id] = -9999
+                source_tree = None
+                try:
+                    source_tree = sp.cKDTree(
+                        list(zip(tmp_lon.ravel(order="F"), tmp_lat.ravel(order="F"))),
+                        balanced_tree=False,
+                        compact_nodes=False,
+                    )
+                except TypeError:  # fix for scipy 0.16.0
+                    source_tree = sp.cKDTree(
+                        list(zip(tmp_lon.ravel(order="F"), tmp_lat.ravel(order="F")))
+                    )
+
+                dst_pts = list(
+                    zip(
+                        dst_lon_ch[rr_id].ravel(order="F"),
+                        dst_lat_ch[rr_id].ravel(order="F"),
+                    )
+                )
+                junk, an_id = source_tree.query(dst_pts, k=3, distance_upper_bound=fr)
+                id_121[rr_id, :] = an_id
+            #            id_121[id_121 == len(dst_lon_ch)] = 0
+
+            reptile = np.tile(id_121[:, 0], 3).reshape(id_121.shape, order="F")
+            tmp_reptile = reptile * (id_121 == len(dst_lon_ch))
+            id_121[id_121 == len(dst_lon_ch)] = 0
+            tmp_reptile[tmp_reptile == len(dst_lon_ch)] = 0
+            id_121 = id_121 + tmp_reptile
+            #        id_121 = id_121 + reptile * (id_121 == len(dst_lon_ch))
+
+            rep_dims = (id_121.shape[0], id_121.shape[1], sc_z_len)
+            rep_dims_2d = (id_121.shape[0], id_121.shape[1], 1)
+            # These tran/tiles work like matlab. Tested with same Data.
+            id_121_2d = id_121.repeat(1).reshape(rep_dims_2d).transpose(2, 0, 1)
+            reptile = np.arange(1).repeat(num_bdy[c]).reshape(1, num_bdy[c])
+            reptile = (
+                reptile.repeat(3)
+                .reshape(num_bdy[c], 3, 1, order="F")
+                .transpose(2, 0, 1)
             )
-            junk, an_id = source_tree.query(dst_pts, k=3, distance_upper_bound=fr)
-            id_121[rr_id, :] = an_id
-        #            id_121[id_121 == len(dst_lon)] = 0
 
-        reptile = np.tile(id_121[:, 0], 3).reshape(id_121.shape, order="F")
-        tmp_reptile = reptile * (id_121 == len(dst_lon))
-        id_121[id_121 == len(dst_lon)] = 0
-        tmp_reptile[tmp_reptile == len(dst_lon)] = 0
-        id_121 = id_121 + tmp_reptile
-        #        id_121 = id_121 + reptile * (id_121 == len(dst_lon))
+            id_121_2d = sub2ind((1, num_bdy[c]), id_121_2d, reptile)
 
-        rep_dims = (id_121.shape[0], id_121.shape[1], sc_z_len)
-        rep_dims_2d = (id_121.shape[0], id_121.shape[1], 1)
-        # These tran/tiles work like matlab. Tested with same Data.
-        id_121_2d = id_121.repeat(1).reshape(rep_dims_2d).transpose(2, 0, 1)
-        reptile = np.arange(1).repeat(num_bdy).reshape(1, num_bdy)
-        reptile = reptile.repeat(3).reshape(num_bdy, 3, 1, order="F").transpose(2, 0, 1)
+            id_121 = id_121.repeat(sc_z_len).reshape(rep_dims).transpose(2, 0, 1)
+            reptile = (
+                np.arange(sc_z_len).repeat(num_bdy[c]).reshape(sc_z_len, num_bdy[c])
+            )
+            reptile = (
+                reptile.repeat(3)
+                .reshape(num_bdy[c], 3, sc_z_len, order="F")
+                .transpose(2, 0, 1)
+            )
 
-        id_121_2d = sub2ind((1, num_bdy), id_121_2d, reptile)
+            id_121_3d = sub2ind((sc_z_len, num_bdy[c]), id_121, reptile)
 
-        id_121 = id_121.repeat(sc_z_len).reshape(rep_dims).transpose(2, 0, 1)
-        reptile = np.arange(sc_z_len).repeat(num_bdy).reshape(sc_z_len, num_bdy)
-        reptile = (
-            reptile.repeat(3)
-            .reshape(num_bdy, 3, sc_z_len, order="F")
-            .transpose(2, 0, 1)
-        )
+            tmp_filt = wei_121.repeat(num_bdy[c]).reshape(
+                num_bdy[c], len(wei_121), order="F"
+            )
+            tmp_filt_2d = (
+                tmp_filt.repeat(1)
+                .reshape(num_bdy[c], len(wei_121), 1)
+                .transpose(2, 0, 1)
+            )
 
-        id_121_3d = sub2ind((sc_z_len, num_bdy), id_121, reptile)
+            tmp_filt_3d = (
+                tmp_filt.repeat(sc_z_len)
+                .reshape(num_bdy[c], len(wei_121), sc_z_len)
+                .transpose(2, 0, 1)
+            )
 
-        tmp_filt = wei_121.repeat(num_bdy).reshape(num_bdy, len(wei_121), order="F")
-        tmp_filt_2d = (
-            tmp_filt.repeat(1).reshape(num_bdy, len(wei_121), 1).transpose(2, 0, 1)
-        )
+            # End of chunk loop put variables in arrays
 
-        tmp_filt_3d = (
-            tmp_filt.repeat(sc_z_len)
-            .reshape(num_bdy, len(wei_121), sc_z_len)
-            .transpose(2, 0, 1)
-        )
+            sc_ind_ch.append(sc_ind)
+            self.dist_tot[chunk, :] = dist_tot
+            self.dst_chunk[chunk] = np.zeros((ind.shape[0])) + all_chunk[c]
+            self.tmp_filt_2d[:] = tmp_filt_2d
+            self.tmp_filt_3d[:] = tmp_filt_3d
+            self.id_121_2d[:] = id_121_2d
+            self.id_121_3d[:] = id_121_2d
+            print(sc_ind["ind"].shape, sc_ind["imin"])
+            if self.key_vec:
+                print(self.gcos.shape, self.dst_gcos.shape)
+
         # Fig not implemented
 
         if not isslab:  # TODO or no vertical interpolation required
@@ -448,6 +509,16 @@ class Extract:
         self.dist_tot = dist_tot
 
         self.d_bdy = {}
+        print(self.dst_dep.shape, self.id_121_2d.shape, self.id_121_3d.shape)
+        print(self.tmp_filt_2d.shape, self.tmp_filt_3d.shape, self.dist_tot.shape)
+        print(
+            self.nav_lon.shape,
+            self.z_ind.shape,
+            self.z_dist.shape,
+            self.sc_z_len,
+            self.sc_time,
+            self.num_bdy,
+        )
 
         # Need to qualify for key_vec
         for v in range(self.nvar):
