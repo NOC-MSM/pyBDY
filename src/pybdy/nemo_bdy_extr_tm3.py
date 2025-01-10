@@ -160,23 +160,19 @@ class Extract:
         # set up holding arrays
         ########################
         ########################
+        num_bdy = len(dst_lon)
         chunk_number = Grid[grd].chunk_number
         all_chunk = np.unique(chunk_number)
 
-        self.dst_chunk = np.zeros((len(dst_lon)))
-        self.sc_chunk = np.array([])
         sc_ind_ch = []
         self.dist_tot = np.zeros((len(dst_lon), 9))
-        self.tmp_filt_2d = np.zeros((1, len(dst_lon), len(wei_121)))
-        self.tmp_filt_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
-        self.id_121_2d = np.zeros((1, len(dst_lon), len(wei_121)))
-        self.id_121_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
-        num_bdy = np.zeros((len(all_chunk)))
+        self.num_bdy_ch = np.zeros((len(all_chunk)))
         if self.key_vec:
             self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
             self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
             self.gcos = np.array([])
             self.gsin = np.array([])
+            self.sc_chunk = np.array([])
 
         # loop over chunks
 
@@ -184,7 +180,7 @@ class Extract:
             chunk = chunk_number == all_chunk[c]
             dst_lon_ch = dst_lon[chunk]
             dst_lat_ch = dst_lat[chunk]
-            num_bdy[c] = np.len(dst_lon_ch)
+            self.num_bdy_ch[c] = len(dst_lon_ch)
 
             ind_e = SC.lon < np.amax(dst_lon_ch)
             ind_w = SC.lon > np.amin(dst_lon_ch)
@@ -333,104 +329,93 @@ class Extract:
                 self.gsin = np.append(
                     self.gsin, sc_gsin.flatten("F")[ind].reshape(ind.shape, order="F")
                 )
+                self.sc_chunk = np.append(
+                    self.sc_chunk, np.zeros((ind.shape[0])) + all_chunk[c]
+                )
 
             sc_ind = {}
             sc_ind["ind"] = ind
             sc_ind["imin"], sc_ind["imax"] = imin, imax
             sc_ind["jmin"], sc_ind["jmax"] = jmin, jmax
 
-            # Fig not implemented
-            # Sri TODO::: key_vec compare to assign gcos and gsin
-            # Determine 1-2-1 filter indices
-            id_121 = np.zeros((num_bdy[c], 3), dtype=np.int64)
-            for r in range(int(np.amax(bdy_r[chunk])) + 1):
-                r_id = bdy_r[chunk] != r
-                rr_id = bdy_r[chunk] == r
-                tmp_lon = dst_lon_ch.copy()
-                tmp_lon[r_id] = -9999
-                tmp_lat = dst_lat_ch.copy()
-                tmp_lat[r_id] = -9999
-                source_tree = None
-                try:
-                    source_tree = sp.cKDTree(
-                        list(zip(tmp_lon.ravel(order="F"), tmp_lat.ravel(order="F"))),
-                        balanced_tree=False,
-                        compact_nodes=False,
-                    )
-                except TypeError:  # fix for scipy 0.16.0
-                    source_tree = sp.cKDTree(
-                        list(zip(tmp_lon.ravel(order="F"), tmp_lat.ravel(order="F")))
-                    )
-
-                dst_pts = list(
-                    zip(
-                        dst_lon_ch[rr_id].ravel(order="F"),
-                        dst_lat_ch[rr_id].ravel(order="F"),
-                    )
-                )
-                junk, an_id = source_tree.query(dst_pts, k=3, distance_upper_bound=fr)
-                id_121[rr_id, :] = an_id
-            #            id_121[id_121 == len(dst_lon_ch)] = 0
-
-            reptile = np.tile(id_121[:, 0], 3).reshape(id_121.shape, order="F")
-            tmp_reptile = reptile * (id_121 == len(dst_lon_ch))
-            id_121[id_121 == len(dst_lon_ch)] = 0
-            tmp_reptile[tmp_reptile == len(dst_lon_ch)] = 0
-            id_121 = id_121 + tmp_reptile
-            #        id_121 = id_121 + reptile * (id_121 == len(dst_lon_ch))
-
-            rep_dims = (id_121.shape[0], id_121.shape[1], sc_z_len)
-            rep_dims_2d = (id_121.shape[0], id_121.shape[1], 1)
-            # These tran/tiles work like matlab. Tested with same Data.
-            id_121_2d = id_121.repeat(1).reshape(rep_dims_2d).transpose(2, 0, 1)
-            reptile = np.arange(1).repeat(num_bdy[c]).reshape(1, num_bdy[c])
-            reptile = (
-                reptile.repeat(3)
-                .reshape(num_bdy[c], 3, 1, order="F")
-                .transpose(2, 0, 1)
-            )
-
-            id_121_2d = sub2ind((1, num_bdy[c]), id_121_2d, reptile)
-
-            id_121 = id_121.repeat(sc_z_len).reshape(rep_dims).transpose(2, 0, 1)
-            reptile = (
-                np.arange(sc_z_len).repeat(num_bdy[c]).reshape(sc_z_len, num_bdy[c])
-            )
-            reptile = (
-                reptile.repeat(3)
-                .reshape(num_bdy[c], 3, sc_z_len, order="F")
-                .transpose(2, 0, 1)
-            )
-
-            id_121_3d = sub2ind((sc_z_len, num_bdy[c]), id_121, reptile)
-
-            tmp_filt = wei_121.repeat(num_bdy[c]).reshape(
-                num_bdy[c], len(wei_121), order="F"
-            )
-            tmp_filt_2d = (
-                tmp_filt.repeat(1)
-                .reshape(num_bdy[c], len(wei_121), 1)
-                .transpose(2, 0, 1)
-            )
-
-            tmp_filt_3d = (
-                tmp_filt.repeat(sc_z_len)
-                .reshape(num_bdy[c], len(wei_121), sc_z_len)
-                .transpose(2, 0, 1)
-            )
-
             # End of chunk loop put variables in arrays
 
             sc_ind_ch.append(sc_ind)
             self.dist_tot[chunk, :] = dist_tot
-            self.dst_chunk[chunk] = np.zeros((ind.shape[0])) + all_chunk[c]
-            self.tmp_filt_2d[:, chunk, :] = tmp_filt_2d
-            self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
-            self.id_121_2d[:, chunk, :] = id_121_2d
-            self.id_121_3d[:, chunk, :] = id_121_2d
-            print(sc_ind["ind"].shape, sc_ind["imin"])
-            if self.key_vec:
-                print(self.gcos.shape, self.dst_gcos.shape)
+
+        # Fig not implemented
+        # Sri TODO::: key_vec compare to assign gcos and gsin
+        # Determine 1-2-1 filter indices
+        id_121 = np.zeros((self.num_bdy_ch[c], 3), dtype=np.int64)
+        for r in range(int(np.amax(bdy_r[chunk])) + 1):
+            r_id = bdy_r[chunk] != r
+            rr_id = bdy_r[chunk] == r
+            tmp_lon = dst_lon_ch.copy()
+            tmp_lon[r_id] = -9999
+            tmp_lat = dst_lat_ch.copy()
+            tmp_lat[r_id] = -9999
+            source_tree = None
+            try:
+                source_tree = sp.cKDTree(
+                    list(zip(tmp_lon.ravel(order="F"), tmp_lat.ravel(order="F"))),
+                    balanced_tree=False,
+                    compact_nodes=False,
+                )
+            except TypeError:  # fix for scipy 0.16.0
+                source_tree = sp.cKDTree(
+                    list(zip(tmp_lon.ravel(order="F"), tmp_lat.ravel(order="F")))
+                )
+
+            dst_pts = list(
+                zip(
+                    dst_lon_ch[rr_id].ravel(order="F"),
+                    dst_lat_ch[rr_id].ravel(order="F"),
+                )
+            )
+            junk, an_id = source_tree.query(dst_pts, k=3, distance_upper_bound=fr)
+            id_121[rr_id, :] = an_id
+        #            id_121[id_121 == len(dst_lon_ch)] = 0
+
+        reptile = np.tile(id_121[:, 0], 3).reshape(id_121.shape, order="F")
+        tmp_reptile = reptile * (id_121 == len(dst_lon_ch))
+        id_121[id_121 == len(dst_lon_ch)] = 0
+        tmp_reptile[tmp_reptile == len(dst_lon_ch)] = 0
+        id_121 = id_121 + tmp_reptile
+        #        id_121 = id_121 + reptile * (id_121 == len(dst_lon_ch))
+
+        rep_dims = (id_121.shape[0], id_121.shape[1], sc_z_len)
+        rep_dims_2d = (id_121.shape[0], id_121.shape[1], 1)
+        # These tran/tiles work like matlab. Tested with same Data.
+        id_121_2d = id_121.repeat(1).reshape(rep_dims_2d).transpose(2, 0, 1)
+        reptile = np.arange(1).repeat(self.num_bdy_ch[c]).reshape(1, self.num_bdy_ch[c])
+        reptile = (
+            reptile.repeat(3).reshape(num_bdy[c], 3, 1, order="F").transpose(2, 0, 1)
+        )
+
+        id_121_2d = sub2ind((1, num_bdy[c]), id_121_2d, reptile)
+
+        id_121 = id_121.repeat(sc_z_len).reshape(rep_dims).transpose(2, 0, 1)
+        reptile = np.arange(sc_z_len).repeat(num_bdy[c]).reshape(sc_z_len, num_bdy[c])
+        reptile = (
+            reptile.repeat(3)
+            .reshape(num_bdy[c], 3, sc_z_len, order="F")
+            .transpose(2, 0, 1)
+        )
+
+        id_121_3d = sub2ind((sc_z_len, num_bdy[c]), id_121, reptile)
+
+        tmp_filt = wei_121.repeat(num_bdy[c]).reshape(
+            num_bdy[c], len(wei_121), order="F"
+        )
+        tmp_filt_2d = (
+            tmp_filt.repeat(1).reshape(num_bdy[c], len(wei_121), 1).transpose(2, 0, 1)
+        )
+
+        tmp_filt_3d = (
+            tmp_filt.repeat(sc_z_len)
+            .reshape(num_bdy[c], len(wei_121), sc_z_len)
+            .transpose(2, 0, 1)
+        )
 
         # Fig not implemented
 
@@ -495,7 +480,7 @@ class Extract:
         self.nav_lat = DC.lonlat[grd]["lat"]
         self.z_ind = z_ind
         self.z_dist = z_dist
-        self.sc_ind = sc_ind
+        self.sc_ind_ch = sc_ind_ch
         self.dst_dep = dst_dep
         self.num_bdy = num_bdy
         self.id_121_2d = id_121_2d
@@ -510,7 +495,6 @@ class Extract:
         self.sc_time = sc_time
         self.tmp_filt_2d = tmp_filt_2d
         self.tmp_filt_3d = tmp_filt_3d
-        self.dist_tot = dist_tot
 
         self.d_bdy = {}
         print(self.dst_dep.shape, self.id_121_2d.shape, self.id_121_3d.shape)
