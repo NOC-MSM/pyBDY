@@ -62,6 +62,7 @@ def chunk_bdy(bdy):
 
     plt.scatter(ibdy, jbdy, c=chunk_number)
     plt.show()
+    return chunk_number
 
 
 def chunk_land(ibdy, jbdy, chunk_number, rw):
