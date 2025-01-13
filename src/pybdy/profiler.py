@@ -34,6 +34,7 @@ import time
 import numpy as np
 from PyQt5.QtWidgets import QMessageBox
 
+from pybdy import nemo_bdy_chunk as chunk_func
 from pybdy import nemo_bdy_dst_coord as dst_coord
 from pybdy import nemo_bdy_extr_tm3 as extract
 from pybdy import nemo_bdy_gen_c as gen_grid
@@ -42,7 +43,6 @@ from pybdy import nemo_bdy_setup as setup
 from pybdy import nemo_bdy_source_coord as source_coord
 from pybdy import nemo_bdy_zgrv2 as zgrv
 from pybdy import nemo_coord_gen_pop as coord
-from pybdy import nemo_bdy_chunk as chunk
 
 # Local imports
 from pybdy import pybdy_settings_editor
@@ -106,17 +106,17 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     DstCoord.bdy_msk = bdy_msk == 1
 
     logger.info("Reading mask completed")
-    
+
     bdy_ind = {}  # define a dictionary to hold the grid information
-    
+
     for grd in ["t", "u", "v"]:
         bdy_ind[grd] = gen_grid.Boundary(bdy_msk, settings, grd)
         logger.info("Generated BDY %s information", grd)
         logger.info("Grid %s has shape %s", grd, bdy_ind[grd].bdy_i.shape)
 
         # function to split the bdy into several boundary chunks
-        bdy_ind[grd].chunk_number = chunk.chunk_bdy(bdy_ind[grd])
-    
+        bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
+
     # Write out grid information to coordinates.bdy.nc
 
     co_set = coord.Coord(settings["dst_dir"] + "/coordinates.bdy.nc", bdy_ind)
@@ -514,4 +514,3 @@ def _get_mask(Setup, mask_gui):
             bdy_msk[tmp] = -1
 
     return bdy_msk
-
