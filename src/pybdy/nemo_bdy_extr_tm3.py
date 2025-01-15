@@ -174,9 +174,9 @@ class Extract:
         if self.key_vec:
             self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
             self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
-            self.gcos = np.array([])
-            self.gsin = np.array([])
-            self.sc_chunk = np.array([])
+            self.gcos = np.empty((0, 9))
+            self.gsin = np.empty((0, 9))
+            self.sc_chunk = np.empty((0), int)
 
         # loop over chunks
 
@@ -301,13 +301,17 @@ class Extract:
 
             if self.key_vec:
                 self.gcos = np.append(
-                    self.gcos, sc_gcos.flatten("F")[ind].reshape(ind.shape, order="F")
+                    self.gcos,
+                    sc_gcos.flatten("F")[ind].reshape(ind.shape, order="F"),
+                    axis=0,
                 )
                 self.gsin = np.append(
-                    self.gsin, sc_gsin.flatten("F")[ind].reshape(ind.shape, order="F")
+                    self.gsin,
+                    sc_gsin.flatten("F")[ind].reshape(ind.shape, order="F"),
+                    axis=0,
                 )
                 self.sc_chunk = np.append(
-                    self.sc_chunk, np.zeros((ind.shape[0])) + all_chunk[c]
+                    self.sc_chunk, np.zeros(ind.shape[0]) + all_chunk[c], axis=0
                 )
 
             sc_ind = {}
@@ -667,16 +671,17 @@ class Extract:
                 else:
                     self.d_bdy[self.var_nam[v]][year]
             except KeyError:
-                hold_data = np.zeros(
-                    (((last_date + 1) - first_date), sc_z_len, self.num_bdy)
-                )
-                if self.key_vec is True and self.rot_dir == "j":
-                    self.d_bdy[self.var_nam[v + 1]][year] = {
-                        "data": hold_data,
-                        "date": {},
-                    }
+                if len(sc_time[self.var_nam[v]]._get_dimensions()) == 3:
+                    hold = np.zeros((((last_date + 1) - first_date), 1, self.num_bdy))
                 else:
-                    self.d_bdy[self.var_nam[v]][year] = {"data": hold_data, "date": {}}
+                    hold = np.zeros(
+                        (((last_date + 1) - first_date), sc_z_len, self.num_bdy)
+                    )
+
+                if self.key_vec is True and self.rot_dir == "j":
+                    self.d_bdy[self.var_nam[v + 1]][year] = {"data": hold, "date": {}}
+                else:
+                    self.d_bdy[self.var_nam[v]][year] = {"data": hold, "date": {}}
 
         # loop over chunks
 
@@ -703,6 +708,7 @@ class Extract:
             ind = self.sc_ind_ch[chk]["ind"]
 
             if self.first:
+                sc_z_len = self.sc_z_len
                 nc_3 = GetFile(self.settings["src_msk"])
                 varid_3 = nc_3["tmask"]
                 t_mask = varid_3[
@@ -859,13 +865,13 @@ class Extract:
                             # Include in the collapse the rotation from the
                             # grid to real zonal direction, ie ij -> e
                             sc_bdy[vn][dep, :] = (
-                                tmp_arr[0][ind[:]] * self.gcos[chunk_s]
-                                - tmp_arr[1][ind[:]] * self.gsin[chunk_s]
+                                tmp_arr[0][ind[:]] * self.gcos[chunk_s, :]
+                                - tmp_arr[1][ind[:]] * self.gsin[chunk_s, :]
                             )
                             # Include... meridinal direction, ie ij -> n
                             sc_bdy[vn + 1][dep, :] = (
-                                tmp_arr[1][ind[:]] * self.gcos[chunk_s]
-                                + tmp_arr[0][ind[:]] * self.gsin[chunk_s]
+                                tmp_arr[1][ind[:]] * self.gcos[chunk_s, :]
+                                + tmp_arr[0][ind[:]] * self.gsin[chunk_s, :]
                             )
 
                     # End depths loop
@@ -1105,7 +1111,10 @@ class Extract:
                         entry["data"][(f - first_date), :, chunk_d] = np.concatenate(
                             (entry["data"], np.array([data_out]))
                         )"""
-
+        if self.key_vec and self.rot_dir == "j":
+            print(self.d_bdy[self.var_nam[vn + 1]][year]["data"].shape)
+        else:
+            print(self.d_bdy[self.var_nam[vn]][year]["data"].shape)
         # Need stats on fill pts in z and horiz + missing pts...
 
     # end month
