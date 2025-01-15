@@ -167,6 +167,10 @@ class Extract:
         self.dst_chunk = chunk_number.copy()
         self.dist_tot = np.zeros((len(dst_lon), 9))
         self.num_bdy_ch = np.zeros((len(all_chunk)), dtype=int)
+        self.tmp_filt_2d = np.zeros((1, len(dst_lon), len(wei_121)))
+        self.tmp_filt_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
+        self.id_121_2d = np.zeros((1, len(dst_lon), len(wei_121)))
+        self.id_121_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
         if self.key_vec:
             self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
             self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
