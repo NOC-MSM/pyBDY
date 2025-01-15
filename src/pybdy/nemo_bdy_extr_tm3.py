@@ -169,8 +169,8 @@ class Extract:
         self.num_bdy_ch = np.zeros((len(all_chunk)), dtype=int)
         self.tmp_filt_2d = np.zeros((1, len(dst_lon), len(wei_121)))
         self.tmp_filt_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
-        self.id_121_2d = np.zeros((1, len(dst_lon), len(wei_121)))
-        self.id_121_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
+        self.id_121_2d = np.zeros((1, len(dst_lon), len(wei_121)), dtype=int)
+        self.id_121_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)), dtype=int)
         if self.key_vec:
             self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
             self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
@@ -1053,6 +1053,9 @@ class Extract:
                         # If all else fails fill down using deepest pt
                         dst_bdy = dst_bdy.flatten("F")
                         dst_bdy += (dst_bdy == 0) * dst_bdy[data_ind].repeat(sc_z_len)
+                        dst_bdy_f = np.zeros((sc_z_len, self.num_bdy))
+                        dst_bdy_f[:, chunk_d] = dst_bdy.reshape(sc_z_len, -1)
+                        dst_bdy = dst_bdy_f.flatten("F")
                         # Weighted averaged on new vertical grid
                         dst_bdy = (
                             dst_bdy[self.z_ind[chunk_z, 0]] * self.z_dist[chunk_z, 0]
