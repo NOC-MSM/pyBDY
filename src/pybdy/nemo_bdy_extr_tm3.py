@@ -1028,10 +1028,15 @@ class Extract:
                     else:
                         data_out = dst_bdy
                         data_out[:, np.isnan(self.bdy_z[chunk_d])] = np.NaN
+
+                    # set up pointers for data store
                     if self.key_vec is True and self.rot_dir == "j":
                         entry = self.d_bdy[self.var_nam[vn + 1]][year]
                     else:
                         entry = self.d_bdy[self.var_nam[vn]][year]
+
+                    # add data to self.d_bdy called entry
+                    # TODO change this so holding array is already set up
                     if (
                         entry["data"] is None
                         or self.settings.get("time_interpolation", True) is False
