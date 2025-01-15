@@ -166,7 +166,7 @@ class Extract:
         sc_ind_ch = []
         self.dst_chunk = chunk_number.copy()
         self.dist_tot = np.zeros((len(dst_lon), 9))
-        self.num_bdy_ch = np.zeros((len(all_chunk)))
+        self.num_bdy_ch = np.zeros((len(all_chunk)), dtype=int)
         if self.key_vec:
             self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
             self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
@@ -1060,22 +1060,30 @@ class Extract:
 
                     # set up pointers for data store
                     if self.key_vec is True and self.rot_dir == "j":
-                        entry = self.d_bdy[self.var_nam[vn + 1]][year]
+                        (
+                            self.d_bdy[self.var_nam[vn + 1]][year]["data"][
+                                int(f - first_date), :, chunk_d
+                            ]
+                        ) = np.array([data_out])
                     else:
-                        entry = self.d_bdy[self.var_nam[vn]][year]
+                        (
+                            self.d_bdy[self.var_nam[vn]][year]["data"][
+                                int(f - first_date), :, chunk_d
+                            ]
+                        ) = np.array([data_out])
 
                     # add data to self.d_bdy called entry
                     # TODO change this so holding array is already set up
-                    if (
+                    """if (
                         entry["data"] is None
                         or self.settings.get("time_interpolation", True) is False
                     ):
                         # Create entry with singleton 3rd dimension
-                        entry["data"] = np.array([data_out])
+                        entry["data"][(f - first_date), :, chunk_d] = np.array([data_out])
                     else:
-                        entry["data"] = np.concatenate(
+                        entry["data"][(f - first_date), :, chunk_d] = np.concatenate(
                             (entry["data"], np.array([data_out]))
-                        )
+                        )"""
 
         # Need stats on fill pts in z and horiz + missing pts...
 
