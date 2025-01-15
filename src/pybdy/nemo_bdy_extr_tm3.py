@@ -154,8 +154,14 @@ class Extract:
         self.logger.info("nvar: %s", self.nvar)
         self.logger.info("key vec: %s", self.key_vec)
 
-        # Find subset of source data set required to produce bdy points
-        # take each chunk individually to reduce source data required
+        # Find subset of source data set required to produce bdy points for mask
+        imin, imax, jmin, jmax = self.get_ind(dst_lon, dst_lat, SC.lon, SC.lat)
+        self.sc_ind = {}
+        self.sc_ind["imin"], self.sc_ind["imax"] = imin, imax
+        self.sc_ind["jmin"], self.sc_ind["jmax"] = jmin, jmax
+
+        # Find subset of source data for each chunk individually
+        # to reduce source data required
 
         # set up holding arrays
 
@@ -182,35 +188,8 @@ class Extract:
             dst_lat_ch = dst_lat[chunk]
             self.num_bdy_ch[c] = len(dst_lon_ch)
 
-            ind_e = SC.lon < np.amax(dst_lon_ch)
-            ind_w = SC.lon > np.amin(dst_lon_ch)
-            ind_ew = np.logical_and(ind_e, ind_w)
-            ind_s = SC.lat > np.amin(dst_lat_ch)
-            ind_n = SC.lat < np.amax(dst_lat_ch)
-            ind_sn = np.logical_and(ind_s, ind_n)
-
-            ind = np.where(np.logical_and(ind_ew, ind_sn) != 0)
-            ind_s = np.argsort(ind[1])
-
-            sub_j = ind[0][ind_s]
-            sub_i = ind[1][ind_s]
-
-            # Find I/J range
-
-            imin = np.maximum(np.amin(sub_i) - 2, 0)
-            imax = np.minimum(np.amax(sub_i) + 2, len(SC.lon[0, :]) - 1) + 1
-            jmin = np.maximum(np.amin(sub_j) - 2, 0)
-            jmax = np.minimum(np.amax(sub_j) + 2, len(SC.lon[:, 0]) - 1) + 1
-
-            # Summarise subset region
-
-            self.logger.info("Extract __init__: subset region limits")
-            self.logger.info(
-                " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n",
-                imin,
-                imax,
-                jmin,
-                jmax,
+            imin, imax, jmin, jmax = self.get_ind(
+                dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
             )
 
             # Reduce the source coordinates to the sub region identified
@@ -509,6 +488,55 @@ class Extract:
             else:
                 self.d_bdy[self.var_nam[v]] = {}
 
+    def get_ind(self, dst_lon, dst_lat, sc_lon, sc_lat):
+        """
+        Calculate indicies of max and min for data extraction.
+
+        Parameters
+        ----------
+        dst_lon -- the longitude of the destination grid
+        dst_lat -- the latitude of the destination grid
+        SC -- Source Coordinate object
+
+        Returns
+        -------
+        imin -- minimum i index
+        imax -- maximum i index
+        jmin -- minimum j index
+        jmax -- maximum j index
+        """
+        ind_e = sc_lon < np.amax(dst_lon)
+        ind_w = sc_lon > np.amin(dst_lon)
+        ind_ew = np.logical_and(ind_e, ind_w)
+        ind_s = sc_lat > np.amin(dst_lat)
+        ind_n = sc_lat < np.amax(dst_lat)
+        ind_sn = np.logical_and(ind_s, ind_n)
+
+        ind = np.where(np.logical_and(ind_ew, ind_sn) != 0)
+        ind_s = np.argsort(ind[1])
+
+        sub_j = ind[0][ind_s]
+        sub_i = ind[1][ind_s]
+
+        # Find I/J range
+
+        imin = np.maximum(np.amin(sub_i) - 2, 0)
+        imax = np.minimum(np.amax(sub_i) + 2, len(sc_lon[0, :]) - 1) + 1
+        jmin = np.maximum(np.amin(sub_j) - 2, 0)
+        jmax = np.minimum(np.amax(sub_j) + 2, len(sc_lon[:, 0]) - 1) + 1
+
+        # Summarise subset region
+
+        self.logger.info("Extract __init__: subset region limits")
+        self.logger.info(
+            " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n",
+            imin,
+            imax,
+            jmin,
+            jmax,
+        )
+        return imin, imax, jmin, jmax
+
     def extract_month(self, year, month):
         """
         Extract monthly data and interpolates onto the destination grid.
@@ -519,19 +547,6 @@ class Extract:
         month -- month of the year to be extracted
         """
         self.logger.info("extract_month function called")
-        # Check year entry exists in d_bdy, if not create it.
-        for v in range(self.nvar):
-            try:
-                if self.key_vec is True and self.rot_dir == "j":
-                    self.d_bdy[self.var_nam[v + 1]][year]
-                else:
-                    self.d_bdy[self.var_nam[v]][year]
-            except KeyError:
-                # hold_data = np.zeros(((last_date - first_date), sc_z_len, self.num_bdy))
-                if self.key_vec is True and self.rot_dir == "j":
-                    self.d_bdy[self.var_nam[v + 1]][year] = {"data": None, "date": {}}
-                else:
-                    self.d_bdy[self.var_nam[v]][year] = {"data": None, "date": {}}
 
         sc_time = self.sc_time
         sc_z_len = self.sc_z_len
@@ -659,6 +674,26 @@ class Extract:
                 self.d_bdy[self.var_nam[vn]]["date"] = sc_time.date_counter[
                     first_date : last_date + 1
                 ]
+
+        # Check year entry exists in d_bdy, if not create it with data holding array.
+        for v in range(self.nvar):
+            try:
+                if self.key_vec is True and self.rot_dir == "j":
+                    self.d_bdy[self.var_nam[v + 1]][year]
+                else:
+                    self.d_bdy[self.var_nam[v]][year]
+            except KeyError:
+                hold_data = np.zeros(
+                    (((last_date + 1) - first_date), sc_z_len, self.num_bdy)
+                )
+                print(hold_data.shape)
+                if self.key_vec is True and self.rot_dir == "j":
+                    self.d_bdy[self.var_nam[v + 1]][year] = {
+                        "data": hold_data,
+                        "date": {},
+                    }
+                else:
+                    self.d_bdy[self.var_nam[v]][year] = {"data": hold_data, "date": {}}
 
         # loop over chunks
 
