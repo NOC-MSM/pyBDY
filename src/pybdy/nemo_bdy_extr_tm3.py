@@ -1085,17 +1085,13 @@ class Extract:
 
                     # set up pointers for data store
                     if self.key_vec is True and self.rot_dir == "j":
-                        (
-                            self.d_bdy[self.var_nam[vn + 1]][year]["data"][
-                                int(f - first_date), :, chunk_d
-                            ]
-                        ) = np.array([data_out])
+                        self.d_bdy[self.var_nam[vn + 1]][year]["data"][
+                            int(f - first_date), :, chunk_d
+                        ] = np.array([data_out])
                     else:
-                        (
-                            self.d_bdy[self.var_nam[vn]][year]["data"][
-                                int(f - first_date), :, chunk_d
-                            ]
-                        ) = np.array([data_out])
+                        self.d_bdy[self.var_nam[vn]][year]["data"][
+                            int(f - first_date), :, chunk_d
+                        ] = np.array([data_out])
 
                     # add data to self.d_bdy called entry
                     # TODO change this so holding array is already set up
