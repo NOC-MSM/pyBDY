@@ -154,12 +154,6 @@ class Extract:
         self.logger.info("nvar: %s", self.nvar)
         self.logger.info("key vec: %s", self.key_vec)
 
-        # Find subset of source data set required to produce bdy points for mask
-        imin, imax, jmin, jmax = self.get_ind(dst_lon, dst_lat, SC.lon, SC.lat)
-        self.sc_ind = {}
-        self.sc_ind["imin"], self.sc_ind["imax"] = imin, imax
-        self.sc_ind["jmin"], self.sc_ind["jmax"] = jmin, jmax
-
         # Find subset of source data for each chunk individually
         # to reduce source data required
 
@@ -613,38 +607,6 @@ class Extract:
 
         self.logger.info("first/last dates: %s %s", first_date, last_date)
 
-        if self.first:
-            # This bit doesn't need chunks
-            i_run = np.arange(self.sc_ind["imin"], self.sc_ind["imax"])
-            j_run = np.arange(self.sc_ind["jmin"], self.sc_ind["jmax"])
-            extended_i = np.arange(self.sc_ind["imin"] - 1, self.sc_ind["imax"])
-            extended_j = np.arange(self.sc_ind["jmin"] - 1, self.sc_ind["jmax"])
-
-            nc_3 = GetFile(self.settings["src_msk"])
-            varid_3 = nc_3["tmask"]
-            t_mask = varid_3[
-                :1,
-                :sc_z_len,
-                np.min(j_run) : np.max(j_run) + 1,
-                np.min(i_run) : np.max(i_run) + 1,
-            ]
-            if self.key_vec:
-                varid_3 = nc_3["umask"]
-                u_mask = varid_3[
-                    :1,
-                    :sc_z_len,
-                    np.min(j_run) : np.max(j_run) + 1,
-                    np.min(extended_i) : np.max(extended_i) + 1,
-                ]
-                varid_3 = nc_3["vmask"]
-                v_mask = varid_3[
-                    :1,
-                    :sc_z_len,
-                    np.min(extended_j) : np.max(extended_j) + 1,
-                    np.min(i_run) : np.max(i_run) + 1,
-                ]
-            nc_3.close()
-
         # Identify missing values and scale factors if defined
         meta_data = []
         meta_range = self.nvar
@@ -686,7 +648,6 @@ class Extract:
                 hold_data = np.zeros(
                     (((last_date + 1) - first_date), sc_z_len, self.num_bdy)
                 )
-                print(hold_data.shape)
                 if self.key_vec is True and self.rot_dir == "j":
                     self.d_bdy[self.var_nam[v + 1]][year] = {
                         "data": hold_data,
@@ -699,8 +660,8 @@ class Extract:
 
         chunk_number = self.dst_chunk
         all_chunk = np.unique(chunk_number)
-        z_ind_chunk = chunk_number.tile(
-            self.z_ind.shape[0] / len(chunk_number)
+        z_ind_chunk = np.tile(
+            chunk_number, int(self.z_ind.shape[0] / len(chunk_number))
         )  # not sure about this
 
         for chk in range(len(all_chunk)):
@@ -718,6 +679,32 @@ class Extract:
                 self.sc_ind_ch[chk]["jmin"] - 1, self.sc_ind_ch[chk]["jmax"]
             )
             ind = self.sc_ind_ch[chk]["ind"]
+
+            if self.first:
+                nc_3 = GetFile(self.settings["src_msk"])
+                varid_3 = nc_3["tmask"]
+                t_mask = varid_3[
+                    :1,
+                    :sc_z_len,
+                    np.min(j_run) : np.max(j_run) + 1,
+                    np.min(i_run) : np.max(i_run) + 1,
+                ]
+                if self.key_vec:
+                    varid_3 = nc_3["umask"]
+                    u_mask = varid_3[
+                        :1,
+                        :sc_z_len,
+                        np.min(j_run) : np.max(j_run) + 1,
+                        np.min(extended_i) : np.max(extended_i) + 1,
+                    ]
+                    varid_3 = nc_3["vmask"]
+                    v_mask = varid_3[
+                        :1,
+                        :sc_z_len,
+                        np.min(extended_j) : np.max(extended_j) + 1,
+                        np.min(i_run) : np.max(i_run) + 1,
+                    ]
+                nc_3.close()
 
             # Loop over identified files
             for f in range(first_date, last_date + 1):
