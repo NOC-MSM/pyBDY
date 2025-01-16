@@ -489,17 +489,6 @@ class Extract:
         self.sc_time = sc_time
 
         self.d_bdy = {}
-        print(self.dst_dep.shape, self.id_121_2d.shape, self.id_121_3d.shape)
-        print(self.tmp_filt_2d.shape, self.tmp_filt_3d.shape, self.dist_tot.shape)
-        print(
-            self.nav_lon.shape,
-            self.z_ind.shape,
-            self.z_dist.shape,
-            self.sc_z_len,
-            self.sc_time,
-            self.num_bdy,
-            self.bdy_z.shape,
-        )
 
         # Need to qualify for key_vec
         for v in range(self.nvar):
@@ -1089,7 +1078,7 @@ class Extract:
                         data_out = dst_bdy
                         data_out[:, np.isnan(self.bdy_z[chunk_d])] = np.NaN
 
-                    # set up pointers for data store
+                    # add data to self.d_bdy
                     if self.key_vec is True and self.rot_dir == "j":
                         self.d_bdy[self.var_nam[vn + 1]][year]["data"][
                             int(f - first_date), :, chunk_d
@@ -1099,22 +1088,6 @@ class Extract:
                             int(f - first_date), :, chunk_d
                         ] = data_out.T
 
-                    # add data to self.d_bdy called entry
-                    # TODO change this so holding array is already set up
-                    """if (
-                        entry["data"] is None
-                        or self.settings.get("time_interpolation", True) is False
-                    ):
-                        # Create entry with singleton 3rd dimension
-                        entry["data"][(f - first_date), :, chunk_d] = np.array([data_out])
-                    else:
-                        entry["data"][(f - first_date), :, chunk_d] = np.concatenate(
-                            (entry["data"], np.array([data_out]))
-                        )"""
-        if self.key_vec and self.rot_dir == "j":
-            print(self.d_bdy[self.var_nam[vn + 1]][year]["data"].shape)
-        else:
-            print(self.d_bdy[self.var_nam[vn]][year]["data"].shape)
         # Need stats on fill pts in z and horiz + missing pts...
 
     # end month
