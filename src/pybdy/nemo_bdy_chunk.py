@@ -24,7 +24,6 @@ Created on Thu Dec 19 10:39:46 2024.
 """
 
 # External imports
-import matplotlib.pyplot as plt
 import numpy as np
 
 
@@ -60,8 +59,8 @@ def chunk_bdy(bdy):
     chunk_number = chunk_corner(ibdy, jbdy, bdy.bdy_r, chunk_number, rw)
     chunk_number = chunk_large(ibdy, jbdy, chunk_number)
 
-    plt.scatter(ibdy, jbdy, c=chunk_number)
-    plt.show()
+    # plt.scatter(ibdy, jbdy, c=chunk_number)
+    # plt.show()
     return chunk_number
 
 
