@@ -420,7 +420,7 @@ class Extract:
             # onto Dst grid
             # Allocate vertical index array
             dst_dep_rv = dst_dep.ravel(order="F")
-            z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
+            z_ind = np.zeros((self.num_bdy_ch[c] * dst_len_z, 2), dtype=np.int64)
             source_tree = None
             try:
                 source_tree = sp.cKDTree(
