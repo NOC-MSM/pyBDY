@@ -160,6 +160,7 @@ class Extract:
         # set up holding arrays
 
         num_bdy = len(dst_lon)
+        dst_len_z = len(dst_dep[:, 0])
         chunk_number = Grid[grd].chunk_number
         all_chunk = np.unique(chunk_number)
 
@@ -177,6 +178,10 @@ class Extract:
             self.gcos = np.empty((0, 9))
             self.gsin = np.empty((0, 9))
             self.sc_chunk = np.empty((0), int)
+        self.z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
+        self.z_dist = np.zeros((num_bdy * dst_len_z, 2))
+        self.z_chunk = np.zeros((num_bdy * dst_len_z), dtype=np.int64) - 1
+        zc_count = 0
 
         # loop over chunks
 
@@ -185,6 +190,11 @@ class Extract:
             dst_lon_ch = dst_lon[chunk]
             dst_lat_ch = dst_lat[chunk]
             self.num_bdy_ch[c] = len(dst_lon_ch)
+            self.z_chunk[
+                zc_count : zc_count + (self.num_bdy_ch[c] * dst_len_z)
+            ] = all_chunk[c]
+            zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z)
+            chunk_z_bool = self.z_chunk == all_chunk[c]
 
             imin, imax, jmin, jmax = self.get_ind(
                 dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
@@ -238,7 +248,6 @@ class Extract:
                 self.dst_gsin[:, chunk] = np.tile(tmp_gsin, (sc_z_len, 1))
 
             # Determine size of source data subset
-            dst_len_z = len(dst_dep[:, 0])
 
             source_dims = SC.lon_ch.shape
 
@@ -403,6 +412,64 @@ class Extract:
                 .transpose(2, 0, 1)
             )
 
+            # Fig not implemented
+
+            if not isslab:  # TODO or no vertical interpolation required
+                # Determine vertical weights for the linear interpolation
+                # onto Dst grid
+                # Allocate vertical index array
+                dst_dep_rv = dst_dep[:, chunk].ravel(order="F")
+                z_ind = np.zeros((self.num_bdy_ch[c] * dst_len_z, 2), dtype=np.int64)
+                source_tree = None
+                try:
+                    source_tree = sp.cKDTree(
+                        list(zip(sc_z.ravel(order="F"))),
+                        balanced_tree=False,
+                        compact_nodes=False,
+                    )
+                except TypeError:  # fix for scipy 0.16.0
+                    source_tree = sp.cKDTree(list(zip(sc_z.ravel(order="F"))))
+
+                junk, nn_id = source_tree.query(list(zip(dst_dep_rv)), k=1)
+
+                # WORKAROUND: the tree query returns out of range val when
+                # dst_dep point is NaN, causing ref problems later.
+                nn_id[nn_id == sc_z_len] = sc_z_len - 1
+                sc_z[nn_id]
+
+                # Find next adjacent point in the vertical
+                z_ind[:, 0] = nn_id
+                z_ind[sc_z[nn_id] > dst_dep_rv[:], 1] = (
+                    nn_id[sc_z[nn_id] > dst_dep_rv[:]] - 1
+                )
+                z_ind[sc_z[nn_id] <= dst_dep_rv[:], 1] = (
+                    nn_id[sc_z[nn_id] <= dst_dep_rv[:]] + 1
+                )
+                # Adjust out of range values
+                z_ind[z_ind == -1] = 0
+                z_ind[z_ind == sc_z_len] = sc_z_len - 1
+
+                # Create weightings array
+                # TODO something here
+                z_dist = np.abs(
+                    sc_z[z_ind]
+                    - dst_dep[:, chunk].T.repeat(2).reshape(len(dst_dep_rv), 2)
+                )
+                rat = np.sum(z_dist, axis=1)
+                z_dist = 1 - (z_dist / rat.repeat(2).reshape(len(rat), 2))
+
+                # Update z_ind for the dst array dims and vector indexing
+                # Replicating this part of matlab is difficult without causing
+                # a Memory Error. This workaround may be +/- brilliant
+                # In theory it maximises memory efficiency
+                z_ind[:, :] += np.arange(0, (self.num_bdy_ch[c]) * sc_z_len, sc_z_len)[
+                    np.arange(self.num_bdy_ch[c]).repeat(2 * dst_len_z)
+                ].reshape(z_ind.shape)
+            else:
+                z_ind = np.zeros([1, 1])
+                z_dist = np.zeros([1, 1])
+            # End isslab
+
             # Put variables in list and array
 
             sc_ind_ch.append(sc_ind)
@@ -411,84 +478,37 @@ class Extract:
             self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
             self.id_121_2d[:, chunk, :] = id_121_2d
             self.id_121_3d[:, chunk, :] = id_121_3d
+            self.z_ind[chunk_z_bool, :] = z_ind
+            self.z_dist[chunk_z_bool, :] = z_dist
+
             # End of chunk loop
-
-        # Fig not implemented
-
-        if not isslab:  # TODO or no vertical interpolation required
-            # Determine vertical weights for the linear interpolation
-            # onto Dst grid
-            # Allocate vertical index array
-            dst_dep_rv = dst_dep.ravel(order="F")
-            z_ind = np.zeros((self.num_bdy_ch[c] * dst_len_z, 2), dtype=np.int64)
-            source_tree = None
-            try:
-                source_tree = sp.cKDTree(
-                    list(zip(sc_z.ravel(order="F"))),
-                    balanced_tree=False,
-                    compact_nodes=False,
-                )
-            except TypeError:  # fix for scipy 0.16.0
-                source_tree = sp.cKDTree(list(zip(sc_z.ravel(order="F"))))
-
-            junk, nn_id = source_tree.query(list(zip(dst_dep_rv)), k=1)
-
-            # WORKAROUND: the tree query returns out of range val when
-            # dst_dep point is NaN, causing ref problems later.
-            nn_id[nn_id == sc_z_len] = sc_z_len - 1
-            sc_z[nn_id]
-
-            # Find next adjacent point in the vertical
-            z_ind[:, 0] = nn_id
-            z_ind[sc_z[nn_id] > dst_dep_rv[:], 1] = (
-                nn_id[sc_z[nn_id] > dst_dep_rv[:]] - 1
-            )
-            z_ind[sc_z[nn_id] <= dst_dep_rv[:], 1] = (
-                nn_id[sc_z[nn_id] <= dst_dep_rv[:]] + 1
-            )
-            # Adjust out of range values
-            z_ind[z_ind == -1] = 0
-            z_ind[z_ind == sc_z_len] = sc_z_len - 1
-
-            # Create weightings array
-            sc_z[z_ind]
-            z_dist = np.abs(
-                sc_z[z_ind] - dst_dep.T.repeat(2).reshape(len(dst_dep_rv), 2)
-            )
-            rat = np.sum(z_dist, axis=1)
-            z_dist = 1 - (z_dist / rat.repeat(2).reshape(len(rat), 2))
-
-            # Update z_ind for the dst array dims and vector indexing
-            # Replicating this part of matlab is difficult without causing
-            # a Memory Error. This workaround may be +/- brilliant
-            # In theory it maximises memory efficiency
-            z_ind[:, :] += np.arange(0, (num_bdy) * sc_z_len, sc_z_len)[
-                np.arange(num_bdy).repeat(2 * dst_len_z)
-            ].reshape(z_ind.shape)
-        else:
-            z_ind = np.zeros([1, 1])
-            z_dist = np.zeros([1, 1])
-        # End isslab
 
         # Set instance attributes
         self.first = True
         self.nav_lon = DC.lonlat[grd]["lon"]
         self.nav_lat = DC.lonlat[grd]["lat"]
-        self.z_ind = z_ind
-        self.z_dist = z_dist
         self.sc_ind_ch = sc_ind_ch
-        self.dst_dep = dst_dep
         self.num_bdy = num_bdy
         if not isslab:
             self.bdy_z = DC.depths[self.g_type]["bdy_H"]
         else:
             self.bdy_z = np.zeros([1])
-
-        self.dst_z = dst_dep
+        self.dst_dep = dst_dep
+        self.dst_z = self.dst_dep
         self.sc_z_len = sc_z_len
         self.sc_time = sc_time
 
         self.d_bdy = {}
+        print(self.dst_dep.shape, self.id_121_2d.shape, self.id_121_3d.shape)
+        print(self.tmp_filt_2d.shape, self.tmp_filt_3d.shape, self.dist_tot.shape)
+        print(self.z_ind.shape, self.z_dist.shape)
+        print(
+            self.nav_lon.shape,
+            self.sc_z_len,
+            self.sc_time,
+            self.num_bdy,
+            self.bdy_z.shape,
+        )
 
         # Need to qualify for key_vec
         for v in range(self.nvar):
@@ -676,13 +696,10 @@ class Extract:
 
         chunk_number = self.dst_chunk
         all_chunk = np.unique(chunk_number)
-        z_ind_chunk = np.tile(
-            chunk_number, int(self.z_ind.shape[0] / len(chunk_number))
-        )  # not sure about this
 
         for chk in range(len(all_chunk)):
             chunk_d = chunk_number == all_chunk[chk]
-            chunk_z = z_ind_chunk == all_chunk[chk]
+            chunk_z = self.z_chunk == all_chunk[chk]
             if self.key_vec:
                 chunk_s = self.sc_chunk == all_chunk[chk]
 
@@ -1048,9 +1065,6 @@ class Extract:
                         # If all else fails fill down using deepest pt
                         dst_bdy = dst_bdy.flatten("F")
                         dst_bdy += (dst_bdy == 0) * dst_bdy[data_ind].repeat(sc_z_len)
-                        dst_bdy_f = np.zeros((sc_z_len, self.num_bdy))
-                        dst_bdy_f[:, chunk_d] = dst_bdy.reshape(sc_z_len, -1)
-                        dst_bdy = dst_bdy_f.flatten("F")
                         # Weighted averaged on new vertical grid
                         dst_bdy = (
                             dst_bdy[self.z_ind[chunk_z, 0]] * self.z_dist[chunk_z, 0]
@@ -1072,7 +1086,6 @@ class Extract:
                         )
                         ind_z -= self.dst_dep[:, chunk_d]
                         ind_z = ind_z < 0
-
                         data_out[ind_z] = np.NaN
                     else:
                         data_out = dst_bdy
