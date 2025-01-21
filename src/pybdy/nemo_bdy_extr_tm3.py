@@ -498,16 +498,6 @@ class Extract:
         self.sc_time = sc_time
 
         self.d_bdy = {}
-        print(self.dst_dep.shape, self.id_121_2d.shape, self.id_121_3d.shape)
-        print(self.tmp_filt_2d.shape, self.tmp_filt_3d.shape, self.dist_tot.shape)
-        print(self.z_ind.shape, self.z_dist.shape)
-        print(
-            self.nav_lon.shape,
-            self.sc_z_len,
-            self.sc_time,
-            self.num_bdy,
-            self.bdy_z.shape,
-        )
 
         # Need to qualify for key_vec
         for v in range(self.nvar):
@@ -1019,28 +1009,29 @@ class Extract:
                             "%s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
                         )
                     # Apply 1-2-1 filter along bdy pts using NN ind self.id_121
-                    # if self.first:
-                    # if isslab:
-                    #    id_121 = self.id_121_2d[:, chunk_d, :]
-                    #    self.tmp_filt_2d[:, chunk_d, :]
-                    # else:
-                    #    id_121 = self.id_121_3d[:, chunk_d, :]
-                    #    self.tmp_filt_3d[:, chunk_d, :]
+                    if False:  # turning off filter for now
+                        # if self.first:
+                        if isslab:
+                            id_121 = self.id_121_2d[:, chunk_d, :]
+                            tmp_filt = self.tmp_filt_2d[:, chunk_d, :]
+                        else:
+                            id_121 = self.id_121_3d[:, chunk_d, :]
+                            tmp_filt = self.tmp_filt_3d[:, chunk_d, :]
 
-                    # tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
-                    # interpolation points that are not wet (=0) need to be reflected
-                    # in the denominator
-                    # tmp_valid = np.invert(dst_bdy.flatten("F")[id_121] == 0)
-                    # raises invalid divide error when all points are dry,
-                    # this is ok because the numerator=0 as well so it will
-                    # set to NaN which is set to zero later in code
-                    np.seterr(invalid="ignore")
-                    # dst_bdy = np.nansum(
-                    #    dst_bdy.flatten("F")[id_121] * tmp_filt, 2
-                    # ) / np.sum(tmp_filt * tmp_valid, 2)
-                    np.seterr(invalid="warn")
-                    # Finished first run operations
-                    # self.first = False
+                        # tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
+                        # interpolation points that are not wet (=0) need to be reflected
+                        # in the denominator
+                        tmp_valid = np.invert(dst_bdy.flatten("F")[id_121] == 0)
+                        # raises invalid divide error when all points are dry,
+                        # this is ok because the numerator=0 as well so it will
+                        # set to NaN which is set to zero later in code
+                        np.seterr(invalid="ignore")
+                        dst_bdy = np.nansum(
+                            dst_bdy.flatten("F")[id_121] * tmp_filt, 2
+                        ) / np.sum(tmp_filt * tmp_valid, 2)
+                        np.seterr(invalid="warn")
+                        # Finished first run operations
+                        # self.first = False
 
                     # Set land pts to zero
                     self.logger.info(
