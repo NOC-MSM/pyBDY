@@ -37,6 +37,7 @@ import scipy.spatial as sp
 from cftime import datetime, utime
 from scipy.interpolate import interp1d
 
+from pybdy import nemo_bdy_extr_assist as extr_assist
 from pybdy import nemo_bdy_ncgen as ncgen
 from pybdy import nemo_bdy_ncpop as ncpop
 from pybdy.reader.factory import GetFile
@@ -197,8 +198,18 @@ class Extract:
             zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z)
             chunk_z_bool = self.z_chunk == all_chunk[c]
 
-            imin, imax, jmin, jmax = self.get_ind(
+            imin, imax, jmin, jmax = extr_assist.get_ind(
                 dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
+            )
+            # Summarise subset region
+
+            self.logger.info("Extract __init__: subset region limits")
+            self.logger.info(
+                " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n",
+                imin,
+                imax,
+                jmin,
+                jmax,
             )
 
             # Reduce the source coordinates to the sub region identified
@@ -505,56 +516,6 @@ class Extract:
                 self.d_bdy[self.var_nam[v + 1]] = {}
             else:
                 self.d_bdy[self.var_nam[v]] = {}
-
-    def get_ind(self, dst_lon, dst_lat, sc_lon, sc_lat):
-        """
-        Calculate indicies of max and min for data extraction.
-
-        Parameters
-        ----------
-        dst_lon -- the longitude of the destination grid
-        dst_lat -- the latitude of the destination grid
-        sc_lon -- the longitude of the source grid
-        sc_lat -- the latitude of the source grid
-
-        Returns
-        -------
-        imin -- minimum i index
-        imax -- maximum i index
-        jmin -- minimum j index
-        jmax -- maximum j index
-        """
-        ind_e = sc_lon < np.amax(dst_lon)
-        ind_w = sc_lon > np.amin(dst_lon)
-        ind_ew = np.logical_and(ind_e, ind_w)
-        ind_s = sc_lat > np.amin(dst_lat)
-        ind_n = sc_lat < np.amax(dst_lat)
-        ind_sn = np.logical_and(ind_s, ind_n)
-
-        ind = np.where(np.logical_and(ind_ew, ind_sn) != 0)
-        ind_s = np.argsort(ind[1])
-
-        sub_j = ind[0][ind_s]
-        sub_i = ind[1][ind_s]
-
-        # Find I/J range
-
-        imin = np.maximum(np.amin(sub_i) - 2, 0)
-        imax = np.minimum(np.amax(sub_i) + 2, len(sc_lon[0, :]) - 1) + 1
-        jmin = np.maximum(np.amin(sub_j) - 2, 0)
-        jmax = np.minimum(np.amax(sub_j) + 2, len(sc_lon[:, 0]) - 1) + 1
-
-        # Summarise subset region
-
-        self.logger.info("Extract __init__: subset region limits")
-        self.logger.info(
-            " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n",
-            imin,
-            imax,
-            jmin,
-            jmax,
-        )
-        return imin, imax, jmin, jmax
 
     def extract_month(self, year, month):
         """
