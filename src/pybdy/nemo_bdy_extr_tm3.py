@@ -183,9 +183,7 @@ class Extract:
         self.z_dist = np.ma.zeros((num_bdy * dst_len_z, 2))
         self.z_chunk = np.zeros((num_bdy * dst_len_z), dtype=np.int64) - 1
         zc_count = 0
-        print(Grid[grd].bdy_i[1138:1140, :])
-        print(Grid[grd].bdy_i[3418:3420, :])
-        print(Grid[grd].bdy_i[5713:5715, :])
+
         # loop over chunks
 
         for c in range(len(all_chunk)):
@@ -494,7 +492,7 @@ class Extract:
             self.bdy_z = DC.depths[self.g_type]["bdy_H"]
         else:
             self.bdy_z = np.zeros([1])
-        self.dst_dep = dst_dep
+        self.dst_dep = dst_dep.filled(np.nan)
         self.dst_z = self.dst_dep
         self.sc_z_len = sc_z_len
         self.sc_time = sc_time
@@ -510,8 +508,6 @@ class Extract:
             self.num_bdy,
             self.bdy_z.shape,
         )
-        print(self.id_121_2d[0, 1139:1141, :])
-        print(self.tmp_filt_2d[0, 1139:1141, :])
 
         # Need to qualify for key_vec
         for v in range(self.nvar):
@@ -1024,24 +1020,24 @@ class Extract:
                         )
                     # Apply 1-2-1 filter along bdy pts using NN ind self.id_121
                     # if self.first:
-                    if isslab:
-                        id_121 = self.id_121_2d[:, chunk_d, :]
-                        tmp_filt = self.tmp_filt_2d[:, chunk_d, :]
-                    else:
-                        id_121 = self.id_121_3d[:, chunk_d, :]
-                        tmp_filt = self.tmp_filt_3d[:, chunk_d, :]
+                    # if isslab:
+                    #    id_121 = self.id_121_2d[:, chunk_d, :]
+                    #    self.tmp_filt_2d[:, chunk_d, :]
+                    # else:
+                    #    id_121 = self.id_121_3d[:, chunk_d, :]
+                    #    self.tmp_filt_3d[:, chunk_d, :]
 
                     # tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
                     # interpolation points that are not wet (=0) need to be reflected
                     # in the denominator
-                    tmp_valid = np.invert(dst_bdy.flatten("F")[id_121] == 0)
+                    # tmp_valid = np.invert(dst_bdy.flatten("F")[id_121] == 0)
                     # raises invalid divide error when all points are dry,
                     # this is ok because the numerator=0 as well so it will
                     # set to NaN which is set to zero later in code
                     np.seterr(invalid="ignore")
-                    dst_bdy = np.nansum(
-                        dst_bdy.flatten("F")[id_121] * tmp_filt, 2
-                    ) / np.sum(tmp_filt * tmp_valid, 2)
+                    # dst_bdy = np.nansum(
+                    #    dst_bdy.flatten("F")[id_121] * tmp_filt, 2
+                    # ) / np.sum(tmp_filt * tmp_valid, 2)
                     np.seterr(invalid="warn")
                     # Finished first run operations
                     # self.first = False
