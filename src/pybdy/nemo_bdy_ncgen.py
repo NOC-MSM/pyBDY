@@ -1,6 +1,4 @@
-"""
-Class to generate NEMO >=4.0 BDY data files
-"""
+"""Class to generate NEMO >=4.0 BDY data files."""
 
 import datetime
 import logging
