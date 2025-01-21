@@ -514,7 +514,8 @@ class Extract:
         ----------
         dst_lon -- the longitude of the destination grid
         dst_lat -- the latitude of the destination grid
-        SC -- Source Coordinate object
+        sc_lon -- the longitude of the source grid
+        sc_lat -- the latitude of the source grid
 
         Returns
         -------
