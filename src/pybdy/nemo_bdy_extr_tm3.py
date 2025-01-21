@@ -430,7 +430,7 @@ class Extract:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
                 # Allocate vertical index array
-                dst_dep_rv = dst_dep[:, chunk].ravel(order="F")
+                dst_dep_rv = dst_dep[:, chunk].ravel(order="F").filled(np.nan)
                 z_ind = np.zeros((self.num_bdy_ch[c] * dst_len_z, 2), dtype=np.int64)
                 source_tree = None
                 try:
