@@ -123,12 +123,13 @@ class Extract:
         dst_lat = DC.bdy_lonlat[self.g_type]["lat"]
         try:
             dst_dep = DC.depths[self.g_type]["bdy_z"]
+            dst_dep = np.ma.masked_where(np.isnan(dst_dep), dst_dep)
         except KeyError:
-            dst_dep = np.zeros([1])
+            dst_dep = np.ma.zeros([1])
 
         isslab = len(dst_dep) == 1
         if dst_dep.size == len(dst_dep):
-            dst_dep = np.ones([1, len(dst_lon)])
+            dst_dep = np.ma.ones([1, len(dst_lon)])
 
         # ??? Should this be read from settings?
         wei_121 = np.array([0.5, 0.25, 0.25])
@@ -179,7 +180,7 @@ class Extract:
             self.gsin = np.empty((0, 9))
             self.sc_chunk = np.empty((0), int)
         self.z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
-        self.z_dist = np.zeros((num_bdy * dst_len_z, 2))
+        self.z_dist = np.ma.zeros((num_bdy * dst_len_z, 2))
         self.z_chunk = np.zeros((num_bdy * dst_len_z), dtype=np.int64) - 1
         zc_count = 0
 
@@ -435,7 +436,6 @@ class Extract:
                 # WORKAROUND: the tree query returns out of range val when
                 # dst_dep point is NaN, causing ref problems later.
                 nn_id[nn_id == sc_z_len] = sc_z_len - 1
-                sc_z[nn_id]
 
                 # Find next adjacent point in the vertical
                 z_ind[:, 0] = nn_id
@@ -450,12 +450,11 @@ class Extract:
                 z_ind[z_ind == sc_z_len] = sc_z_len - 1
 
                 # Create weightings array
-                # TODO something here
                 z_dist = np.abs(
                     sc_z[z_ind]
                     - dst_dep[:, chunk].T.repeat(2).reshape(len(dst_dep_rv), 2)
                 )
-                rat = np.sum(z_dist, axis=1)
+                rat = np.ma.sum(z_dist, axis=1)
                 z_dist = 1 - (z_dist / rat.repeat(2).reshape(len(rat), 2))
 
                 # Update z_ind for the dst array dims and vector indexing
@@ -467,7 +466,7 @@ class Extract:
                 ].reshape(z_ind.shape)
             else:
                 z_ind = np.zeros([1, 1])
-                z_dist = np.zeros([1, 1])
+                z_dist = np.ma.zeros([1, 1])
             # End isslab
 
             # Put variables in list and array
