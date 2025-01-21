@@ -183,7 +183,9 @@ class Extract:
         self.z_dist = np.ma.zeros((num_bdy * dst_len_z, 2))
         self.z_chunk = np.zeros((num_bdy * dst_len_z), dtype=np.int64) - 1
         zc_count = 0
-
+        print(Grid[grd].bdy_i[1138:1140, :])
+        print(Grid[grd].bdy_i[3418:3420, :])
+        print(Grid[grd].bdy_i[5713:5715, :])
         # loop over chunks
 
         for c in range(len(all_chunk)):
@@ -508,6 +510,7 @@ class Extract:
             self.num_bdy,
             self.bdy_z.shape,
         )
+        print(self.dist_tot[1139:1141, :])
 
         # Need to qualify for key_vec
         for v in range(self.nvar):
