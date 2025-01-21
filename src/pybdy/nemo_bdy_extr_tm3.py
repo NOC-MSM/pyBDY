@@ -825,7 +825,7 @@ class Extract:
                     " sc_bdy %s %s", np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn])
                 )
                 dst_bdy = np.zeros_like(dist_fac) * np.nan
-                #dst_bdy = np.zeros_like(dist_fac)
+                # dst_bdy = np.zeros_like(dist_fac)
                 ind_valid = dist_fac > 0.0
                 dst_bdy[ind_valid] = (
                     np.nansum(sc_bdy[vn][:, :, :] * dist_wei, 2)[ind_valid]
@@ -1207,21 +1207,19 @@ class Extract:
                 self.d_bdy[v][year]["data"][:, :, :],
             )
             jpk, jpj, jpi = tmp_var.shape
-            if jpj>1:
+            if jpj > 1:
                 for k in range(jpk):
-                    tmp_var[k,:,:] = np.where(np.isnan(self.dst_dep),
-                                         self.settings["fv"],
-                                         tmp_var[k,:,:]
-                                         )
+                    tmp_var[k,:,:] = np.where(
+                        np.isnan(self.dst_dep), self.settings["fv"], tmp_var[k,:,:]
+                    )
 
             # Write variable to file
             ncpop.write_data_to_file(f_out, v, tmp_var)
 
         # check depth array has had NaNs removed
 
-        tmp_dst_dep = np.where(np.isnan(self.dst_dep),
-                self.settings["fv"],
-                self.dst_dep
+        tmp_dst_dep = np.where(
+            np.isnan(self.dst_dep), self.settings["fv"], self.dst_dep
         )
         print(self.settings["fv"])
         print(tmp_dst_dep.shape)
