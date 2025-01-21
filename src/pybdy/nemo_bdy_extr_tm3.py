@@ -510,7 +510,8 @@ class Extract:
             self.num_bdy,
             self.bdy_z.shape,
         )
-        print(self.dist_tot[1139:1141, :])
+        print(self.id_121_2d[0, 1139:1141, :])
+        print(self.tmp_filt_2d[0, 1139:1141, :])
 
         # Need to qualify for key_vec
         for v in range(self.nvar):
