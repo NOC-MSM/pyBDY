@@ -1209,8 +1209,8 @@ class Extract:
             jpk, jpj, jpi = tmp_var.shape
             if jpj > 1:
                 for k in range(jpk):
-                    tmp_var[k,:,:] = np.where(
-                        np.isnan(self.dst_dep), self.settings["fv"], tmp_var[k,:,:]
+                    tmp_var[k, :, :] = np.where(
++                        np.isnan(self.dst_dep), self.settings["fv"], tmp_var[k, :, :]
                     )
 
             # Write variable to file
