@@ -1,5 +1,9 @@
-"""Class to generate NEMO >=4.0 BDY data files."""
+"""
+Create a Nemo Bdy netCDF file ready for population.
 
+Written by John Kazimierz Farey, started August 30, 2012
+Port of Matlab code of James Harle
+"""
 import datetime
 import logging
 
@@ -50,7 +54,7 @@ def CreateBDYNetcdfFile(
 
     if grd in ["E"]:
         varztID = ncid.createVariable(
-            "deptht",
+            "gdept",
             "f4",
             (
                 "z",
@@ -102,7 +106,16 @@ def CreateBDYNetcdfFile(
         )
     elif grd in ["T", "I"]:
         varztID = ncid.createVariable(
-            "deptht",
+            "gdept",
+            "f4",
+            (
+                "z",
+                "yb",
+                "xb",
+            ),
+        )
+        vardzID = ncid.createVariable(
+            "e3t",
             "f4",
             (
                 "z",
@@ -184,7 +197,17 @@ def CreateBDYNetcdfFile(
             )
     elif grd == "U":
         varztID = ncid.createVariable(
-            "depthu",
+            "gdepu",
+            "f4",
+            (
+                "z",
+                "yb",
+                "xb",
+            ),
+            fill_value=fv,
+        )
+        vardzID = ncid.createVariable(
+            "e3u",
             "f4",
             (
                 "z",
@@ -216,7 +239,16 @@ def CreateBDYNetcdfFile(
         )
     elif grd == "V":
         varztID = ncid.createVariable(
-            "depthv",
+            "gdepv",
+            "f4",
+            (
+                "z",
+                "yb",
+                "xb",
+            ),
+        )
+        vardzID = ncid.createVariable(
+            "e3v",
             "f4",
             (
                 "z",
@@ -336,9 +368,14 @@ def CreateBDYNetcdfFile(
     varnbrID.long_name = "Bdy discrete distance"
     if grd == "E":
         varztID.axis = "Depth"
-        varztID.short_name = "deptht"
+        varztID.short_name = "gdept"
         varztID.units = "m"
         varztID.long_name = "Depth"
+
+        vardzID.axis = "Depth"
+        vardzID.short_name = "e3t"
+        vardzID.units = "m"
+        vardzID.long_name = "Cell Thickness"
 
         varmskID.short_name = "bdy_msk"
         varmskID.units = "unitless"
@@ -361,9 +398,14 @@ def CreateBDYNetcdfFile(
 
     if grd in ["T", "I"]:
         varztID.axis = "Depth"
-        varztID.short_name = "deptht"
+        varztID.short_name = "gdept"
         varztID.units = "m"
         varztID.long_name = "Depth"
+
+        vardzID.axis = "Depth"
+        vardzID.short_name = "e3t"
+        vardzID.units = "m"
+        vardzID.long_name = "Cell Thickness"
 
         varmskID.short_name = "bdy_msk"
         varmskID.units = "unitless"
@@ -396,9 +438,14 @@ def CreateBDYNetcdfFile(
             varisnID.grid = "bdyT"
     elif grd == "U":
         varztID.axis = "Depth"
-        varztID.short_name = "depthu"
+        varztID.short_name = "gdepu"
         varztID.units = "m"
         varztID.long_name = "Depth"
+
+        vardzID.axis = "Depth"
+        vardzID.short_name = "e3u"
+        vardzID.units = "m"
+        vardzID.long_name = "Cell Thickness"
 
         varbtuID.units = "m/s"
         varbtuID.short_name = "vobtcrtx"
@@ -412,9 +459,14 @@ def CreateBDYNetcdfFile(
 
     elif grd == "V":
         varztID.axis = "Depth"
-        varztID.short_name = "depthv"
+        varztID.short_name = "gdepv"
         varztID.units = "m"
         varztID.long_name = "Depth"
+
+        vardzID.axis = "Depth"
+        vardzID.short_name = "e3v"
+        vardzID.units = "m"
+        vardzID.long_name = "Cell Thickness"
 
         varbtvID.units = "m/s"
         varbtvID.short_name = "vobtcrty"
