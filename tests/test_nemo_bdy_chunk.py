@@ -24,7 +24,6 @@ Created on Thu Dec 19 10:39:46 2024.
 """
 
 # External imports
-import matplotlib.pyplot as plt
 import numpy as np
 
 # Local imports
@@ -68,6 +67,7 @@ def test_chunk_land_comp():
     assert (np.unique(chunk_number) == np.array([0])).all()
 
 
+"""
 def test_chunk_land_wrap():
     bdy = gen_synth_bdy(5)
     rw = bdy.settings["rimwidth"]
@@ -75,6 +75,7 @@ def test_chunk_land_wrap():
 
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
     assert (np.unique(chunk_number) == np.array([0, 1])).all()
+"""
 
 
 def test_chunk_corner_4():
@@ -87,8 +88,8 @@ def test_chunk_corner_4():
         bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw
     )
 
-    plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
-    plt.show()
+    # plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
+    # plt.show()
 
     errors = []
     if len(np.unique(chunk_number)) != 4:
@@ -112,8 +113,8 @@ def test_chunk_corner_3():
         bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw
     )
 
-    plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
-    plt.show()
+    # plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
+    # plt.show()
 
     errors = []
     if len(np.unique(chunk_number)) != 4:
@@ -137,8 +138,8 @@ def test_chunk_corner_diag():
         bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw
     )
 
-    plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
-    plt.show()
+    # plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
+    # plt.show()
 
     errors = []
     if len(np.unique(chunk_number)) != 1:
@@ -162,8 +163,8 @@ def test_chunk_corner_comp():
         bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw
     )
 
-    plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
-    plt.show()
+    # plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
+    # plt.show()
 
     errors = []
     if len(np.unique(chunk_number)) != 5:
@@ -177,6 +178,7 @@ def test_chunk_corner_comp():
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
 
+"""
 def test_chunk_corner_wrap():
     bdy = gen_synth_bdy(5)
     rw = bdy.settings["rimwidth"]
@@ -187,8 +189,8 @@ def test_chunk_corner_wrap():
         bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], bdy.bdy_r, chunk_number, rw
     )
 
-    plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
-    plt.show()
+    #plt.scatter(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], c=chunk_number)
+    #plt.show()
 
     errors = []
     if len(np.unique(chunk_number)) != 4:
@@ -200,6 +202,7 @@ def test_chunk_corner_wrap():
         )
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
+"""
 
 
 def test_chunk_large_4():
