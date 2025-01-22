@@ -34,6 +34,7 @@ import time
 import numpy as np
 from PyQt5.QtWidgets import QMessageBox
 
+from pybdy import nemo_bdy_chunk as chunk_func
 from pybdy import nemo_bdy_dst_coord as dst_coord
 from pybdy import nemo_bdy_extr_tm3 as extract
 from pybdy import nemo_bdy_gen_c as gen_grid
@@ -113,7 +114,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger.info("Generated BDY %s information", grd)
         logger.info("Grid %s has shape %s", grd, bdy_ind[grd].bdy_i.shape)
 
-    # TODO: Write in option to seperate out disconnected LBCs
+        # function to split the bdy into several boundary chunks
+        bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
 
     # Write out grid information to coordinates.bdy.nc
 

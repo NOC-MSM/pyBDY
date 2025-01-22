@@ -270,7 +270,7 @@ def process_plot_2d_sections(var, gdep, bdy_brk, bdy_ind, rw):
                         gdepvw[k + 1, i],
                     ]
 
-                    polygon = Polygon(np.vstack((x, y)).T, True)
+                    polygon = Polygon(np.vstack((x, y)).T, closed=True)
                     patches.append(polygon)
                     colors = np.append(colors, dta[n][k, i])
 
