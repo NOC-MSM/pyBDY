@@ -33,7 +33,7 @@ def calc_vel_correction(vel_in, e1t, e2t, e3t):
     """
     Calculate the correction term needed to correct velocity.
 
-    The correction term is calculated as the  barotropic stream function
+    The correction term is calculated as the barotropic stream function
     on the parent (source) grid. This is then interpolated to the child
     (destination) grid. The stream function is then differentiated on the
     child grid to get the barotropic velocity. The same is done on the child
