@@ -24,3 +24,48 @@ Created on Thu Dec 22 16:33:00 2024.
 """
 
 # External imports
+import numpy as np
+
+# Internal imports
+
+
+def calc_vel_correction(vel_in, e1t, e2t, e3t):
+    """
+    Calculate the correction term needed to correct velocity.
+
+    The correction term is calculated as the  barotropic stream function
+    on the parent (source) grid. This is then interpolated to the child
+    (destination) grid. The stream function is then differentiated on the
+    child grid to get the barotropic velocity. The same is done on the child
+    grid and the difference is calculated to give the correction term.
+
+    Args:
+    ----
+        vel_in (numpy.array)    : velocity u and v
+        e1t (numpy.array)       : grid cell size in i direction
+        e2t (numpy.array)       : grid cell size in j direction
+        e3t (numpy.array)       : grid cell size in z direction
+
+    Returns:
+    -------
+        baro_term (numpy.array) : array of correction terms
+    """
+    baro_term = np.array([1])
+    return baro_term
+
+
+def apply_vel_correction(baro_term, vel_in):
+    """
+    Apply the velocity correction to the child (destintion) velocities.
+
+    Args:
+    ----
+        vel_in (numpy.array)    : velocity u and v
+        baro_term (numpy.array) : array of correction terms
+
+    Returns:
+    -------
+        vel_out (numpy.array)   : velocity u and v corrected
+    """
+    vel_out = vel_in * baro_term
+    return vel_out
