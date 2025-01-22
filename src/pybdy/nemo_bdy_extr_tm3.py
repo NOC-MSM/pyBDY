@@ -924,7 +924,8 @@ class Extract:
                     self.logger.info(
                         " sc_bdy %s %s", np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn])
                     )
-                    dst_bdy = np.zeros_like(dist_fac)
+                    dst_bdy = np.zeros_like(dist_fac) * np.nan
+                    # dst_bdy = np.zeros_like(dist_fac)
                     ind_valid = dist_fac > 0.0
                     dst_bdy[ind_valid] = (
                         np.nansum(sc_bdy[vn][:, :, :] * dist_wei, 2)[ind_valid]
@@ -941,6 +942,7 @@ class Extract:
                             """Bad values found after
                                               weighted averaging"""
                         )
+
                     # weight vector array and rotate onto dest grid
                     if self.key_vec:
                         # [:,:,:,vn+1]
@@ -980,18 +982,12 @@ class Extract:
                             id_121 = self.id_121_3d[:, chunk_d, :]
                             tmp_filt = self.tmp_filt_3d[:, chunk_d, :]
 
-                        # tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
-                        # interpolation points that are not wet (=0) need to be reflected
-                        # in the denominator
-                        tmp_valid = np.invert(dst_bdy.flatten("F")[id_121] == 0)
-                        # raises invalid divide error when all points are dry,
-                        # this is ok because the numerator=0 as well so it will
-                        # set to NaN which is set to zero later in code
-                        np.seterr(invalid="ignore")
+                        tmp_valid = np.invert(np.isnan(dst_bdy.flatten("F")[id_121]))
+
                         dst_bdy = np.nansum(
                             dst_bdy.flatten("F")[id_121] * tmp_filt, 2
                         ) / np.sum(tmp_filt * tmp_valid, 2)
-                        np.seterr(invalid="warn")
+
                         # Finished first run operations
                         # self.first = False
 
@@ -1002,7 +998,6 @@ class Extract:
                         np.nanmax(dst_bdy),
                     )
                     dst_bdy[nan_ind] = 0
-
                     self.logger.info(
                         " post dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
                     )
@@ -1319,14 +1314,29 @@ class Extract:
                 self.settings["fv"],
                 self.d_bdy[v][year]["data"][:, :, :],
             )
+            jpk, jpj, jpi = tmp_var.shape
+            if jpj > 1:
+                for k in range(jpk):
+                    tmp_var[k, :, :] = np.where(
+                        np.isnan(self.dst_dep), self.settings["fv"], tmp_var[k, :, :]
+                    )
+
             # Write variable to file
             ncpop.write_data_to_file(f_out, v, tmp_var)
+
+        # check depth array has had NaNs removed
+
+        tmp_dst_dep = np.where(
+            np.isnan(self.dst_dep), self.settings["fv"], self.dst_dep
+        )
 
         # Write remaining data to file (indices are in Python notation
         # therefore we must add 1 to i,j and r)
         ncpop.write_data_to_file(f_out, "nav_lon", self.nav_lon)
         ncpop.write_data_to_file(f_out, "nav_lat", self.nav_lat)
-        ncpop.write_data_to_file(f_out, "depth" + self.g_type, self.dst_dep)
+        ncpop.write_data_to_file(f_out, "gdep" + self.g_type, tmp_dst_dep)
+        # TODO: e3 is just populated with gdep
+        ncpop.write_data_to_file(f_out, "e3" + self.g_type, tmp_dst_dep)
         ncpop.write_data_to_file(f_out, "nbidta", ind.bdy_i[:, 0] + 1)
         ncpop.write_data_to_file(f_out, "nbjdta", ind.bdy_i[:, 1] + 1)
         ncpop.write_data_to_file(f_out, "nbrdta", ind.bdy_r[:] + 1)

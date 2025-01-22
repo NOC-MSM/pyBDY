@@ -1,9 +1,5 @@
-"""
-Create a Nemo Bdy netCDF file ready for population.
+"""Class to generate NEMO >=4.0 BDY data files."""
 
-Written by John Kazimierz Farey, started August 30, 2012
-Port of Matlab code of James Harle
-"""
 import datetime
 import logging
 
