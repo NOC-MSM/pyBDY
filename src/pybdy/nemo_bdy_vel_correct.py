@@ -29,43 +29,86 @@ import numpy as np
 # Internal imports
 
 
-def calc_vel_correction(vel_in, e1t, e2t, e3t):
+def calc_vel_correction(vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, logger):
     """
-    Calculate the correction term needed to correct velocity.
+    Calculate the scale factor correction term needed to correct velocity.
 
     The correction term is calculated as the barotropic stream function
-    on the parent (source) grid. This is then interpolated to the child
-    (destination) grid. The stream function is then differentiated on the
+    on the source grid. This is then interpolated to the destination
+    grid. The stream function is then differentiated on the
     child grid to get the barotropic velocity. The same is done on the child
     grid and the difference is calculated to give the correction term.
 
     Args:
     ----
-        vel_in (numpy.array)    : velocity u and v
-        e1t (numpy.array)       : grid cell size in i direction
-        e2t (numpy.array)       : grid cell size in j direction
-        e3t (numpy.array)       : grid cell size in z direction
-
-    Returns:
-    -------
-        baro_term (numpy.array) : array of correction terms
-    """
-    baro_term = np.array([1])
-    return baro_term
-
-
-def apply_vel_correction(baro_term, vel_in):
-    """
-    Apply the velocity correction to the child (destintion) velocities.
-
-    Args:
-    ----
-        vel_in (numpy.array)    : velocity u and v
-        baro_term (numpy.array) : array of correction terms
+        vel_sc (numpy.array)      : velocity u or v
+        vel_dst (numpy.array)     : grid cell size in i direction
+        e3t_sc (numpy.array)         : grid cell size in z direction
+        e3t_dst (numpy.array)         : grid cell size in z direction
+        dist_wei (numpy.array)    : weightings for interpolation
+        dist_fac (numpy.array)    : sum of weightings
+        logger                    : log of statements
 
     Returns:
     -------
         vel_out (numpy.array)   : velocity u and v corrected
     """
-    vel_out = vel_in * baro_term
+    # start with getting e3t variable
+
+    # integrate velocity vertically
+
+    vel_baro_sc = integrate_vel_dz(vel_sc, e3t_sc)
+    vel_baro_dst = integrate_vel_dz(vel_dst, e3t_dst)
+    vel_baro_on_bdy = interp_sc_to_dst(vel_baro_sc, dist_wei, dist_fac, logger)
+    baro_term = vel_baro_on_bdy / vel_baro_dst
+    vel_out = vel_dst * baro_term
     return vel_out
+
+
+def integrate_vel_dz(vel, e3t, dz_axis=0):
+    """
+    Integrate the velocity vertically to give barotropic velocity.
+
+    Args:
+    ----
+        vel (numpy.array) : velocity u or v
+        e3t (numpy.array) : grid cell size in z direction
+
+    Returns:
+    -------
+        barotropic (numpy.array)  : barotropic velocity u or v
+    """
+    # Check vel and e3t sizes match
+    if vel.shape != e3t.shape:
+        raise Exception("Shape of velcocity field does not match e3t.")
+    vel_z = vel * e3t
+    barotropic = np.sum(vel_z, axis=dz_axis)
+    return barotropic
+
+
+def interp_sc_to_dst(sc_bdy, dist_wei, dist_fac, logger):
+    """
+    Interpolate the source data to the destination grid.
+
+    Args:
+    ----
+        sc_bdy (numpy.array)      : source data
+        dist_wei (numpy.array)    : weightings for interpolation
+        dist_fac (numpy.array)    : sum of weightings
+        logger                    : log of statements
+
+    Returns:
+    -------
+        dst_bdy (numpy.array)     : destination bdy points with data from source grid
+    """
+    logger.info(" sc_bdy %s %s", np.nanmin(sc_bdy), np.nanmax(sc_bdy))
+    dst_bdy = np.zeros_like(dist_fac) * np.nan
+    ind_valid = dist_fac > 0.0
+    dst_bdy[ind_valid] = (
+        np.nansum(sc_bdy[:, :, :] * dist_wei, 2)[ind_valid] / dist_fac[ind_valid]
+    )
+    logger.info(" dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy))
+    # Quick check to see we have not got bad values
+    if np.sum(dst_bdy == np.inf) > 0:
+        raise RuntimeError("""Bad values found after weighted averaging""")
+    return dst_bdy

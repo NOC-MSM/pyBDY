@@ -40,6 +40,7 @@ from scipy.interpolate import interp1d
 from pybdy import nemo_bdy_extr_assist as extr_assist
 from pybdy import nemo_bdy_ncgen as ncgen
 from pybdy import nemo_bdy_ncpop as ncpop
+from pybdy import nemo_bdy_vel_correct as vel_correct
 from pybdy.reader.factory import GetFile
 from pybdy.utils.nemo_bdy_lib import rot_rep, sub2ind
 
@@ -968,6 +969,15 @@ class Extract:
                             "en to %s" % self.rot_dir,
                             self.dst_gcos[:, chunk_d],
                             self.dst_gsin[:, chunk_d],
+                        )
+                        dst_bdy = vel_correct.calc_vel_correction(
+                            sc_bdy[vn],
+                            dst_bdy,
+                            self.e3t_sc,
+                            self.e3t_dst,
+                            dist_wei,
+                            dist_fac,
+                            self.logger,
                         )
                         self.logger.info(
                             "%s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
