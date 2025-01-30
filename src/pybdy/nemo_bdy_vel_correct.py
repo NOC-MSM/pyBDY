@@ -53,15 +53,29 @@ def calc_vel_correction(vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, lo
     -------
         vel_out (numpy.array)   : velocity u and v corrected
     """
-    # integrate velocity vertically
-    vel_baro_sc = integrate_vel_dz(vel_sc, e3t_sc)[np.newaxis, :, :]
-    vel_baro_dst = integrate_vel_dz(vel_dst, e3t_dst)
+    # Integrate velocity vertically
+    vel_sc = np.ma.masked_where(np.isnan(vel_sc), vel_sc)
+    vel_dst = np.ma.masked_where(np.isnan(vel_dst), vel_dst)
+    e3t_sc = np.ma.masked_where(np.isnan(e3t_sc), e3t_sc)
+    e3t_dst = np.ma.masked_where(np.isnan(e3t_dst), e3t_dst)
 
-    # interp on to dst
+    vel_baro_sc = integrate_vel_dz(vel_sc, e3t_sc)[np.newaxis, :, :].filled(np.nan)
+    vel_baro_dst = integrate_vel_dz(vel_dst, e3t_dst).filled(np.nan)
+
+    # Interp on to dst
     vel_baro_on_bdy = interp_sc_to_dst(
         vel_baro_sc, dist_wei[:1, :, :], dist_fac[:1, :], logger
     )
-    baro_term = vel_baro_on_bdy / vel_baro_dst
+
+    baro_term = np.tile((vel_baro_on_bdy / vel_baro_dst), (vel_dst.shape[0], 1))
+
+    # Put some reasonable safeguards on for very large or small baro_term multiplier.
+    # Double the velocity seems enough.
+    too_big = 2
+    too_small = -2
+    baro_term[baro_term > too_big] = too_big
+    baro_term[baro_term < too_small] = too_small
+
     vel_out = vel_dst * baro_term
     return vel_out
 
@@ -84,7 +98,7 @@ def integrate_vel_dz(vel, e3t, dz_axis=0):
     if vel.shape != e3t.shape:
         raise Exception("Shape of velcocity field does not match e3t.")
     vel_z = vel * e3t
-    barotropic = np.sum(vel_z, axis=dz_axis)
+    barotropic = np.ma.sum(vel_z, axis=dz_axis)
     return barotropic
 
 
