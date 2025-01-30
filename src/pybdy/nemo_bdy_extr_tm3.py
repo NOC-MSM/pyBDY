@@ -180,6 +180,7 @@ class Extract:
             self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
             self.gcos = np.empty((0, 9))
             self.gsin = np.empty((0, 9))
+            self.e3t_sc = np.empty((sc_z_len, 0, 9))
             self.sc_chunk = np.empty((0), int)
         self.z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
         self.z_dist = np.ma.zeros((num_bdy * dst_len_z, 2))
@@ -260,6 +261,9 @@ class Extract:
                 self.dst_gcos[:, chunk] = np.tile(tmp_gcos, (sc_z_len, 1))
                 self.dst_gsin[:, chunk] = np.tile(tmp_gsin, (sc_z_len, 1))
 
+                # subset e3t
+                e3t_sc = SC.e3t[:, jmin:jmax, imin:imax]
+
             # Determine size of source data subset
 
             source_dims = SC.lon_ch.shape
@@ -331,6 +335,13 @@ class Extract:
                     self.gsin,
                     sc_gsin.flatten("F")[ind].reshape(ind.shape, order="F"),
                     axis=0,
+                )
+                self.e3t_sc = np.append(
+                    self.e3t_sc,
+                    e3t_sc.reshape((e3t_sc.shape[0], -1), order="F")[:, ind].reshape(
+                        (e3t_sc.shape[0], ind.shape[0], ind.shape[1]), order="F"
+                    ),
+                    axis=1,
                 )
                 self.sc_chunk = np.append(
                     self.sc_chunk, np.zeros(ind.shape[0]) + all_chunk[c], axis=0
@@ -502,6 +513,7 @@ class Extract:
         self.num_bdy = num_bdy
         if not isslab:
             self.bdy_z = DC.depths[self.g_type]["bdy_H"]
+            self.e3t_dst = DC.depths[grd]["bdy_dz"]
         else:
             self.bdy_z = np.zeros([1])
         self.dst_dep = dst_dep.filled(np.nan)
@@ -973,8 +985,8 @@ class Extract:
                         dst_bdy = vel_correct.calc_vel_correction(
                             sc_bdy[vn],
                             dst_bdy,
-                            self.e3t_sc,
-                            self.e3t_dst,
+                            self.e3t_sc[:, chunk_s, :],
+                            self.e3t_dst[:, chunk_d],
                             dist_wei,
                             dist_fac,
                             self.logger,
