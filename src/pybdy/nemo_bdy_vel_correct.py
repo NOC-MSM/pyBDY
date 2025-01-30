@@ -43,8 +43,8 @@ def calc_vel_correction(vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, lo
     ----
         vel_sc (numpy.array)      : velocity u or v
         vel_dst (numpy.array)     : grid cell size in i direction
-        e3t_sc (numpy.array)         : grid cell size in z direction
-        e3t_dst (numpy.array)         : grid cell size in z direction
+        e3t_sc (numpy.array)      : source grid cell size in z direction
+        e3t_dst (numpy.array)     : destination grid cell size in z direction
         dist_wei (numpy.array)    : weightings for interpolation
         dist_fac (numpy.array)    : sum of weightings
         logger                    : log of statements
@@ -53,13 +53,14 @@ def calc_vel_correction(vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, lo
     -------
         vel_out (numpy.array)   : velocity u and v corrected
     """
-    # start with getting e3t variable
-
     # integrate velocity vertically
-
-    vel_baro_sc = integrate_vel_dz(vel_sc, e3t_sc)
+    vel_baro_sc = integrate_vel_dz(vel_sc, e3t_sc)[np.newaxis, :, :]
     vel_baro_dst = integrate_vel_dz(vel_dst, e3t_dst)
-    vel_baro_on_bdy = interp_sc_to_dst(vel_baro_sc, dist_wei, dist_fac, logger)
+
+    # interp on to dst
+    vel_baro_on_bdy = interp_sc_to_dst(
+        vel_baro_sc, dist_wei[:1, :, :], dist_fac[:1, :], logger
+    )
     baro_term = vel_baro_on_bdy / vel_baro_dst
     vel_out = vel_dst * baro_term
     return vel_out
@@ -73,6 +74,7 @@ def integrate_vel_dz(vel, e3t, dz_axis=0):
     ----
         vel (numpy.array) : velocity u or v
         e3t (numpy.array) : grid cell size in z direction
+        dz_axis (int)     : axis to integrate over
 
     Returns:
     -------
@@ -88,7 +90,7 @@ def integrate_vel_dz(vel, e3t, dz_axis=0):
 
 def interp_sc_to_dst(sc_bdy, dist_wei, dist_fac, logger):
     """
-    Interpolate the source data to the destination grid.
+    Interpolate the source data to the destination grid using weighted average.
 
     Args:
     ----
@@ -101,9 +103,12 @@ def interp_sc_to_dst(sc_bdy, dist_wei, dist_fac, logger):
     -------
         dst_bdy (numpy.array)     : destination bdy points with data from source grid
     """
+    # TODO move this to assist and use in extr
+
     logger.info(" sc_bdy %s %s", np.nanmin(sc_bdy), np.nanmax(sc_bdy))
     dst_bdy = np.zeros_like(dist_fac) * np.nan
     ind_valid = dist_fac > 0.0
+
     dst_bdy[ind_valid] = (
         np.nansum(sc_bdy[:, :, :] * dist_wei, 2)[ind_valid] / dist_fac[ind_valid]
     )
