@@ -933,40 +933,18 @@ class Extract:
                     # ? Attribute only used on first run so clear.
                     del dist_tot
 
-                    # weighted averaged onto new horizontal grid
-                    self.logger.info(
-                        " sc_bdy %s %s", np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn])
+                    # weighted averaged (interpolation) onto new horizontal grid
+                    dst_bdy = extr_assist.interp_sc_to_dst(
+                        sc_bdy[vn], dist_wei, dist_fac, self.logger
                     )
-                    dst_bdy = np.zeros_like(dist_fac) * np.nan
-                    # dst_bdy = np.zeros_like(dist_fac)
-                    ind_valid = dist_fac > 0.0
-                    dst_bdy[ind_valid] = (
-                        np.nansum(sc_bdy[vn][:, :, :] * dist_wei, 2)[ind_valid]
-                        / dist_fac[ind_valid]
-                    )
-                    # dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
-                    #           dist_fac)
-                    self.logger.info(
-                        " dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                    )
-                    # Quick check to see we have not got bad values
-                    if np.sum(dst_bdy == np.inf) > 0:
-                        raise RuntimeError(
-                            """Bad values found after
-                                              weighted averaging"""
-                        )
 
                     # weight vector array and rotate onto dest grid
                     if self.key_vec:
                         # [:,:,:,vn+1]
-                        dst_bdy_2 = np.zeros_like(dist_fac)
-                        ind_valid = dist_fac > 0.0
-                        dst_bdy_2[ind_valid] = (
-                            np.nansum(sc_bdy[vn + 1][:, :, :] * dist_wei, 2)[ind_valid]
-                            / dist_fac[ind_valid]
+                        dst_bdy_2 = extr_assist.interp_sc_to_dst(
+                            sc_bdy[vn + 1], dist_wei, dist_fac, self.logger
                         )
-                        # dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
-                        #             dist_fac)
+
                         self.logger.info("time to to rot and rep ")
                         self.logger.info(
                             "%s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
