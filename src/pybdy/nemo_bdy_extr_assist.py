@@ -68,6 +68,103 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     return imin, imax, jmin, jmax
 
 
+def distance_weights(sc_bdy, dist_tot, sc_z_len, r0, logger):
+    """
+    Find the distance weightings for averaging source data to destination.
+
+    Args:
+    ----
+        sc_bdy (numpy.array)    : source data
+        dist_tot (numpy.array)  : distance from dst point to 9 nearest sc points
+        sc_z_len (int)          : the number of depth levels
+        r0 (float)              : correlation distance
+        logger                  : log of statements
+
+    Returns:
+    -------
+        dist_wei (numpy.array)  : weightings for averaging
+        dist_fac (numpy.array)  : total weighting factor
+    """
+    # identify valid pts
+    data_ind = np.invert(np.isnan(sc_bdy))
+
+    # dist_tot is currently 2D so extend along depth
+    # axis to allow single array calc later, also remove
+    # any invalid pts using our eldritch data_ind
+    logger.info(
+        "DIST TOT ZEROS BEFORE %s",
+        np.sum(dist_tot == 0),
+    )
+    dist_tot = (
+        np.repeat(dist_tot, sc_z_len).reshape(
+            dist_tot.shape[0],
+            dist_tot.shape[1],
+            sc_z_len,
+        )
+    ).transpose(2, 0, 1)
+    dist_tot *= data_ind
+
+    logger.info("DIST TOT ZEROS %s", np.sum(dist_tot == 0))
+    logger.info("DIST IND ZEROS %s", np.sum(data_ind == 0))
+
+    # Identify problem pts due to grid discontinuities
+    # using dists >  lat
+    over_dist = np.sum(dist_tot[:] > 4)
+    if over_dist > 0:
+        raise RuntimeError(
+            """Distance between source location
+                              and new boundary points is greater
+                              than 4 degrees of lon/lat"""
+        )
+
+    # Calculate guassian weighting with correlation dist
+    dist_wei = (1 / (r0 * np.power(2 * np.pi, 0.5))) * (
+        np.exp(-0.5 * np.power(dist_tot / r0, 2))
+    )
+    # Calculate sum of weightings
+    dist_fac = np.sum(dist_wei * data_ind, 2)
+
+    return dist_wei, dist_fac
+
+
+def valid_index(sc_bdy, num_bdy_ch, sc_z_len, logger):
+    """
+    Find an array of valid indicies.
+
+    Args:
+    ----
+        sc_bdy (numpy.array)      : source data
+        num_bdy_ch (int)          : number of bdy points in the chunk
+        sc_z_len (int)            : the number of depth levels
+        logger                    : log of statements
+
+    Returns:
+    -------
+        data_ind (numpy.array)    : indicies of valid data
+        nan_ind (numpy.array)     : indicies where source is land
+    """
+    # identify valid pts
+    data_ind = np.invert(np.isnan(sc_bdy))
+
+    # identify loc where all sc pts are land
+    nan_ind = np.sum(data_ind, 2) == 0
+    logger.info("NAN IND : %s ", np.sum(nan_ind))
+
+    # Calc max zlevel to which data available on sc grid
+    data_ind = np.sum(nan_ind == 0, 0) - 1
+
+    # set land val to level 1 otherwise indexing problems
+    # may occur- should not affect later results because
+    # land is masked in weightings array
+    data_ind[data_ind == -1] = 0
+
+    # transform depth levels at each bdy pt to vector
+    # index that can be used to speed up calcs
+    data_ind += np.arange(0, sc_z_len * num_bdy_ch, sc_z_len)
+
+    return data_ind, nan_ind
+
+
 def interp_sc_to_dst(sc_bdy, dist_wei, dist_fac, logger):
     """
     Interpolate the source data to the destination grid using weighted average.

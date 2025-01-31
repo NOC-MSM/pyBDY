@@ -878,69 +878,41 @@ class Extract:
                     else:
                         sc_z_len = self.sc_z_len
 
-                    # identify valid pts
-                    data_ind = np.invert(np.isnan(sc_bdy[vn][:, :, :]))
-                    # dist_tot is currently 2D so extend along depth
-                    # axis to allow single array calc later, also remove
-                    # any invalid pts using our eldritch data_ind
-                    self.logger.info(
-                        "DIST TOT ZEROS BEFORE %s",
-                        np.sum(self.dist_tot[chunk_d, :] == 0),
+                    # distance weightings for averaging source data to destination
+                    dist_wei, dist_fac = extr_assist.distance_weights(
+                        sc_bdy[vn][:, :, :],
+                        self.dist_tot[chunk_d, :],
+                        sc_z_len,
+                        self.settings["r0"],
+                        self.logger,
                     )
-                    dist_tot = (
-                        np.repeat(self.dist_tot[chunk_d, :], sc_z_len).reshape(
-                            self.dist_tot[chunk_d, :].shape[0],
-                            self.dist_tot[chunk_d, :].shape[1],
-                            sc_z_len,
-                        )
-                    ).transpose(2, 0, 1)
-                    dist_tot *= data_ind
-                    self.logger.info("DIST TOT ZEROS %s", np.sum(dist_tot == 0))
-
-                    self.logger.info("DIST IND ZEROS %s", np.sum(data_ind == 0))
-
-                    # Identify problem pts due to grid discontinuities
-                    # using dists >  lat
-                    over_dist = np.sum(dist_tot[:] > 4)
-                    if over_dist > 0:
-                        raise RuntimeError(
-                            """Distance between source location
-                                              and new boundary points is greater
-                                              than 4 degrees of lon/lat"""
-                        )
-
-                    # Calculate guassian weighting with correlation dist
-                    r0 = self.settings["r0"]
-                    dist_wei = (1 / (r0 * np.power(2 * np.pi, 0.5))) * (
-                        np.exp(-0.5 * np.power(dist_tot / r0, 2))
-                    )
-                    # Calculate sum of weightings
-                    dist_fac = np.sum(dist_wei * data_ind, 2)
-                    # identify loc where all sc pts are land
-                    nan_ind = np.sum(data_ind, 2) == 0
-                    self.logger.info("NAN IND : %s ", np.sum(nan_ind))
-
-                    # Calc max zlevel to which data available on sc grid
-                    data_ind = np.sum(nan_ind == 0, 0) - 1
-                    # set land val to level 1 otherwise indexing problems
-                    # may occur- should not affect later results because
-                    # land is masked in weightings array
-                    data_ind[data_ind == -1] = 0
-                    # transform depth levels at each bdy pt to vector
-                    # index that can be used to speed up calcs
-                    data_ind += np.arange(0, sc_z_len * self.num_bdy_ch[chk], sc_z_len)
-
-                    # ? Attribute only used on first run so clear.
-                    del dist_tot
-
                     # weighted averaged (interpolation) onto new horizontal grid
                     dst_bdy = extr_assist.interp_sc_to_dst(
                         sc_bdy[vn], dist_wei, dist_fac, self.logger
                     )
 
+                    # identify valid pts
+                    data_ind, nan_ind = extr_assist.valid_index(
+                        sc_bdy[vn][:, :, :],
+                        self.num_bdy_ch[chk],
+                        sc_z_len,
+                        self.logger,
+                    )
+
                     # weight vector array and rotate onto dest grid
                     if self.key_vec:
                         # [:,:,:,vn+1]
+                        # velocity correction for difference between sc and dst bathy
+                        dst_bdy = vel_correct.baro_vel_correction(
+                            sc_bdy[vn],
+                            dst_bdy,
+                            self.e3t_sc[:, chunk_s, :],
+                            self.e3t_dst[:, chunk_d],
+                            dist_wei,
+                            dist_fac,
+                            self.logger,
+                        )
+
                         dst_bdy_2 = extr_assist.interp_sc_to_dst(
                             sc_bdy[vn + 1], dist_wei, dist_fac, self.logger
                         )
@@ -959,15 +931,6 @@ class Extract:
                             "en to %s" % self.rot_dir,
                             self.dst_gcos[:, chunk_d],
                             self.dst_gsin[:, chunk_d],
-                        )
-                        dst_bdy = vel_correct.baro_vel_correction(
-                            sc_bdy[vn],
-                            dst_bdy,
-                            self.e3t_sc[:, chunk_s, :],
-                            self.e3t_dst[:, chunk_d],
-                            dist_wei,
-                            dist_fac,
-                            self.logger,
                         )
                         self.logger.info(
                             "%s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
