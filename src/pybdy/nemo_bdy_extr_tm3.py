@@ -982,7 +982,7 @@ class Extract:
                             self.dst_gcos[:, chunk_d],
                             self.dst_gsin[:, chunk_d],
                         )
-                        dst_bdy = vel_correct.calc_vel_correction(
+                        dst_bdy = vel_correct.baro_vel_correction(
                             sc_bdy[vn],
                             dst_bdy,
                             self.e3t_sc[:, chunk_s, :],

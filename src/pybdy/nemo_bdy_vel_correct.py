@@ -30,7 +30,7 @@ import numpy as np
 from pybdy import nemo_bdy_extr_assist as extr_assist
 
 
-def calc_vel_correction(vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, logger):
+def baro_vel_correction(vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, logger):
     """
     Calculate the scale factor correction term needed to correct velocity.
 

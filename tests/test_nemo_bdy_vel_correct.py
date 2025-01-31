@@ -51,7 +51,7 @@ def test_integrate_vel_dz():
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
 
-def test_calc_vel_correction():
+def test_baro_vel_correction():
     # Test the barotropic velocity correction function
     logger = logging.getLogger(__name__)
     r0 = 0.041666666
@@ -65,14 +65,14 @@ def test_calc_vel_correction():
         np.exp(-0.5 * np.power(dist_tot / r0, 2))
     )
     dist_fac = np.sum(dist_wei, 2)
-    new_vel1 = vel_correct.calc_vel_correction(
+    new_vel1 = vel_correct.baro_vel_correction(
         vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, logger
     )
 
     # Test the safeguard on large scaling in shallow areas is working
     vel_dst = np.zeros((3, 5)) + 0.1
     e3t_dst = np.tile(np.arange(0, 0.3, 0.1) + 1, (5, 1)).T
-    new_vel2 = vel_correct.calc_vel_correction(
+    new_vel2 = vel_correct.baro_vel_correction(
         vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, logger
     )
 
