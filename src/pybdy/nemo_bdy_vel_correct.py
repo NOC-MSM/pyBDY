@@ -27,6 +27,7 @@ Created on Thu Dec 22 16:33:00 2024.
 import numpy as np
 
 # Internal imports
+from pybdy import nemo_bdy_extr_assist as extr_assist
 
 
 def calc_vel_correction(vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, logger):
@@ -63,7 +64,7 @@ def calc_vel_correction(vel_sc, vel_dst, e3t_sc, e3t_dst, dist_wei, dist_fac, lo
     vel_baro_dst = integrate_vel_dz(vel_dst, e3t_dst).filled(np.nan)
 
     # Interp on to dst
-    vel_baro_on_bdy = interp_sc_to_dst(
+    vel_baro_on_bdy = extr_assist.interp_sc_to_dst(
         vel_baro_sc, dist_wei[:1, :, :], dist_fac[:1, :], logger
     )
 
@@ -100,34 +101,3 @@ def integrate_vel_dz(vel, e3t, dz_axis=0):
     vel_z = vel * e3t
     barotropic = np.ma.sum(vel_z, axis=dz_axis)
     return barotropic
-
-
-def interp_sc_to_dst(sc_bdy, dist_wei, dist_fac, logger):
-    """
-    Interpolate the source data to the destination grid using weighted average.
-
-    Args:
-    ----
-        sc_bdy (numpy.array)      : source data
-        dist_wei (numpy.array)    : weightings for interpolation
-        dist_fac (numpy.array)    : sum of weightings
-        logger                    : log of statements
-
-    Returns:
-    -------
-        dst_bdy (numpy.array)     : destination bdy points with data from source grid
-    """
-    # TODO move this to assist and use in extr
-
-    logger.info(" sc_bdy %s %s", np.nanmin(sc_bdy), np.nanmax(sc_bdy))
-    dst_bdy = np.zeros_like(dist_fac) * np.nan
-    ind_valid = dist_fac > 0.0
-
-    dst_bdy[ind_valid] = (
-        np.nansum(sc_bdy[:, :, :] * dist_wei, 2)[ind_valid] / dist_fac[ind_valid]
-    )
-    logger.info(" dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy))
-    # Quick check to see we have not got bad values
-    if np.sum(dst_bdy == np.inf) > 0:
-        raise RuntimeError("""Bad values found after weighted averaging""")
-    return dst_bdy

@@ -51,38 +51,6 @@ def test_integrate_vel_dz():
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
 
-def test_interp_sc_to_dst():
-    # Test the horizontal interpolation by weighted average
-    logger = logging.getLogger(__name__)
-    r0 = 0.041666666
-
-    sc_bdy = np.zeros((1, 5, 9)) + 0.1
-    sc_bdy[:, :, 0] = 0.225
-    dist_tot = np.tile(np.linspace(0.05, 0.35, num=9), (1, 5, 1))
-    dist_wei = (1 / (r0 * np.power(2 * np.pi, 0.5))) * (
-        np.exp(-0.5 * np.power(dist_tot / r0, 2))
-    )
-    dist_fac = np.sum(dist_wei, 2)
-    dst1 = vel_correct.interp_sc_to_dst(sc_bdy, dist_wei, dist_fac, logger)
-
-    sc_bdy = np.zeros((10, 5, 9)) + 0.1
-    sc_bdy[:, :, 4] = 0.5
-    dist_tot = np.tile(np.linspace(0.05, 0.35, num=9), (10, 5, 1))
-    dist_wei = (1 / (r0 * np.power(2 * np.pi, 0.5))) * (
-        np.exp(-0.5 * np.power(dist_tot / r0, 2))
-    )
-    dist_fac = np.sum(dist_wei, 2)
-    dst2 = vel_correct.interp_sc_to_dst(sc_bdy, dist_wei, dist_fac, logger)
-
-    errors = []
-    if not np.isclose(dst1, np.zeros((1, 5)) + 0.2, atol=1e-4).all():
-        errors.append("Does not interp 1d correct.")
-    elif not np.isclose(dst2, np.zeros((10, 5)) + 0.1, atol=1e-4).all():
-        errors.append("Does not interp 2d correct.")
-    # assert no error message has been registered, else print messages
-    assert not errors, "errors occured:\n{}".format("\n".join(errors))
-
-
 def test_calc_vel_correction():
     # Test the barotropic velocity correction function
     logger = logging.getLogger(__name__)
@@ -111,7 +79,7 @@ def test_calc_vel_correction():
     errors = []
     if not np.isclose(new_vel1, np.zeros((12, 5)) + 0.077957, atol=1e-4).all():
         errors.append("Velocity correction is not correct.")
-    elif not np.isclose(new_vel2, np.zeros((3, 5)) + 0.2, atol=1e-4).all():
+    elif not (new_vel2 == (np.zeros((3, 5)) + 0.2)).all():
         errors.append("Does not interp 2d correct.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))

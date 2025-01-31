@@ -66,3 +66,32 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     jmax = np.minimum(np.amax(sub_j) + 2, len(sc_lon[:, 0]) - 1) + 1
 
     return imin, imax, jmin, jmax
+
+
+def interp_sc_to_dst(sc_bdy, dist_wei, dist_fac, logger):
+    """
+    Interpolate the source data to the destination grid using weighted average.
+
+    Args:
+    ----
+        sc_bdy (numpy.array)      : source data
+        dist_wei (numpy.array)    : weightings for interpolation
+        dist_fac (numpy.array)    : sum of weightings
+        logger                    : log of statements
+
+    Returns:
+    -------
+        dst_bdy (numpy.array)     : destination bdy points with data from source grid
+    """
+    logger.info(" sc_bdy %s %s", np.nanmin(sc_bdy), np.nanmax(sc_bdy))
+    dst_bdy = np.zeros_like(dist_fac) * np.nan
+    ind_valid = dist_fac > 0.0
+
+    dst_bdy[ind_valid] = (
+        np.nansum(sc_bdy[:, :, :] * dist_wei, 2)[ind_valid] / dist_fac[ind_valid]
+    )
+    logger.info(" dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy))
+    # Quick check to see we have not got bad values
+    if np.sum(dst_bdy == np.inf) > 0:
+        raise RuntimeError("""Bad values found after weighted averaging""")
+    return dst_bdy
