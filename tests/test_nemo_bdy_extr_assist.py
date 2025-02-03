@@ -53,6 +53,47 @@ def test_get_ind():
     assert (np.array([imin, imax, jmin, jmax]) == test_case).all()
 
 
+def test_distance_weights():
+    # Tests the distance_weights function
+    logger = logging.getLogger(__name__)
+    r0 = 0.041666666
+    sc_z_len = 1
+
+    sc_bdy = np.zeros((1, 5, 9)) + 0.1
+    sc_bdy[:, :, 0] = 0.225
+    dist_tot = np.tile(np.linspace(0.05, 0.35, num=9), (5, 1))
+    dist_wei, dist_fac = extr_assist.distance_weights(
+        sc_bdy, dist_tot, sc_z_len, r0, logger
+    )
+
+    errors = []
+    if not np.isclose(dist_wei[0, 0, 0], 4.66046529, atol=1e-5):
+        errors.append("Error with dist_wei.")
+    elif not np.isclose(dist_fac[0, 0], 5.82729953, atol=1e-5):
+        errors.append("Error with dist_fac.")
+    # assert no error message has been registered, else print messages
+    assert not errors, "errors occured:\n{}".format("\n".join(errors))
+
+
+def test_valid_index():
+    # Tests the valid_index function
+    logger = logging.getLogger(__name__)
+    sc_bdy = np.zeros((10, 5, 9)) + 0.1
+    sc_bdy[:, 0:2, :] = np.nan
+    sc_bdy[5:, -1, :] = np.nan
+    num_bdy_ch = 5
+    sc_z_len = 10
+    data_ind, nan_ind = extr_assist.valid_index(sc_bdy, num_bdy_ch, sc_z_len, logger)
+    print(data_ind, nan_ind)
+    errors = []
+    if not (data_ind == np.array([0, 10, 29, 39, 44])).all():
+        errors.append("Error with data_ind.")
+    elif not (np.sum(nan_ind) == 25):
+        errors.append("Error with nan_ind.")
+    # assert no error message has been registered, else print messages
+    assert not errors, "errors occured:\n{}".format("\n".join(errors))
+
+
 def test_interp_sc_to_dst():
     # Test the horizontal interpolation by weighted average
     logger = logging.getLogger(__name__)
