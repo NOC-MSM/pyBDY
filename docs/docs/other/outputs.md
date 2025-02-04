@@ -2,15 +2,18 @@
 
 !!! abstract "Summary"
 
-    **This page provides information on the ocean & sea-ice outputs made available from the NAARC simulations their frequency & how to access them.**
+```
+**This page provides information on the ocean & sea-ice outputs made available from the NAARC simulations their frequency & how to access them.**
+```
 
----
+______________________________________________________________________
 
 ## Primary Outputs
+
 Primary outputs of the NAARC simulations are those variables which are calculated online at runtime and are written to netCDF files according to where they are defined on the eORCA grid.
 
 !!! info "Example: NAARC T-Grid Variables"
-    The conservative temperature ```thetao_con``` averaged at monthly intervals will be stored in the ```NAARC_1m_YYYYMM_grid_T.nc``` file. 
+The conservative temperature `thetao_con` averaged at monthly intervals will be stored in the `NAARC_1m_YYYYMM_grid_T.nc` file.
 
 Below we include tables of the available ocean and sea-ice variables output by each NAARC simulation:
 
@@ -22,21 +25,21 @@ Below we include tables of the available ocean and sea-ice variables output by e
 
 Using diadct
 
----
+______________________________________________________________________
 
 ## Secondary Outputs
+
 Secondary outputs of the NAARC simulations include those diagnostics which are calculated offline using the primary output variables.
 
-### AMOC 
+### AMOC
 
 The Atlantic Meridional Overturning Circulation (AMOC) is a fundamental component of the global climate system owing to its role in the redistribution of heat, nutrients and freshwater. On account of its wider societal significance, a number of continuous ocean observing systems have been deployed throughout the Atlantic Ocean to monitor the state and variability of the AMOC.
 
-The [METRIC](https://github.com/oj-tooth/metric) Python package allows users to calculate meridional overturning and heat transport diagnostics in numerical models which are equivalent (and hence comparable) to existing observations at the RAPID (26.5$^{\circ}$N), MOVE (16$^{\circ}$N) and SAMBA (34.5$^{\circ}$S) (see [Danabasoglu et al., 2021](https://doi.org/10.1029/2021GL093045)).
+The [METRIC](https://github.com/oj-tooth/metric) Python package allows users to calculate meridional overturning and heat transport diagnostics in numerical models which are equivalent (and hence comparable) to existing observations at the RAPID (26.5$^{\\circ}$N), MOVE (16$^{\\circ}$N) and SAMBA (34.5$^{\\circ}$S) (see [Danabasoglu et al., 2021](https://doi.org/10.1029/2021GL093045)).
 
-Diagnostics including meridional overturning stream functions and the meridional fluxes of heat and freshwater will be made available as secondary output variables via the [JASMIN Object Store].
+Diagnostics including meridional overturning stream functions and the meridional fluxes of heat and freshwater will be made available as secondary output variables via the \[JASMIN Object Store\].
 
-
----
+______________________________________________________________________
 
 ## Accessing NAARC Simulation Outputs.
 
