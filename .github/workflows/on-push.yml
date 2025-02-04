@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+    - 185-docs
     tags:
     - '*'
   pull_request:
