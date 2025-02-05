@@ -39,6 +39,7 @@ A recent JAVA installation is also required.
 To get started, check out and set up an instance of the pyBDY GitHub [repository](https://github.com/NOC-MSM/pyBDY):
 
 ```sh
+export PYBDY_DIR=$PWD/pyBDY
 git clone git@github.com:NOC-MSM/pyBDY.git
 ```
 
