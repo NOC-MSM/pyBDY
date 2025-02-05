@@ -6,11 +6,11 @@
 
 pyBDY is a python package to generate lateral boundary conditions for regional NEMO model configurations.
 It has been developed to uses geographical and depth information from an a source data (e.g. a global ocean
-simulation) and translate them to a  destination NEMO region simulation. It makes use of a kdtree approximate
+simulation) and translate them to a destination NEMO region simulation. It makes use of a kdtree approximate
 nearest neighbour algorithm in order to provide a generic method of interpolation for any flavour of ocean
 model. The available options are accessed either through a NEMO style namelist or a convient GUI.
 
-______________________________________________________________________
+---
 
 ## Dependecies :globe_with_meridians:
 
@@ -30,7 +30,7 @@ The key dependecies are listed below:
 
 A recent JAVA installation is also required.
 
-______________________________________________________________________
+---
 
 ## Quick Start :rocket:
 
@@ -43,7 +43,8 @@ git clone git@github.com:NOC-MSM/pyBDY.git
 ```
 
 ??? tip "Helpful Tip..."
-**It is not advised to checkout the respository in your home directory.**
+
+    - **It is not advised to checkout the respository in your home directory.**
 
 Creating a specific conda virtual environment is highly recommended ([click here for more about virtual
 enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)).

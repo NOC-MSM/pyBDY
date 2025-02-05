@@ -25,9 +25,11 @@ repos:
   - id: ruff
     args: [--fix, --show-fixes]
 - repo: https://github.com/executablebooks/mdformat
-  rev: 0.7.16
+  rev: 0.7.19
   hooks:
   - id: mdformat
+    additional_dependencies:
+    - mdformat-mkdocs[recommended]>=4.0.0
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: v2.9.0
   hooks:
