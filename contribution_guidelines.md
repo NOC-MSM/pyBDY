@@ -24,7 +24,7 @@ If you don't have write permissions on [NOC-MSM/pyBDY](https://github.com/NOC-MS
 
 1. Update the master branch of your local repository: `git checkout master && git pull`
 1. Open a GitHub issue or pick one already opened
-1. Create a branch that references the issue number and gives a summary of the changes that will be made:  `git branch issue-103-remove-pynemo-traces`
+1. Create a branch that references the issue number and gives a summary of the changes that will be made: `git branch issue-103-remove-pynemo-traces`
 1. Switch to that branch (i.e., update HEAD to set that branch as the current branch): `git checkout issue-103-remove-pynemo-traces`
 
 ## Stage and commit changes
