@@ -17,11 +17,16 @@ ______________________________________________________________________
 pyBDY is insatlled under a conda/mamba environment to aid wider distribution and to facilitate development.
 The key dependecies are listed below:
 
-| - netCDF4 | - scipy |
-| - numpy | - matplotlib |
-| - cartopy | - thredds_crawler |
-| - seawater | - pyqt5 |
-| - pyjnius | - cftime |
+- netCDF4
+- scipy
+- numpy
+- matplotlib
+- cartopy
+- thredds_crawler
+- seawater
+- pyqt5
+- pyjnius
+- cftime
 
 A recent JAVA installation is also required.
 
@@ -37,7 +42,8 @@ To get started, check out and set up an instance of the pyBDY GitHub [repository
 git clone git@github.com:NOC-MSM/pyBDY.git
 ```
 
-??? tip "Helpful Tip..." - **It is not advised to checkout the respository in your home directory.**
+??? tip "Helpful Tip..."
+**It is not advised to checkout the respository in your home directory.**
 
 Creating a specific conda virtual environment is highly recommended ([click here for more about virtual
 enviroments](https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html)).
