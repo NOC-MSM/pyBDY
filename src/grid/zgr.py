@@ -33,7 +33,7 @@ from pybdy.reader.factory import GetFile
 
 
 class Depth:
-    def __init__(self, SC, DC, settings, logger):
+    def __init__(self, SC, DC, settings, hgr_type, logger):
         """
         Master depth class.
 
@@ -42,6 +42,7 @@ class Depth:
             SC (Source object)       : object with source grid info
             DC (Destination object)  : object with destination grid info
             settings (dict)          : dictionary of settings for loading data
+            hgr_type (str)           : horizontal grid type
             logger                   : log error and messages
 
         Returns:
@@ -79,8 +80,8 @@ class Depth:
         self.find_zgrid_type()
 
         # Fill in missing variables we need for the grid type
-        set(self.var_list) - set(vars_want)
-        # self.grid = fill_zgrid_vars(self.grid_type, self.grid, missing_vars)
+        missing_vars = set(self.var_list) - set(vars_want)
+        self.grid = fill_zgrid_vars(self.grid_type, self.grid, hgr_type, missing_vars)
 
         return self.grid
 
@@ -101,14 +102,134 @@ class Depth:
     def find_zgrid_type(self):
         """Find out what type of vertical grid is provided z, zps or sigma levels."""
         if ("gdept" not in self.var_list) & ("gdept_0" not in self.var_list):
-            raise Exception("No gdept or gdept_0 variable present.")
+            raise Exception("No gdept or gdept_0 variable present in zgr file.")
+        elif self.grid["mbathy"] not in self.var_list:
+            raise Exception("No mbathy variable present in zgr file.")
         elif "gdept" not in self.var_list:
             self.grid_type = "z"
         else:
             # Could still be z, z-partial-step or sigma
-            dep_test = np.tile(
-                self.gdept[0, 0, 0, :], (self.gdept.shape[1], self.gdept.shape[2], 1)
+            # Check if all levels are equal
+            dep_test1 = np.tile(
+                self.grid["gdept"][0, 0, 0, :],
+                (self.grid["gdept"].shape[1], self.grid["gdept"].shape[2], 1),
             )
-            if (dep_test == self.gdept[0, :, :, :]).all():
+
+            # Don't select levels within 2 grid cells of bathy to remove partial steps
+            ind = self.grid["gdept"] <= self.grid["mbathy"]
+            ind[0, :-2, ...] = ind[0, 2:, ...]
+            dep_mask = np.ma.masked_where(ind is False, self.grid["gdept"])
+            sel = np.nonzero(np.ma.max(dep_mask) == dep_mask)
+            dep_test2 = np.tile(
+                dep_mask[sel[0][0], :, sel[2][0], sel[3][0]],
+                (self.grid["gdept"].shape[1], self.grid["gdept"].shape[2], 1),
+            )
+
+            # Check if any level away from bathy is variable in depth
+            dep_test3 = (
+                np.ma.min(dep_mask[0, ...], axis=[1, 2])
+                == np.ma.max(dep_mask[0, ...], axis=[1, 2])
+            ).all()
+
+            if (dep_test1 == self.grid["gdept"][0, ...]).all():
+                # z-level
                 self.grid_type = "z"
-            # elif
+            elif (dep_test2[ind] == self.grid["gdept"][ind]).all():
+                # z-partial-step
+                self.grid_type = "zps"
+            elif dep_test3 is False:
+                # sigma-level
+                self.grid_type = "s"
+            else:
+                raise Exception("Unknown/unaccounted for vertical grid type.")
+
+        self.logger.info("Vertical grid is type: " + self.sc_grid_type)
+
+
+def fill_zgrid_vars(grid_type, grid, hgr_type, missing):
+    """
+    Calculate the missing vertical grid variables and add them to grid.
+
+    Args:
+    ----
+            grid_type (str)     : type of horizontal grid (z, zps or s)
+            grid (dict)         : dictionary of grid data variable
+            hgr_type (str)      : horizontal grid type
+            missing (list)      : list of missing variables to calculate
+
+    Returns:
+    -------
+            grid (dict)          : vertical grid data dictionary
+    """
+    t_done = "gdept" not in missing
+    if t_done is False:
+        # Fill in the 3D gdept data from 1D gdept_0
+        if ("gdept_0" in missing) | ("mbathy" in missing):
+            raise Exception("No gdept_0 and mbathy in vertical grid file (zgr).")
+        else:
+            grid["gdept"] = np.tile(
+                grid["gdept_0"],
+                (1, grid["mbathy"].shape[1], grid["mbathy"].shape[2], 1),
+            )
+            grid["gdept"] = np.transpose(grid["gdept"], axes=[0, 3, 1, 2])
+
+    for vi in missing:
+        if "gdep" in vi:
+            if vi == "gdepw":
+                grid[vi] = calc_gdep()
+            elif hgr_type == "A":
+                grid[vi] = grid[vi[:-1] + "t"]
+            elif hgr_type == "B":
+                grid[vi] = calc_gdep(grid["gdept"], "f")
+            elif hgr_type == "C":
+                grid[vi] = calc_gdep(grid["gdept"], vi)
+
+    for vi in missing:
+        if "e" in vi[0]:
+            grid[vi] = calc_e3(grid["gdepw"])
+
+
+def calc_gdep(gdept, lev):
+    """
+    Calculate missing glam or gphi from glamt or gphit.
+
+    Args:
+    ----
+            gdept (np.array)  : mesh variable gdep on t-grid
+            lev (str)         : grid level type (gdep or gdep of u, v, w, f)
+
+    Returns:
+    -------
+            mesh_out (dict)     : horizontal grid mesh data variable
+    """
+    if "_0" in lev:
+        dep_out = np.zeros((gdept.shape))
+
+    if "u" in lev:
+        None
+    elif "v" in lev:
+        None
+    elif "w" in lev:
+        None
+    else:
+        raise Exception("Grid level type must be z, zps or s.")
+
+    return dep_out
+
+
+def calc_e3(gdepw):
+    """
+    Calculate missing scale factors e3 from gdep.
+
+    Args:
+    ----
+            glam (np.array)  : mesh variable glam or gphi on t-grid
+            gphi (np.array)  : grid mesh type (glam or gphi of u, v, f)
+            axis (int)       : the direction of distance for e1 this is 1,
+                               for e2 this is 2
+
+    Returns:
+    -------
+            e (np.array)     : horizontal distance scale factor e
+    """
+    gdepw[1:] - gdepw[:-1]
