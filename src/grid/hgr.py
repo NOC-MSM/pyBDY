@@ -109,7 +109,7 @@ class H_grid:
                 self.grid_type = "B"
             else:
                 self.grid_type = "C"
-        else:
+        elif "nav_lon" in self.var_list:
             self.logger.info(
                 "Warning: glamt is not present in the grid file.\n"
                 + "We are assuming everything is provide on the T-points."
@@ -119,8 +119,10 @@ class H_grid:
             self.grid["gphit"] = nc["nav_lat"][:, :]
             nc.close()
             self.grid_type = "A"
+        else:
+            raise Exception("No nav_lon present in hgr file.")
 
-        self.logger.info("Horizonal source grid is type: " + self.sc_grid_type)
+        self.logger.info("Horizonal grid is type: " + self.sc_grid_type)
 
 
 def fill_hgrid_vars(grid_type, grid, missing):
