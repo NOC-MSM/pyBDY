@@ -154,8 +154,11 @@ def fill_hgrid_vars(grid_type, grid, missing):
             elif grid_type == "C":
                 grid[vi] = calc_glam_gphi(grid[vi[:-1] + "t"], vi)
 
-        # elif "e" in vi:
-        #    grid[vi] = calc_e(grid.glamt, grid.gphit, vi)
+    for vi in missing:
+        if "e" in vi[0]:
+            grid[vi] = calc_e1_e2(
+                grid["glam" + vi[-1]], grid["gphi" + vi[-1]], int(vi[1])
+            )
 
 
 def calc_glam_gphi(t_mesh, mesh):
@@ -195,4 +198,30 @@ def calc_glam_gphi(t_mesh, mesh):
     return mesh_out
 
 
-# def calc_e():
+def calc_e1_e2(glam, gphi, axis):
+    """
+    Calculate missing scale factor e1 and e2 from glam or gphi.
+
+    Args:
+    ----
+            glam (np.array)  : mesh variable glam or gphi on t-grid
+            gphi (np.array)  : grid mesh type (glam or gphi of u, v, f)
+            axis (int)       : the direction of distance for e1 this is 1,
+                               for e2 this is 2
+
+    Returns:
+    -------
+            e (np.array)     : horizontal distance scale factor e
+    """
+    ij = axis - 1
+    ra = 6371  # Average radius of earth in kilometers
+    e_lam_term = (np.gradient(glam, axis=ij) * np.cos(gphi)) ** 2
+    e_phi_term = np.gradient(gphi, axis=ij) ** 2
+    e = ra * ((e_lam_term + e_phi_term) ** 0.5)
+
+    # e1 = (ra * ((((glam[1:, :] - glam[:-1. :]) * np.cos(gphi)) ** 2)
+    #      + ((gphi[1:, :] - gphi[:1, :]) ** 2)) ** 0.5)
+
+    # e2 = (ra * (((np.gradient(glam, axis=1) * np.cos(gphi)) ** 2)
+    #      + (np.gradient(gphi, axis=1) ** 2)) ** 0.5)
+    return e
