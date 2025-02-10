@@ -141,8 +141,8 @@ def fill_hgrid_vars(grid_type, grid, missing):
     """
     f_done = not (any(("glamf" in sub) | ("gphif" in sub) for sub in missing))
     if (f_done is False) & (grid_type == "B"):
-        grid["glamf"] = calc_glam_gphi(grid["glamt"], "glamf")
-        grid["gphif"] = calc_glam_gphi(grid["gphit"], "gphif")
+        grid["glamf"] = calc_grid_from_t(grid["glamt"], "glamf")
+        grid["gphif"] = calc_grid_from_t(grid["gphit"], "gphif")
 
     for vi in missing:
         if ("glam" in vi) | ("gphi" in vi):
@@ -154,7 +154,7 @@ def fill_hgrid_vars(grid_type, grid, missing):
                 else:
                     continue
             elif grid_type == "C":
-                grid[vi] = calc_glam_gphi(grid[vi[:-1] + "t"], vi)
+                grid[vi] = calc_grid_from_t(grid[vi[:-1] + "t"], vi)
 
     for vi in missing:
         if "e" in vi[0]:
@@ -163,14 +163,14 @@ def fill_hgrid_vars(grid_type, grid, missing):
             )
 
 
-def calc_glam_gphi(t_mesh, mesh):
+def calc_grid_from_t(t_mesh, mesh):
     """
-    Calculate missing glam or gphi from glamt or gphit.
+    Calculate missing glam, gphi or gdep from t-grid.
 
     Args:
     ----
             t_mesh (np.array)  : mesh variable glam or gphi on t-grid
-            mesh (str)         : grid mesh type (glam or gphi of u, v, f)
+            mesh (str)         : grid mesh type (glam, gphi, or gdep of u, v, f)
 
     Returns:
     -------
@@ -179,21 +179,24 @@ def calc_glam_gphi(t_mesh, mesh):
     mesh_out = np.zeros((t_mesh.shape))
 
     if "u" in mesh:
-        mesh_out[:-1, :] = (t_mesh[:-1, :] + t_mesh[1:, :]) / 2
-        diff = np.abs(mesh_out[-2, :] - t_mesh[-1, :])
-        mesh_out[-1, :] = t_mesh[-1, :] + diff
+        mesh_out[..., :-1, :] = (t_mesh[..., :-1, :] + t_mesh[..., 1:, :]) / 2
+        diff = np.abs(mesh_out[..., -2, :] - t_mesh[..., -1, :])
+        mesh_out[..., -1, :] = t_mesh[..., -1, :] + diff
     elif "v" in mesh:
-        mesh_out[:, :-1] = (t_mesh[:, :-1] + t_mesh[:, 1:]) / 2
-        diff = np.abs(mesh_out[:, -2] - t_mesh[:, -1])
-        mesh_out[:, -1] = t_mesh[:, -1] + diff
+        mesh_out[..., :, :-1] = (t_mesh[..., :, :-1] + t_mesh[..., :, 1:]) / 2
+        diff = np.abs(mesh_out[..., :, -2] - t_mesh[..., :, -1])
+        mesh_out[..., :, -1] = t_mesh[..., :, -1] + diff
     elif "f" in mesh:
-        mesh_out[:-1, :-1] = (
-            t_mesh[:-1, :-1] + t_mesh[1:, 1:] + t_mesh[1:, :-1] + t_mesh[:-1, 1:]
+        mesh_out[..., :-1, :-1] = (
+            t_mesh[..., :-1, :-1]
+            + t_mesh[..., 1:, 1:]
+            + t_mesh[..., 1:, :-1]
+            + t_mesh[..., :-1, 1:]
         ) / 4
-        diff = np.abs(mesh_out[-2, :] - t_mesh[-1, :])
-        mesh_out[-1, :] = t_mesh[-1, :] + diff
-        diff = np.abs(mesh_out[:, -2] - t_mesh[:, -1])
-        mesh_out[:, -1] = t_mesh[:, -1] + diff
+        diff = np.abs(mesh_out[..., -2, :] - t_mesh[..., -1, :])
+        mesh_out[..., -1, :] = t_mesh[..., -1, :] + diff
+        diff = np.abs(mesh_out[..., :, -2] - t_mesh[..., :, -1])
+        mesh_out[..., :, -1] = t_mesh[..., :, -1] + diff
     else:
         raise Exception("Grid mesh type must be u, v or f.")
 
@@ -206,10 +209,9 @@ def calc_e1_e2(glam, gphi, axis):
 
     Args:
     ----
-            glam (np.array)  : mesh variable glam or gphi on t-grid
-            gphi (np.array)  : grid mesh type (glam or gphi of u, v, f)
-            axis (int)       : the direction of distance for e1 this is 1,
-                               for e2 this is 2
+            glam (np.array)  : mesh variable glam (lon)
+            gphi (np.array)  : mesh variable gphi (lat)
+            axis (int)       : axis 1 (i direction) or 2 (j direction)
 
     Returns:
     -------
