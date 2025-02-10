@@ -27,6 +27,7 @@ Created on Thu Dec 22 18:01:00 2024.
 
 # External imports
 import numpy as np
+from grid import hgr
 
 # Internal imports
 from pybdy.reader.factory import GetFile
@@ -176,7 +177,7 @@ def fill_zgrid_vars(grid_type, grid, hgr_type, missing):
     for vi in missing:
         if "gdep" in vi:
             if vi == "gdepw":
-                grid[vi] = calc_gdep()
+                grid[vi] = calc_gdep(grid["gdept"], vi)
             elif hgr_type == "A":
                 grid[vi] = grid[vi[:-1] + "t"]
             elif hgr_type == "B":
@@ -191,45 +192,62 @@ def fill_zgrid_vars(grid_type, grid, hgr_type, missing):
 
 def calc_gdep(gdept, lev):
     """
-    Calculate missing glam or gphi from glamt or gphit.
+    Calculate missing gdep from gdept.
 
     Args:
     ----
             gdept (np.array)  : mesh variable gdep on t-grid
-            lev (str)         : grid level type (gdep or gdep of u, v, w, f)
+            lev (str)         : grid level type (gdep of u, v, w, f)
 
     Returns:
     -------
-            mesh_out (dict)     : horizontal grid mesh data variable
+            dep_out (dict)    : vertical grid mesh data variable
     """
-    if "_0" in lev:
+    if "w" in lev:
         dep_out = np.zeros((gdept.shape))
-
-    if "u" in lev:
-        None
-    elif "v" in lev:
-        None
-    elif "w" in lev:
-        None
+        dep_out[:, 1:, ...] = (gdept[:, 1:, ...] + gdept[:, :-1, ...]) / 2
+        diff = np.abs(dep_out[:, 1, ...] - gdept[:, 0, ...])
+        dep_out[:, 0, ...] = gdept[:, 0, ...] - diff
+    elif "t_0" in lev:
+        dep_out = gdept
     else:
-        raise Exception("Grid level type must be z, zps or s.")
+        dep_out = hgr.calc_grid_from_t(gdept, lev)
+
+    if "_0" in lev:
+        # Do we need _0 vars?
+        dep_out = dep_out[:, :, 0, 0]
 
     return dep_out
 
 
-def calc_e3(gdepw):
+def calc_e3(gdept, gdepw, lev):
     """
     Calculate missing scale factors e3 from gdep.
 
     Args:
     ----
-            glam (np.array)  : mesh variable glam or gphi on t-grid
-            gphi (np.array)  : grid mesh type (glam or gphi of u, v, f)
+            gdep (np.array)  : mesh variable gdep on respective grid
             axis (int)       : the direction of distance for e1 this is 1,
                                for e2 this is 2
 
     Returns:
     -------
-            e (np.array)     : horizontal distance scale factor e
+            e3 (np.array)    : vertical distance scale factor e3
     """
-    gdepw[1:] - gdepw[:-1]
+    gs = gdepw.shape
+    gdep_temp = np.zeros((gs[0], gs[1] + 1, gs[2], gs[3]))
+
+    if "w" in lev:
+        # get e3w from gdept
+        gdep_temp[:, 1:, ...] = gdept
+        diff = np.abs(gdepw[:, 0, ...] - gdept[:, 0, ...])
+        gdep_temp[:, 0, ...] = gdepw[:, 0, ...] - diff
+        e3 = gdep_temp[:, 1:, ...] - gdep_temp[:, :-1, ...]
+    elif "t" in lev:
+        # get e3t from gdepw
+        gdep_temp[:, :-1, ...] = gdepw
+        diff = np.abs(gdept[:, -1, ...] - gdepw[:, -1, ...])
+        gdep_temp[:, -1, ...] = gdept[:, -1, ...] + diff
+        e3 = gdep_temp[:, 1:, ...] - gdep_temp[:, :-1, ...]
+
+    return e3
