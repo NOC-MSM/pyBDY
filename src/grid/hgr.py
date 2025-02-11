@@ -32,27 +32,25 @@ from pybdy.reader.factory import GetFile
 
 
 class H_grid:
-    def __init__(self, SC, DC, settings, logger):
+    def __init__(self, hgr_file, logger):
         """
         Master horizontal class.
 
         Args:
         ----
-            SC (Source object)       : object with source grid info
-            DC (Destination object)  : object with destination grid info
-            settings (dict)          : dictionary of settings for loading data
-            logger                   : log error and messages
+            hgr_file (str)           : string of file for loading hgr data
+            logger (object)          : log error and messages
 
         Returns:
         -------
             H_grid (object)          : horizontal grid object
         """
         # Set up variables
-        self.settings = settings
+        self.file_path = hgr_file
         self.grid_type = ""
         self.grid = {}  # grid variables
 
-        nc = GetFile(self.settings["src_hgr"])
+        nc = GetFile(self.file_path)
         self.var_list = nc.variables.keys()
         nc.close()
 
@@ -94,7 +92,7 @@ class H_grid:
         ----
             vars_want (list)       : variables needed from file.
         """
-        nc = GetFile(self.settings["src_hgr"])
+        nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in self.var_list:
                 self.grid[vi] = nc[vi][:]
@@ -114,7 +112,7 @@ class H_grid:
                 "Warning: glamt is not present in the grid file.\n"
                 + "We are assuming everything is provide on the T-points."
             )
-            nc = GetFile(self.settings["src_hgr"])
+            nc = GetFile(self.file_path)
             self.grid["glamt"] = nc["nav_lon"][:, :]
             self.grid["gphit"] = nc["nav_lat"][:, :]
             nc.close()

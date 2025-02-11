@@ -34,28 +34,26 @@ from pybdy.reader.factory import GetFile
 
 
 class Depth:
-    def __init__(self, SC, DC, settings, hgr_type, logger):
+    def __init__(self, zgr_file, hgr_type, logger):
         """
         Master depth class.
 
         Args:
         ----
-            SC (Source object)       : object with source grid info
-            DC (Destination object)  : object with destination grid info
-            settings (dict)          : dictionary of settings for loading data
+            zgr_file (str)           : string of file for loading zgr data
             hgr_type (str)           : horizontal grid type
-            logger                   : log error and messages
+            logger (object)          : log error and messages
 
         Returns:
         -------
             Depth (object)          : Depth object
         """
         # Set up variables
-        self.settings = settings
+        self.file_path = zgr_file
         self.grid_type = ""
         self.grid = {}  # grid variables
 
-        nc = GetFile(self.settings["src_zgr"])
+        nc = GetFile(self.file_path)
         self.var_list = nc.variables.keys()
         nc.close()
 
@@ -96,7 +94,7 @@ class Depth:
         ----
             vars_want (list)       : variables needed from file.
         """
-        nc = GetFile(self.settings["src_zgr"])
+        nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in self.var_list:
                 self.grid[vi] = nc[vi][:]

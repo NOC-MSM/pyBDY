@@ -27,9 +27,9 @@ Created on Thu Dec 22 18:03:00 2024.
 # External imports
 
 # Internal imports
-from src.grid import zgr as zgr_depth
+from src.grid import zgr
 
 
 def test_depth():
-    zgr_depth.Depth()
+    zgr.Depth()
     assert False
