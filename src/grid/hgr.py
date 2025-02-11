@@ -81,7 +81,7 @@ class H_grid:
         self.find_hgrid_type()
 
         # Fill in missing variables we need for the grid type
-        missing_vars = set(self.var_list) - set(vars_want)
+        missing_vars = list(set(self.var_list) - set(vars_want))
         self.grid = fill_hgrid_vars(self.grid_type, self.grid, missing_vars)
 
         return self.grid
@@ -143,6 +143,7 @@ def fill_hgrid_vars(grid_type, grid, missing):
     if (f_done is False) & (grid_type == "B"):
         grid["glamf"] = calc_grid_from_t(grid["glamt"], "glamf")
         grid["gphif"] = calc_grid_from_t(grid["gphit"], "gphif")
+        missing = list(set(["glamf", "gphif"]) - set(missing))
 
     for vi in missing:
         if ("glam" in vi) | ("gphi" in vi):
