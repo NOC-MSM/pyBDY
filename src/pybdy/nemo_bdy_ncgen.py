@@ -61,6 +61,7 @@ def CreateBDYNetcdfFile(
                 "yb",
                 "xb",
             ),
+            fill_value=fv,
         )
         varmskID = ncid.createVariable(
             "bdy_msk",
@@ -113,6 +114,7 @@ def CreateBDYNetcdfFile(
                 "yb",
                 "xb",
             ),
+            fill_value=fv,
         )
         vardzID = ncid.createVariable(
             "e3t",
@@ -122,6 +124,7 @@ def CreateBDYNetcdfFile(
                 "yb",
                 "xb",
             ),
+            fill_value=fv,
         )
         varmskID = ncid.createVariable(
             "bdy_msk",
@@ -246,6 +249,7 @@ def CreateBDYNetcdfFile(
                 "yb",
                 "xb",
             ),
+            fill_value=fv,
         )
         vardzID = ncid.createVariable(
             "e3v",
@@ -255,6 +259,7 @@ def CreateBDYNetcdfFile(
                 "yb",
                 "xb",
             ),
+            fill_value=fv,
         )
         varbtvID = ncid.createVariable(
             "vobtcrty",
