@@ -66,6 +66,8 @@ class Depth:
             "gdepu",
             "gdepv",
             "gdepw",
+            "gdepuw",
+            "gdepvw",
             "e3t",
             "e3u",
             "e3v",
@@ -81,7 +83,7 @@ class Depth:
         self.find_zgrid_type()
 
         # Fill in missing variables we need for the grid type
-        missing_vars = set(self.var_list) - set(vars_want)
+        missing_vars = list(set(self.var_list) - set(vars_want))
         self.grid = fill_zgrid_vars(self.grid_type, self.grid, hgr_type, missing_vars)
 
         return self.grid
@@ -173,45 +175,64 @@ def fill_zgrid_vars(grid_type, grid, hgr_type, missing):
                 (1, grid["mbathy"].shape[1], grid["mbathy"].shape[2], 1),
             )
             grid["gdept"] = np.transpose(grid["gdept"], axes=[0, 3, 1, 2])
+        missing = list(set(["gdept"]) - set(missing))
+
+    w_done = "gdepw" not in missing
+    if w_done is False:
+        # Fill in the 3D gdepw data from gdept
+        grid["gdepw"] = calc_gdep(grid["gdept"], "gdepw")
+        missing = list(set(["gdepw"]) - set(missing))
 
     for vi in missing:
         if "gdep" in vi:
-            if vi == "gdepw":
-                grid[vi] = calc_gdep(grid["gdept"], vi)
-            elif hgr_type == "A":
-                grid[vi] = grid[vi[:-1] + "t"]
+            if "w" in vi:
+                # select which level is used for averaging
+                # for uw and vw
+                ig = "w"
+            else:
+                # for u, v and f
+                ig = "t"
+
+            if hgr_type == "A":
+                grid[vi] = grid[vi[:-1] + ig]
             elif hgr_type == "B":
-                grid[vi] = calc_gdep(grid["gdept"], "f")
+                grid[vi] = calc_gdep(grid["gdep" + ig], "f")
             elif hgr_type == "C":
-                grid[vi] = calc_gdep(grid["gdept"], vi)
+                grid[vi] = calc_gdep(grid["gdep" + ig], vi)
 
     for vi in missing:
         if "e" in vi[0]:
-            grid[vi] = calc_e3(grid["gdepw"])
+            if "u" in vi:
+                grid[vi] = calc_e3(grid["gdepu"], grid["gdepuw"], vi)
+            elif "v" in vi:
+                grid[vi] = calc_e3(grid["gdepv"], grid["gdepvw"], vi)
+            else:
+                grid[vi] = calc_e3(grid["gdept"], grid["gdepw"], vi)
+    return grid
 
 
-def calc_gdep(gdept, lev):
+def calc_gdep(gdeptw, lev):
     """
-    Calculate missing gdep from gdept.
+    Calculate missing gdep from gdeptw.
 
     Args:
     ----
-            gdept (np.array)  : mesh variable gdep on t-grid
-            lev (str)         : grid level type (gdep of u, v, w, f)
+            gdeptw (np.array)  : mesh variable gdep on t-grid or w-grid
+            lev (str)         : grid level type (gdep of u, v, w, f, uw, vw)
 
     Returns:
     -------
             dep_out (dict)    : vertical grid mesh data variable
     """
-    if "w" in lev:
-        dep_out = np.zeros((gdept.shape))
-        dep_out[:, 1:, ...] = (gdept[:, 1:, ...] + gdept[:, :-1, ...]) / 2
-        diff = np.abs(dep_out[:, 1, ...] - gdept[:, 0, ...])
-        dep_out[:, 0, ...] = gdept[:, 0, ...] - diff
+    if "gdepw" == lev:
+        dep_out = np.zeros((gdeptw.shape))
+        dep_out[:, 1:, ...] = (gdeptw[:, 1:, ...] + gdeptw[:, :-1, ...]) / 2
+        diff = np.abs(dep_out[:, 1, ...] - gdeptw[:, 0, ...])
+        dep_out[:, 0, ...] = gdeptw[:, 0, ...] - diff
     elif "t_0" in lev:
-        dep_out = gdept
+        dep_out = gdeptw
     else:
-        dep_out = hgr.calc_grid_from_t(gdept, lev)
+        dep_out = hgr.calc_grid_from_t(gdeptw, lev)
 
     if "_0" in lev:
         # Do we need _0 vars?
@@ -220,34 +241,34 @@ def calc_gdep(gdept, lev):
     return dep_out
 
 
-def calc_e3(gdept, gdepw, lev):
+def calc_e3(gdep_mid, gdep_top, lev):
     """
     Calculate missing scale factors e3 from gdep.
 
     Args:
     ----
-            gdep (np.array)  : mesh variable gdep on respective grid
-            axis (int)       : the direction of distance for e1 this is 1,
-                               for e2 this is 2
+            gdep_mid (np.array)  : mesh variable on t levels
+            gdep_top (np.array)  : mesh variable on w levels
+            lev (str)         : grid level type (e3 of t, w, u, v)
 
     Returns:
     -------
             e3 (np.array)    : vertical distance scale factor e3
     """
-    gs = gdepw.shape
+    gs = gdep_top.shape
     gdep_temp = np.zeros((gs[0], gs[1] + 1, gs[2], gs[3]))
 
     if "w" in lev:
-        # get e3w from gdept
-        gdep_temp[:, 1:, ...] = gdept
-        diff = np.abs(gdepw[:, 0, ...] - gdept[:, 0, ...])
-        gdep_temp[:, 0, ...] = gdepw[:, 0, ...] - diff
+        # get e3w from gdept and gdepw
+        gdep_temp[:, 1:, ...] = gdep_mid
+        diff = np.abs(gdep_top[:, 0, ...] - gdep_mid[:, 0, ...])
+        gdep_temp[:, 0, ...] = gdep_top[:, 0, ...] - diff
         e3 = gdep_temp[:, 1:, ...] - gdep_temp[:, :-1, ...]
-    elif "t" in lev:
-        # get e3t from gdepw
-        gdep_temp[:, :-1, ...] = gdepw
-        diff = np.abs(gdept[:, -1, ...] - gdepw[:, -1, ...])
-        gdep_temp[:, -1, ...] = gdept[:, -1, ...] + diff
+    else:
+        # get e3t, e3u, e3v from gdep_mid and gdep_top
+        gdep_temp[:, :-1, ...] = gdep_top
+        diff = np.abs(gdep_mid[:, -1, ...] - gdep_top[:, -1, ...])
+        gdep_temp[:, -1, ...] = gdep_mid[:, -1, ...] + diff
         e3 = gdep_temp[:, 1:, ...] - gdep_temp[:, :-1, ...]
 
     return e3
