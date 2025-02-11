@@ -635,7 +635,7 @@ class Extract:
                     hold = np.zeros((((last_date + 1) - first_date), 1, self.num_bdy))
                 else:
                     hold = np.zeros(
-                        (((last_date + 1) - first_date), sc_z_len, self.num_bdy)
+                        (((last_date + 1) - first_date), len(self.dst_z), self.num_bdy)
                     )
 
                 if self.key_vec is True and self.rot_dir == "j":
