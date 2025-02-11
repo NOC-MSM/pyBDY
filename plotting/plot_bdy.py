@@ -399,7 +399,7 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw=0):
                     gdep = np.squeeze(rootgrp.variables["depthv"][:, :, :])
                 except KeyError:
                     print("depth variable not found")
-
+    gdep[(gdep < -99999.98) | (gdep > 100000.00)] = np.nan
     rootgrp.close()
 
     print(f"rimwidth {rw}")
