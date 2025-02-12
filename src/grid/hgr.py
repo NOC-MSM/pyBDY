@@ -31,7 +31,7 @@ import numpy as np
 from pybdy.reader.factory import GetFile
 
 
-class H_grid:
+class H_Grid:
     def __init__(self, hgr_file, logger):
         """
         Master horizontal class.
@@ -47,11 +47,12 @@ class H_grid:
         """
         # Set up variables
         self.file_path = hgr_file
+        self.logger = logger
         self.grid_type = ""
         self.grid = {}  # grid variables
 
         nc = GetFile(self.file_path)
-        self.var_list = nc.variables.keys()
+        self.var_list = nc.nc.variables.keys()
         nc.close()
 
         # Load what we can from grid file
@@ -79,10 +80,8 @@ class H_grid:
         self.find_hgrid_type()
 
         # Fill in missing variables we need for the grid type
-        missing_vars = list(set(self.var_list) - set(vars_want))
+        missing_vars = list(set(vars_want) - set(self.var_list))
         self.grid = fill_hgrid_vars(self.grid_type, self.grid, missing_vars)
-
-        return self.grid
 
     def get_vars(self, vars_want):
         """
@@ -95,32 +94,50 @@ class H_grid:
         nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in self.var_list:
-                self.grid[vi] = nc[vi][:]
+                grid_tmp = nc.nc[vi][:]  # [t, y, x]
+                if len(grid_tmp.shape) == 3:
+                    self.grid[vi] = grid_tmp
+                elif len(grid_tmp.shape) == 2:
+                    self.grid[vi] = grid_tmp[np.newaxis, :, :]
+                else:
+                    # We can calculate the var later if the wrong size
+                    continue
         nc.close()
 
     def find_hgrid_type(self):
         """Find out what type of hoizontal grid is provided A, B or C."""
-        if "glamt" in self.var_list:
-            diff_lon = self.grid["glamu"] - self.grid["glamf"]
-            diff_lat = self.grid["gphiu"] - self.grid["gphif"]
-            if (diff_lon == 0).all() & (diff_lat == 0).all():
-                self.grid_type = "B"
+        if (
+            ("glamt" in self.var_list)
+            & ("glamu" in self.var_list)
+            & ("glamv" in self.var_list)
+        ):
+            diff_lon1 = self.grid["glamt"] - self.grid["glamu"]
+            diff_lat1 = self.grid["gphit"] - self.grid["gphiu"]
+            if (diff_lon1 == 0).all() & (diff_lat1 == 0).all():
+                self.grid_type = "A"
             else:
                 self.grid_type = "C"
+
+            if "glamf" in self.var_list:
+                diff_lon2 = self.grid["glamu"] - self.grid["glamf"]
+                diff_lat2 = self.grid["gphiu"] - self.grid["gphif"]
+                if (diff_lon2 == 0).all() & (diff_lat2 == 0).all():
+                    self.grid_type = "B"
+
         elif "nav_lon" in self.var_list:
             self.logger.info(
-                "Warning: glamt is not present in the grid file.\n"
+                "Warning: glam is not present in the grid file.\n"
                 + "We are assuming everything is provide on the T-points."
             )
             nc = GetFile(self.file_path)
-            self.grid["glamt"] = nc["nav_lon"][:, :]
-            self.grid["gphit"] = nc["nav_lat"][:, :]
+            self.grid["glamt"] = nc.nc["nav_lon"][:, :][np.newaxis, :, :]
+            self.grid["gphit"] = nc.nc["nav_lat"][:, :][np.newaxis, :, :]
             nc.close()
             self.grid_type = "A"
         else:
             raise Exception("No nav_lon present in hgr file.")
 
-        self.logger.info("Horizonal grid is type: " + self.sc_grid_type)
+        self.logger.info("Horizonal grid is type: " + self.grid_type)
 
 
 def fill_hgrid_vars(grid_type, grid, missing):
@@ -141,7 +158,7 @@ def fill_hgrid_vars(grid_type, grid, missing):
     if (f_done is False) & (grid_type == "B"):
         grid["glamf"] = calc_grid_from_t(grid["glamt"], "glamf")
         grid["gphif"] = calc_grid_from_t(grid["gphit"], "gphif")
-        missing = list(set(["glamf", "gphif"]) - set(missing))
+        missing = list(set(missing) - set(["glamf", "gphif"]))
 
     for vi in missing:
         if ("glam" in vi) | ("gphi" in vi):
@@ -160,6 +177,7 @@ def fill_hgrid_vars(grid_type, grid, missing):
             grid[vi] = calc_e1_e2(
                 grid["glam" + vi[-1]], grid["gphi" + vi[-1]], int(vi[1])
             )
+    return grid
 
 
 def calc_grid_from_t(t_mesh, mesh):
@@ -177,11 +195,11 @@ def calc_grid_from_t(t_mesh, mesh):
     """
     mesh_out = np.zeros((t_mesh.shape))
 
-    if "u" in mesh:
+    if "v" in mesh:
         mesh_out[..., :-1, :] = (t_mesh[..., :-1, :] + t_mesh[..., 1:, :]) / 2
         diff = np.abs(mesh_out[..., -2, :] - t_mesh[..., -1, :])
         mesh_out[..., -1, :] = t_mesh[..., -1, :] + diff
-    elif "v" in mesh:
+    elif "u" in mesh:
         mesh_out[..., :, :-1] = (t_mesh[..., :, :-1] + t_mesh[..., :, 1:]) / 2
         diff = np.abs(mesh_out[..., :, -2] - t_mesh[..., :, -1])
         mesh_out[..., :, -1] = t_mesh[..., :, -1] + diff
@@ -202,29 +220,68 @@ def calc_grid_from_t(t_mesh, mesh):
     return mesh_out
 
 
-def calc_e1_e2(glam, gphi, axis):
+def calc_e1_e2(glam, gphi, ij):
     """
     Calculate missing scale factor e1 and e2 from glam or gphi.
 
     Args:
     ----
-            glam (np.array)  : mesh variable glam (lon)
-            gphi (np.array)  : mesh variable gphi (lat)
-            axis (int)       : axis 1 (i direction) or 2 (j direction)
+            glam (np.array)  : mesh variable glam (lon) [time, j, i]
+            gphi (np.array)  : mesh variable gphi (lat) [time, j, i]
+            ij (int)         : ij direction 1 (i direction) or 2 (j direction)
 
     Returns:
     -------
             e (np.array)     : horizontal distance scale factor e
     """
-    ij = axis - 1
-    ra = 6371  # Average radius of earth in kilometers
-    e_lam_term = (np.gradient(glam, axis=ij) * np.cos(gphi)) ** 2
-    e_phi_term = np.gradient(gphi, axis=ij) ** 2
+    if ij == 1:
+        axis = 2
+    elif ij == 2:
+        axis = 1
+    else:
+        raise Exception("ij must to be 1 or 2.")
+
+    ra = 6371229  # Radius of earth in meters from NEMO phycst.F90
+    glam = glam * (np.pi / 180)
+    gphi = gphi * (np.pi / 180)
+
+    e_lam_term = (np.gradient(glam, axis=axis) * np.cos(gphi)) ** 2
+    e_phi_term = np.gradient(gphi, axis=axis) ** 2
     e = ra * ((e_lam_term + e_phi_term) ** 0.5)
 
-    # e1 = (ra * ((((glam[1:, :] - glam[:-1. :]) * np.cos(gphi)) ** 2)
-    #      + ((gphi[1:, :] - gphi[:1, :]) ** 2)) ** 0.5)
+    if 0:
+        glam1 = np.zeros((glam.shape[0], glam.shape[1], glam.shape[2] + 1))
+        glam1[..., 1:-1] = (glam[..., :-1] + glam[..., 1:]) / 2
+        diff1 = np.abs(glam[..., -2] - glam[..., -1])
+        diff2 = np.abs(glam[..., 0] - glam[..., 1])
+        glam1[..., -1] = glam1[..., -2] + diff1
+        glam1[..., 0] = glam1[..., 1] - diff2
+        glam1_diff = glam1[:, :, 1:] - glam1[:, :, :-1]
 
-    # e2 = (ra * (((np.gradient(glam, axis=1) * np.cos(gphi)) ** 2)
-    #      + (np.gradient(gphi, axis=1) ** 2)) ** 0.5)
+        gphi1 = np.zeros((gphi.shape[0], gphi.shape[1], gphi.shape[2] + 1))
+        gphi1[..., 1:-1] = (gphi[..., :-1] + gphi[..., 1:]) / 2
+        diff1 = np.abs(gphi[..., -2] - gphi[..., -1])
+        diff2 = np.abs(gphi[..., 0] - gphi[..., 1])
+        gphi1[..., -1] = gphi1[..., -2] + diff1
+        gphi1[..., 0] = gphi1[..., 1] - diff2
+        gphi1_diff = gphi1[:, :, 1:] - gphi1[:, :, :-1]
+
+        # gphi1 = np.zeros((gphi.shape[0], gphi.shape[1], gphi.shape[2] + 1))
+        # gphi1[..., 1:-1, :] = (gphi[..., :-1, :] + gphi[..., 1:, :]) / 2
+        # diff1 = np.abs(gphi[..., -2, :] - gphi[..., -1, :])
+        # diff2 = np.abs(gphi[..., 0, :] - gphi[..., 1, :])
+        # gphi1[..., -1, :] = gphi[..., -1, :] + diff1
+        # gphi1[..., 0, :] = gphi[..., 1, :] - diff2
+        # gphi1_diff = gphi1[:, 1:, :] - gphi1[:, :-1, :]
+
+        e = ra * ((((glam1_diff) * np.cos(gphi)) ** 2) + ((gphi1_diff) ** 2)) ** 0.5
+
+    # Correction for outer edges
+    if axis == 2:
+        e[..., 0] = e[..., 1] - (e[..., 2] - e[..., 1])
+        e[..., -1] = e[..., -2] - (e[..., -3] - e[..., -2])
+    else:
+        e[..., 0, :] = e[..., 1, :] - (e[..., 2, :] - e[..., 1, :])
+        e[..., -1, :] = e[..., -2, :] - (e[..., -3, :] - e[..., -2, :])
+
     return e
