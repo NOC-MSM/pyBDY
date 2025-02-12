@@ -25,11 +25,13 @@ Created on Thu Dec 22 18:03:00 2024.
 """
 
 # External imports
+import logging
 
 # Internal imports
 from src.grid import zgr
 
 
 def test_depth():
-    zgr.Depth()
+    logger = logging.getLogger(__name__)
+    zgr.Depth(logger)
     assert False

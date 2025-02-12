@@ -25,11 +25,13 @@ Created on Thu Dec 22 18:03:00 2024.
 """
 
 # External imports
+import logging
 
 # Internal imports
 from src.grid import hgr
 
 
 def test_h_grid():
-    hgr.H_grid()
+    logger = logging.getLogger(__name__)
+    hgr.H_grid(logger)
     assert False
