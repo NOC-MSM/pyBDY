@@ -88,9 +88,9 @@ def test_h_grid_file_A():
             ).all()
         ):
             errors.append("e2t does not match.")
-        elif not (np.sum(np.abs(glamt - hg.grid["glamu"])) < 0.2):
+        elif not (np.sum(np.abs(glamt - hg.grid["glamu"])) == 0):
             errors.append("glamu does not match.")
-        elif not (np.sum(np.abs(gphit - hg.grid["gphiv"])) < 0.2):
+        elif not (np.sum(np.abs(gphit - hg.grid["gphiv"])) == 0):
             errors.append("gphiv does not match.")
         # assert no error message has been registered, else print messages
         assert not errors, "errors occured:\n{}".format("\n".join(errors))
@@ -146,9 +146,9 @@ def test_h_grid_file_C():
             ).all()
         ):
             errors.append("e2t does not match.")
-        elif not (np.sum(np.abs(glamu - hg.grid["glamu"])) < 0.2):
+        elif not (np.sum(np.abs(glamu - hg.grid["glamu"])) == 0):
             errors.append("glamu does not match.")
-        elif not (np.sum(np.abs(gphiv - hg.grid["gphiv"])) < 0.2):
+        elif not (np.sum(np.abs(gphiv - hg.grid["gphiv"])) == 0):
             errors.append("gphiv does not match.")
         # assert no error message has been registered, else print messages
         assert not errors, "errors occured:\n{}".format("\n".join(errors))
@@ -238,9 +238,9 @@ def test_h_grid_synth_A():
     #    errors.append("e1t does not match.")
     # elif not ((np.sum(np.abs(e2t - hg.grid["e2t"])) / e2t.size) < 0.2):
     #    errors.append("e2t does not match.")
-    elif not (np.sum(np.abs(glamt - hg.grid["glamu"])) < 0.2):
+    elif not (np.sum(np.abs(glamt - hg.grid["glamu"])) == 0):
         errors.append("glamu does not match.")
-    elif not (np.sum(np.abs(gphit - hg.grid["gphiv"])) < 0.2):
+    elif not (np.sum(np.abs(gphit - hg.grid["gphiv"])) == 0):
         errors.append("gphiv does not match.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
@@ -279,9 +279,9 @@ def test_h_grid_synth_C():
     #    errors.append("e1t does not match.")
     # elif not ((np.sum(np.abs(e2t - hg.grid["e2t"])) / e2t.size) < 0.2):
     #    errors.append("e2t does not match.")
-    elif not (np.sum(np.abs(glamu - hg.grid["glamu"])) < 0.2):
+    elif not (np.sum(np.abs(glamu - hg.grid["glamu"])) == 0):
         errors.append("glamu does not match.")
-    elif not (np.sum(np.abs(gphiv - hg.grid["gphiv"])) < 0.2):
+    elif not (np.sum(np.abs(gphiv - hg.grid["gphiv"])) == 0):
         errors.append("gphiv does not match.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
