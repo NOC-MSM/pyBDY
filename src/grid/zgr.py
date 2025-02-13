@@ -17,7 +17,7 @@
 # ===================================================================
 
 """
-Created on Thu Dec 22 18:01:00 2024.
+Created on Mon Feb 03 18:01:00 2025.
 
 @author James Harle
 @author Benjamin Barton
@@ -50,11 +50,12 @@ class Depth:
         """
         # Set up variables
         self.file_path = zgr_file
+        self.logger = logger
         self.grid_type = ""
         self.grid = {}  # grid variables
 
         nc = GetFile(self.file_path)
-        self.var_list = nc.variables.keys()
+        self.var_list = nc.nc.variables.keys()
         nc.close()
 
         # Load what we can from grid file
@@ -81,7 +82,7 @@ class Depth:
         self.find_zgrid_type()
 
         # Fill in missing variables we need for the grid type
-        missing_vars = list(set(self.var_list) - set(vars_want))
+        missing_vars = list(set(vars_want) - set(self.var_list))
         self.grid = fill_zgrid_vars(self.grid_type, self.grid, hgr_type, missing_vars)
 
         return self.grid
@@ -97,7 +98,7 @@ class Depth:
         nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in self.var_list:
-                self.grid[vi] = nc[vi][:]
+                self.grid[vi] = nc.nc[vi][:]
         nc.close()
 
     def find_zgrid_type(self):
@@ -109,7 +110,7 @@ class Depth:
         elif "gdept" not in self.var_list:
             self.grid_type = "z"
         else:
-            # Could still be z, z-partial-step or sigma
+            # Could still be z, z-partial-step (zps) or sigma
             # Check if all levels are equal
             dep_test1 = np.tile(
                 self.grid["gdept"][0, 0, 0, :],
@@ -117,6 +118,7 @@ class Depth:
             )
 
             # Don't select levels within 2 grid cells of bathy to remove partial steps
+            # Then check if levels are equal
             ind = self.grid["gdept"] <= self.grid["mbathy"]
             ind[0, :-2, ...] = ind[0, 2:, ...]
             dep_mask = np.ma.masked_where(ind is False, self.grid["gdept"])
@@ -126,11 +128,10 @@ class Depth:
                 (self.grid["gdept"].shape[1], self.grid["gdept"].shape[2], 1),
             )
 
-            # Check if any level away from bathy is variable in depth
-            dep_test3 = (
-                np.ma.min(dep_mask[0, ...], axis=[1, 2])
-                == np.ma.max(dep_mask[0, ...], axis=[1, 2])
-            ).all()
+            # Check if how many levels are below the bathy
+            ind1 = self.grid["gdept"] >= self.grid["mbathy"]
+            dep_mask = np.ma.masked_where(ind1, self.grid["gdept"])
+            dep_test3 = np.ma.max(np.ma.count(dep_mask, axis=1))
 
             if (dep_test1 == self.grid["gdept"][0, ...]).all():
                 # z-level
@@ -138,7 +139,7 @@ class Depth:
             elif (dep_test2[ind] == self.grid["gdept"][ind]).all():
                 # z-partial-step
                 self.grid_type = "zps"
-            elif dep_test3 is False:
+            elif dep_test3 >= (self.grid["gdept"].shape[1] - 1):
                 # sigma-level
                 self.grid_type = "s"
             else:
@@ -173,13 +174,13 @@ def fill_zgrid_vars(grid_type, grid, hgr_type, missing):
                 (1, grid["mbathy"].shape[1], grid["mbathy"].shape[2], 1),
             )
             grid["gdept"] = np.transpose(grid["gdept"], axes=[0, 3, 1, 2])
-        missing = list(set(["gdept"]) - set(missing))
+        missing = list(set(missing) - set(["gdept"]))
 
     w_done = "gdepw" not in missing
     if w_done is False:
         # Fill in the 3D gdepw data from gdept
         grid["gdepw"] = calc_gdep(grid["gdept"], "gdepw")
-        missing = list(set(["gdepw"]) - set(missing))
+        missing = list(set(missing) - set(["gdepw"]))
 
     for vi in missing:
         if "gdep" in vi:
