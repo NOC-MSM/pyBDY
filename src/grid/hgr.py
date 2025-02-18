@@ -82,7 +82,7 @@ class H_Grid:
         # Fill in missing variables we need for the grid type
         missing_vars = sorted(list(set(vars_want) - set(self.var_list)))
         self.grid = fill_hgrid_vars(self.grid_type, self.grid, missing_vars)
-        self.var_list = self.grid.keys()
+        self.var_list = list(self.grid.keys())
 
     def get_vars(self, vars_want):
         """

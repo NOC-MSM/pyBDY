@@ -86,11 +86,11 @@ class Depth:
 
         # Fill in missing variables we need for the grid type
         missing_vars = sorted(list(set(vars_want) - set(self.var_list)))
-        print(missing_vars)
+
         self.grid = fill_zgrid_vars(
             self.grid_type, self.grid, hgr_type, e_dict, missing_vars
         )
-        self.var_list = self.grid.keys()
+        self.var_list = list(self.grid.keys())
 
     def get_vars(self, vars_want):
         """
@@ -351,7 +351,6 @@ def horiz_interp_e3(e_in, var_in, lev):
     -------
             e3 (np.array)    : vertical distance scale factor e3 of lev
     """
-    print(lev, var_in.shape)
     e1t = e_in["e1t"]
     e2t = e_in["e2t"]
     e1u = e_in["e1u"]
