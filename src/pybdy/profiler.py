@@ -52,6 +52,7 @@ from pybdy.reader.factory import GetFile
 from pybdy.tide import nemo_bdy_tide3 as tide
 from pybdy.tide import nemo_bdy_tide_ncgen
 from pybdy.utils import Constants
+from src.grid import hgr, zgr
 
 
 class Grid(object):
@@ -132,12 +133,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # Gather grid information
 
-    # TODO: insert some logic here to account for 2D or 3D src_zgr
-
     logger.info("Gathering grid information")
-    nc = GetFile(settings["src_zgr"])
-    SourceCoord.zt = np.squeeze(nc["gdept_0"][:])
-    nc.close()
+    SourceCoord.hgr = hgr.H_Grid(settings["src_hgr"], logger)
+    SourceCoord.zgr = zgr.Depth(
+        settings["src_zgr"], SourceCoord.hgr.grid_type, SourceCoord.hgr.grid, logger
+    )
 
     # Define z at t/u/v points
 
@@ -159,20 +159,14 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # Gather horizontal grid information
 
-    nc = GetFile(settings["src_hgr"])
-    SourceCoord.lon = nc["glamt"][:, :]
-    SourceCoord.lat = nc["gphit"][:, :]
-
     try:  # if they are masked array convert them to normal arrays
-        SourceCoord.lon = SourceCoord.lon.filled()
+        SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
     except Exception:
         logger.debug("Not a masked array.")
     try:
-        SourceCoord.lat = SourceCoord.lat.filled()
+        SourceCoord.hgr.grid["gphit"] = SourceCoord.hgr.grid["gphit"].filled()  # lat
     except Exception:
         logger.debug("Not a masked array.")
-
-    nc.close()
 
     DstCoord.lonlat = {"t": {}, "u": {}, "v": {}}
 

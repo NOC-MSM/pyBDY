@@ -88,7 +88,7 @@ class Extract:
 
         sc_time = Grid[grd].source_time
         self.var_nam = var_nam
-        sc_z = SC.zt[:]
+        sc_z = np.squeeze(SC.zgr.grid["gdept_0"][:])
         sc_z_len = len(sc_z)
 
         self.jpj, self.jpi = DC.lonlat[grd]["lon"].shape
@@ -135,8 +135,8 @@ class Extract:
         # ??? Should this be read from settings?
         wei_121 = np.array([0.5, 0.25, 0.25])
 
-        SC.lon = SC.lon.squeeze()
-        SC.lat = SC.lat.squeeze()
+        SC.lon = SC.hgr.grid["glamt"].squeeze()  # lon
+        SC.lat = SC.hgr.grid["gphit"].squeeze()  # lat
 
         # Check that we're only dealing with one pair of vectors
 
