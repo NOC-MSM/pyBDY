@@ -202,7 +202,7 @@ def test_fill_hgrid_vars_regression():
         "Sum_e1u": 4593222.917238034,
         "Sum_e2v": 3669564.473802005,
     }
-    assert summary_grid == test_grid
+    assert summary_grid == test_grid, "May need to update regression values."
 
 
 def test_h_grid_synth_A():
