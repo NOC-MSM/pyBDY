@@ -57,12 +57,13 @@
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .true.              !  boundary conditions for
+    ln_dyn2d       = .true.               !  boundary conditions for
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
     ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition
+    ln_zinterp     = .false.              !  vertical interpolation
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
