@@ -145,6 +145,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # TODO: put conditional here as we may want to keep data on parent
     #       vertical grid
+    # Start on this
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
 
