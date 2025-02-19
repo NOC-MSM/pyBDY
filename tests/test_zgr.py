@@ -65,7 +65,7 @@ def test_depth_file_z():
         e_dict = {k: hg.grid[k] for k in keys}
 
         # calc vertical grid
-        zg = zgr.Depth(in_file, hg.grid_type, e_dict, logger)
+        zg = zgr.Z_Grid(in_file, hg.grid_type, e_dict, logger)
 
         nc = GetFile(bench_file)
         e3t = nc.nc["e3t"][:]
@@ -155,7 +155,7 @@ def test_depth_file_zps():
         )
         logger = logging.getLogger(__name__)
         hgr_type = "C"
-        zg = zgr.Depth(in_file, hgr_type, logger)
+        zg = zgr.Z_Grid(in_file, hgr_type, logger)
 
         nc = GetFile(bench_file)
         e3t = nc.nc["e3t"][:]

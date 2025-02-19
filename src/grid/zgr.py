@@ -34,7 +34,7 @@ from grid import hgr
 from pybdy.reader.factory import GetFile
 
 
-class Depth:
+class Z_Grid:
     def __init__(self, zgr_file, hgr_type, e_dict, logger):
         """
         Master depth class.

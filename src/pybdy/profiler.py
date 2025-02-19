@@ -48,7 +48,6 @@ from pybdy import nemo_coord_gen_pop as coord
 from pybdy import pybdy_settings_editor
 from pybdy.gui.nemo_bdy_mask import Mask as Mask_File
 from pybdy.reader import factory
-from pybdy.reader.factory import GetFile
 from pybdy.tide import nemo_bdy_tide3 as tide
 from pybdy.tide import nemo_bdy_tide_ncgen
 from pybdy.utils import Constants
@@ -135,35 +134,39 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     logger.info("Gathering grid information")
     SourceCoord.hgr = hgr.H_Grid(settings["src_hgr"], logger)
-    SourceCoord.zgr = zgr.Depth(
+    SourceCoord.zgr = zgr.Z_Grid(
         settings["src_zgr"], SourceCoord.hgr.grid_type, SourceCoord.hgr.grid, logger
+    )
+    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], logger)
+    DstCoord.zgr = zgr.Z_Grid(
+        settings["dst_zgr"], DstCoord.hgr.grid_type, DstCoord.hgr.grid, logger
     )
 
     # Define z at t/u/v points
 
-    z = zgrv.Depth(bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, settings)
+    zpoints = zgrv.get_bdy_depths(
+        bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, DstCoord, settings
+    )
 
     # TODO: put conditional here as we may want to keep data on parent
     #       vertical grid
     # Start on this
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
-
     for grd in ["t", "u", "v"]:
-        DstCoord.depths[grd]["bdy_H"] = np.nanmax(z.zpoints["w" + grd], axis=0)
-        DstCoord.depths[grd]["bdy_dz"] = np.diff(z.zpoints["w" + grd], axis=0)
+        DstCoord.depths[grd]["bdy_H"] = np.nanmax(zpoints["w" + grd], axis=0)
+        DstCoord.depths[grd]["bdy_dz"] = np.diff(zpoints["w" + grd], axis=0)
         DstCoord.depths[grd]["bdy_dz"] = np.vstack(
             [DstCoord.depths[grd]["bdy_dz"], np.zeros((1, nbdy[grd]))]
         )
-        DstCoord.depths[grd]["bdy_z"] = z.zpoints[grd]
-        print(z.zpoints["w" + grd])
+        DstCoord.depths[grd]["bdy_z"] = zpoints[grd]
 
     if settings["zinterp"] is True:
         logger.info("Depths defined with destination not equal to source")
     else:
         logger.info("Depths defined with destination equal to source")
 
-    # Gather horizontal grid information
+    # Fill horizontal grid information
 
     try:  # if they are masked array convert them to normal arrays
         SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
@@ -174,17 +177,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     except Exception:
         logger.debug("Not a masked array.")
 
+    # Assign horizontal grid data
+
     DstCoord.lonlat = {"t": {}, "u": {}, "v": {}}
-
-    nc = GetFile(settings["dst_hgr"])
-
-    # Read and assign horizontal grid data
-
     for grd in ["t", "u", "v"]:
-        DstCoord.lonlat[grd]["lon"] = nc["glam" + grd][0, :, :]
-        DstCoord.lonlat[grd]["lat"] = nc["gphi" + grd][0, :, :]
-
-    nc.close()
+        DstCoord.lonlat[grd]["lon"] = DstCoord.hgr.grid["glam" + grd][0, :, :]
+        DstCoord.lonlat[grd]["lat"] = DstCoord.hgr.grid["gphi" + grd][0, :, :]
 
     logger.info("Grid coordinates defined")
 
