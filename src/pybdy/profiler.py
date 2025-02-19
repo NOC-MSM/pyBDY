@@ -156,7 +156,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             [DstCoord.depths[grd]["bdy_dz"], np.zeros((1, nbdy[grd]))]
         )
         DstCoord.depths[grd]["bdy_z"] = z.zpoints[grd]
-    logger.info("Depths defined")
+        print(z.zpoints["w" + grd])
+
+    if settings["zinterp"] is True:
+        logger.info("Depths defined with destination not equal to source")
+    else:
+        logger.info("Depths defined with destination equal to source")
 
     # Gather horizontal grid information
 
@@ -198,6 +203,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             DstCoord.bdy_lonlat[grd]["lon"][i] = DstCoord.lonlat[grd]["lon"][x, y]
             DstCoord.bdy_lonlat[grd]["lat"][i] = DstCoord.lonlat[grd]["lat"][x, y]
 
+        # Shouldn't this be before the nbdy loop?????
         DstCoord.lonlat[grd]["lon"][DstCoord.lonlat[grd]["lon"] > 180] -= 360
 
     logger.info("BDY lons/lats identified from %s", settings["dst_hgr"])
