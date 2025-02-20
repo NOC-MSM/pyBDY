@@ -1326,6 +1326,7 @@ class Extract:
 
         # check depth array has had NaNs removed
 
+        tmp_dst_dz = np.where(np.isnan(self.dst_dep), self.settings["fv"], self.bdy_dz)
         tmp_dst_dep = np.where(
             np.isnan(self.dst_dep), self.settings["fv"], self.dst_dep
         )
@@ -1335,8 +1336,7 @@ class Extract:
         ncpop.write_data_to_file(f_out, "nav_lon", self.nav_lon)
         ncpop.write_data_to_file(f_out, "nav_lat", self.nav_lat)
         ncpop.write_data_to_file(f_out, "gdep" + self.g_type, tmp_dst_dep)
-        # TODO: e3 is just populated with gdep
-        ncpop.write_data_to_file(f_out, "e3" + self.g_type, tmp_dst_dep)
+        ncpop.write_data_to_file(f_out, "e3" + self.g_type, tmp_dst_dz)
         ncpop.write_data_to_file(f_out, "nbidta", ind.bdy_i[:, 0] + 1)
         ncpop.write_data_to_file(f_out, "nbjdta", ind.bdy_i[:, 1] + 1)
         ncpop.write_data_to_file(f_out, "nbrdta", ind.bdy_r[:] + 1)
