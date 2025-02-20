@@ -372,7 +372,8 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw=0):
 
     rootgrp = Dataset(fname, "r", format="NETCDF4")
     var = np.squeeze(rootgrp.variables[varnam][t, :])
-    mask = (var < -99999.98) | (var > 100000.00)
+    fv = rootgrp.variables[varnam]._FillValue
+    mask = var == fv
     var = np.ma.MaskedArray(var, mask=mask)
     nbr = np.squeeze(rootgrp.variables["nbrdta"][:, :]) - 1
     if rw != 0:
@@ -399,7 +400,8 @@ def plot_bdy(fname, bdy_ind, bdy_dst, bdy_brk, varnam, t, rw=0):
                     gdep = np.squeeze(rootgrp.variables["depthv"][:, :, :])
                 except KeyError:
                     print("depth variable not found")
-    gdep[(gdep < -99999.98) | (gdep > 100000.00)] = np.nan
+
+    gdep[gdep == fv] = np.nan
     rootgrp.close()
 
     print(f"rimwidth {rw}")
