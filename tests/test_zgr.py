@@ -30,6 +30,7 @@ import os.path
 import subprocess
 import warnings
 
+import matplotlib.pyplot as plt
 import numpy as np
 from pybdy.reader.factory import GetFile
 
@@ -104,9 +105,27 @@ def test_depth_file_z():
         print(np.sum(zg.grid["e3u"][0, :, 0, 0] - e3u[0, :, 0, 0]))
         print(np.max(np.abs(e3u - zg.grid["e3u"])))
         print(np.max(np.abs(e3v - zg.grid["e3v"])))
-        # plt.pcolormesh(np.max(np.abs(gdepu - zg.grid["gdepu"]), axis=1)[0, :, :])
-        # plt.colorbar()
-        # plt.show()
+        plt.pcolormesh(np.ma.max(np.ma.abs(gdepu - zg.grid["gdepu"]), axis=1)[0, :, :])
+        plt.colorbar()
+        plt.show()
+        plt.plot(gdepu[0, :, 75, 85])
+        plt.plot(zg.grid["gdepu"][0, :, 75, 85])
+        plt.plot(
+            [45, 65],
+            [
+                gdepu[0, zg.grid["mbathy"][0, 75, 85], 75, 85],
+                gdepu[0, zg.grid["mbathy"][0, 75, 85], 75, 85],
+            ],
+            "-",
+        )
+        plt.show()
+        plt.pcolormesh(gdepu[0, :, 70:80, 85] - zg.grid["gdepu"][0, :, 70:80, 85])
+        # plt.contour(zg.grid["gdepu"][0, :, 75, 85])
+        plt.plot(
+            [0, 10], [zg.grid["mbathy"][0, 75, 85], zg.grid["mbathy"][0, 75, 85]], "-"
+        )
+        plt.colorbar()
+        plt.show()
 
         errors = []
         if not zg.grid_type == "z":
