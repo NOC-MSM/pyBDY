@@ -150,6 +150,11 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
         bdy_tz (array)          : sc depths on bdy points on t levels
         bdy_wz (array)          : sc depths on bdy points on w levels
     """
+    if grd == "t":
+        g = ""
+    else:
+        g = grd
+
     source_tree = sp.cKDTree(
         list(
             zip(
@@ -165,10 +170,7 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
 
     mbathy = np.float16(SourceCoord.zgr.grid["mbathy"].squeeze())
     mbathy[mbathy == 0] = np.NaN
-    if grd == "t":
-        g = ""
-    else:
-        g = grd
+
     tmp_w = np.squeeze(SourceCoord.zgr.grid["gdep" + g + "w"])
     tmp_t = np.squeeze(SourceCoord.zgr.grid["gdep" + grd])
     for k in range(SourceCoord.zgr.grid["gdep" + g + "w"].shape[1]):
