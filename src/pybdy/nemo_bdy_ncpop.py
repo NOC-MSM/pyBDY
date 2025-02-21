@@ -30,8 +30,8 @@ def write_data_to_file(filename, variable_name, data):
         "sivolu",
         "snthic",
     ]
-    print(filename)
-    print(variable_name)
+    # print(filename)
+    # print(variable_name)
     if variable_name in three_dim_variables:
         if len(count) == 3:
             count += (1,)
