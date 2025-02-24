@@ -28,7 +28,6 @@ Created on Mon Feb 03 18:01:00 2025.
 # External imports
 import numpy as np
 import scipy.interpolate as interp
-from grid import hgr
 
 # Internal imports
 from pybdy.reader.factory import GetFile
@@ -71,14 +70,19 @@ class Z_Grid:
             "gdepuw",
             "gdepvw",
             "e3t",
+            "e3w",
             "e3u",
             "e3v",
-            "e3w",
-            "gdept_0",
-            "gdepw_0",
-            "e3t_0",
-            "e3w_0",
+            "e3f",
+            "e3uw",
+            "e3vw",
+            "e3fw",
         ]
+        #    "gdept_0",
+        #    "gdepw_0",
+        #    "e3t_0",
+        #    "e3w_0",
+
         self.get_vars(vars_want)
 
         # Work out what sort of source grid we have
@@ -107,7 +111,7 @@ class Z_Grid:
         nc.close()
 
     def find_zgrid_type(self):
-        """Find out what type of vertical grid is provided z, zps or sigma levels."""
+        """Find out what type of vertical grid is provided zco, zps or sigma levels (sco)."""
         if ("gdept" not in self.var_list) & ("gdept_0" not in self.var_list):
             raise Exception("No gdept or gdept_0 variable present in zgr file.")
         elif "mbathy" not in self.var_list:
@@ -116,51 +120,55 @@ class Z_Grid:
             self.grid_type = "z"
         else:
             # Could still be z, z-partial-step (zps) or sigma
-            # Check if all levels are equal
-            # NOTE: This won't work because level near bathy is different
-            np.tile(
-                self.grid["gdept"][0, :, 0, 0],
-                (self.grid["gdept"].shape[3], self.grid["gdept"].shape[2], 1),
-            ).T
+            # "z" - Check if all levels are equal
+            x_diff = np.diff(self.grid["gdept"], axis=3).sum() == 0
+            y_diff = np.diff(self.grid["gdept"], axis=2).sum() == 0
+            dep_test_z = x_diff & y_diff
 
-            # Don't select levels within 2 grid cells of bathy to remove partial steps
-            # Then check if levels are equal
-            ind = self.grid["gdept"] <= self.grid["mbathy"]
-            ind[0, :-2, ...] = ind[0, 2:, ...]
-            dep_mask = np.ma.masked_where(ind is False, self.grid["gdept"])
+            # "zps" - Select levels 2 above bathy to remove partial steps.
+            # Then check if levels of deepest profile are equal to all levels
+            z_ind = np.indices(self.grid["gdept"].shape)[1]
+            m_tile = np.tile(self.grid["mbathy"], (self.grid["gdept"].shape[1], 1, 1))[
+                np.newaxis, ...
+            ]
+            mask_bottom = z_ind >= (m_tile - 2)
+            dep_mask = np.ma.masked_where(mask_bottom, self.grid["gdept"])
+
             sel = np.nonzero(np.ma.max(dep_mask) == dep_mask)
-            dep_test2 = np.tile(
+            dep_deepest = np.tile(
                 dep_mask[sel[0][0], :, sel[2][0], sel[3][0]],
                 (self.grid["gdept"].shape[3], self.grid["gdept"].shape[2], 1),
             ).T[np.newaxis, :, :, :]
+            dep_test_zps = (
+                dep_deepest[mask_bottom is False]
+                == self.grid["gdept"][mask_bottom is False]
+            )
 
-            # Check if how many levels are below the bathy
-            ind1 = self.grid["gdept"] >= self.grid["mbathy"]
-            dep_mask = np.ma.masked_where(ind1, self.grid["gdept"])
-            dep_test3 = np.ma.max(np.ma.count(dep_mask, axis=1))
-
-            # if (dep_test1 == self.grid["gdept"][0, ...]).all():
-            #    # z-level
-            #    self.grid_type = "z"
-            if (dep_test2[ind] == self.grid["gdept"][ind]).all():
+            # Check if all levels are inside the bathy anywhere
+            lev_deepest = np.ma.max(self.grid["mbathy"])
+            dep_test_sigma = lev_deepest >= (self.grid["gdept"].shape[1] - 1)
+            if dep_test_z:
+                # z-level
+                self.grid_type = "zco"
+            elif dep_test_zps.all():
                 # z-partial-step
-                self.grid_type = "z"
-            elif dep_test3 >= (self.grid["gdept"].shape[1] - 1):
+                self.grid_type = "zps"
+            elif dep_test_sigma:
                 # sigma-level
-                self.grid_type = "s"
+                self.grid_type = "sco"
             else:
                 raise Exception("Unknown/unaccounted for vertical grid type.")
 
         self.logger.info("Vertical grid is type: " + self.grid_type)
 
 
-def fill_zgrid_vars(grid_type, grid, hgr_type, e_dict, missing):
+def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
     """
     Calculate the missing vertical grid variables and add them to grid.
 
     Args:
     ----
-            grid_type (str)     : type of horizontal grid (z, zps or s)
+            zgr_type (str)      : type of vertical grid (zco, zps or sco)
             grid (dict)         : dictionary of grid data variable
             hgr_type (str)      : horizontal grid type
             e_dict (dict)       : dictionary of e1 and e2 scale factors
@@ -170,12 +178,10 @@ def fill_zgrid_vars(grid_type, grid, hgr_type, e_dict, missing):
     -------
             grid (dict)          : vertical grid data dictionary
     """
-    # if "e3u" in missing:
-    #    missing.append("gdepuw")
-    # if "e3v" in missing:
-    #    missing.append("gdepvw")
     if "mbathy" in missing:
         raise Exception("No mbathy in vertical grid file (zgr).")
+
+    # gdep
 
     t_done = "gdept" not in missing
     if t_done is False:
@@ -203,96 +209,59 @@ def fill_zgrid_vars(grid_type, grid, hgr_type, e_dict, missing):
     w_done = "gdepw" not in missing
     if w_done is False:
         # Fill in the 3D gdepw data from gdept
-        grid["gdepw"] = calc_gdep(grid["gdept"], grid["mbathy"], "gdepw")
+        grid["gdepw"] = calc_gdepw(grid["gdept"])
         missing = sorted(list(set(missing) - set(["gdepw"])))
+
+    # Calculate other gdep values
+    gdep = horiz_interp_lev(grid["gdept"], grid["gdepw"], zgr_type, hgr_type)
 
     for vi in missing:
         if "gdep" in vi:
-            if "w" in vi:
-                # select which level is used for averaging
-                # w for uw and vw
-                ig = "w"
-            else:
-                # t for u, v and f
-                ig = "t"
+            grid[vi] = gdep[vi[4:]]
 
-            if hgr_type == "A":
-                grid[vi] = grid[vi[:-1] + ig]
-            elif hgr_type == "B":
-                if ("u" in vi) | ("v" in vi):
-                    grid[vi] = calc_gdep(grid["gdep" + ig], grid["mbathy"], "f")
-                else:
-                    grid[vi] = calc_gdep(grid["gdep" + ig], grid["mbathy"], vi)
-            elif hgr_type == "C":
-                grid[vi] = calc_gdep(grid["gdep" + ig], grid["mbathy"], vi)
+    # e3
 
     e3t_done = "e3t" not in missing
     if e3t_done is False:
         grid["e3t"] = vert_calc_e3(grid["gdept"], grid["gdepw"], "e3t")
         missing = sorted(list(set(missing) - set(["e3t"])))
 
+    e3w_done = "e3w" not in missing
+    if e3w_done is False:
+        grid["e3w"] = vert_calc_e3(grid["gdept"], grid["gdepw"], "e3w")
+        missing = sorted(list(set(missing) - set(["e3w"])))
+
+    # Calculate other e3 values
+    e3 = horiz_interp_lev(grid["e3t"], grid["e3w"], zgr_type, hgr_type)
+
     for vi in missing:
-        # Calculate e values
         if "e" in vi[0]:
-            if hgr_type == "A":
-                if ("u" in vi) | ("v" in vi) | ("f" in vi):
-                    grid[vi] = grid["e3t"][:]
-                else:
-                    # e3t, e3w
-                    grid[vi] = vert_calc_e3(grid["gdept"], grid["gdepw"], vi)
+            grid[vi] = e3[vi[2:]]
 
-            elif hgr_type == "B":
-                if ("u" in vi) | ("v" in vi) | ("f" in vi):
-                    e3u = horiz_interp_e3(e_dict, grid["e3t"], vi)
-                    grid[vi] = horiz_interp_e3(e_dict, e3u, vi)
-                else:
-                    # e3t, e3w
-                    grid[vi] = vert_calc_e3(grid["gdept"], grid["gdepw"], vi)
-
-            elif hgr_type == "C":
-                if "u" in vi:
-                    # grid[vi] = calc_e3(grid["gdepu"], grid["gdepuw"], vi)
-                    grid[vi] = horiz_interp_e3(e_dict, grid["e3t"], vi)
-                elif "v" in vi:
-                    # grid[vi] = calc_e3(grid["gdepv"], grid["gdepvw"], vi)
-                    grid[vi] = horiz_interp_e3(e_dict, grid["e3t"], vi)
-                elif "f" in vi:
-                    e3u = horiz_interp_e3(e_dict, grid["e3t"], vi)
-                    grid[vi] = horiz_interp_e3(e_dict, e3u, vi)
-                else:
-                    # e3t, e3w
-                    grid[vi] = vert_calc_e3(grid["gdept"], grid["gdepw"], vi)
     return grid
 
 
-def calc_gdep(gdeptw, mbathy, lev):
+def calc_gdepw(gdept):
     """
-    Calculate missing gdep from gdeptw.
+    Calculate missing gdepw from gdept.
 
     Args:
     ----
-            gdeptw (np.array)  : mesh variable gdep on t-grid or w-grid
-            lev (str)         : grid level type (gdep of u, v, w, f, uw, vw)
+            gdept (np.array)   : mesh variable gdept on t-grid
 
     Returns:
     -------
-            dep_out (dict)    : vertical grid mesh data variable
+            dep_out (np.array) : vertical grid mesh data variable
     """
-    if "gdepw" == lev:
-        # interpolate gdept to gdepw
-        dep_out = np.zeros((gdeptw.shape))
-        indxt = np.arange(gdeptw.shape[1])
-        indxw = indxt[:-1] + 0.5
-        for j in range(gdeptw.shape[2]):
-            for i in range(gdeptw.shape[3]):
-                func = interp.interp1d(indxt, gdeptw[0, :, j, i], kind="cubic")
-                # top gdepw is zero
-                dep_out[0, 1:, j, i] = func(indxw)
-
-    elif "_0" in lev:
-        dep_out = gdeptw[:, :, 0, 0]
-    else:
-        dep_out = hgr.calc_grid_from_t(gdeptw, lev)
+    # interpolate gdept to gdepw
+    dep_out = np.zeros((gdept.shape))
+    indxt = np.arange(gdept.shape[1])
+    indxw = indxt[:-1] + 0.5
+    for j in range(gdept.shape[2]):
+        for i in range(gdept.shape[3]):
+            func = interp.interp1d(indxt, gdept[0, :, j, i], kind="cubic")
+            # top gdepw is zero
+            dep_out[0, 1:, j, i] = func(indxw)
 
     return dep_out
 
@@ -327,13 +296,71 @@ def vert_calc_e3(gdep_mid, gdep_top, lev):
         gdep_temp[:, -1, ...] = gdep_mid[:, -1, ...] + diff
         e3 = gdep_temp[:, 1:, ...] - gdep_temp[:, :-1, ...]
 
-    if "_0" in lev:
-        e3 = e3[:, :, 0, 0]
-
     return e3
 
 
-def horiz_interp_e3(e_in, var_in, lev):
+def horiz_interp_lev(t, w, zgr_type, hgr_type):
+    """
+    Horizontally interpolate the vertical scale factors e3 and gdep.
+
+    For A-Grids, u, v and f values are set to t and w values.
+    For C-Grids, zps or sco verticle coords are used to define u, v, and f.
+    For B-Grids, u and v values are set to f values following zps or sco.
+
+    Args:
+    ----
+            t (np.array)       : vertical scale factors e or dep on t points
+            w (np.array)       : vertical scale factors e or dep on w points
+            zgr_type (str)     : type of vertical grid (zco, zps or sco)
+            hgr_type (str)     : horizontal grid type (A, B or C)
+
+    Returns:
+    -------
+            lev (dict)            : vertical distance scale factor e or gdep
+    """
+    # If zgr == zco or hgr == "A" just copy t and w
+    lev = {}
+    lev["u"] = t.copy()
+    lev["v"] = t.copy()
+    lev["uw"] = w.copy()
+    lev["vw"] = w.copy()
+    lev["f"] = t.copy()
+    lev["fw"] = w.copy()
+
+    if zgr_type == "zps":
+        lev["u"][..., :, :-1] = np.minimum(t[..., :, 1:], t[..., :, :-1])  # i
+        lev["v"][..., :-1, :] = np.minimum(t[..., 1:, :], t[..., :-1, :])  # j
+        lev["uw"][..., :, :-1] = np.minimum(w[..., :, 1:], w[..., :, :-1])  # i
+        lev["vw"][..., :-1, :] = np.minimum(w[..., 1:, :], w[..., :-1, :])  # j
+        lev["f"][..., :, :-1] = np.minimum(
+            lev["v"][..., :, 1:], lev["v"][..., :, :-1]
+        )  # i
+        lev["fw"][..., :, :-1] = np.minimum(
+            lev["vw"][..., :, 1:], lev["vw"][..., :, :-1]
+        )  # i
+
+    elif zgr_type == "sco":
+        lev["u"][..., :, :-1] = 0.5 * (t[..., :, 1:] + t[..., :, :-1])  # i
+        lev["v"][..., :-1, :] = 0.5 * (t[..., 1:, :] + t[..., :-1, :])  # j
+        lev["uw"][..., :, :-1] = 0.5 * (w[..., :, 1:] + w[..., :, :-1])  # i
+        lev["vw"][..., :-1, :] = 0.5 * (w[..., 1:, :] + w[..., :-1, :])  # j
+        lev["f"][..., :, :-1] = 0.5 * (
+            lev["v"][..., :, 1:] + lev["v"][..., :, :-1]
+        )  # i
+        lev["fw"][..., :, :-1] = 0.5 * (
+            lev["vw"][..., :, 1:] + lev["vw"][..., :, :-1]
+        )  # i
+
+    if hgr_type == "B":
+        lev["u"] = lev["f"].copy()
+        lev["v"] = lev["f"].copy()
+        lev["uw"] = lev["fw"].copy()
+        lev["vw"] = lev["fw"].copy()
+
+    return lev
+
+
+def horiz_interp_e3_old(e_in, var_in, lev):
     """
     Horizontally interpolate the vertical scale factors e3u, e3v, e3f.
 
