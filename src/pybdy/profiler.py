@@ -137,6 +137,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     SourceCoord.zgr = zgr.Z_Grid(
         settings["src_zgr"], SourceCoord.hgr.grid_type, SourceCoord.hgr.grid, logger
     )
+    SourceCoord.zgr.grid["gdept_0"] = SourceCoord.zgr.grid["gdept"][:, :, 0, 0]
     DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], logger)
     DstCoord.zgr = zgr.Z_Grid(
         settings["dst_zgr"], DstCoord.hgr.grid_type, DstCoord.hgr.grid, logger
