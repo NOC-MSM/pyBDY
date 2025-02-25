@@ -32,6 +32,7 @@ import logging
 import time
 
 import numpy as np
+from grid import hgr, zgr
 from PyQt5.QtWidgets import QMessageBox
 
 from pybdy import nemo_bdy_chunk as chunk_func
@@ -51,7 +52,6 @@ from pybdy.reader import factory
 from pybdy.tide import nemo_bdy_tide3 as tide
 from pybdy.tide import nemo_bdy_tide_ncgen
 from pybdy.utils import Constants
-from src.grid import hgr, zgr
 
 
 class Grid(object):

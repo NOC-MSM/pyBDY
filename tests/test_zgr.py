@@ -31,10 +31,10 @@ import subprocess
 import warnings
 
 import numpy as np
-from pybdy.reader.factory import GetFile
 
 # Internal imports
-from src.grid import hgr, zgr
+from grid import hgr, zgr
+from pybdy.reader.factory import GetFile
 
 
 def test_depth_file_zps():

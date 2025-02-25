@@ -31,10 +31,11 @@ import subprocess
 import warnings
 
 import numpy as np
-from pybdy.reader.factory import GetFile
 
 # Internal imports
-from src.grid import hgr
+from grid import hgr
+from pybdy.reader.factory import GetFile
+
 from tests import synth_bathymetry as synth_bathy
 
 
