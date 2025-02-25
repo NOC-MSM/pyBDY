@@ -88,8 +88,8 @@ class Extract:
 
         sc_time = Grid[grd].source_time
         self.var_nam = var_nam
-        sc_z = np.squeeze(SC.zgr.grid["gdept_0"][:])
-        sc_z_len = len(sc_z)
+        sc_z = np.squeeze(SC.zgr.grid["gdept"][:])
+        sc_z_len = sc_z.shape[0]
 
         self.jpj, self.jpi = DC.lonlat[grd]["lon"].shape
         self.jpk = DC.depths[grd]["bdy_z"].shape[0]
@@ -316,7 +316,7 @@ class Extract:
             # Shuffle ind to reflect ascending dist of source and dst points
             ind = ind.T
             for p in range(ind.shape[0]):
-                ind[p, :] = ind[p, dist_ind[p, :]]
+                ind[p, :] = ind[p, dist_ind[p, :]]  # [chunk, 9]
 
             if self.key_vec:
                 self.gcos = np.append(
@@ -424,55 +424,24 @@ class Extract:
 
             # Fig not implemented
 
-            if not isslab:  # TODO or no vertical interpolation required
+            if not isslab:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
-                # Allocate vertical index array
-                dst_dep_rv = dst_dep[:, chunk].ravel(order="F").filled(np.nan)
-                z_ind = np.zeros((self.num_bdy_ch[c] * dst_len_z, 2), dtype=np.int64)
-                source_tree = None
-                try:
-                    source_tree = sp.cKDTree(
-                        list(zip(sc_z.ravel(order="F"))),
-                        balanced_tree=False,
-                        compact_nodes=False,
-                    )
-                except TypeError:  # fix for scipy 0.16.0
-                    source_tree = sp.cKDTree(list(zip(sc_z.ravel(order="F"))))
-
-                junk, nn_id = source_tree.query(list(zip(dst_dep_rv)), k=1)
-
-                # WORKAROUND: the tree query returns out of range val when
-                # dst_dep point is NaN, causing ref problems later.
-                nn_id[nn_id == sc_z_len] = sc_z_len - 1
-
-                # Find next adjacent point in the vertical
-                z_ind[:, 0] = nn_id
-                z_ind[sc_z[nn_id] > dst_dep_rv[:], 1] = (
-                    nn_id[sc_z[nn_id] > dst_dep_rv[:]] - 1
+                # We already have horizontal ind and dist_tot (for horiz weight)
+                # We need vertical weight [sc_z_len, nbdy_ch, 9, 2]
+                """
+                sc_z_rv = np.zeros((sc_z_len, sc_z.shape[1] * sc_z.shape[2]))
+                for k in range(sc_z_len):
+                    sc_z_rv[k, :] = sc_z[k, :, :].flatten("F")
+                #sc_z_rv = sc_z.reshape(sc_z_len, -1)
+                sc_z9_ch = sc_z_rv[:, ind] # [sc_z_len, nbdy_ch, 9]
+                z9_ind =
+                z9_weight =
+                """
+                z_dist, z_ind = extr_assist.get_vertical_weights_zco(
+                    dst_dep[:, chunk], dst_len_z, self.num_bdy_ch[c], sc_z, sc_z_len
                 )
-                z_ind[sc_z[nn_id] <= dst_dep_rv[:], 1] = (
-                    nn_id[sc_z[nn_id] <= dst_dep_rv[:]] + 1
-                )
-                # Adjust out of range values
-                z_ind[z_ind == -1] = 0
-                z_ind[z_ind == sc_z_len] = sc_z_len - 1
 
-                # Create weightings array
-                z_dist = np.abs(
-                    sc_z[z_ind]
-                    - dst_dep[:, chunk].T.repeat(2).reshape(len(dst_dep_rv), 2)
-                )
-                rat = np.ma.sum(z_dist, axis=1)
-                z_dist = 1 - (z_dist / rat.repeat(2).reshape(len(rat), 2))
-
-                # Update z_ind for the dst array dims and vector indexing
-                # Replicating this part of matlab is difficult without causing
-                # a Memory Error. This workaround may be +/- brilliant
-                # In theory it maximises memory efficiency
-                z_ind[:, :] += np.arange(0, (self.num_bdy_ch[c]) * sc_z_len, sc_z_len)[
-                    np.arange(self.num_bdy_ch[c]).repeat(2 * dst_len_z)
-                ].reshape(z_ind.shape)
             else:
                 z_ind = np.zeros([1, 1])
                 z_dist = np.ma.zeros([1, 1])
