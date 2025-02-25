@@ -428,23 +428,15 @@ class Extract:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
                 # We already have horizontal ind and dist_tot (for horiz weight)
-                # We need vertical weight [sc_z_len, nbdy_ch, 9, 2]
-                """
-                sc_z_rv = np.zeros((sc_z_len, sc_z.shape[1] * sc_z.shape[2]))
-                for k in range(sc_z_len):
-                    sc_z_rv[k, :] = sc_z[k, :, :].flatten("F")
-                #sc_z_rv = sc_z.reshape(sc_z_len, -1)
-                sc_z9_ch = sc_z_rv[:, ind] # [sc_z_len, nbdy_ch, 9]
-                z9_ind =
-                z9_weight =
-                """
+                z_dist, z_ind = extr_assist.get_vertical_weights_3D()
+
                 z_dist, z_ind = extr_assist.get_vertical_weights_zco(
                     dst_dep[:, chunk], dst_len_z, self.num_bdy_ch[c], sc_z, sc_z_len
                 )
 
             else:
-                z_ind = np.zeros([1, 1])
-                z_dist = np.ma.zeros([1, 1])
+                z_ind = np.zeros([int(np.sum(chunk)), 1, 1])
+                z_dist = np.ma.zeros([int(np.sum(chunk)), 1, 1])
             # End isslab
 
             # Put variables in list and array
@@ -455,8 +447,8 @@ class Extract:
             self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
             self.id_121_2d[:, chunk, :] = id_121_2d
             self.id_121_3d[:, chunk, :] = id_121_3d
-            self.z_ind[chunk_z_bool, :] = z_ind
-            self.z_dist[chunk_z_bool, :] = z_dist
+            self.z_ind[chunk_z_bool, :, :] = z_ind
+            self.z_dist[chunk_z_bool, :, :] = z_dist
 
             # End of chunk loop
 

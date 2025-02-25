@@ -69,6 +69,41 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     return imin, imax, jmin, jmax
 
 
+def get_vertical_weights_3D(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind):
+    """Determine 3D depth vertical weights for the linear interpolation onto Dst grid."""
+    # We need sc depth in the form [sc_z_len, nbdy_ch, 9]
+    sc_z_rv = np.zeros((sc_z_len, sc_z.shape[1] * sc_z.shape[2]))
+    for k in range(sc_z_len):
+        sc_z_rv[k, :] = sc_z[k, :, :].flatten("F")
+    # sc_z_rv = sc_z.reshape(sc_z_len, -1)
+    sc_z9 = sc_z_rv[:, ind]  # [sc_z_len, nbdy_ch, 9]
+
+    # We need vertical weight in the form [dst_z_len, nbdy_ch, 9, 2]
+    # Tile dst_dep by 9 to get the same size as we want all 9 source points
+    # on the same bdy depth before horizontal interpolation.
+    # The 9 vertical weights won't nessicarily be equal.
+
+    dst_dep9 = np.transpose(np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0])
+    dst_dep9_rv = dst_dep9.ravel(order="F").filled(np.nan)
+    z9_ind = np.zeros((dst_len_z, num_bdy, 9, 2), dtype=np.int64)
+
+    source_tree = None
+    try:
+        source_tree = sp.cKDTree(
+            list(zip(sc_z9.ravel(order="F"))),
+            balanced_tree=False,
+            compact_nodes=False,
+        )
+    except TypeError:  # fix for scipy 0.16.0
+        source_tree = sp.cKDTree(list(zip(sc_z9.ravel(order="F"))))
+
+    junk, nn_id = source_tree.query(list(zip(dst_dep9_rv)), k=1)
+
+    z9_weight = 0
+
+    return z9_weight, z9_ind
+
+
 def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
     """
     Determine vertical weights for the linear interpolation onto Dst grid.
