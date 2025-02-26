@@ -26,6 +26,7 @@ ln_dyn2d = boundary conditions for barotropic fields
 ln_dyn3d = boundary conditions for baroclinic velocities
 ln_tra = boundary conditions for T and S
 ln_ice = ice boundary condition
+ln_zinterp = vertical interpolation
 nn_rimwidth = width of the relaxation zone
 ln_tide = if .true. : produce bdy tidal conditions
 sn_tide_model  = 'FES'
