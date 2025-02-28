@@ -180,8 +180,8 @@ class Extract:
             self.gcos = np.empty((0, 9))
             self.gsin = np.empty((0, 9))
             self.sc_chunk = np.empty((0), int)
-        self.z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
-        self.z_dist = np.ma.zeros((num_bdy * dst_len_z, 2))
+        self.z_ind = np.zeros((dst_len_z, num_bdy, 9, 2), dtype=np.int64)
+        self.z_dist = np.ma.zeros((dst_len_z, num_bdy, 9, 2))
         self.z_chunk = np.zeros((num_bdy * dst_len_z), dtype=np.int64) - 1
         zc_count = 0
 
@@ -196,7 +196,7 @@ class Extract:
                 zc_count : zc_count + (self.num_bdy_ch[c] * dst_len_z)
             ] = all_chunk[c]
             zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z)
-            chunk_z_bool = self.z_chunk == all_chunk[c]
+            self.z_chunk == all_chunk[c]
 
             imin, imax, jmin, jmax = extr_assist.get_ind(
                 dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
@@ -428,15 +428,22 @@ class Extract:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
                 # We already have horizontal ind and dist_tot (for horiz weight)
-                z_dist, z_ind = extr_assist.get_vertical_weights_3D()
-
-                z_dist, z_ind = extr_assist.get_vertical_weights_zco(
-                    dst_dep[:, chunk], dst_len_z, self.num_bdy_ch[c], sc_z, sc_z_len
+                z_dist, z_ind = extr_assist.get_vertical_weights_3D(
+                    dst_dep[:, chunk],
+                    dst_len_z,
+                    self.num_bdy_ch[c],
+                    sc_z,
+                    sc_z_len,
+                    ind,
                 )
 
+                # z_dist, z_ind = extr_assist.get_vertical_weights_zco(
+                #    dst_dep[:, chunk], dst_len_z, self.num_bdy_ch[c], sc_z, sc_z_len
+                # )
+
             else:
-                z_ind = np.zeros([int(np.sum(chunk)), 1, 1])
-                z_dist = np.ma.zeros([int(np.sum(chunk)), 1, 1])
+                z_ind = np.zeros([int(np.sum(chunk)), 1, 1, 1])
+                z_dist = np.ma.zeros([int(np.sum(chunk)), 1, 1, 1])
             # End isslab
 
             # Put variables in list and array
@@ -447,8 +454,8 @@ class Extract:
             self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
             self.id_121_2d[:, chunk, :] = id_121_2d
             self.id_121_3d[:, chunk, :] = id_121_3d
-            self.z_ind[chunk_z_bool, :, :] = z_ind
-            self.z_dist[chunk_z_bool, :, :] = z_dist
+            self.z_ind[:, chunk, ...] = z_ind
+            self.z_dist[:, chunk, ...] = z_dist
 
             # End of chunk loop
 
@@ -609,7 +616,7 @@ class Extract:
 
         for chk in range(len(all_chunk)):
             chunk_d = chunk_number == all_chunk[chk]
-            chunk_z = self.z_chunk == all_chunk[chk]
+            self.z_chunk == all_chunk[chk]
             if self.key_vec:
                 chunk_s = self.sc_chunk == all_chunk[chk]
 
@@ -825,94 +832,64 @@ class Extract:
                         sc_z_len = self.sc_z_len
 
                     # identify valid pts
-                    data_ind = np.invert(np.isnan(sc_bdy[vn][:, :, :]))
-                    # dist_tot is currently 2D so extend along depth
-                    # axis to allow single array calc later, also remove
-                    # any invalid pts using our eldritch data_ind
-                    self.logger.info(
-                        "DIST TOT ZEROS BEFORE %s",
-                        np.sum(self.dist_tot[chunk_d, :] == 0),
-                    )
-                    dist_tot = (
-                        np.repeat(self.dist_tot[chunk_d, :], sc_z_len).reshape(
-                            self.dist_tot[chunk_d, :].shape[0],
-                            self.dist_tot[chunk_d, :].shape[1],
+                    data_ind, _ = extr_assist.valid_index(sc_bdy[vn], self.logger)
+
+                    if (not isslab) & self.settings["zinterp"]:
+                        # Vertical interpolation
+                        sc_bdy_lev = extr_assist.interp_vertical(
+                            sc_bdy[vn],
+                            self.dst_dep[:, chunk_d],
+                            self.bdy_z[chunk_d],
+                            self.z_ind[:, chunk_d, :, :],
+                            self.z_dist[:, chunk_d, :, :],
+                            data_ind,
                             sc_z_len,
+                            self.num_bdy_ch[chk],
                         )
-                    ).transpose(2, 0, 1)
-                    dist_tot *= data_ind
-                    self.logger.info("DIST TOT ZEROS %s", np.sum(dist_tot == 0))
+                    else:
+                        # No vertical interpolation
+                        sc_bdy_lev = sc_bdy[vn]
+                        sc_bdy_lev[:, np.isnan(self.bdy_z[chunk_d]), :] = np.NaN
 
-                    self.logger.info("DIST IND ZEROS %s", np.sum(data_ind == 0))
+                    _, nan_ind = extr_assist.valid_index(sc_bdy_lev, self.logger)
 
-                    # Identify problem pts due to grid discontinuities
-                    # using dists >  lat
-                    over_dist = np.sum(dist_tot[:] > 4)
-                    if over_dist > 0:
-                        raise RuntimeError(
-                            """Distance between source location
-                                              and new boundary points is greater
-                                              than 4 degrees of lon/lat"""
-                        )
-
-                    # Calculate guassian weighting with correlation dist
-                    r0 = self.settings["r0"]
-                    dist_wei = (1 / (r0 * np.power(2 * np.pi, 0.5))) * (
-                        np.exp(-0.5 * np.power(dist_tot / r0, 2))
+                    # distance weightings for averaging source data to destination
+                    dist_wei, dist_fac = extr_assist.distance_weights(
+                        sc_bdy_lev,
+                        self.dist_tot[chunk_d, :],
+                        len(sc_bdy_lev),
+                        self.settings["r0"],
+                        self.logger,
                     )
-                    # Calculate sum of weightings
-                    dist_fac = np.sum(dist_wei * data_ind, 2)
-                    # identify loc where all sc pts are land
-                    nan_ind = np.sum(data_ind, 2) == 0
-                    self.logger.info("NAN IND : %s ", np.sum(nan_ind))
 
-                    # Calc max zlevel to which data available on sc grid
-                    data_ind = np.sum(nan_ind == 0, 0) - 1
-                    # set land val to level 1 otherwise indexing problems
-                    # may occur- should not affect later results because
-                    # land is masked in weightings array
-                    data_ind[data_ind == -1] = 0
-                    # transform depth levels at each bdy pt to vector
-                    # index that can be used to speed up calcs
-                    data_ind += np.arange(0, sc_z_len * self.num_bdy_ch[chk], sc_z_len)
-
-                    # ? Attribute only used on first run so clear.
-                    del dist_tot
-
-                    # weighted averaged onto new horizontal grid
-                    self.logger.info(
-                        " sc_bdy %s %s", np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn])
+                    # weighted averaged (interpolation) onto new horizontal grid
+                    dst_bdy = extr_assist.interp_horizontal(
+                        sc_bdy_lev, dist_wei, dist_fac, self.logger
                     )
-                    dst_bdy = np.zeros_like(dist_fac) * np.nan
-                    # dst_bdy = np.zeros_like(dist_fac)
-                    ind_valid = dist_fac > 0.0
-                    dst_bdy[ind_valid] = (
-                        np.nansum(sc_bdy[vn][:, :, :] * dist_wei, 2)[ind_valid]
-                        / dist_fac[ind_valid]
-                    )
-                    # dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
-                    #           dist_fac)
-                    self.logger.info(
-                        " dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                    )
-                    # Quick check to see we have not got bad values
-                    if np.sum(dst_bdy == np.inf) > 0:
-                        raise RuntimeError(
-                            """Bad values found after
-                                              weighted averaging"""
-                        )
 
                     # weight vector array and rotate onto dest grid
                     if self.key_vec:
-                        # [:,:,:,vn+1]
-                        dst_bdy_2 = np.zeros_like(dist_fac)
-                        ind_valid = dist_fac > 0.0
-                        dst_bdy_2[ind_valid] = (
-                            np.nansum(sc_bdy[vn + 1][:, :, :] * dist_wei, 2)[ind_valid]
-                            / dist_fac[ind_valid]
+                        if (not isslab) & self.settings["zinterp"]:
+                            # Vertical interpolation
+                            sc_bdy_lev2 = extr_assist.interp_vertical(
+                                sc_bdy[vn + 1],
+                                self.dst_dep[:, chunk_d],
+                                self.bdy_z[chunk_d],
+                                self.z_ind[:, chunk_d, :, :],
+                                self.z_dist[:, chunk_d, :, :],
+                                data_ind,
+                                sc_z_len,
+                                self.num_bdy_ch[chk],
+                            )
+                        else:
+                            # No vertical interpolation
+                            sc_bdy_lev2 = sc_bdy[vn + 1]
+                            sc_bdy_lev2[:, np.isnan(self.bdy_z[chunk_d]), :] = np.NaN
+
+                        dst_bdy_2 = extr_assist.interp_horizontal(
+                            sc_bdy_lev2, dist_wei, dist_fac, self.logger
                         )
-                        # dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
-                        #             dist_fac)
+
                         self.logger.info("time to to rot and rep ")
                         self.logger.info(
                             "%s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
@@ -966,36 +943,7 @@ class Extract:
                         " 3 dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
                     )
 
-                    # If we have depth dimension
-                    if not isslab:
-                        # If all else fails fill down using deepest pt
-                        dst_bdy = dst_bdy.flatten("F")
-                        dst_bdy += (dst_bdy == 0) * dst_bdy[data_ind].repeat(sc_z_len)
-                        # Weighted averaged on new vertical grid
-                        dst_bdy = (
-                            dst_bdy[self.z_ind[chunk_z, 0]] * self.z_dist[chunk_z, 0]
-                            + dst_bdy[self.z_ind[chunk_z, 1]] * self.z_dist[chunk_z, 1]
-                        )
-                        data_out = dst_bdy.reshape(
-                            self.dst_dep[:, chunk_d].shape, order="F"
-                        )
-
-                        # If z-level replace data below bed !!! make stat
-                        # of this as could be problematic
-                        ind_z = self.bdy_z[chunk_d].repeat(
-                            len(self.dst_dep[:, chunk_d])
-                        )
-                        ind_z = ind_z.reshape(
-                            len(self.dst_dep[:, chunk_d]),
-                            len(self.bdy_z[chunk_d]),
-                            order="F",
-                        )
-                        ind_z -= self.dst_dep[:, chunk_d]
-                        ind_z = ind_z < 0
-                        data_out[ind_z] = np.NaN
-                    else:
-                        data_out = dst_bdy
-                        data_out[:, np.isnan(self.bdy_z[chunk_d])] = np.NaN
+                    data_out = dst_bdy
 
                     # add data to self.d_bdy
                     if self.key_vec is True and self.rot_dir == "j":
