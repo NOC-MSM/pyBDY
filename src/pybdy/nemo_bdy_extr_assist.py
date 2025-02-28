@@ -260,8 +260,8 @@ def interp_vertical(sc_bdy, dst_dep, bdy_z, z_ind, z_dist, data_ind, sc_z_len, n
     sc_bdy_lev = np.ma.zeros((dst_dep.shape[0], sc_bdy.shape[1], sc_bdy.shape[2]))
     for i in range(num_bdy):
         for j in range(9):
-            # If all else fails fill down using deepest pt (maybe use closest point)
-            sc_bdy[np.isnan(sc_bdy[:, i, j]), i, j] = sc_bdy[data_ind[i, j], i, j]
+            # If all else fails fill down using deepest pt and closest point
+            sc_bdy[np.isnan(sc_bdy[:, i, j]), i, j] = sc_bdy[data_ind[i, 0], i, 0]
             # Weighted averaged on new vertical grid
             sc_bdy_lev[:, i, j] = (
                 sc_bdy[z_ind[:, i, j, 0], i, j] * z_dist[:, i, j, 0]
