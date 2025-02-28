@@ -260,7 +260,7 @@ def interp_vertical(sc_bdy, dst_dep, bdy_z, z_ind, z_dist, data_ind, sc_z_len, n
     sc_bdy_lev = np.ma.zeros((dst_dep.shape[0], sc_bdy.shape[1], sc_bdy.shape[2]))
     for i in range(num_bdy):
         for j in range(9):
-            # If all else fails fill down using deepest pt
+            # If all else fails fill down using deepest pt (maybe use closest point)
             sc_bdy[np.isnan(sc_bdy[:, i, j]), i, j] = sc_bdy[data_ind[i, j], i, j]
             # Weighted averaged on new vertical grid
             sc_bdy_lev[:, i, j] = (
@@ -360,7 +360,7 @@ def valid_index(sc_bdy, logger):
     logger.info("NAN IND : %s ", np.sum(nan_ind))
 
     # Calc max zlevel to which data available on sc grid
-    data_ind = np.sum(data_ind == 0, 0) - 1
+    data_ind = np.sum(data_ind == 1, 0) - 1
 
     # set land val to level 1 otherwise indexing problems
     # may occur- should not affect later results because
