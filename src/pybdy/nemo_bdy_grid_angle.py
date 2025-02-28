@@ -16,8 +16,6 @@ import logging
 
 import numpy as np
 
-from .reader.factory import GetFile
-
 
 class GridAngle:
     # I and J offsets for different grid types
@@ -29,7 +27,7 @@ class GridAngle:
     }
     MAP = {"t": "v", "u": "f", "v": "f", "f": "u"}
 
-    def __init__(self, coord_fname, imin, imax, jmin, jmax, cd_type):
+    def __init__(self, hgr, imin, imax, jmin, jmax, cd_type):
         # set case and check validity
         self.CD_T = cd_type.lower()
         self.logger = logging.getLogger(__name__)
@@ -37,15 +35,14 @@ class GridAngle:
             raise ValueError("Unknown grid grid_type %s" % cd_type)
         self.M_T = self.MAP[self.CD_T]
 
+        self.hgr = hgr
         self.logger.debug("Grid Angle: ", self.CD_T)
-
-        # open coord file
-        self.nc = GetFile(coord_fname)
 
         # set constants
         self.IMIN, self.IMAX = imin, imax
         self.JMIN, self.JMAX = jmin, jmax
-        ndim = len(self.nc["glamt"].dimensions)
+
+        ndim = len(self.hgr.grid["glamt"].shape)
         if ndim == 4:
             self.DIM_STR = 0, 0
         elif ndim == 3:
@@ -133,14 +130,10 @@ class GridAngle:
             case = self.M_T
         else:
             case = self.CD_T
-        zlam = np.float64(
-            self.nc["glam" + case][d, j:jj, i:ii]
-        )  # .variables['glam' + case][d, j:jj, i:ii])
+        zlam = np.float64(self.hgr.grid["glam" + case][d, j:jj, i:ii])
         if single:
             return zlam
-        zphi = np.float64(
-            self.nc["gphi" + case][d, j:jj, i:ii]
-        )  # .variables['gphi' + case][d, j:jj, i:ii])
+        zphi = np.float64(self.hgr.grid["gphi" + case][d, j:jj, i:ii])
 
         return zlam, zphi
 
