@@ -180,9 +180,9 @@ class Extract:
             self.gcos = np.empty((0, 9))
             self.gsin = np.empty((0, 9))
             self.sc_chunk = np.empty((0), int)
-        self.z_ind = np.zeros((dst_len_z, num_bdy, 9, 2), dtype=np.int64)
-        self.z_dist = np.ma.zeros((dst_len_z, num_bdy, 9, 2))
-        self.z_chunk = np.zeros((num_bdy * dst_len_z), dtype=np.int64) - 1
+        self.z_ind = np.zeros((dst_len_z * num_bdy * 9, 2), dtype=np.int64)
+        self.z_dist = np.ma.zeros((dst_len_z * num_bdy * 9, 2))
+        self.z_chunk = np.zeros((num_bdy * dst_len_z * 9), dtype=np.int64) - 1
         zc_count = 0
 
         # loop over chunks
@@ -193,10 +193,10 @@ class Extract:
             dst_lat_ch = dst_lat[chunk]
             self.num_bdy_ch[c] = len(dst_lon_ch)
             self.z_chunk[
-                zc_count : zc_count + (self.num_bdy_ch[c] * dst_len_z)
+                zc_count : zc_count + (self.num_bdy_ch[c] * dst_len_z * 9)
             ] = all_chunk[c]
-            zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z)
-            self.z_chunk == all_chunk[c]
+            zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z * 9)
+            chunk_z_bool = self.z_chunk == all_chunk[c]
 
             imin, imax, jmin, jmax = extr_assist.get_ind(
                 dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
@@ -428,18 +428,15 @@ class Extract:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
                 # We already have horizontal ind and dist_tot (for horiz weight)
-                z_dist, z_ind = extr_assist.get_vertical_weights_3D(
+                z_dist, z_ind = extr_assist.get_vertical_weights(
                     dst_dep[:, chunk],
                     dst_len_z,
                     self.num_bdy_ch[c],
                     sc_z,
                     sc_z_len,
                     ind,
+                    SC.zgr.grid_type == "zco",
                 )
-
-                # z_dist, z_ind = extr_assist.get_vertical_weights_zco(
-                #    dst_dep[:, chunk], dst_len_z, self.num_bdy_ch[c], sc_z, sc_z_len
-                # )
 
             else:
                 z_ind = np.zeros([int(np.sum(chunk)), 1, 1, 1])
@@ -454,8 +451,8 @@ class Extract:
             self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
             self.id_121_2d[:, chunk, :] = id_121_2d
             self.id_121_3d[:, chunk, :] = id_121_3d
-            self.z_ind[:, chunk, ...] = z_ind
-            self.z_dist[:, chunk, ...] = z_dist
+            self.z_ind[chunk_z_bool, ...] = z_ind
+            self.z_dist[chunk_z_bool, ...] = z_dist
 
             # End of chunk loop
 
@@ -616,7 +613,7 @@ class Extract:
 
         for chk in range(len(all_chunk)):
             chunk_d = chunk_number == all_chunk[chk]
-            self.z_chunk == all_chunk[chk]
+            chunk_z = self.z_chunk == all_chunk[chk]
             if self.key_vec:
                 chunk_s = self.sc_chunk == all_chunk[chk]
 
@@ -840,8 +837,8 @@ class Extract:
                             sc_bdy[vn],
                             self.dst_dep[:, chunk_d],
                             self.bdy_z[chunk_d],
-                            self.z_ind[:, chunk_d, :, :],
-                            self.z_dist[:, chunk_d, :, :],
+                            self.z_ind[chunk_z, :],
+                            self.z_dist[chunk_z, :],
                             data_ind,
                             sc_z_len,
                             self.num_bdy_ch[chk],
@@ -875,8 +872,8 @@ class Extract:
                                 sc_bdy[vn + 1],
                                 self.dst_dep[:, chunk_d],
                                 self.bdy_z[chunk_d],
-                                self.z_ind[:, chunk_d, :, :],
-                                self.z_dist[:, chunk_d, :, :],
+                                self.z_ind[chunk_z, :],
+                                self.z_dist[chunk_z, :],
                                 data_ind,
                                 sc_z_len,
                                 self.num_bdy_ch[chk],
