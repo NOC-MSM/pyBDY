@@ -277,7 +277,7 @@ def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
 
 
 def interp_vertical(
-    sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, sc_z_len, num_bdy
+    sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, sc_z_len, num_bdy, zinterp=True
 ):
     """
     Interpolate source data onto destination vertical levels.
@@ -292,6 +292,7 @@ def interp_vertical(
     data_ind (np.array) : bool points above bathymetry that are valid
     sc_z_len (int)      : the length of depth axis of the source grid
     num_bdy (int)       : number of boundary points in chunk
+    zinterp (bool)      : vertical interpolation flag
 
     Returns
     -------
@@ -304,20 +305,30 @@ def interp_vertical(
         sc_bdy[data_ind[:, 0], ind_bdy, 0], (sc_bdy.shape[0], sc_bdy.shape[2], 1)
     ).transpose((0, 2, 1))
     sc_bdy[np.isnan(sc_bdy)] = all_bot[np.isnan(sc_bdy)]
-    sc_bdy = sc_bdy.flatten("F")
 
-    # Weighted averaged on new vertical grid
-    sc_bdy = sc_bdy[z_ind[:, 0]] * z_dist[:, 0] + sc_bdy[z_ind[:, 1]] * z_dist[:, 1]
-    sc_bdy_lev = sc_bdy.reshape((dst_dep.shape[0], num_bdy, sc_shape[2]), order="F")
+    if zinterp is True:
+        sc_bdy = sc_bdy.flatten("F")
 
-    # If z-level replace data below bed
-    # TODO dst_dep9 should come from DstCoord and find 9 points instead of np.tile
-    ind_z = np.transpose(np.tile(bdy_bathy, (len(dst_dep), 9, 1)), axes=(0, 2, 1))
-    dst_dep9 = np.transpose(np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0])
-    ind_z -= dst_dep9
-    ind_z = ind_z < 0
-    sc_bdy_lev[ind_z] = np.nan
-    sc_bdy_lev.filled(np.nan)
+        # Weighted averaged on new vertical grid
+        mbool = z_dist.mask[:, 0] is False
+        sc_bdy[mbool] = (
+            sc_bdy[z_ind[:, 0]] * z_dist[:, 0] + sc_bdy[z_ind[:, 1]] * z_dist[:, 1]
+        )[mbool]
+        sc_bdy_lev = sc_bdy.reshape((dst_dep.shape[0], num_bdy, sc_shape[2]), order="F")
+
+        # If z-level replace data below bed
+        # TODO dst_dep9 should come from DstCoord and find 9 points instead of np.tile
+        ind_z = np.transpose(np.tile(bdy_bathy, (len(dst_dep), 9, 1)), axes=(0, 2, 1))
+        dst_dep9 = np.transpose(np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0])
+        ind_z -= dst_dep9
+        ind_z = ind_z < 0
+        sc_bdy_lev[ind_z] = np.nan
+    else:
+        # if zinterp is false leave data below bottom for NEMO run-time interpolation
+        sc_bdy_lev = sc_bdy
+
+    if np.ma.is_masked(sc_bdy_lev):
+        sc_bdy_lev = sc_bdy_lev.filled(np.nan)
 
     return sc_bdy_lev
 

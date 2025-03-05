@@ -831,7 +831,7 @@ class Extract:
                     # identify valid pts
                     data_ind, _ = extr_assist.valid_index(sc_bdy[vn], self.logger)
 
-                    if (not isslab) & self.settings["zinterp"]:
+                    if not isslab:
                         # Vertical interpolation
                         sc_bdy_lev = extr_assist.interp_vertical(
                             sc_bdy[vn],
@@ -842,6 +842,7 @@ class Extract:
                             data_ind,
                             sc_z_len,
                             self.num_bdy_ch[chk],
+                            self.settings["zinterp"],
                         )
                     else:
                         # No vertical interpolation
@@ -866,7 +867,7 @@ class Extract:
 
                     # weight vector array and rotate onto dest grid
                     if self.key_vec:
-                        if (not isslab) & self.settings["zinterp"]:
+                        if not isslab:
                             # Vertical interpolation
                             sc_bdy_lev2 = extr_assist.interp_vertical(
                                 sc_bdy[vn + 1],
@@ -877,6 +878,7 @@ class Extract:
                                 data_ind,
                                 sc_z_len,
                                 self.num_bdy_ch[chk],
+                                self.settings["zinterp"],
                             )
                         else:
                             # No vertical interpolation
@@ -930,6 +932,7 @@ class Extract:
                         np.nanmin(dst_bdy),
                         np.nanmax(dst_bdy),
                     )
+
                     dst_bdy[nan_ind] = 0
                     self.logger.info(
                         " post dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
