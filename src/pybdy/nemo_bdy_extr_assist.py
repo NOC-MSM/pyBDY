@@ -84,6 +84,7 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
     sc_z (np.array)    : the depth of the source grid [k, j, i]
     sc_z_len (int)     : the length of depth axis of the source grid
     ind (np.array)     : indices of bdy points and 9 nearest neighbours
+                         for flattened j,i array order="F" [nbdy, 9]
     zco (bool)         : if True z levels are not spatially varying
 
     Returns
@@ -171,6 +172,7 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
     z9_ind[z9_ind == -1] = 0
     z9_ind[z9_ind == sc_z_len] = sc_z_len - 1
 
+    # TODO: Change this for speed up
     for i in range(num_bdy):
         for j in range(9):
             # Create weightings array
@@ -187,14 +189,14 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
     ind_bdy = ind_grid[1].flatten("F")
     ind_9 = ind_grid[2].flatten("F")
     z9_ind = z9_ind.reshape(dst_len_z * num_bdy * 9, 2, order="F")
-    z9_ind_rv = np.zeros((sc_z_len * num_bdy * 9, 2), dtype=int)
+    z9_ind_rv = np.zeros((dst_len_z * num_bdy * 9, 2), dtype=int)
     z9_ind_rv[:, 0] = np.ravel_multi_index(
         (z9_ind[:, 0], ind_bdy, ind_9), (sc_z_len, num_bdy, 9), order="F"
     )
     z9_ind_rv[:, 1] = np.ravel_multi_index(
         (z9_ind[:, 1], ind_bdy, ind_9), (sc_z_len, num_bdy, 9), order="F"
     )
-    z9_dist = z9_dist.reshape(sc_z_len * num_bdy * 9, 2, order="F")
+    z9_dist = z9_dist.reshape(dst_len_z * num_bdy * 9, 2, order="F")
 
     return z9_dist, z9_ind_rv
 
@@ -274,7 +276,9 @@ def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
     return z9_dist, z9_ind
 
 
-def interp_vertical(sc_bdy, dst_dep, bdy_z, z_ind, z_dist, data_ind, sc_z_len, num_bdy):
+def interp_vertical(
+    sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, sc_z_len, num_bdy
+):
     """
     Interpolate source data onto destination vertical levels.
 
@@ -282,7 +286,7 @@ def interp_vertical(sc_bdy, dst_dep, bdy_z, z_ind, z_dist, data_ind, sc_z_len, n
     ----------
     sc_bdy (np.array)   : souce data [nz_sc, nbdy, 9]
     dst_dep (np.array)  : the depth of the destination grid chunk [nz, nbdy]
-    bdy_z (np.array)    : the length of depth axis of the destination grid
+    bdy_bathy (np.array): the destination grid bdy points bathymetry
     z_ind (np.array)    : the indices of the sc depth above and below bdy
     z_dist (np.array)   : the distance weights of the selected points
     data_ind (np.array) : bool points above bathymetry that are valid
@@ -307,7 +311,8 @@ def interp_vertical(sc_bdy, dst_dep, bdy_z, z_ind, z_dist, data_ind, sc_z_len, n
     sc_bdy_lev = sc_bdy.reshape((dst_dep.shape[0], num_bdy, sc_shape[2]), order="F")
 
     # If z-level replace data below bed
-    ind_z = np.transpose(np.tile(bdy_z, (len(dst_dep), 9, 1)), axes=(0, 2, 1))
+    # TODO dst_dep9 should come from DstCoord and find 9 points instead of np.tile
+    ind_z = np.transpose(np.tile(bdy_bathy, (len(dst_dep), 9, 1)), axes=(0, 2, 1))
     dst_dep9 = np.transpose(np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0])
     ind_z -= dst_dep9
     ind_z = ind_z < 0
@@ -387,7 +392,7 @@ def valid_index(sc_bdy, logger):
 
     Returns:
     -------
-        data_ind (numpy.array)    : indicies of valid data
+        data_ind (numpy.array)    : indicies of max depth of valid data
         nan_ind (numpy.array)     : indicies where source is land
     """
     # identify valid pts
