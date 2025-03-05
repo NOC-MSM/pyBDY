@@ -232,13 +232,11 @@ class Extract:
                 # Extract the source rotation angles on the T-Points as the C-Grid
                 # U/V points naturally average onto these
 
-                src_ga = ga.GridAngle(
-                    self.settings["src_hgr"], imin, imax, jmin, jmax, "t"
-                )
+                src_ga = ga.GridAngle(SC.hgr, imin, imax, jmin, jmax, "t")
 
                 # Extract the rotation angles for the bdy velocities points
 
-                dst_ga = ga.GridAngle(self.settings["dst_hgr"], 1, maxI, 1, maxJ, grd)
+                dst_ga = ga.GridAngle(DC.hgr, 1, maxI, 1, maxJ, grd)
 
                 sc_gcos = src_ga.cosval
                 sc_gsin = src_ga.sinval

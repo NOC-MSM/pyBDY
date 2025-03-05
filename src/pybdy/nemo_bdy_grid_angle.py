@@ -59,8 +59,6 @@ class GridAngle:
         # Get cosinus and sinus
         self.sinval, self.cosval = self._get_sin_cos(np_x, np_y, np_n, sd_x, sd_y, sd_n)
 
-        self.nc.close()
-
     # # # # # # # # # # # # #
     # # Functions # # # # # #
     # # # # # # # # # # # # #
