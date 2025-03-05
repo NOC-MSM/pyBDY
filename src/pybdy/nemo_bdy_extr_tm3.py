@@ -1031,7 +1031,8 @@ class Extract:
                         )
                         ind_z -= self.dst_dep[:, chunk_d]
                         ind_z = ind_z < 0
-                        data_out[ind_z] = np.NaN
+                        if self.settings["zinterp"] is True:
+                            data_out[ind_z] = np.NaN
                     else:
                         data_out = dst_bdy
                         data_out[:, np.isnan(self.bdy_z[chunk_d])] = np.NaN
