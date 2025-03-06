@@ -176,17 +176,8 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
     tmp_t = np.ma.array(np.squeeze(SourceCoord.zgr.grid["gdep" + grd]))
     tmp_e = np.ma.array(np.squeeze(SourceCoord.zgr.grid["e3" + grd]))
     for k in range(SourceCoord.zgr.grid["gdep" + g + "w"].shape[1]):
-        # wk = np.squeeze(SourceCoord.zgr.grid["gdep" + g + "w"])[k, :, :]
-        # wk[mbathy + 1 < k + 1] = np.NaN
-        # tmp_w[k, :, :] = wk
         tmp_w[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_w[k, :, :])
-        # wt = np.squeeze(SourceCoord.zgr.grid["gdep" + grd])[k, :, :]
-        # wt[mbathy + 1 < k + 1] = np.NaN
-        # tmp_t[k, :, :] = wt
         tmp_t[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_t[k, :, :])
-        # e3 = np.squeeze(SourceCoord.zgr.grid["e3" + grd])[k, :, :]
-        # e3[mbathy + 1 < k + 1] = np.NaN
-        # tmp_e[k, :, :] = e3
         tmp_e[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_e[k, :, :])
 
     bdy_wz = np.ma.zeros((tmp_w.shape[0], len(nn_id)))
