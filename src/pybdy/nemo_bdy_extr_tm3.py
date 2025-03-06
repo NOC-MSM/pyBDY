@@ -424,7 +424,7 @@ class Extract:
 
             # Fig not implemented
 
-            if not isslab:
+            if (not isslab) & self.settings["zinterp"]:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
                 # We already have horizontal ind and dist_tot (for horiz weight)
@@ -439,8 +439,8 @@ class Extract:
                 )
 
             else:
-                z_ind = np.zeros([int(np.sum(chunk)), 1, 1, 1])
-                z_dist = np.ma.zeros([int(np.sum(chunk)), 1, 1, 1])
+                z_ind = np.zeros([dst_len_z * int(np.sum(chunk)) * 9, 2], dtype=int)
+                z_dist = np.ma.zeros([dst_len_z * int(np.sum(chunk)) * 9, 2])
             # End isslab
 
             # Put variables in list and array
