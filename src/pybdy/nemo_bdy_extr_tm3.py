@@ -466,8 +466,8 @@ class Extract:
             self.bdy_z = DC.depths[self.g_type]["bdy_H"]
         else:
             self.bdy_z = np.zeros([1])
+        self.dst_z = dst_dep
         self.dst_dep = dst_dep.filled(np.nan)
-        self.dst_z = self.dst_dep
         self.sc_z_len = sc_z_len
         self.sc_time = sc_time
 
@@ -598,7 +598,11 @@ class Extract:
                     hold = np.zeros((((last_date + 1) - first_date), 1, self.num_bdy))
                 else:
                     hold = np.zeros(
-                        (((last_date + 1) - first_date), len(self.dst_z), self.num_bdy)
+                        (
+                            ((last_date + 1) - first_date),
+                            len(self.dst_dep),
+                            self.num_bdy,
+                        )
                     )
 
                 if self.key_vec is True and self.rot_dir == "j":
@@ -926,22 +930,25 @@ class Extract:
                         # Finished first run operations
                         # self.first = False
 
-                    # Set land pts to zero
-                    self.logger.info(
-                        " pre dst_bdy[nan_ind] %s %s",
-                        np.nanmin(dst_bdy),
-                        np.nanmax(dst_bdy),
-                    )
+                    if self.settings["zinterp"]:
+                        # Set land pts to zero
+                        self.logger.info(
+                            " pre dst_bdy[nan_ind] %s %s",
+                            np.nanmin(dst_bdy),
+                            np.nanmax(dst_bdy),
+                        )
 
-                    dst_bdy[nan_ind] = 0
-                    self.logger.info(
-                        " post dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                    )
-                    # Remove any data on dst grid that is in land
-                    dst_bdy[:, np.isnan(self.bdy_z[chunk_d])] = 0
-                    self.logger.info(
-                        " 3 dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                    )
+                        dst_bdy[nan_ind] = 0
+                        self.logger.info(
+                            " post dst_bdy %s %s",
+                            np.nanmin(dst_bdy),
+                            np.nanmax(dst_bdy),
+                        )
+                        # Remove any data on dst grid that is in land
+                        dst_bdy[:, np.isnan(self.bdy_z[chunk_d])] = 0
+                        self.logger.info(
+                            " 3 dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
+                        )
 
                     data_out = dst_bdy
 
@@ -1204,6 +1211,7 @@ class Extract:
                 (v == "vozocrtx") or (v == "vomecrty")
             ):  # Calculate depth averaged velocity
                 tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
+                tile_dz = np.ma.filled(tile_dz, np.nan)
                 tmp_var = np.reshape(
                     self.d_bdy[v][year]["data"][:, :, :], tile_dz.shape
                 )
@@ -1214,29 +1222,44 @@ class Extract:
                 else:
                     ncpop.write_data_to_file(f_out, "vobtcrty", tmp_var)
 
-            # else: # Replace NaNs with specified fill value
+            if self.settings["zinterp"]:
+                # Replace NaNs with specified fill value
+                tmp_var = np.where(
+                    np.isnan(self.d_bdy[v][year]["data"][:, :, :]),
+                    self.settings["fv"],
+                    self.d_bdy[v][year]["data"][:, :, :],
+                )
+                jpk, jpj, jpi = tmp_var.shape
 
-            tmp_var = np.where(
-                np.isnan(self.d_bdy[v][year]["data"][:, :, :]),
-                self.settings["fv"],
-                self.d_bdy[v][year]["data"][:, :, :],
-            )
-            jpk, jpj, jpi = tmp_var.shape
-            if jpj > 1:
-                for k in range(jpk):
-                    tmp_var[k, :, :] = np.where(
-                        np.isnan(self.dst_dep), self.settings["fv"], tmp_var[k, :, :]
-                    )
+                if jpj > 1:
+                    for k in range(jpk):
+                        tmp_var[k, :, :] = np.where(
+                            np.isnan(self.dst_dep),
+                            self.settings["fv"],
+                            tmp_var[k, :, :],
+                        )
+            else:
+                # leave all data unfilled for run-time NEMO vertical interpolation
+                tmp_var = self.d_bdy[v][year]["data"][:, :, :]
+                tmp_var[np.isnan(tmp_var)] = np.nanmean(tmp_var)
 
             # Write variable to file
             ncpop.write_data_to_file(f_out, v, tmp_var)
 
-        # check depth array has had NaNs removed
+        if self.settings["zinterp"]:
+            # check depth array has had NaNs removed
 
-        tmp_dst_dz = np.where(np.isnan(self.dst_dep), self.settings["fv"], self.bdy_dz)
-        tmp_dst_dep = np.where(
-            np.isnan(self.dst_dep), self.settings["fv"], self.dst_dep
-        )
+            tmp_dst_dz = np.where(
+                np.isnan(self.dst_dep), self.settings["fv"], self.bdy_dz
+            )
+            tmp_dst_dep = np.where(
+                np.isnan(self.dst_dep), self.settings["fv"], self.dst_dep
+            )
+            tmp_dst_dz = np.ma.filled(tmp_dst_dz, self.settings["fv"])
+            tmp_dst_dep = np.ma.filled(tmp_dst_dep, self.settings["fv"])
+        else:
+            tmp_dst_dz = np.ma.getdata(self.bdy_dz)
+            tmp_dst_dep = np.ma.getdata(self.dst_z)
 
         # Write remaining data to file (indices are in Python notation
         # therefore we must add 1 to i,j and r)
