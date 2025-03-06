@@ -229,7 +229,7 @@ def test_interp_vertical():
 
     # Run function
     sc_bdy_lev = extr_assist.interp_vertical(
-        sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, sc_z_len, num_bdy
+        sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, num_bdy
     )
     sc_bdy_lev[np.isnan(sc_bdy_lev)] = -1
 

@@ -77,8 +77,8 @@ class Z_Grid:
             "e3uw",
             "e3vw",
             "e3fw",
+            "gdept_0",
         ]
-        #    "gdept_0",
         #    "gdepw_0",
         #    "e3t_0",
         #    "e3w_0",
@@ -205,6 +205,9 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
             )
             grid["gdept"] = np.transpose(grid["gdept"], axes=[0, 3, 1, 2])
         missing = sorted(list(set(missing) - set(["gdept"])))
+
+    if "gdept_0" in missing:
+        missing = sorted(list(set(missing) - set(["gdept_0"])))
 
     w_done = "gdepw" not in missing
     if w_done is False:

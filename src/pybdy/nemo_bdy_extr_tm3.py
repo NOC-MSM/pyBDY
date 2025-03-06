@@ -844,7 +844,6 @@ class Extract:
                             self.z_ind[chunk_z, :],
                             self.z_dist[chunk_z, :],
                             data_ind,
-                            sc_z_len,
                             self.num_bdy_ch[chk],
                             self.settings["zinterp"],
                         )
@@ -880,7 +879,6 @@ class Extract:
                                 self.z_ind[chunk_z, :],
                                 self.z_dist[chunk_z, :],
                                 data_ind,
-                                sc_z_len,
                                 self.num_bdy_ch[chk],
                                 self.settings["zinterp"],
                             )
