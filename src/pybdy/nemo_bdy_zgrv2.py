@@ -149,6 +149,7 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
     -------
         bdy_tz (array)          : sc depths on bdy points on t levels
         bdy_wz (array)          : sc depths on bdy points on w levels
+        bdy_e3 (array)          : sc level thickness on bdy points on t levels
     """
     if grd == "t":
         g = ""
@@ -171,20 +172,29 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
     mbathy = np.float16(SourceCoord.zgr.grid["mbathy"].squeeze())
     mbathy[mbathy == 0] = np.NaN
 
-    tmp_w = np.squeeze(SourceCoord.zgr.grid["gdep" + g + "w"])
-    tmp_t = np.squeeze(SourceCoord.zgr.grid["gdep" + grd])
+    tmp_w = np.ma.array(np.squeeze(SourceCoord.zgr.grid["gdep" + g + "w"]))
+    tmp_t = np.ma.array(np.squeeze(SourceCoord.zgr.grid["gdep" + grd]))
+    tmp_e = np.ma.array(np.squeeze(SourceCoord.zgr.grid["e3" + grd]))
     for k in range(SourceCoord.zgr.grid["gdep" + g + "w"].shape[1]):
-        wk = np.squeeze(SourceCoord.zgr.grid["gdep" + g + "w"])[k, :, :]
-        wk[mbathy + 1 < k + 1] = np.NaN
-        tmp_w[k, :, :] = wk
-        wt = np.squeeze(SourceCoord.zgr.grid["gdep" + grd])[k, :, :]
-        wt[mbathy + 1 < k + 1] = np.NaN
-        tmp_t[k, :, :] = wt
+        # wk = np.squeeze(SourceCoord.zgr.grid["gdep" + g + "w"])[k, :, :]
+        # wk[mbathy + 1 < k + 1] = np.NaN
+        # tmp_w[k, :, :] = wk
+        tmp_w[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_w[k, :, :])
+        # wt = np.squeeze(SourceCoord.zgr.grid["gdep" + grd])[k, :, :]
+        # wt[mbathy + 1 < k + 1] = np.NaN
+        # tmp_t[k, :, :] = wt
+        tmp_t[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_t[k, :, :])
+        # e3 = np.squeeze(SourceCoord.zgr.grid["e3" + grd])[k, :, :]
+        # e3[mbathy + 1 < k + 1] = np.NaN
+        # tmp_e[k, :, :] = e3
+        tmp_e[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_e[k, :, :])
 
-    bdy_wz = np.zeros((tmp_w.shape[0], len(nn_id)))
-    bdy_tz = np.zeros((tmp_t.shape[0], len(nn_id)))
+    bdy_wz = np.ma.zeros((tmp_w.shape[0], len(nn_id)))
+    bdy_tz = np.ma.zeros((tmp_t.shape[0], len(nn_id)))
+    bdy_e3 = np.ma.zeros((tmp_e.shape[0], len(nn_id)))
     for k in range(bdy_wz.shape[0]):
         bdy_wz[k, :] = np.ravel(tmp_w[k, :, :])[nn_id]
         bdy_tz[k, :] = np.ravel(tmp_t[k, :, :])[nn_id]
+        bdy_e3[k, :] = np.ravel(tmp_e[k, :, :])[nn_id]
 
-    return bdy_tz, bdy_wz
+    return bdy_tz, bdy_wz, bdy_e3
