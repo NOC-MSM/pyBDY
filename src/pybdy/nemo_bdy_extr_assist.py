@@ -101,8 +101,11 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
 
     # We need vertical weight in the form [dst_z_len, nbdy_ch, 9, 2]
     # Tile dst_dep by 9 to get the same size as we want all 9 source points
-    # on the same bdy depth before horizontal interpolation.
-    # The 9 vertical weights won't nessicarily be equal.
+    # on the same bdy depth before horizontal interpolation. We want the tile
+    # so it is all interpolated onto the same level before the horizontal
+    # interpolation folds the data onto the centre point.
+    # The 9 vertical weights won't nessicarily be equal because sc can
+    # have sloping levels.
 
     dst_dep9 = np.transpose(
         np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0]
@@ -313,7 +316,7 @@ def interp_vertical(
         sc_bdy_lev = sc_bdy.reshape((dst_dep.shape[0], num_bdy, sc_shape[2]), order="F")
 
         # If z-level replace data below bed
-        # TODO dst_dep9 should come from DstCoord and find 9 points instead of np.tile
+        # dst_dep9 is np.tile of 9 so it is all interpolated onto the same level
         ind_z = np.transpose(np.tile(bdy_bathy, (len(dst_dep), 9, 1)), axes=(0, 2, 1))
         dst_dep9 = np.transpose(np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0])
         ind_z -= dst_dep9
