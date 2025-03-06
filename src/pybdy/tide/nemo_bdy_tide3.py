@@ -37,6 +37,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     logger = logging.getLogger(__name__)
     g_type = Grid_T.grid_type
     DC = copy.deepcopy(DstCoord)
+
     dst_lon = DC.bdy_lonlat[g_type]["lon"][Grid_T.bdy_r == 0]
     dst_lat = DC.bdy_lonlat[g_type]["lat"][Grid_T.bdy_r == 0]
 
