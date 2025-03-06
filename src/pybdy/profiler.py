@@ -209,10 +209,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             # These are just set to the nearest neighbour in source grid
             tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
             DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
-            DstCoord.depths[grd]["bdy_dz"] = np.ma.diff(tmp_wz, axis=0)
-            # DstCoord.depths[grd]["bdy_dz"] = np.vstack(
-            #    [DstCoord.depths[grd]["bdy_dz"], np.zeros((1, nbdy[grd]))]
-            # )
             DstCoord.depths[grd]["bdy_dz"] = tmp_e3
             DstCoord.depths[grd]["bdy_z"] = tmp_tz
         logger.info("Depths defined with destination equal to source")
