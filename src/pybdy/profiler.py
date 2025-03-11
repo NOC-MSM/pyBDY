@@ -105,6 +105,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     bdy_msk = _get_mask(Setup, mask_gui)
     DstCoord.bdy_msk = bdy_msk == 1
 
+    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], logger)
+    DstCoord.zgr = zgr.Z_Grid(
+        settings["dst_zgr"], DstCoord.hgr.grid_type, DstCoord.hgr.grid, logger
+    )
+
     logger.info("Reading mask completed")
 
     bdy_ind = {}  # define a dictionary to hold the grid information
@@ -117,11 +122,14 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         # function to split the bdy into several boundary chunks
         bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
 
-    # Write out grid information to coordinates.bdy.nc
-
-    co_set = coord.Coord(settings["dst_dir"] + "/coordinates.bdy.nc", bdy_ind)
-    co_set.populate(settings["dst_hgr"])
-    logger.info("File: coordinates.bdy.nc generated and populated")
+    if Setup.bool_settings["coords_file"]:
+        # Write out grid information to coordinates.bdy.nc
+        co_set = coord.Coord(
+            settings["dst_dir"] + "/" + settings["coords_file"], bdy_ind
+        )
+        # TODO: swap this to DstCoord.hgr
+        co_set.populate(settings["dst_hgr"])
+        logger.info("File: coordinates.bdy.nc generated and populated")
 
     # Idenitify number of boundary points
 
@@ -136,11 +144,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     SourceCoord.hgr = hgr.H_Grid(settings["src_hgr"], logger)
     SourceCoord.zgr = zgr.Z_Grid(
         settings["src_zgr"], SourceCoord.hgr.grid_type, SourceCoord.hgr.grid, logger
-    )
-    SourceCoord.zgr.grid["gdept_0"] = SourceCoord.zgr.grid["gdept"][:, :, 0, 0]
-    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], logger)
-    DstCoord.zgr = zgr.Z_Grid(
-        settings["dst_zgr"], DstCoord.hgr.grid_type, DstCoord.hgr.grid, logger
     )
 
     # Define z at t/u/v points
