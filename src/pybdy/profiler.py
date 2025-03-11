@@ -188,6 +188,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
 
+    if (SourceCoord.zgr.grid_type != "zco") & (settings["zinterp"] is False):
+        # Override use zinterp flag if vertical grid type is not zco
+        logger.warning("Setting zinterp to True because vertical grid is not zco")
+        settings["zinterp"] = True
+
     if settings["zinterp"] is True:
         # Condition to interp data on destiantion grid levels
         zpoints = zgrv.get_bdy_depths(
