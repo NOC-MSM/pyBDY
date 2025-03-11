@@ -250,33 +250,6 @@ def calc_e1_e2(glam, gphi, ij):
     e_phi_term = np.gradient(gphi, axis=axis) ** 2
     e = ra * ((e_lam_term + e_phi_term) ** 0.5)
 
-    if 0:
-        glam1 = np.zeros((glam.shape[0], glam.shape[1], glam.shape[2] + 1))
-        glam1[..., 1:-1] = (glam[..., :-1] + glam[..., 1:]) / 2
-        diff1 = np.abs(glam[..., -2] - glam[..., -1])
-        diff2 = np.abs(glam[..., 0] - glam[..., 1])
-        glam1[..., -1] = glam1[..., -2] + diff1
-        glam1[..., 0] = glam1[..., 1] - diff2
-        glam1_diff = glam1[:, :, 1:] - glam1[:, :, :-1]
-
-        gphi1 = np.zeros((gphi.shape[0], gphi.shape[1], gphi.shape[2] + 1))
-        gphi1[..., 1:-1] = (gphi[..., :-1] + gphi[..., 1:]) / 2
-        diff1 = np.abs(gphi[..., -2] - gphi[..., -1])
-        diff2 = np.abs(gphi[..., 0] - gphi[..., 1])
-        gphi1[..., -1] = gphi1[..., -2] + diff1
-        gphi1[..., 0] = gphi1[..., 1] - diff2
-        gphi1_diff = gphi1[:, :, 1:] - gphi1[:, :, :-1]
-
-        # gphi1 = np.zeros((gphi.shape[0], gphi.shape[1], gphi.shape[2] + 1))
-        # gphi1[..., 1:-1, :] = (gphi[..., :-1, :] + gphi[..., 1:, :]) / 2
-        # diff1 = np.abs(gphi[..., -2, :] - gphi[..., -1, :])
-        # diff2 = np.abs(gphi[..., 0, :] - gphi[..., 1, :])
-        # gphi1[..., -1, :] = gphi[..., -1, :] + diff1
-        # gphi1[..., 0, :] = gphi[..., 1, :] - diff2
-        # gphi1_diff = gphi1[:, 1:, :] - gphi1[:, :-1, :]
-
-        e = ra * ((((glam1_diff) * np.cos(gphi)) ** 2) + ((gphi1_diff) ** 2)) ** 0.5
-
     # Correction for outer edges
     if axis == 2:
         e[..., 0] = e[..., 1] - (e[..., 2] - e[..., 1])
