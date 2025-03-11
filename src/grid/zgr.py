@@ -55,6 +55,10 @@ class Z_Grid:
         self.grid_type = ""
         self.grid = {}  # grid variables
 
+        # TODO: enable .ncml option for loading variables
+        if ".ncml" in self.file_path:
+            raise Exception("Use .nc file for zgr input not .ncml")
+
         nc = GetFile(self.file_path)
         self.var_list = nc.nc.variables.keys()
         nc.close()
@@ -186,7 +190,9 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
     t_done = "gdept" not in missing
     if t_done is False:
         # Fill in the 3D gdept data from 1D gdept_0
-        if "gdept_0" in missing:
+        if "e3t" not in missing:
+            grid["gdept"] = np.cumsum(grid["e3t"], axis=1)
+        elif "gdept_0" in missing:
             raise Exception("No gdept_0 in vertical grid file (zgr).")
         else:
             if len(grid["mbathy"].shape) == 2:
@@ -211,9 +217,12 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
 
     w_done = "gdepw" not in missing
     if w_done is False:
-        # Fill in the 3D gdepw data from gdept
-        grid["gdepw"] = calc_gdepw(grid["gdept"])
-        missing = sorted(list(set(missing) - set(["gdepw"])))
+        if "e3w" not in missing:
+            grid["gdepw"] = np.cumsum(grid["e3w"], axis=1)
+        else:
+            # Fill in the 3D gdepw data from gdept
+            grid["gdepw"] = calc_gdepw(grid["gdept"])
+            missing = sorted(list(set(missing) - set(["gdepw"])))
 
     # Calculate other gdep values
     gdep = horiz_interp_lev(grid["gdept"], grid["gdepw"], zgr_type, hgr_type)

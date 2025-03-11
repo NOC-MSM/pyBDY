@@ -51,6 +51,10 @@ class H_Grid:
         self.grid_type = ""
         self.grid = {}  # grid variables
 
+        # TODO: enable .ncml option for loading variables
+        if ".ncml" in self.file_path:
+            raise Exception("Use .nc file for hgr input not .ncml")
+
         nc = GetFile(self.file_path)
         self.var_list = nc.nc.variables.keys()
         nc.close()
