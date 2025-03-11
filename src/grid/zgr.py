@@ -229,7 +229,10 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
 
     for vi in missing:
         if "gdep" in vi:
-            grid[vi] = gdep[vi[4:]]
+            if "e3" + vi[4:] not in missing:
+                grid[vi] = np.cumsum(grid["e3" + vi[4:]], axis=1)
+            else:
+                grid[vi] = gdep[vi[4:]]
 
     # e3
 
