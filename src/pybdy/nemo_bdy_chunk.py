@@ -24,6 +24,8 @@ Created on Thu Dec 19 10:39:46 2024.
 """
 
 # External imports
+import warnings
+
 import numpy as np
 
 
@@ -92,7 +94,12 @@ def chunk_land(ibdy, jbdy, chunk_number, rw):
 
         # Sanity check if the point is alone
         if np.sum(closeness_test) == 1:
-            raise Exception("One of the boundary chunks has only one grid point.")
+            import matplotlib.pyplot as plt
+
+            plt.scatter(ibdy, jbdy, c=chunk_number)
+            plt.plot(ibdy[i], jbdy[i], "or")
+            plt.show()
+            warnings.warn("One of the boundary chunks has only one grid point.")
 
         # Check if any of these points already has a chunk number
         chk_true = chunk_number[closeness_test] != -1
@@ -271,12 +278,10 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
         if len(icorn) <= (rw * 4):
             b_check = np.zeros(ibdy.shape, dtype=bool)
             for p in range(len(icorn)):
-                b_check = b_check | (((icorn[p] + 1) == ibdy) & (jcorn[p] == jbdy))
-                b_check = b_check | (((icorn[p] - 1) == ibdy) & (jcorn[p] == jbdy))
-                b_check = b_check | ((icorn[p] == ibdy) & ((jcorn[p] + 1) == jbdy))
-                b_check = b_check | (
-                    ((icorn[p] + 1) == ibdy) & ((jcorn[p] - 1) == jbdy)
-                )
+                i_abs = np.abs(ibdy - icorn[p])
+                j_abs = np.abs(jbdy - jcorn[p])
+                b_check = (i_abs <= 1) & (j_abs <= 1)
+
             b_check[corner == 1] = False
             new_chunk = np.min(chunk_number[b_check])
             chunk_number[chunk_number == corner_chunk[c]] = new_chunk
@@ -294,18 +299,17 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
 
             b_check = np.zeros(ibdy.shape, dtype=bool)
             for p in range(len(icorn)):
-                b_check = b_check | (((icorn[p] + 1) == ibdy) & (jcorn[p] == jbdy))
-                b_check = b_check | (((icorn[p] - 1) == ibdy) & (jcorn[p] == jbdy))
-                b_check = b_check | ((icorn[p] == ibdy) & ((jcorn[p] + 1) == jbdy))
-                b_check = b_check | (
-                    ((icorn[p] + 1) == ibdy) & ((jcorn[p] - 1) == jbdy)
-                )
-            b_check[chunk_number == all_chunk[i]] = False
-            new_chunk = np.min(chunk_number[b_check])
-            chunk_number[chunk_number == all_chunk[i]] = new_chunk
+                i_abs = np.abs(ibdy - icorn[p])
+                j_abs = np.abs(jbdy - jcorn[p])
+                b_check = (i_abs <= 1) & (j_abs <= 1)
 
-            chunk_size[i] = np.sum(chunk_number == all_chunk[i])
-            chunk_size[all_chunk == new_chunk] = np.sum(chunk_number == new_chunk)
+            b_check[chunk_number == all_chunk[i]] = False
+            if b_check.any():
+                new_chunk = np.min(chunk_number[b_check])
+                chunk_number[chunk_number == all_chunk[i]] = new_chunk
+
+                chunk_size[i] = np.sum(chunk_number == all_chunk[i])
+                chunk_size[all_chunk == new_chunk] = np.sum(chunk_number == new_chunk)
 
     # Rectify the chunk numbers
     all_chunk = np.unique(chunk_number)
