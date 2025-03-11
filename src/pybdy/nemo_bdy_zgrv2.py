@@ -1,25 +1,50 @@
+# ===================================================================
+# The contents of this file are dedicated to the public domain.  To
+# the extent that dedication to the public domain is not available,
+# everyone is granted a worldwide, perpetual, royalty-free,
+# non-exclusive license to exercise all rights associated with the
+# contents of this file for any purpose whatsoever.
+# No rights are reserved.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# ===================================================================
+
 """
-Generate Depth information.
+Created.
 
-Written by John Kazimierz Farey, Sep 2012
-Port of Matlab code of James Harle
-
-# Generates depth points for t, u and v in one loop iteration
-
-Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary
+@author John Kazimierz Farey
+@author Benjamin Barton.
 """
 
+# External imports
 import logging
 
 import numpy as np
+import scipy.spatial as sp
 
+# Local imports
 from .reader.factory import GetFile
 from .utils.nemo_bdy_lib import sub2ind
 
-# Query name
-
 
 def get_bdy_depths(bdy_t, bdy_u, bdy_v, DstCoord, settings):
+    """
+    Generate Depth information.
+
+    Written by John Kazimierz Farey, Sep 2012
+    Port of Matlab code of James Harle
+
+    # Generates depth points for t, u and v in one loop iteration
+
+    Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary
+    """
     logger = logging.getLogger(__name__)
     logger.debug("init Depth")
     hc = settings["hc"]
@@ -108,3 +133,59 @@ def get_bdy_depths(bdy_t, bdy_u, bdy_v, DstCoord, settings):
 
     logger.debug("Done loop, zpoints: %s ", zpoints["t"].shape)
     return zpoints
+
+
+def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
+    """
+    Depth levels from the nearest neighbour on the source grid.
+
+    Args:
+    ----
+        SourceCoord (object)   : Object containing source grid info
+        DstCoord (object)      : Object containing destination grid info
+        grd (str)              : grid type t, u, v
+
+    Returns:
+    -------
+        bdy_tz (array)          : sc depths on bdy points on t levels
+        bdy_wz (array)          : sc depths on bdy points on w levels
+        bdy_e3 (array)          : sc level thickness on bdy points on t levels
+    """
+    if grd == "t":
+        g = ""
+    else:
+        g = grd
+
+    source_tree = sp.cKDTree(
+        list(
+            zip(
+                np.ravel(np.squeeze(SourceCoord.hgr.grid["glamt"])),
+                np.ravel(np.squeeze(SourceCoord.hgr.grid["gphit"])),
+            )
+        )
+    )
+    dst_pts = list(
+        zip(DstCoord.bdy_lonlat[grd]["lon"], DstCoord.bdy_lonlat[grd]["lat"])
+    )
+    nn_dist, nn_id = source_tree.query(dst_pts, k=1)
+
+    mbathy = np.float16(SourceCoord.zgr.grid["mbathy"].squeeze())
+    mbathy[mbathy == 0] = np.NaN
+
+    tmp_w = np.ma.array(np.squeeze(SourceCoord.zgr.grid["gdep" + g + "w"]))
+    tmp_t = np.ma.array(np.squeeze(SourceCoord.zgr.grid["gdep" + grd]))
+    tmp_e = np.ma.array(np.squeeze(SourceCoord.zgr.grid["e3" + grd]))
+    for k in range(SourceCoord.zgr.grid["gdep" + g + "w"].shape[1]):
+        tmp_w[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_w[k, :, :])
+        tmp_t[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_t[k, :, :])
+        tmp_e[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_e[k, :, :])
+
+    bdy_wz = np.ma.zeros((tmp_w.shape[0], len(nn_id)))
+    bdy_tz = np.ma.zeros((tmp_t.shape[0], len(nn_id)))
+    bdy_e3 = np.ma.zeros((tmp_e.shape[0], len(nn_id)))
+    for k in range(bdy_wz.shape[0]):
+        bdy_wz[k, :] = np.ravel(tmp_w[k, :, :])[nn_id]
+        bdy_tz[k, :] = np.ravel(tmp_t[k, :, :])[nn_id]
+        bdy_e3[k, :] = np.ravel(tmp_e[k, :, :])[nn_id]
+
+    return bdy_tz, bdy_wz, bdy_e3

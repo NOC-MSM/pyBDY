@@ -35,6 +35,7 @@ import numpy as np
 from grid import hgr, zgr
 from PyQt5.QtWidgets import QMessageBox
 
+# Local imports
 from pybdy import nemo_bdy_chunk as chunk_func
 from pybdy import nemo_bdy_dst_coord as dst_coord
 from pybdy import nemo_bdy_extr_tm3 as extract
@@ -44,8 +45,6 @@ from pybdy import nemo_bdy_setup as setup
 from pybdy import nemo_bdy_source_coord as source_coord
 from pybdy import nemo_bdy_zgrv2 as zgrv
 from pybdy import nemo_coord_gen_pop as coord
-
-# Local imports
 from pybdy import pybdy_settings_editor
 from pybdy.gui.nemo_bdy_mask import Mask as Mask_File
 from pybdy.reader import factory
@@ -146,25 +145,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         settings["src_zgr"], SourceCoord.hgr.grid_type, SourceCoord.hgr.grid, logger
     )
 
-    # Define z at t/u/v points
-
-    zpoints = zgrv.get_bdy_depths(
-        bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, DstCoord, settings
-    )
-
-    # TODO: put conditional here as we may want to keep data on parent
-    #       vertical grid
-
-    DstCoord.depths = {"t": {}, "u": {}, "v": {}}
-    for grd in ["t", "u", "v"]:
-        DstCoord.depths[grd]["bdy_H"] = np.nanmax(zpoints["w" + grd], axis=0)
-        DstCoord.depths[grd]["bdy_dz"] = np.diff(zpoints["w" + grd], axis=0)
-        DstCoord.depths[grd]["bdy_dz"] = np.vstack(
-            [DstCoord.depths[grd]["bdy_dz"], np.zeros((1, nbdy[grd]))]
-        )
-        DstCoord.depths[grd]["bdy_z"] = zpoints[grd]
-    logger.info("Depths defined")
-
     # Fill horizontal grid information
 
     try:  # if they are masked array convert them to normal arrays
@@ -203,6 +183,38 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         DstCoord.lonlat[grd]["lon"][DstCoord.lonlat[grd]["lon"] > 180] -= 360
 
     logger.info("BDY lons/lats identified from %s", settings["dst_hgr"])
+
+    # Define z at t/u/v points
+
+    DstCoord.depths = {"t": {}, "u": {}, "v": {}}
+
+    if settings["zinterp"] is True:
+        # Condition to interp data on destiantion grid levels
+        zpoints = zgrv.get_bdy_depths(
+            bdy_ind["t"].bdy_i,
+            bdy_ind["u"].bdy_i,
+            bdy_ind["v"].bdy_i,
+            DstCoord,
+            settings,
+        )
+
+        for grd in ["t", "u", "v"]:
+            DstCoord.depths[grd]["bdy_H"] = np.nanmax(zpoints["w" + grd], axis=0)
+            DstCoord.depths[grd]["bdy_dz"] = np.diff(zpoints["w" + grd], axis=0)
+            DstCoord.depths[grd]["bdy_dz"] = np.vstack(
+                [DstCoord.depths[grd]["bdy_dz"], np.zeros((1, nbdy[grd]))]
+            )
+            DstCoord.depths[grd]["bdy_z"] = zpoints[grd]
+        logger.info("Depths defined with destination not equal to source")
+    else:
+        # Condition to keep data on parent grid levels
+        for grd in ["t", "u", "v"]:
+            # These are just set to the nearest neighbour in source grid
+            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
+            DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
+            DstCoord.depths[grd]["bdy_dz"] = tmp_e3
+            DstCoord.depths[grd]["bdy_z"] = tmp_tz
+        logger.info("Depths defined with destination equal to source")
 
     # Set up time information
 

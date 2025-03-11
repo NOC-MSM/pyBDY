@@ -175,13 +175,11 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
     z9_ind[z9_ind == -1] = 0
     z9_ind[z9_ind == sc_z_len] = sc_z_len - 1
 
-    # TODO: Change this for speed up
-    for i in range(num_bdy):
-        for j in range(9):
-            # Create weightings array
-            z9_dist[:, i, j, :] = np.abs(
-                sc_z9[z9_ind[:, i, j, :], i, j] - np.tile(dst_dep9[:, i, j], (2, 1)).T
-            )
+    ind_grid = np.indices(z9_ind.shape[:3])
+    g_bdy = ind_grid[1]
+    g_9 = ind_grid[2]
+    z9_dist[:, :, :, 0] = np.abs(sc_z9[z9_ind[:, :, :, 0], g_bdy, g_9] - dst_dep9)
+    z9_dist[:, :, :, 1] = np.abs(sc_z9[z9_ind[:, :, :, 1], g_bdy, g_9] - dst_dep9)
 
     rat = np.ma.sum(z9_dist, axis=3)
     z9_dist = 1 - (z9_dist / np.tile(rat.T, (2, 1, 1, 1)).T)
