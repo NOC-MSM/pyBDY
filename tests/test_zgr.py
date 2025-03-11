@@ -97,45 +97,6 @@ def test_depth_file_zps():
                 zg.grid[vi] = np.ma.masked_where(z_ind >= m_tile, zg.grid[vi])
         no_mask = zg.grid["gdepw"].mask is False
 
-        """
-        print(np.max(np.abs(gdepu - zg.grid["gdepu"])))
-        print(np.max(np.abs(gdepw - zg.grid["gdepw"])))
-        print(zg.grid["gdepw"][0, :, 0, 0] - gdepw[0, :, 0, 0])
-        print(zg.grid["gdepu"][0, :, 0, 0] - gdepu[0, :, 0, 0])
-        print(e3t[0, :, 0, 0])
-        print(e3w[0, :, 0, 0])
-        print(zg.grid["e3t"][0, :, 0, 0] - e3t[0, :, 0, 0])
-        # difference is constant in e3w
-        print(zg.grid["e3w"][0, :, 0, 0] - e3w[0, :, 0, 0])
-        print(zg.grid["e3u"][0, :, 0, 0] - e3u[0, :, 0, 0])
-        print(np.sum(zg.grid["e3u"][0, :, 0, 0] - e3u[0, :, 0, 0]))
-        print(np.max(np.abs(e3t - zg.grid["e3t"])[0, :, :-1, :-1]))
-        print(np.max(np.abs(e3w - zg.grid["e3w"])[0, :, :-1, :-1]))
-        print(np.max(np.abs(e3u - zg.grid["e3u"])[0, :, :-1, :-1]))
-        print(np.max(np.abs(e3v - zg.grid["e3v"])[0, :, :-1, :-1]))
-
-        plt.pcolormesh(np.ma.max(np.ma.abs(e3u - zg.grid["e3u"]), axis=1)[0, :-1, :-1])
-        plt.colorbar()
-        plt.show()
-        plt.plot(e3u[0, :, 75, 85])
-        plt.plot(zg.grid["e3u"][0, :, 75, 85])
-        plt.plot(
-            [45, 65],
-            [
-                gdepu[0, zg.grid["mbathy"][0, 75, 85], 75, 85],
-                gdepu[0, zg.grid["mbathy"][0, 75, 85], 75, 85],
-            ],
-            "-",
-        )
-        plt.show()
-        plt.pcolormesh(gdepu[0, :, 70:80, 85] - zg.grid["gdepu"][0, :, 70:80, 85])
-        # plt.contour(zg.grid["gdepu"][0, :, 75, 85])
-        plt.plot(
-            [0, 10], [zg.grid["mbathy"][0, 75, 85], zg.grid["mbathy"][0, 75, 85]], "-"
-        )
-        plt.colorbar()
-        plt.show()
-        """
         errors = []
         if not zg.grid_type == "zps":
             errors.append("Grid type not identified correctly.")
@@ -159,66 +120,6 @@ def test_depth_file_zps():
             errors.append("e3u does not match.")
         # assert no error message has been registered, else print messages
         assert not errors, "errors occured:\n{}".format("\n".join(errors))
-
-
-"""
-def test_depth_file_zco():
-    # Test the zgr class on a zps grid
-    bench_file = "./inputs/benchmark/grid_low_res_C/mesh_zgr.nc"
-    in_file = "./tests/test_zgr.nc"
-
-    if not os.path.isfile(bench_file):
-        # If the benchmark isn't present we can't test
-        warnings.warn(
-            Warning("Benchmark data not present so can't test src/grid/zgr.py.")
-        )
-        assert True
-    else:
-        variables = ["gdept", "mbathy"]
-        subprocess.run(
-            "ncks -O -v " + ",".join(variables) + " " + bench_file + " " + in_file,
-            shell=True,
-            check=True,
-            text=True,
-        )
-        logger = logging.getLogger(__name__)
-        hgr_type = "C"
-        zg = zgr.Z_Grid(in_file, hgr_type, logger)
-
-        nc = GetFile(bench_file)
-        e3t = nc.nc["e3t"][:]
-        e3w = nc.nc["e3w"][:]
-        gdepu = nc.nc["gdepu"][:]
-        gdepw = nc.nc["gdepw"][:]
-        nc.close()
-
-        os.remove(in_file)
-
-        zg.grid["gdepu"] = np.ma.masked_where(
-            zg.grid["gdepu"] >= np.tile(zg.grid["mbathy"], (75, 1, 1))[np.newaxis, ...], zg.grid["gdepu"])
-        zg.grid["gdepv"] = np.ma.masked_where(
-            zg.grid["gdepv"] >= np.tile(zg.grid["mbathy"], (75, 1, 1))[np.newaxis, ...], zg.grid["gdepv"])
-        zg.grid["gdepw"] = np.ma.masked_where(
-            zg.grid["gdepw"] >= np.tile(zg.grid["mbathy"], (75, 1, 1))[np.newaxis, ...], zg.grid["gdepw"])
-
-        no_mask = zg.grid["gdepw"].mask == False
-
-        errors = []
-        if not zg.grid_type == "zco":
-            errors.append("Grid type not identified correctly.")
-        elif not len(zg.grid.keys()) == 15:
-            errors.append("Not enough grid variables generated.")
-        elif not (np.isclose(gdepw[no_mask], zg.grid["gdepw"][no_mask], atol=1e-2)).all():
-            errors.append("gdepw does not match.")
-        elif not (np.isclose(gdepu[no_mask], zg.grid["gdepu"][no_mask], atol=1e-2)).all():
-            errors.append("gdepu does not match.")
-        elif not (np.isclose(e3t[no_mask], zg.grid["e3t"][no_mask], atol=1e-2)).all():
-            errors.append("e3t does not match.")
-        elif not (np.isclose(e3w[no_mask], zg.grid["e3w"][no_mask], atol=1e-2)).all():
-            errors.append("e3w does not match.")
-        # assert no error message has been registered, else print messages
-        assert not errors, "errors occured:\n{}".format("\n".join(errors))
-"""
 
 
 def test_fill_zgrid_vars_regression():
