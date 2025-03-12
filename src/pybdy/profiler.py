@@ -195,22 +195,14 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     if settings["zinterp"] is True:
         # Condition to interp data on destiantion grid levels
-        zpoints = zgrv.get_bdy_depths(
-            bdy_ind["t"].bdy_i,
-            bdy_ind["u"].bdy_i,
-            bdy_ind["v"].bdy_i,
-            DstCoord,
-            settings,
-        )
-
         for grd in ["t", "u", "v"]:
-            DstCoord.depths[grd]["bdy_H"] = np.nanmax(zpoints["w" + grd], axis=0)
-            DstCoord.depths[grd]["bdy_dz"] = np.diff(zpoints["w" + grd], axis=0)
-            DstCoord.depths[grd]["bdy_dz"] = np.vstack(
-                [DstCoord.depths[grd]["bdy_dz"], np.zeros((1, nbdy[grd]))]
+            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_depths(
+                DstCoord, bdy_ind[grd].bdy_i, grd
             )
-            DstCoord.depths[grd]["bdy_z"] = zpoints[grd]
-        logger.info("Depths defined with destination not equal to source")
+            DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
+            DstCoord.depths[grd]["bdy_dz"] = tmp_e3
+            DstCoord.depths[grd]["bdy_z"] = tmp_tz
+        logger.info("Depths defined on destination grid levels")
     else:
         # Condition to keep data on parent grid levels
         for grd in ["t", "u", "v"]:
@@ -219,7 +211,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
             DstCoord.depths[grd]["bdy_dz"] = tmp_e3
             DstCoord.depths[grd]["bdy_z"] = tmp_tz
-        logger.info("Depths defined with destination equal to source")
+        logger.info("Depths defined with destination equal to source levels")
 
     # Set up time information
 
