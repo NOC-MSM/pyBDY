@@ -36,7 +36,7 @@ import numpy as np
 from grid import hgr
 from pybdy.reader.factory import GetFile
 
-from tests import synth_bathymetry as synth_bathy
+from tests.synth import synth_bathymetry as synth_bathy
 
 
 def test_h_grid_file_A():
