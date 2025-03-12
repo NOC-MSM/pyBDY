@@ -42,7 +42,8 @@ def test_zco_zco():
     """
     Test the full pybdy processing using a regression test.
 
-    This test is for dst in zco and sc in zco vertical coordinates
+    This test is for dst in zco and sc in zco vertical coordinates.
+    Horizontal coordinates are A-Grid.
     """
     path1, path2, path3 = generate_sc_test_case(zco=True)
     path4 = generate_dst_test_case(zco=True)
@@ -118,7 +119,8 @@ def test_sco_sco():
     """
     Test the full pybdy processing using a regression test.
 
-    This test is for dst in sco and sc in sco vertical coordinates
+    This test is for dst in sco and sc in sco vertical coordinates.
+    Horizontal coordinates are A-Grid.
     """
     path1, path2, path3 = generate_sc_test_case(zco=False)
     path4 = generate_dst_test_case(zco=False)
@@ -185,6 +187,83 @@ def test_sco_sco():
         "Shape_v": (30, 15, 1, 1566),
         "Mean_u": 0.7552474737167358,
         "Mean_v": 0.7674047350883484,
+    }
+
+    assert summary_grid == test_grid, "May need to update regression values."
+
+
+def test_sco_zco():
+    """
+    Test the full pybdy processing using a regression test.
+
+    This test is for dst in zco and sc in sco vertical coordinates.
+    Horizontal coordinates are A-Grid.
+    """
+    path1, path2, path3 = generate_sc_test_case(zco=False)
+    path4 = generate_dst_test_case(zco=True)
+    name_list_path = modify_namelist(path1, path3, path4)
+
+    # Run pybdy
+    subprocess.run(
+        "pybdy -s " + name_list_path,
+        shell=True,
+        check=True,
+        text=True,
+    )
+
+    coords = "./tests/data/coordinates.bdy.nc"
+    output_t = "./tests/data/data_output_bdyT_y1979m11.nc"
+    output_u = "./tests/data/data_output_bdyU_y1979m11.nc"
+    output_v = "./tests/data/data_output_bdyV_y1979m11.nc"
+
+    # Check output
+    ds_t = xr.open_dataset(output_t)
+    ds_u = xr.open_dataset(output_u)
+    ds_v = xr.open_dataset(output_v)
+    temp = ds_t["votemper"].to_masked_array()
+
+    summary_grid = {
+        "Num_var_t": len(ds_t.keys()),
+        "Min_gdept": float(ds_t["gdept"].min().to_numpy()),
+        "Max_gdept": float(ds_t["gdept"].max().to_numpy()),
+        "Shape_temp": ds_t["votemper"].shape,
+        "Shape_ssh": ds_t["sossheig"].shape,
+        "Shape_mask": ds_t["bdy_msk"].shape,
+        "Mean_temp": float(ds_t["votemper"].mean().to_numpy()),
+        "Mean_sal": float(ds_t["vosaline"].mean().to_numpy()),
+        "Sum_unmask": np.ma.count(temp),
+        "Sum_mask": np.ma.count_masked(temp),
+        "Shape_u": ds_u["vozocrtx"].shape,
+        "Shape_v": ds_v["vomecrty"].shape,
+        "Mean_u": float(ds_u["vozocrtx"].mean().to_numpy()),
+        "Mean_v": float(ds_v["vomecrty"].mean().to_numpy()),
+    }
+
+    # Clean up files
+    os.remove(path1)
+    os.remove(path2)
+    os.remove(path4)
+    os.remove(coords)
+    os.remove(output_t)
+    os.remove(output_u)
+    os.remove(output_v)
+
+    print(summary_grid)
+    test_grid = {
+        "Num_var_t": 11,
+        "Min_gdept": 41.66666793823242,
+        "Max_gdept": 1041.6666259765625,
+        "Shape_temp": (30, 25, 1, 1584),
+        "Shape_ssh": (30, 1, 1584),
+        "Shape_mask": (60, 50),
+        "Mean_temp": 16.77924156188965,
+        "Mean_sal": 30.870267868041992,
+        "Sum_unmask": 495030,
+        "Sum_mask": 692970,
+        "Shape_u": (30, 25, 1, 1566),
+        "Shape_v": (30, 25, 1, 1566),
+        "Mean_u": 0.7566075921058655,
+        "Mean_v": 0.7544463276863098,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
