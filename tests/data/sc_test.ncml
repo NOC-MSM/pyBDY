@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<netcdf title="aggregation example" xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+  <aggregation type="union" >
+     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+        <aggregation type="joinExisting" dimName="time_counter" >
+           <netcdf location="./data_synth_sc.nc" />
+        </aggregation>
+     </netcdf>
+  </aggregation>
+</netcdf>
