@@ -467,24 +467,24 @@ def generate_variables(
     ssh.attrs = dict(units="m", long_name="Sea Surface Height (m)")
 
     # Add to ds
-    ds["temp"] = temp
-    ds["salt"] = salt
-    ds["uvel"] = uvel
-    ds["vvel"] = vvel
-    ds["ssh"] = ssh
+    ds["votemper"] = temp
+    ds["vosaline"] = salt
+    ds["vozocrtx"] = uvel
+    ds["vomecrty"] = vvel
+    ds["sossheig"] = ssh
 
     # Add t dim
     # times = pd.date_range("2020","2023",freq='Y')+ DateOffset(months=6)
     # times = xr.cftime_range("1979-01-01", periods=3, freq="D", calendar="standard")# + tdelta
     ref = dt.datetime(1960, 1, 1)
     st = dt.datetime(1979, 11, 1)
-    date_list = [st + dt.timedelta(days=i) for i in range(3)]
-    tdelta_d = [(date_list[i] - ref).days for i in range(3)]
-    tdelta_s = [(date_list[i] - ref).seconds for i in range(3)]
+    date_list = [st + dt.timedelta(days=i) for i in range(31)]
+    tdelta_d = np.array([(date_list[i] - ref).days for i in range(len(date_list))])
+    tdelta_s = np.array([(date_list[i] - ref).seconds for i in range(len(date_list))])
     tdelta = (tdelta_d * 24 * 60 * 60) + tdelta_s
     da_t = xr.DataArray(tdelta, [("time_counter", tdelta)])
     da_t = da_t.assign_attrs(
-        units="seconds since " + ref.strftime("%Y-%m-%d %H:%M:%S"), calendar="standard"
+        units="seconds since " + ref.strftime("%Y-%m-%d %H:%M:%S"), calendar="gregorian"
     )
     ds = ds.expand_dims(dim={"time_counter": da_t})
     ds = ds.transpose("time_counter", "z", "y", "x")
