@@ -30,20 +30,20 @@
 !------------------------------------------------------------------------------
 !  grid information
 !------------------------------------------------------------------------------
-   sn_src_hgr = './tests/mesh_synth_sc.nc' ! sn_src_hgr = './tests/mesh_hgr.nc'
-   sn_src_zgr = './tests/mesh_synth_sc.nc' ! sn_src_zgr = './tests/mesh_zgr.nc'
-   sn_dst_hgr = './tests/mesh_synth_dst.nc' ! Expects vars found in domain_cfg.nc
-   sn_dst_zgr = './tests/mesh_synth_dst.nc' ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
-   sn_src_msk = './tests/mesh_synth_sc.nc' ! sn_src_msk = './tests/mask.nc'
-   sn_bathy   = './tests/mesh_synth_sc.nc' ! dst bathymetry w/o time dimension
+   sn_src_hgr = './tests/data/mesh_synth_sc.nc' ! sn_src_hgr = './tests/mesh_hgr.nc'
+   sn_src_zgr = './tests/data/mesh_synth_sc.nc' ! sn_src_zgr = './tests/mesh_zgr.nc'
+   sn_dst_hgr = './tests/data/mesh_synth_dst.nc' ! Expects vars found in domain_cfg.nc
+   sn_dst_zgr = './tests/data/mesh_synth_dst.nc' ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
+   sn_src_msk = './tests/data/mesh_synth_sc.nc' ! sn_src_msk = './tests/mask.nc'
+   sn_bathy   = './tests/data/mesh_synth_dst.nc' ! dst bathymetry w/o time dimension
                                                                             !Expects vars: {Bathymetry,nav_lat,nav_lon}
 
 !------------------------------------------------------------------------------
 !  I/O
 !------------------------------------------------------------------------------
-   sn_src_dir = './tests/data' ! src_files/'
+   sn_src_dir = './tests/data/sc_test.ncml' ! src_files/'
    sn_dst_dir = './tests/data' ! sn_dst_dir = './tests'
-   sn_fn      = 'data_output_'        ! prefix for output files
+   sn_fn      = 'data_output'        ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
    sn_dst_metainfo = 'Benchmarking Data'
@@ -96,7 +96,7 @@
     nn_year_000     = 1979        !  year start
     nn_year_end     = 1979        !  year end
     nn_month_000    = 11          !  month start (default = 1 is years>1)
-    nn_month_end    = 12          !  month end (default = 12 is years>1)
+    nn_month_end    = 11          !  month end (default = 12 is years>1)
     sn_dst_calendar = 'gregorian' !  output calendar format
     nn_base_year    = 1960        !  base year for time counter
     ln_time_interpolation = .true. !  set to false to use parent frequency and calender
