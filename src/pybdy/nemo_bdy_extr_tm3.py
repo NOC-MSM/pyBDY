@@ -175,8 +175,8 @@ class Extract:
         self.id_121_2d = np.zeros((1, len(dst_lon), len(wei_121)), dtype=int)
         self.id_121_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)), dtype=int)
         if self.key_vec:
-            self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
-            self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
+            self.dst_gcos = np.zeros((dst_len_z, len(dst_lon)))
+            self.dst_gsin = np.zeros((dst_len_z, len(dst_lon)))
             self.gcos = np.empty((0, 9))
             self.gsin = np.empty((0, 9))
             self.sc_chunk = np.empty((0), int)
@@ -254,8 +254,8 @@ class Extract:
                     tmp_gcos[:, p] = dst_gcos[bdy_ind[p, 1], bdy_ind[p, 0]]
                     tmp_gsin[:, p] = dst_gsin[bdy_ind[p, 1], bdy_ind[p, 0]]
 
-                self.dst_gcos[:, chunk] = np.tile(tmp_gcos, (sc_z_len, 1))
-                self.dst_gsin[:, chunk] = np.tile(tmp_gsin, (sc_z_len, 1))
+                self.dst_gcos[:, chunk] = np.tile(tmp_gcos, (dst_len_z, 1))
+                self.dst_gsin[:, chunk] = np.tile(tmp_gsin, (dst_len_z, 1))
 
             # Determine size of source data subset
 
