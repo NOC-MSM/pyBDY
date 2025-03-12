@@ -30,8 +30,8 @@ import numpy as np
 
 # Local imports
 from src.pybdy import nemo_bdy_extr_assist as extr_assist
-from tests import synth_zgrid
 from tests import test_nemo_bdy_chunk as synth_ind
+from tests.synth import synth_zgrid
 
 
 def test_get_ind():
