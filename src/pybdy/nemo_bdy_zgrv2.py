@@ -34,7 +34,7 @@ from .reader.factory import GetFile
 from .utils.nemo_bdy_lib import sub2ind
 
 
-def get_bdy_depths(bdy_t, bdy_u, bdy_v, DstCoord, settings):
+def get_bdy_depths_old(bdy_t, bdy_u, bdy_v, DstCoord, settings):
     """
     Generate Depth information.
 
@@ -135,6 +135,60 @@ def get_bdy_depths(bdy_t, bdy_u, bdy_v, DstCoord, settings):
     return zpoints
 
 
+def get_bdy_depths(DstCoord, bdy_i, grd):
+    """
+    Depth levels from the nearest neighbour on the source grid.
+
+    Args:
+    ----
+        DstCoord (object)      : Object containing destination grid info
+        bdy_i (np.array)       : indices of the i, j bdy points [bdy, 2]
+        grd (str)              : grid type t, u, v
+
+    Returns:
+    -------
+        bdy_tz (array)          : sc depths on bdy points on t levels
+        bdy_wz (array)          : sc depths on bdy points on w levels
+        bdy_e3 (array)          : sc level thickness on bdy points on t levels
+    """
+    # numpy requires float dtype to use NaNs
+    mbathy = np.float16(DstCoord.zgr.grid["mbathy"].squeeze())
+    mbathy[mbathy == 0] = np.NaN
+
+    if grd == "t":
+        g = ""
+    elif grd == "u":
+        g = grd
+    elif grd == "v":
+        g = grd
+
+    # find bdy indices from subscripts
+    g_ind = sub2ind(mbathy.shape, bdy_i[:, 0], bdy_i[:, 1])
+
+    # Get the gdept, gdepw and e3 data from the Dst grid
+    m_w = np.ma.array(np.squeeze(DstCoord.zgr.grid["gdep" + g + "w"]))
+    m_t = np.ma.array(np.squeeze(DstCoord.zgr.grid["gdep" + grd]))
+    m_e = np.ma.array(np.squeeze(DstCoord.zgr.grid["e3" + grd]))
+
+    bdy_wz = np.ma.zeros((m_w.shape[0], len(g_ind)))
+    bdy_tz = np.ma.zeros((m_t.shape[0], len(g_ind)))
+    bdy_e3 = np.ma.zeros((m_e.shape[0], len(g_ind)))
+    for k in range(m_w.shape[0]):
+        tmp_w = np.ma.masked_where(mbathy + 1 < k + 1, m_w[k, :, :])
+        tmp_t = np.ma.masked_where(mbathy + 1 < k + 1, m_t[k, :, :])
+        tmp_e = np.ma.masked_where(mbathy + 1 < k + 1, m_e[k, :, :])
+
+        tmp_w = tmp_w.flatten("F")
+        tmp_t = tmp_t.flatten("F")
+        tmp_e = tmp_e.flatten("F")
+
+        bdy_wz[k, :] = tmp_w[g_ind]
+        bdy_tz[k, :] = tmp_t[g_ind]
+        bdy_e3[k, :] = tmp_e[g_ind]
+
+    return bdy_tz, bdy_wz, bdy_e3
+
+
 def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
     """
     Depth levels from the nearest neighbour on the source grid.
@@ -175,7 +229,7 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
     tmp_w = np.ma.array(np.squeeze(SourceCoord.zgr.grid["gdep" + g + "w"]))
     tmp_t = np.ma.array(np.squeeze(SourceCoord.zgr.grid["gdep" + grd]))
     tmp_e = np.ma.array(np.squeeze(SourceCoord.zgr.grid["e3" + grd]))
-    for k in range(SourceCoord.zgr.grid["gdep" + g + "w"].shape[1]):
+    for k in range(tmp_w.shape[0]):
         tmp_w[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_w[k, :, :])
         tmp_t[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_t[k, :, :])
         tmp_e[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_e[k, :, :])
