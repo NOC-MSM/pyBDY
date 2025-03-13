@@ -146,6 +146,7 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
         numpy.array          : array of chunk numbers
     """
     all_chunk = np.unique(chunk_number)
+    all_chunk_st = all_chunk * 1
     np.max(all_chunk) + 1
     corner = np.zeros_like(ibdy)
 
@@ -281,7 +282,7 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
                     b_check = (i_abs <= i) & (j_abs <= i)
 
                     b_check[corner == 1] = False
-                    if (b_check is True).any():
+                    if (b_check == 1).any():
                         break
 
                 new_chunk = np.min(chunk_number[b_check])
@@ -311,6 +312,16 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
 
                 chunk_size[i] = np.sum(chunk_number == all_chunk[i])
                 chunk_size[all_chunk == new_chunk] = np.sum(chunk_number == new_chunk)
+
+    all_chunk = np.unique(chunk_number)
+    chunk_size = [np.sum(chunk_number == all_chunk[i]) for i in range(len(all_chunk))]
+    all_chunk = [x for _, x in sorted(zip(chunk_size, all_chunk))]
+    chunk_size = np.array(sorted(chunk_size))
+
+    # Add small newly created chunks together if we have more than 10 corner chunks
+    if len(all_chunk) > len(all_chunk_st) + 10:
+        last_chunk = all_chunk[len(all_chunk_st) + 10]
+        chunk_number[chunk_number > last_chunk] = last_chunk
 
     # Rectify the chunk numbers
     all_chunk = np.unique(chunk_number)
