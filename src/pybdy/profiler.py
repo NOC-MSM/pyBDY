@@ -126,8 +126,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         co_set = coord.Coord(
             settings["dst_dir"] + "/" + settings["coords_file"], bdy_ind
         )
-        # TODO: swap this to DstCoord.hgr
-        co_set.populate(settings["dst_hgr"])
+        co_set.populate(DstCoord.hgr)
         logger.info("File: coordinates.bdy.nc generated and populated")
 
     # Idenitify number of boundary points
