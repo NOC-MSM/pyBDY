@@ -63,12 +63,14 @@ def test_zco_zco():
     output_v = "./tests/data/data_output_bdyV_y1979m11.nc"
 
     # Check output
+    ds_c = xr.open_dataset(coords)
     ds_t = xr.open_dataset(output_t)
     ds_u = xr.open_dataset(output_u)
     ds_v = xr.open_dataset(output_v)
     temp = ds_t["votemper"].to_masked_array()
 
     summary_grid = {
+        "Num_var_co": len(ds_c.keys()),
         "Num_var_t": len(ds_t.keys()),
         "Min_gdept": float(ds_t["gdept"].min().to_numpy()),
         "Max_gdept": float(ds_t["gdept"].max().to_numpy()),
@@ -96,6 +98,7 @@ def test_zco_zco():
 
     print(summary_grid)
     test_grid = {
+        "Num_var_co": 21,
         "Num_var_t": 11,
         "Min_gdept": 41.66666793823242,
         "Max_gdept": 1041.6666259765625,
@@ -140,12 +143,14 @@ def test_sco_sco():
     output_v = "./tests/data/data_output_bdyV_y1979m11.nc"
 
     # Check output
+    ds_c = xr.open_dataset(coords)
     ds_t = xr.open_dataset(output_t)
     ds_u = xr.open_dataset(output_u)
     ds_v = xr.open_dataset(output_v)
     temp = ds_t["votemper"].to_masked_array()
 
     summary_grid = {
+        "Num_var_co": len(ds_c.keys()),
         "Num_var_t": len(ds_t.keys()),
         "Min_gdept": float(ds_t["gdept"].min().to_numpy()),
         "Max_gdept": float(ds_t["gdept"].max().to_numpy()),
@@ -173,6 +178,7 @@ def test_sco_sco():
 
     print(summary_grid)
     test_grid = {
+        "Num_var_co": 21,
         "Num_var_t": 11,
         "Min_gdept": 3.8946874141693115,
         "Max_gdept": 991.9130859375,
@@ -217,12 +223,14 @@ def test_sco_zco():
     output_v = "./tests/data/data_output_bdyV_y1979m11.nc"
 
     # Check output
+    ds_c = xr.open_dataset(coords)
     ds_t = xr.open_dataset(output_t)
     ds_u = xr.open_dataset(output_u)
     ds_v = xr.open_dataset(output_v)
     temp = ds_t["votemper"].to_masked_array()
 
     summary_grid = {
+        "Num_var_co": len(ds_c.keys()),
         "Num_var_t": len(ds_t.keys()),
         "Min_gdept": float(ds_t["gdept"].min().to_numpy()),
         "Max_gdept": float(ds_t["gdept"].max().to_numpy()),
@@ -250,6 +258,7 @@ def test_sco_zco():
 
     print(summary_grid)
     test_grid = {
+        "Num_var_co": 21,
         "Num_var_t": 11,
         "Min_gdept": 41.66666793823242,
         "Max_gdept": 1041.6666259765625,
