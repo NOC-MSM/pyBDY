@@ -34,6 +34,7 @@
    sn_src_msk = './inputs/benchmark/grid_low_res_C/mask.nc'
    sn_bathy   = './inputs/benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'    ! dst bathymetry w/o time dimension
                                                                             !Expects vars: {Bathymetry,nav_lat,nav_lon}
+   sn_nme_map = './inputs/grid_name_map.json'     ! json file mapping variable names to netcdf vars
 
 !------------------------------------------------------------------------------
 !  I/O

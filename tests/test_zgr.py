@@ -42,6 +42,7 @@ def test_depth_file_zps():
     bench_file = "./inputs/benchmark/grid_low_res_C/mesh_zgr.nc"
     in_file = "./tests/test_zgr.nc"
     bench_file_h = "./inputs/benchmark/grid_low_res_C/mesh_hgr.nc"
+    name_map = "./tests/data/grid_name_map.json"
 
     if not ((os.path.isfile(bench_file_h) & os.path.isfile(bench_file))):
         # If the benchmark isn't present we can't test
@@ -60,12 +61,12 @@ def test_depth_file_zps():
         logger = logging.getLogger(__name__)
 
         # e1 and e2 data
-        hg = hgr.H_Grid(bench_file_h, logger)
+        hg = hgr.H_Grid(bench_file_h, name_map, logger)
         keys = ["e1t", "e2t", "e1u", "e2u", "e1v", "e2v", "e1f", "e2f"]
         e_dict = {k: hg.grid[k] for k in keys}
 
         # calc vertical grid
-        zg = zgr.Z_Grid(in_file, hg.grid_type, e_dict, logger)
+        zg = zgr.Z_Grid(in_file, name_map, hg.grid_type, e_dict, logger)
 
         nc = GetFile(bench_file)
         e3t = nc.nc["e3t"][:]

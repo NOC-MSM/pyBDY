@@ -26,6 +26,8 @@ Created on Mon Feb 03 18:01:00 2025.
 """
 
 # External imports
+import json
+
 import numpy as np
 import scipy.interpolate as interp
 
@@ -34,13 +36,14 @@ from pybdy.reader.factory import GetFile
 
 
 class Z_Grid:
-    def __init__(self, zgr_file, hgr_type, e_dict, logger):
+    def __init__(self, zgr_file, name_map_file, hgr_type, e_dict, logger):
         """
         Master depth class.
 
         Args:
         ----
             zgr_file (str)           : string of file for loading zgr data
+            name_map_file (str)      : string of file for mapping variable names
             hgr_type (str)           : horizontal grid type
             e_dict (dict)       : dictionary of e1 and e2 scale factors
             logger (object)          : log error and messages
@@ -51,6 +54,7 @@ class Z_Grid:
         """
         # Set up variables
         self.file_path = zgr_file
+        self.name_map = name_map_file
         self.logger = logger
         self.grid_type = ""
         self.grid = {}  # grid variables
@@ -66,6 +70,7 @@ class Z_Grid:
         # Load what we can from grid file
         vars_want = [
             "mbathy",
+            "gdept_0",
             "gdept",
             "gdepu",
             "gdepv",
@@ -81,7 +86,6 @@ class Z_Grid:
             "e3uw",
             "e3vw",
             "e3fw",
-            "gdept_0",
         ]
         #    "gdepw_0",
         #    "e3t_0",
@@ -108,19 +112,27 @@ class Z_Grid:
         ----
             vars_want (list)       : variables needed from file.
         """
+        with open(self.name_map, "r") as j:
+            nm = json.loads(j.read())["variable_map"]
         nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in self.var_list:
-                self.grid[vi] = nc.nc[vi][:]
+                self.grid[vi] = nc.nc[nm[vi]][:]
         nc.close()
 
     def find_zgrid_type(self):
         """Find out what type of vertical grid is provided zco, zps or sigma levels (sco)."""
         if ("gdept" not in self.var_list) & ("gdept_0" not in self.var_list):
-            raise Exception("No gdept or gdept_0 variable present in zgr file.")
-        elif "mbathy" not in self.var_list:
+            if "e3t" in self.var_list:
+                self.grid["gdept"] = np.cumsum(self.grid["e3t"], axis=1)
+                self.var_list = self.var_list.append("gdept")
+            else:
+                raise Exception("No gdept or gdept_0 variable present in zgr file.")
+
+        if "mbathy" not in self.var_list:
             raise Exception("No mbathy variable present in zgr file.")
-        elif "gdept" not in self.var_list:
+
+        if "gdept" not in self.var_list:
             self.grid_type = "z"
         else:
             # Could still be z, z-partial-step (zps) or sigma

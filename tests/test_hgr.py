@@ -43,6 +43,7 @@ def test_h_grid_file_A():
     # Test the hgr class on an A grid
     bench_file = "./inputs/benchmark/grid_low_res_C/mesh_hgr.nc"
     in_file = "./tests/test_hgr.nc"
+    name_map = "./tests/data/grid_name_map.json"
 
     if not os.path.isfile(bench_file):
         # If the benchmark isn't present we can't test
@@ -59,7 +60,7 @@ def test_h_grid_file_A():
             text=True,
         )
         logger = logging.getLogger(__name__)
-        hg = hgr.H_Grid(in_file, logger)
+        hg = hgr.H_Grid(in_file, name_map, logger)
 
         nc = GetFile(bench_file)
         e1t = nc.nc["e1t"][:]
@@ -101,6 +102,7 @@ def test_h_grid_file_C():
     # Test the hgr class on an C grid
     bench_file = "./inputs/benchmark/grid_low_res_C/mesh_hgr.nc"
     in_file = "./tests/test_hgr.nc"
+    name_map = "./tests/data/grid_name_map.json"
 
     if not os.path.isfile(bench_file):
         # If the benchmark isn't present we can't test
@@ -117,7 +119,7 @@ def test_h_grid_file_C():
             text=True,
         )
         logger = logging.getLogger(__name__)
-        hg = hgr.H_Grid(in_file, logger)
+        hg = hgr.H_Grid(in_file, name_map, logger)
 
         nc = GetFile(bench_file)
         e1t = nc.nc["e1t"][:]
@@ -211,9 +213,10 @@ def test_h_grid_synth_A():
     # NOTE hard to test this since it will use the same functions to
     # generate the synthetic test
     logger = logging.getLogger(__name__)
+    name_map = "./tests/data/grid_name_map.json"
     variables = ["nav_lat", "nav_lon"]
     path1, path2 = gen_synth_netcdf(variables)
-    hg = hgr.H_Grid(path2, logger)
+    hg = hgr.H_Grid(path2, name_map, logger)
 
     nc = GetFile(path1)
     e1t = nc.nc["e1t"][:]
@@ -252,9 +255,10 @@ def test_h_grid_synth_C():
     # NOTE hard to test this since it will use the same functions to
     # generate the synthetic test
     logger = logging.getLogger(__name__)
+    name_map = "./tests/data/grid_name_map.json"
     variables = ["glamt", "gphit", "glamu", "gphiu", "glamv", "gphiv"]
     path1, path2 = gen_synth_netcdf(variables)
-    hg = hgr.H_Grid(path2, logger)
+    hg = hgr.H_Grid(path2, name_map, logger)
 
     nc = GetFile(path1)
     e1t = nc.nc["e1t"][:]

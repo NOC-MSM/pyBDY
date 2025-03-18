@@ -25,6 +25,8 @@ Created on Mon Feb 03 18:01:00 2025.
 """
 
 # External imports
+import json
+
 import numpy as np
 
 # Internal imports
@@ -32,13 +34,14 @@ from pybdy.reader.factory import GetFile
 
 
 class H_Grid:
-    def __init__(self, hgr_file, logger):
+    def __init__(self, hgr_file, name_map_file, logger):
         """
         Master horizontal class.
 
         Args:
         ----
             hgr_file (str)           : string of file for loading hgr data
+            name_map_file (str)      : string of file for mapping variable names
             logger (object)          : log error and messages
 
         Returns:
@@ -47,6 +50,7 @@ class H_Grid:
         """
         # Set up variables
         self.file_path = hgr_file
+        self.name_map = name_map_file
         self.logger = logger
         self.grid_type = ""
         self.grid = {}  # grid variables
@@ -96,10 +100,12 @@ class H_Grid:
         ----
             vars_want (list)       : variables needed from file.
         """
+        with open(self.name_map, "r") as j:
+            nm = json.loads(j.read())["variable_map"]
         nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in self.var_list:
-                grid_tmp = nc.nc[vi][:]  # [t, y, x]
+                grid_tmp = nc.nc[nm[vi]][:]  # [t, y, x]
                 if len(grid_tmp.shape) == 3:
                     self.grid[vi] = grid_tmp
                 elif len(grid_tmp.shape) == 2:
@@ -134,9 +140,11 @@ class H_Grid:
                 "Warning: glam is not present in the grid file.\n"
                 + "We are assuming everything is provide on the T-points."
             )
+            with open(self.name_map, "r") as j:
+                nm = json.loads(j.read())["variable_map"]
             nc = GetFile(self.file_path)
-            self.grid["glamt"] = nc.nc["nav_lon"][:, :][np.newaxis, :, :]
-            self.grid["gphit"] = nc.nc["nav_lat"][:, :][np.newaxis, :, :]
+            self.grid["glamt"] = nc.nc[nm["nav_lon"]][:, :][np.newaxis, :, :]
+            self.grid["gphit"] = nc.nc[nm["nav_lat"]][:, :][np.newaxis, :, :]
             nc.close()
             self.grid_type = "A"
         else:
@@ -233,7 +241,7 @@ def calc_e1_e2(glam, gphi, ij):
     ----
             glam (np.array)  : mesh variable glam (lon) [time, j, i]
             gphi (np.array)  : mesh variable gphi (lat) [time, j, i]
-            ij (int)         : ij direction 1 (i direction) or 2 (j direction)
+            ij (int)         : ij direction 1 (i or x direction) or 2 (j or y direction)
 
     Returns:
     -------
