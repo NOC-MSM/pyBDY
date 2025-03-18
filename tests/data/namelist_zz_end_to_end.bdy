@@ -37,6 +37,7 @@
    sn_src_msk = './tests/data/mesh_synth_sc.nc' ! sn_src_msk = './tests/mask.nc'
    sn_bathy   = './tests/data/mesh_synth_dst.nc' ! dst bathymetry w/o time dimension
                                                                             !Expects vars: {Bathymetry,nav_lat,nav_lon}
+   sn_nme_map = './tests/data/grid_name_map.json'     ! json file mapping variable names to netcdf vars
 
 !------------------------------------------------------------------------------
 !  I/O
