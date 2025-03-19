@@ -104,7 +104,7 @@ def test_h_grid_file_C():
     in_file = "./tests/test_hgr.nc"
     name_map = "./tests/data/grid_name_map.json"
 
-    if not os.path.isfile(bench_file):
+    if (not os.path.isfile(bench_file)) | (os.getenv("GITHUB_ACTIONS") is True):
         # If the benchmark isn't present we can't test
         warnings.warn(
             Warning("Benchmark data not present so can't test src/grid/hgr.py.")
@@ -306,10 +306,9 @@ def gen_synth_netcdf(variables):
     path2 = "./tests/synth_test_sub.nc"
     synth.to_netcdf(path1)
 
-    subprocess.run(
-        "ncks -O -v " + ",".join(variables) + " " + path1 + " " + path2,
-        shell=True,
-        check=True,
-        text=True,
-    )
+    synth_vars = synth.coords
+    missing_vars = sorted(list(set(synth_vars) - set(variables)))
+    synth = synth.drop_vars(missing_vars)
+    synth.to_netcdf(path2)
+
     return path1, path2
