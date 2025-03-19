@@ -26,7 +26,7 @@ Created on Mon Feb 03 18:03:00 2025.
 
 # External imports
 import logging
-import os.path
+import os
 import subprocess
 import warnings
 
@@ -45,7 +45,7 @@ def test_h_grid_file_A():
     in_file = "./tests/test_hgr.nc"
     name_map = "./tests/data/grid_name_map.json"
 
-    if not os.path.isfile(bench_file):
+    if (not os.path.isfile(bench_file)) | (os.getenv("GITHUB_ACTIONS") is True):
         # If the benchmark isn't present we can't test
         warnings.warn(
             Warning("Benchmark data not present so can't test src/grid/hgr.py.")
