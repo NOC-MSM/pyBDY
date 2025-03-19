@@ -27,6 +27,7 @@ Created on Thu Dec 21 17:33:00 2024.
 import logging
 
 import numpy as np
+import pytest
 
 # Local imports
 from src.pybdy import nemo_bdy_extr_assist as extr_assist
@@ -51,6 +52,27 @@ def test_get_ind():
     print(imin, imax, jmin, jmax)
     test_case = np.array([5, 62, 2, 38])
     assert (np.array([imin, imax, jmin, jmax]) == test_case).all()
+
+
+def test_get_ind_out_of_bound():
+    # Generate synthetic lon and lat to test.
+    lon_range_d = np.arange(-100, -80, 0.2)
+    lat_range_d = np.arange(30, 50, 0.2)
+    lon_grid, lat_grid = np.meshgrid(lon_range_d, lat_range_d)
+    bdy = synth_ind.gen_synth_bdy(1)
+    dst_lon = lon_grid[bdy.bdy_i[:, 0], bdy.bdy_i[:, 1]]
+    dst_lat = lat_grid[bdy.bdy_i[:, 0], bdy.bdy_i[:, 1]]
+
+    lon_range_s = np.arange(-10, 10, 0.3)
+    lat_range_s = np.arange(30, 50, 0.5)
+    lon_sc, lat_sc = np.meshgrid(lon_range_s, lat_range_s)
+
+    with pytest.raises(Exception, match="") as exc_info:
+        imin, imax, jmin, jmax = extr_assist.get_ind(dst_lon, dst_lat, lon_sc, lat_sc)
+    assert (
+        exc_info.value.args[0]
+        == "The destination grid lat, lon is not inside the source grid lat, lon."
+    )
 
 
 def test_get_vertical_weights_zco():
