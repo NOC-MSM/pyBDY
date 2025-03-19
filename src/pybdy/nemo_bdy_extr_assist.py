@@ -60,6 +60,10 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     sub_i = ind[1][ind_s]
 
     # Find I/J range
+    if len(sub_i) == 0:
+        raise Exception(
+            "The destination grid lat, lon is not inside the source grid lat, lon."
+        )
 
     imin = np.maximum(np.amin(sub_i) - 2, 0)
     imax = np.minimum(np.amax(sub_i) + 2, len(sc_lon[0, :]) - 1) + 1
