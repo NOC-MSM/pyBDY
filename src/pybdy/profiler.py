@@ -522,9 +522,11 @@ def _get_mask(Setup, mask_gui):
 
     if np.amin(bdy_msk) == 0:  # Mask is not set, so set border to 1px
         logger.warning("Setting the mask to with a 1 grid point border")
-        QMessageBox.warning(
-            None, "NRCT", "Mask is not set, setting a 1 grid " + "point border mask"
-        )
+        if mask_gui:
+            QMessageBox.warning(
+                None, "NRCT", "Mask is not set, setting a 1 grid " + "point border mask"
+            )
+
         if bdy_msk is not None and 1 < bdy_msk.shape[0] and 1 < bdy_msk.shape[1]:
             tmp = np.ones(bdy_msk.shape, dtype=bool)
             tmp[1:-1, 1:-1] = False
