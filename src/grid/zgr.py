@@ -126,9 +126,9 @@ class Z_Grid:
         name_map_k = list(nm.keys())
         name_map_v = list(nm.values())
         nm_var_list = []
-        for vi in self.var_list:
-            if vi in name_map_v:
-                nm_var_list.append(name_map_k[name_map_v.index(vi)])
+        for i in range(len(name_map_v)):
+            if name_map_v[i] in self.var_list:
+                nm_var_list.append(name_map_k[i])
 
         # get variables from file
         nc = GetFile(self.file_path)

@@ -26,6 +26,7 @@ Created on Mon Feb 03 18:01:00 2025.
 
 # External imports
 import json
+import warnings
 
 import numpy as np
 
@@ -116,9 +117,9 @@ class H_Grid:
         name_map_k = list(nm.keys())
         name_map_v = list(nm.values())
         nm_var_list = []
-        for vi in self.var_list:
-            if vi in name_map_v:
-                nm_var_list.append(name_map_k[name_map_v.index(vi)])
+        for i in range(len(name_map_v)):
+            if name_map_v[i] in self.var_list:
+                nm_var_list.append(name_map_k[i])
 
         # get variables from file
         nc = GetFile(self.file_path)
@@ -130,6 +131,12 @@ class H_Grid:
                 elif len(grid_tmp.shape) == 2:
                     self.grid[vi] = grid_tmp[np.newaxis, :, :]
                 else:
+                    warnings.warn(
+                        nm[vi]
+                        + " shape "
+                        + grid_tmp.shape
+                        + " does not match required dimensions [t, y, x]"
+                    )
                     # We can calculate the var later if the wrong size
                     continue
         nc.close()
@@ -162,12 +169,15 @@ class H_Grid:
             )
             self.grid["glamt"] = self.grid["nav_lon"]
             self.grid["gphit"] = self.grid["nav_lat"]
-            del self.grid["nav_lon"]
-            del self.grid["nav_lat"]
             self.grid_type = "A"
         else:
             raise Exception("No nav_lon present in hgr file.")
 
+        if "nav_lon" in self.var_list:
+            del self.grid["nav_lon"]
+        if "nav_lat" in self.var_list:
+            del self.grid["nav_lat"]
+        self.var_list = list(self.grid.keys())
         self.logger.info("Horizonal grid is type: " + self.grid_type)
 
 
