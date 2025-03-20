@@ -52,7 +52,10 @@ In all cases "t" should be size 1. Pybdy does not deal with time varying grids.
 "e1v" = * scale factor distance between grid cell in x direction on v-grid (dims [t, y, x])
 "e2v" = * scale factor distance between grid cell in y direction on v-grid (dims [t, y, x])
 
-"mbathy" = index of the ocean bottom level (may be called bottom_level) (dims [t, y, x])
+"mbathy" = ** index of the ocean bottom level (may be called bottom_level) (dims [t, y, x])
+            (only needed if gdept or e3t not given i.e. gdept_0 given. If gdept_0 is the
+            only option and no mbathy is available offer any variable with dims [t, y, x]
+            or dims [y, x])
 "gdept_0" = ** 1D depth of levels on t-grid and t-levels (dims [t, z])
             (only needed if gdept or e3t not given)
 "gdept" = ** 3D depth of levels on t-grid and t-levels (dims [t, z, y, x])
