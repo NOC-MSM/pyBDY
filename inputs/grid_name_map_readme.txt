@@ -5,13 +5,14 @@ names in the file netcdf file to the variable names desired by pybdy. This is
 specifically for the horizontal (hgr) and vertical (vgr) grid files (not data IO).
 In the past this could be done with a .ncml file but now it done using .json.
 
-The "grid_name_map.json" file has "dimension_map" and "variable_map", these should
-not be edited. The list of dimensions t, z, y, x under "dimension_map" are
-"key: value" pairs, where the "key" should be unedited and the "value" should be
-changed to match the name of the respective dimension in your netcdf file. The is
-the same process for the list of variables under "variable_map". The
-"variable_map" is used for both horizontal and vertical grid variable names even
-if they come from separate files.
+The "grid_name_map.json" file has "dimension_map", "sc_variable_map" and
+"dst_variable_map", these should not be edited. "sc" refers to the source grid
+and "dst" refers to the destination grid. The list of dimensions t, z, y, x
+under "dimension_map" are "key: value" pairs, where the "key" should be unedited
+and the "value" should be changed to match the name of the respective dimension
+in your netcdf file. The is the same process for the list of variables under
+"variable_map". The "variable_map" is used for both horizontal and vertical
+grid variable names even if they come from separate files.
 
 Below is a decription of each dimension and variable. Not all variables are needed,
 those that are marked with a * below are optional, if you don't have the optional
@@ -28,7 +29,7 @@ In all cases "t" should be size 1. Pybdy does not deal with time varying grids.
 "y" = horizontal dimension often aligned with latitude
 "x" = horizontal dimension often aligned with longitude
 
-"variable_map"
+"sc_variable_map" and "dst_variable_map"
 
 "nav_lon" = ** Longitude on t-grid (dims [y, x])
             (only needed if glamt is not present in the file)

@@ -104,13 +104,14 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     bdy_msk = _get_mask(Setup, mask_gui)
     DstCoord.bdy_msk = bdy_msk == 1
 
-    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger)
+    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
     DstCoord.zgr = zgr.Z_Grid(
         settings["dst_zgr"],
         settings["nme_map"],
         DstCoord.hgr.grid_type,
         DstCoord.hgr.grid,
         logger,
+        dst=1,
     )
 
     logger.info("Reading mask completed")
@@ -143,13 +144,16 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Gather grid information
 
     logger.info("Gathering grid information")
-    SourceCoord.hgr = hgr.H_Grid(settings["src_hgr"], settings["nme_map"], logger)
+    SourceCoord.hgr = hgr.H_Grid(
+        settings["src_hgr"], settings["nme_map"], logger, dst=0
+    )
     SourceCoord.zgr = zgr.Z_Grid(
         settings["src_zgr"],
         settings["nme_map"],
         SourceCoord.hgr.grid_type,
         SourceCoord.hgr.grid,
         logger,
+        dst=0,
     )
 
     # Fill horizontal grid information

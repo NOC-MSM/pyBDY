@@ -36,7 +36,7 @@ from pybdy.reader.factory import GetFile
 
 
 class Z_Grid:
-    def __init__(self, zgr_file, name_map_file, hgr_type, e_dict, logger):
+    def __init__(self, zgr_file, name_map_file, hgr_type, e_dict, logger, dst=1):
         """
         Master depth class.
 
@@ -47,6 +47,7 @@ class Z_Grid:
             hgr_type (str)           : horizontal grid type
             e_dict (dict)       : dictionary of e1 and e2 scale factors
             logger (object)          : log error and messages
+            dst (bool)               : flag for destination (true) or source (false)
 
         Returns:
         -------
@@ -56,6 +57,7 @@ class Z_Grid:
         self.file_path = zgr_file
         self.name_map = name_map_file
         self.logger = logger
+        self.dst = dst
         self.grid_type = ""
         self.grid = {}  # grid variables
 
@@ -112,8 +114,13 @@ class Z_Grid:
         ----
             vars_want (list)       : variables needed from file.
         """
+        if self.dst:
+            vm = "dst_"
+        else:
+            vm = "sc_"
+
         with open(self.name_map, "r") as j:
-            nm = json.loads(j.read())["variable_map"]
+            nm = json.loads(j.read())[vm + "variable_map"]
         nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in self.var_list:
@@ -133,7 +140,7 @@ class Z_Grid:
             raise Exception("No mbathy variable present in zgr file.")
 
         if "gdept" not in self.var_list:
-            self.grid_type = "z"
+            self.grid_type = "zco"
         else:
             # Could still be z, z-partial-step (zps) or sigma
             # "z" - Check if all levels are equal

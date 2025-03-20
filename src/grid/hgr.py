@@ -34,7 +34,7 @@ from pybdy.reader.factory import GetFile
 
 
 class H_Grid:
-    def __init__(self, hgr_file, name_map_file, logger):
+    def __init__(self, hgr_file, name_map_file, logger, dst=1):
         """
         Master horizontal class.
 
@@ -43,6 +43,7 @@ class H_Grid:
             hgr_file (str)           : string of file for loading hgr data
             name_map_file (str)      : string of file for mapping variable names
             logger (object)          : log error and messages
+            dst (bool)               : flag for destination (true) or source (false)
 
         Returns:
         -------
@@ -52,6 +53,7 @@ class H_Grid:
         self.file_path = hgr_file
         self.name_map = name_map_file
         self.logger = logger
+        self.dst = dst
         self.grid_type = ""
         self.grid = {}  # grid variables
 
@@ -100,8 +102,13 @@ class H_Grid:
         ----
             vars_want (list)       : variables needed from file.
         """
+        if self.dst:
+            vm = "dst_"
+        else:
+            vm = "sc_"
+
         with open(self.name_map, "r") as j:
-            nm = json.loads(j.read())["variable_map"]
+            nm = json.loads(j.read())[vm + "variable_map"]
         nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in self.var_list:
@@ -140,8 +147,13 @@ class H_Grid:
                 "Warning: glam is not present in the grid file.\n"
                 + "We are assuming everything is provide on the T-points."
             )
+            if self.dst:
+                vm = "dst_"
+            else:
+                vm = "sc_"
+
             with open(self.name_map, "r") as j:
-                nm = json.loads(j.read())["variable_map"]
+                nm = json.loads(j.read())[vm + "variable_map"]
             nc = GetFile(self.file_path)
             self.grid["glamt"] = nc.nc[nm["nav_lon"]][:, :][np.newaxis, :, :]
             self.grid["gphit"] = nc.nc[nm["nav_lat"]][:, :][np.newaxis, :, :]
