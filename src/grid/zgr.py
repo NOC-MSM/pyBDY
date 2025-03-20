@@ -114,6 +114,7 @@ class Z_Grid:
         ----
             vars_want (list)       : variables needed from file.
         """
+        # find the variables that have been name mapped
         if self.dst:
             vm = "dst_"
         else:
@@ -121,27 +122,36 @@ class Z_Grid:
 
         with open(self.name_map, "r") as j:
             nm = json.loads(j.read())[vm + "variable_map"]
+
+        name_map_k = list(nm.keys())
+        name_map_v = list(nm.values())
+        nm_var_list = []
+        for vi in self.var_list:
+            if vi in name_map_v:
+                nm_var_list.append(name_map_k[name_map_v.index(vi)])
+
+        # get variables from file
         nc = GetFile(self.file_path)
         for vi in vars_want:
-            if vi in self.var_list:
+            if vi in nm_var_list:
                 self.grid[vi] = nc.nc[nm[vi]][:]
         nc.close()
+        self.var_list = list(self.grid.keys())
 
     def find_zgrid_type(self):
         """Find out what type of vertical grid is provided zco, zps or sigma levels (sco)."""
         if ("gdept" not in self.var_list) & ("gdept_0" not in self.var_list):
             if "e3t" in self.var_list:
                 self.grid["gdept"] = np.cumsum(self.grid["e3t"], axis=1)
-                self.var_list = self.var_list.append("gdept")
+                self.var_list.append("gdept")
             else:
                 raise Exception("No gdept or gdept_0 variable present in zgr file.")
-
-        if "mbathy" not in self.var_list:
-            raise Exception("No mbathy variable present in zgr file.")
 
         if "gdept" not in self.var_list:
             self.grid_type = "zco"
         else:
+            if "mbathy" not in self.var_list:
+                raise Exception("No mbathy variable present in zgr file.")
             # Could still be z, z-partial-step (zps) or sigma
             # "z" - Check if all levels are equal
             x_diff = np.diff(self.grid["gdept"], axis=3).sum() == 0
@@ -201,9 +211,6 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
     -------
             grid (dict)          : vertical grid data dictionary
     """
-    if "mbathy" in missing:
-        raise Exception("No mbathy in vertical grid file (zgr).")
-
     # gdep
 
     t_done = "gdept" not in missing
@@ -214,6 +221,9 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
         elif "gdept_0" in missing:
             raise Exception("No gdept_0 in vertical grid file (zgr).")
         else:
+            if "mbathy" in missing:
+                raise Exception("No mbathy in vertical grid file (zgr).")
+
             if len(grid["mbathy"].shape) == 2:
                 grid["mbathy"] = grid["mbathy"][np.newaxis, :, :]
             elif len(grid["mbathy"].shape) != 3:

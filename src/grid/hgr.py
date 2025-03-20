@@ -67,6 +67,8 @@ class H_Grid:
 
         # Load what we can from grid file
         vars_want = [
+            "nav_lon",
+            "nav_lat",
             "glamt",
             "gphit",
             "glamf",
@@ -102,6 +104,7 @@ class H_Grid:
         ----
             vars_want (list)       : variables needed from file.
         """
+        # find the variables that have been name mapped
         if self.dst:
             vm = "dst_"
         else:
@@ -109,9 +112,18 @@ class H_Grid:
 
         with open(self.name_map, "r") as j:
             nm = json.loads(j.read())[vm + "variable_map"]
+
+        name_map_k = list(nm.keys())
+        name_map_v = list(nm.values())
+        nm_var_list = []
+        for vi in self.var_list:
+            if vi in name_map_v:
+                nm_var_list.append(name_map_k[name_map_v.index(vi)])
+
+        # get variables from file
         nc = GetFile(self.file_path)
         for vi in vars_want:
-            if vi in self.var_list:
+            if vi in nm_var_list:
                 grid_tmp = nc.nc[nm[vi]][:]  # [t, y, x]
                 if len(grid_tmp.shape) == 3:
                     self.grid[vi] = grid_tmp
@@ -121,6 +133,7 @@ class H_Grid:
                     # We can calculate the var later if the wrong size
                     continue
         nc.close()
+        self.var_list = list(self.grid.keys())
 
     def find_hgrid_type(self):
         """Find out what type of hoizontal grid is provided A, B or C."""
@@ -147,17 +160,10 @@ class H_Grid:
                 "Warning: glam is not present in the grid file.\n"
                 + "We are assuming everything is provide on the T-points."
             )
-            if self.dst:
-                vm = "dst_"
-            else:
-                vm = "sc_"
-
-            with open(self.name_map, "r") as j:
-                nm = json.loads(j.read())[vm + "variable_map"]
-            nc = GetFile(self.file_path)
-            self.grid["glamt"] = nc.nc[nm["nav_lon"]][:, :][np.newaxis, :, :]
-            self.grid["gphit"] = nc.nc[nm["nav_lat"]][:, :][np.newaxis, :, :]
-            nc.close()
+            self.grid["glamt"] = self.grid["nav_lon"]
+            self.grid["gphit"] = self.grid["nav_lat"]
+            del self.grid["nav_lon"]
+            del self.grid["nav_lat"]
             self.grid_type = "A"
         else:
             raise Exception("No nav_lon present in hgr file.")
