@@ -48,9 +48,13 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     """
     ind_e = sc_lon < np.amax(dst_lon)
     ind_w = sc_lon > np.amin(dst_lon)
+    ind_e[:, 2:] = ind_e[:, :-2]
+    ind_w[:, :-2] = ind_w[:, 2:]
     ind_ew = np.logical_and(ind_e, ind_w)
     ind_s = sc_lat > np.amin(dst_lat)
     ind_n = sc_lat < np.amax(dst_lat)
+    ind_s[:-2, :] = ind_s[2:, :]
+    ind_n[2:, :] = ind_n[:-2, :]
     ind_sn = np.logical_and(ind_s, ind_n)
 
     ind = np.where(np.logical_and(ind_ew, ind_sn) != 0)
@@ -65,10 +69,10 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
             "The destination grid lat, lon is not inside the source grid lat, lon."
         )
 
-    imin = np.maximum(np.amin(sub_i) - 2, 0)
-    imax = np.minimum(np.amax(sub_i) + 2, len(sc_lon[0, :]) - 1) + 1
-    jmin = np.maximum(np.amin(sub_j) - 2, 0)
-    jmax = np.minimum(np.amax(sub_j) + 2, len(sc_lon[:, 0]) - 1) + 1
+    imin = np.maximum(np.amin(sub_i), 0)
+    imax = np.minimum(np.amax(sub_i), len(sc_lon[0, :]) - 1) + 1
+    jmin = np.maximum(np.amin(sub_j), 0)
+    jmax = np.minimum(np.amax(sub_j), len(sc_lon[:, 0]) - 1) + 1
 
     return imin, imax, jmin, jmax
 
