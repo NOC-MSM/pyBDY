@@ -180,8 +180,6 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     # extract the depths along the U-point open boundary
 
-    depu = DC.depths["u"]["bdy_H"][np.newaxis, :]
-    """
     mbathy = DC.zgr.grid["mbathy"][:, :, :].squeeze()
 
     # summing over scale factors as zps doesn't have hbat variable
@@ -206,12 +204,14 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     depu = np.zeros((1, Grid_U.bdy_i.shape[0]))
     for n in range(0, Grid_U.bdy_i.shape[0]):
         depu[0, n] = hbatX[Grid_U.bdy_i[n, 1], Grid_U.bdy_i[n, 0]]
-    """
+
+    # although we already have this in bdy_H, if zinterp id false this would
+    # be the wrong bathy for tides so recalculating makes sense
+    # depu = DC.depths["u"]["bdy_H"][np.newaxis, :]
 
     # extract the depths along the V-point open boundary
     # summing over scale factors as zps doesn't have hbat variable
-    depv = DC.depths["v"]["bdy_H"][np.newaxis, :]
-    """
+
     try:  # Read in either 3D or 4D data.
         e3X = DC.zgr.grid["e3v"][:, :, :].squeeze()
     except ValueError:
@@ -232,7 +232,10 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     depv = np.zeros((1, Grid_V.bdy_i.shape[0]))
     for n in range(0, Grid_V.bdy_i.shape[0]):
         depv[0, n] = hbatX[Grid_V.bdy_i[n, 1], Grid_V.bdy_i[n, 0]]
-    """
+
+    # although we already have this in bdy_H, if zinterp id false this would
+    # be the wrong bathy for tides so recalculating makes sense
+    # depv = DC.depths["v"]["bdy_H"][np.newaxis, :]
 
     cosz = np.zeros((numharm, ampz.shape[1]))
     sinz = np.zeros((numharm, ampz.shape[1]))
