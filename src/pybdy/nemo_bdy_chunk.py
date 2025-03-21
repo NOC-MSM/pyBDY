@@ -284,9 +284,9 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
                     b_check[corner == 1] = False
                     if (b_check == 1).any():
                         break
-
+            if (b_check == 1).any():
                 new_chunk = np.min(chunk_number[b_check])
-            chunk_number[chunk_number == corner_chunk[c]] = new_chunk
+                chunk_number[chunk_number == corner_chunk[c]] = new_chunk
 
     # Need to add chunks that are too small together
     all_chunk = np.unique(chunk_number)
