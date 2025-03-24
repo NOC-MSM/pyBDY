@@ -32,8 +32,10 @@ import logging
 import time
 
 import numpy as np
+from grid import hgr, zgr
 from PyQt5.QtWidgets import QMessageBox
 
+# Local imports
 from pybdy import nemo_bdy_chunk as chunk_func
 from pybdy import nemo_bdy_dst_coord as dst_coord
 from pybdy import nemo_bdy_extr_tm3 as extract
@@ -43,12 +45,9 @@ from pybdy import nemo_bdy_setup as setup
 from pybdy import nemo_bdy_source_coord as source_coord
 from pybdy import nemo_bdy_zgrv2 as zgrv
 from pybdy import nemo_coord_gen_pop as coord
-
-# Local imports
 from pybdy import pybdy_settings_editor
 from pybdy.gui.nemo_bdy_mask import Mask as Mask_File
 from pybdy.reader import factory
-from pybdy.reader.factory import GetFile
 from pybdy.tide import nemo_bdy_tide3 as tide
 from pybdy.tide import nemo_bdy_tide_ncgen
 from pybdy.utils import Constants
@@ -105,6 +104,16 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     bdy_msk = _get_mask(Setup, mask_gui)
     DstCoord.bdy_msk = bdy_msk == 1
 
+    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
+    DstCoord.zgr = zgr.Z_Grid(
+        settings["dst_zgr"],
+        settings["nme_map"],
+        DstCoord.hgr.grid_type,
+        DstCoord.hgr.grid,
+        logger,
+        dst=1,
+    )
+
     logger.info("Reading mask completed")
 
     bdy_ind = {}  # define a dictionary to hold the grid information
@@ -117,11 +126,13 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         # function to split the bdy into several boundary chunks
         bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
 
-    # Write out grid information to coordinates.bdy.nc
-
-    co_set = coord.Coord(settings["dst_dir"] + "/coordinates.bdy.nc", bdy_ind)
-    co_set.populate(settings["dst_hgr"])
-    logger.info("File: coordinates.bdy.nc generated and populated")
+    if Setup.bool_settings["coords_file"]:
+        # Write out grid information to coordinates.bdy.nc
+        co_set = coord.Coord(
+            settings["dst_dir"] + "/" + settings["coords_file"], bdy_ind
+        )
+        co_set.populate(DstCoord.hgr)
+        logger.info("File: coordinates.bdy.nc generated and populated")
 
     # Idenitify number of boundary points
 
@@ -132,59 +143,36 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # Gather grid information
 
-    # TODO: insert some logic here to account for 2D or 3D src_zgr
-
     logger.info("Gathering grid information")
-    nc = GetFile(settings["src_zgr"])
-    SourceCoord.zt = np.squeeze(nc["gdept_0"][:])
-    nc.close()
+    SourceCoord.hgr = hgr.H_Grid(
+        settings["src_hgr"], settings["nme_map"], logger, dst=0
+    )
+    SourceCoord.zgr = zgr.Z_Grid(
+        settings["src_zgr"],
+        settings["nme_map"],
+        SourceCoord.hgr.grid_type,
+        SourceCoord.hgr.grid,
+        logger,
+        dst=0,
+    )
 
-    # Define z at t/u/v points
-
-    z = zgrv.Depth(bdy_ind["t"].bdy_i, bdy_ind["u"].bdy_i, bdy_ind["v"].bdy_i, settings)
-
-    # TODO: put conditional here as we may want to keep data on parent
-    #       vertical grid
-
-    DstCoord.depths = {"t": {}, "u": {}, "v": {}}
-
-    for grd in ["t", "u", "v"]:
-        DstCoord.depths[grd]["bdy_H"] = np.nanmax(z.zpoints["w" + grd], axis=0)
-        DstCoord.depths[grd]["bdy_dz"] = np.diff(z.zpoints["w" + grd], axis=0)
-        DstCoord.depths[grd]["bdy_dz"] = np.vstack(
-            [DstCoord.depths[grd]["bdy_dz"], np.zeros((1, nbdy[grd]))]
-        )
-        DstCoord.depths[grd]["bdy_z"] = z.zpoints[grd]
-    logger.info("Depths defined")
-
-    # Gather horizontal grid information
-
-    nc = GetFile(settings["src_hgr"])
-    SourceCoord.lon = nc["glamt"][:, :]
-    SourceCoord.lat = nc["gphit"][:, :]
+    # Fill horizontal grid information
 
     try:  # if they are masked array convert them to normal arrays
-        SourceCoord.lon = SourceCoord.lon.filled()
+        SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
     except Exception:
         logger.debug("Not a masked array.")
     try:
-        SourceCoord.lat = SourceCoord.lat.filled()
+        SourceCoord.hgr.grid["gphit"] = SourceCoord.hgr.grid["gphit"].filled()  # lat
     except Exception:
         logger.debug("Not a masked array.")
 
-    nc.close()
+    # Assign horizontal grid data
 
     DstCoord.lonlat = {"t": {}, "u": {}, "v": {}}
-
-    nc = GetFile(settings["dst_hgr"])
-
-    # Read and assign horizontal grid data
-
     for grd in ["t", "u", "v"]:
-        DstCoord.lonlat[grd]["lon"] = nc["glam" + grd][0, :, :]
-        DstCoord.lonlat[grd]["lat"] = nc["gphi" + grd][0, :, :]
-
-    nc.close()
+        DstCoord.lonlat[grd]["lon"] = DstCoord.hgr.grid["glam" + grd][0, :, :]
+        DstCoord.lonlat[grd]["lat"] = DstCoord.hgr.grid["gphi" + grd][0, :, :]
 
     logger.info("Grid coordinates defined")
 
@@ -206,6 +194,35 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         DstCoord.lonlat[grd]["lon"][DstCoord.lonlat[grd]["lon"] > 180] -= 360
 
     logger.info("BDY lons/lats identified from %s", settings["dst_hgr"])
+
+    # Define z at t/u/v points
+
+    DstCoord.depths = {"t": {}, "u": {}, "v": {}}
+
+    if (SourceCoord.zgr.grid_type != "zco") & (settings["zinterp"] is False):
+        # Override use zinterp flag if vertical grid type is not zco
+        logger.warning("Setting zinterp to True because vertical grid is not zco")
+        settings["zinterp"] = True
+
+    if settings["zinterp"] is True:
+        # Condition to interp data on destiantion grid levels
+        for grd in ["t", "u", "v"]:
+            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_depths(
+                DstCoord, bdy_ind[grd].bdy_i, grd
+            )
+            DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
+            DstCoord.depths[grd]["bdy_dz"] = tmp_e3
+            DstCoord.depths[grd]["bdy_z"] = tmp_tz
+        logger.info("Depths defined on destination grid levels")
+    else:
+        # Condition to keep data on parent grid levels
+        for grd in ["t", "u", "v"]:
+            # These are just set to the nearest neighbour in source grid
+            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
+            DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
+            DstCoord.depths[grd]["bdy_dz"] = tmp_e3
+            DstCoord.depths[grd]["bdy_z"] = tmp_tz
+        logger.info("Depths defined with destination equal to source levels")
 
     # Set up time information
 
@@ -505,9 +522,11 @@ def _get_mask(Setup, mask_gui):
 
     if np.amin(bdy_msk) == 0:  # Mask is not set, so set border to 1px
         logger.warning("Setting the mask to with a 1 grid point border")
-        QMessageBox.warning(
-            None, "NRCT", "Mask is not set, setting a 1 grid " + "point border mask"
-        )
+        if mask_gui:
+            QMessageBox.warning(
+                None, "NRCT", "Mask is not set, setting a 1 grid " + "point border mask"
+            )
+
         if bdy_msk is not None and 1 < bdy_msk.shape[0] and 1 < bdy_msk.shape[1]:
             tmp = np.ones(bdy_msk.shape, dtype=bool)
             tmp[1:-1, 1:-1] = False

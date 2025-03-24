@@ -64,7 +64,7 @@ def test_chunk_land_comp():
     chunk_number = np.zeros_like(bdy.bdy_r) - 1
 
     chunk_number = chunk.chunk_land(bdy.bdy_i[:, 0], bdy.bdy_i[:, 1], chunk_number, rw)
-    assert (np.unique(chunk_number) == np.array([0])).all()
+    assert (np.unique(chunk_number) == np.array([0, 1])).all()
 
 
 """
@@ -167,9 +167,9 @@ def test_chunk_corner_comp():
     # plt.show()
 
     errors = []
-    if len(np.unique(chunk_number)) != 5:
+    if len(np.unique(chunk_number)) != 7:
         errors.append("The quantity of chunks is not correct.")
-    elif not (np.unique(chunk_number) == np.array([0, 1, 2, 3, 4])).all():
+    elif not (np.unique(chunk_number) == np.array([0, 1, 2, 3, 4, 5, 6])).all():
         errors.append(
             "The chunk numbers are not correct."
             + np.array2string(np.unique(chunk_number))
@@ -291,6 +291,8 @@ def gen_synth_bdy(map=1):
             bdy_msk[: 61 - i, :i] = -1  # out of domain
         for i in range(31):
             bdy_msk[i + 40 :, :i] = -1  # out of domain
+        for i in range(10):
+            bdy_msk[-i - 10 :, -30 + (i * 3) :] = -1  # out of domain
 
     elif map == 5:
         # a domain that crosses east-west around the southern ocean

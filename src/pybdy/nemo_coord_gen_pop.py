@@ -99,27 +99,25 @@ class Coord:
 
         return var
 
-    def populate(self, ncfname):
+    def populate(self, hgr):
         self.set_lenvar(self.var_nb_ij_id)
         self.set_lenvar(self.var_nb_r_id)
 
-        ncid2 = Dataset(ncfname, "r")
-        self.set_lenvar(self.var_g_lamphi_id, ncid2, "g")
-        self.set_lenvar(self.var_e_12_id, ncid2, "e")
-        ncid2.close()
+        self.set_lenvar(self.var_g_lamphi_id, hgr, "g")
+        self.set_lenvar(self.var_e_12_id, hgr, "e")
 
         self.closeme()
 
     # sets the len var of each array in the var dictionary fed
-    # specifying nc and unt pulls data from a secondary file
+    # specifying hgr and unt pulls data from loaded grid data
     # Otherwise pull it from the class dict
-    def set_lenvar(self, vardic, nc=None, unt=None):
+    def set_lenvar(self, vardic, hgr=None, unt=None):
         for ind in vardic:
             x = 0
             data = None
             for dim in vardic[ind]:
-                if nc is not None:
-                    data = nc.variables["%s%s%s" % (unt, dim, ind)][:]
+                if hgr is not None:
+                    data = hgr.grid["%s%s%s" % (unt, dim, ind)][:]
                     self.logger.debug(
                         "%s %s %s %s %s %s",
                         ind,

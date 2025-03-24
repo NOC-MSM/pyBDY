@@ -24,6 +24,8 @@ Created on Thu Dec 19 10:39:46 2024.
 """
 
 # External imports
+import warnings
+
 import numpy as np
 
 
@@ -59,6 +61,7 @@ def chunk_bdy(bdy):
     chunk_number = chunk_corner(ibdy, jbdy, bdy.bdy_r, chunk_number, rw)
     chunk_number = chunk_large(ibdy, jbdy, chunk_number)
 
+    # import matplotlib.pyplot as plt
     # plt.scatter(ibdy, jbdy, c=chunk_number)
     # plt.show()
     return chunk_number
@@ -92,7 +95,7 @@ def chunk_land(ibdy, jbdy, chunk_number, rw):
 
         # Sanity check if the point is alone
         if np.sum(closeness_test) == 1:
-            raise Exception("One of the boundary chunks has only one grid point.")
+            warnings.warn("One of the boundary chunks has only one grid point.")
 
         # Check if any of these points already has a chunk number
         chk_true = chunk_number[closeness_test] != -1
@@ -143,6 +146,7 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
         numpy.array          : array of chunk numbers
     """
     all_chunk = np.unique(chunk_number)
+    all_chunk_st = all_chunk * 1
     np.max(all_chunk) + 1
     corner = np.zeros_like(ibdy)
 
@@ -264,6 +268,7 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
 
     # add corner points to the highest neighbouring chunk number
     corner_chunk = np.unique(chunk_number[corner == 1])
+    np.max(chunk_number) + 1
 
     for c in range(len(corner_chunk)):
         icorn = ibdy[chunk_number == corner_chunk[c]]
@@ -271,15 +276,17 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
         if len(icorn) <= (rw * 4):
             b_check = np.zeros(ibdy.shape, dtype=bool)
             for p in range(len(icorn)):
-                b_check = b_check | (((icorn[p] + 1) == ibdy) & (jcorn[p] == jbdy))
-                b_check = b_check | (((icorn[p] - 1) == ibdy) & (jcorn[p] == jbdy))
-                b_check = b_check | ((icorn[p] == ibdy) & ((jcorn[p] + 1) == jbdy))
-                b_check = b_check | (
-                    ((icorn[p] + 1) == ibdy) & ((jcorn[p] - 1) == jbdy)
-                )
-            b_check[corner == 1] = False
-            new_chunk = np.min(chunk_number[b_check])
-            chunk_number[chunk_number == corner_chunk[c]] = new_chunk
+                for i in range(1, rw + 1):
+                    i_abs = np.abs(ibdy - icorn[p])
+                    j_abs = np.abs(jbdy - jcorn[p])
+                    b_check = (i_abs <= i) & (j_abs <= i)
+
+                    b_check[corner == 1] = False
+                    if (b_check == 1).any():
+                        break
+            if (b_check == 1).any():
+                new_chunk = np.min(chunk_number[b_check])
+                chunk_number[chunk_number == corner_chunk[c]] = new_chunk
 
     # Need to add chunks that are too small together
     all_chunk = np.unique(chunk_number)
@@ -294,18 +301,27 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
 
             b_check = np.zeros(ibdy.shape, dtype=bool)
             for p in range(len(icorn)):
-                b_check = b_check | (((icorn[p] + 1) == ibdy) & (jcorn[p] == jbdy))
-                b_check = b_check | (((icorn[p] - 1) == ibdy) & (jcorn[p] == jbdy))
-                b_check = b_check | ((icorn[p] == ibdy) & ((jcorn[p] + 1) == jbdy))
-                b_check = b_check | (
-                    ((icorn[p] + 1) == ibdy) & ((jcorn[p] - 1) == jbdy)
-                )
-            b_check[chunk_number == all_chunk[i]] = False
-            new_chunk = np.min(chunk_number[b_check])
-            chunk_number[chunk_number == all_chunk[i]] = new_chunk
+                i_abs = np.abs(ibdy - icorn[p])
+                j_abs = np.abs(jbdy - jcorn[p])
+                b_check = (i_abs <= 1) & (j_abs <= 1)
 
-            chunk_size[i] = np.sum(chunk_number == all_chunk[i])
-            chunk_size[all_chunk == new_chunk] = np.sum(chunk_number == new_chunk)
+            b_check[chunk_number == all_chunk[i]] = False
+            if b_check.any():
+                new_chunk = np.min(chunk_number[b_check])
+                chunk_number[chunk_number == all_chunk[i]] = new_chunk
+
+                chunk_size[i] = np.sum(chunk_number == all_chunk[i])
+                chunk_size[all_chunk == new_chunk] = np.sum(chunk_number == new_chunk)
+
+    all_chunk = np.unique(chunk_number)
+    chunk_size = [np.sum(chunk_number == all_chunk[i]) for i in range(len(all_chunk))]
+    all_chunk = [x for _, x in sorted(zip(chunk_size, all_chunk))]
+    chunk_size = np.array(sorted(chunk_size))
+
+    # Add small newly created chunks together if we have more than 10 corner chunks
+    if len(all_chunk) > len(all_chunk_st) + 10:
+        last_chunk = all_chunk[len(all_chunk_st) + 10]
+        chunk_number[chunk_number > last_chunk] = last_chunk
 
     # Rectify the chunk numbers
     all_chunk = np.unique(chunk_number)

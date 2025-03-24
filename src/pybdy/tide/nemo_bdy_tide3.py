@@ -9,7 +9,6 @@ import logging
 import numpy as np
 
 from pybdy import nemo_bdy_grid_angle
-from pybdy.reader.factory import GetFile
 from pybdy.utils.nemo_bdy_lib import rot_rep
 
 from . import fes2014_extract_HC, tpxo_extract_HC
@@ -38,6 +37,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     logger = logging.getLogger(__name__)
     g_type = Grid_T.grid_type
     DC = copy.deepcopy(DstCoord)
+
     dst_lon = DC.bdy_lonlat[g_type]["lon"][Grid_T.bdy_r == 0]
     dst_lat = DC.bdy_lonlat[g_type]["lat"][Grid_T.bdy_r == 0]
 
@@ -179,16 +179,15 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0] - 360.0
 
     # extract the depths along the U-point open boundary
-    zgr = GetFile(setup.settings["dst_zgr"])  # Dataset(settings['dst_zgr'], 'r')
-    mbathy = zgr["mbathy"][:, :, :].squeeze()  # zgr.variables['mbathy'][:,:,:]
+
+    mbathy = DC.zgr.grid["mbathy"][:, :, :].squeeze()
 
     # summing over scale factors as zps doesn't have hbat variable
-    # e3X = zgr.variables['e3u']
-    # e3X = np.squeeze(e3X)
+
     try:  # Read in either 3D or 4D data.
-        e3X = zgr["e3u"][:, :, :].squeeze()
+        e3X = DC.zgr.grid["e3u"][:, :, :].squeeze()
     except ValueError:
-        e3X = zgr["e3u"][:, :, :, :].squeeze()
+        e3X = DC.zgr.grid["e3u"][:, :, :, :].squeeze()
     if len(np.shape(e3X)) != 3:
         logger.warning("Expected a 3D array for e3u field")
 
@@ -206,14 +205,17 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     for n in range(0, Grid_U.bdy_i.shape[0]):
         depu[0, n] = hbatX[Grid_U.bdy_i[n, 1], Grid_U.bdy_i[n, 0]]
 
+    # although we already have this in bdy_H, if zinterp id false this would
+    # be the wrong bathy for tides so recalculating makes sense
+    # depu = DC.depths["u"]["bdy_H"][np.newaxis, :]
+
     # extract the depths along the V-point open boundary
     # summing over scale factors as zps doesn't have hbat variable
-    # e3X = zgr.variables['e3v']
-    # e3X = np.squeeze(e3X)
+
     try:  # Read in either 3D or 4D data.
-        e3X = zgr["e3v"][:, :, :].squeeze()
+        e3X = DC.zgr.grid["e3v"][:, :, :].squeeze()
     except ValueError:
-        e3X = zgr["e3v"][:, :, :, :].squeeze()
+        e3X = DC.zgr.grid["e3v"][:, :, :, :].squeeze()
     if len(np.shape(e3X)) != 3:
         logger.warning("Expected a 3D array for e3v field")
 
@@ -230,6 +232,10 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     depv = np.zeros((1, Grid_V.bdy_i.shape[0]))
     for n in range(0, Grid_V.bdy_i.shape[0]):
         depv[0, n] = hbatX[Grid_V.bdy_i[n, 1], Grid_V.bdy_i[n, 0]]
+
+    # although we already have this in bdy_H, if zinterp id false this would
+    # be the wrong bathy for tides so recalculating makes sense
+    # depv = DC.depths["v"]["bdy_H"][np.newaxis, :]
 
     cosz = np.zeros((numharm, ampz.shape[1]))
     sinz = np.zeros((numharm, ampz.shape[1]))
@@ -278,9 +284,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     dst_gcos = np.ones([maxJ, maxI])
     dst_gsin = np.zeros([maxJ, maxI])
     # lets start with the u-points
-    grid_angles = nemo_bdy_grid_angle.GridAngle(
-        setup.settings["dst_hgr"], 0, maxI, 0, maxJ, "u"
-    )
+    grid_angles = nemo_bdy_grid_angle.GridAngle(DC.hgr, 0, maxI, 0, maxJ, "u")
     dst_gcos = grid_angles.cosval
     dst_gsin = grid_angles.sinval
 
@@ -303,9 +307,7 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     # let do the v points
     dst_gcos = np.ones([maxJ, maxI])
     dst_gsin = np.zeros([maxJ, maxI])
-    grid_angles = nemo_bdy_grid_angle.GridAngle(
-        setup.settings["dst_hgr"], 0, maxI, 0, maxJ, "v"
-    )
+    grid_angles = nemo_bdy_grid_angle.GridAngle(DC.hgr, 0, maxI, 0, maxJ, "v")
     dst_gcos = grid_angles.cosval
     dst_gsin = grid_angles.sinval
 

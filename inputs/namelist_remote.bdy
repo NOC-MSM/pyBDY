@@ -36,6 +36,7 @@
    sn_dst_zgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/mesh_zgr_zps.nc'
    sn_src_msk = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_low_res_C/mask.nc'
    sn_bathy   = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/NNA_R12_bathy_meter_bench.nc'
+   sn_nme_map = './inputs/grid_name_map.json'     ! json file mapping variable names to netcdf vars
 
 !------------------------------------------------------------------------------
 !  I/O
@@ -62,6 +63,7 @@
                                           !  baroclinic velocities
     ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition
+    ln_zinterp     = .true.               !  vertical interpolation
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------

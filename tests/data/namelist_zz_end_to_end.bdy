@@ -12,6 +12,9 @@
 !------------------------------------------------------------------------------
 !   vertical coordinate
 !------------------------------------------------------------------------------
+   ln_zco      = .false.   !  z-coordinate - full    steps   (T/F)
+   ln_zps      = .true.    !  z-coordinate - partial steps   (T/F)
+   ln_sco      = .false.   !  s- or hybrid z-s-coordinate    (T/F)
    rn_hmin     =   -10     !  min depth of the ocean (>0) or
                            !  min number of ocean level (<0)
 
@@ -27,21 +30,21 @@
 !------------------------------------------------------------------------------
 !  grid information
 !------------------------------------------------------------------------------
-   sn_src_hgr = './inputs/benchmark/grid_low_res_C/mesh_hgr.nc'
-   sn_src_zgr = './inputs/benchmark/grid_low_res_C/mesh_zgr.nc'
-   sn_dst_hgr = './inputs/benchmark/grid_C/mesh_hgr_zps.nc'     ! Expects vars found in domain_cfg.nc
-   sn_dst_zgr = './inputs/benchmark/grid_C/mesh_zgr_zps.nc'     ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
-   sn_src_msk = './inputs/benchmark/grid_low_res_C/mask.nc'
-   sn_bathy   = './inputs/benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'    ! dst bathymetry w/o time dimension
+   sn_src_hgr = './tests/data/mesh_synth_sc.nc' ! sn_src_hgr = './tests/mesh_hgr.nc'
+   sn_src_zgr = './tests/data/mesh_synth_sc.nc' ! sn_src_zgr = './tests/mesh_zgr.nc'
+   sn_dst_hgr = './tests/data/mesh_synth_dst.nc' ! Expects vars found in domain_cfg.nc
+   sn_dst_zgr = './tests/data/mesh_synth_dst.nc' ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
+   sn_src_msk = './tests/data/mesh_synth_sc.nc' ! sn_src_msk = './tests/mask.nc'
+   sn_bathy   = './tests/data/mesh_synth_dst.nc' ! dst bathymetry w/o time dimension
                                                                             !Expects vars: {Bathymetry,nav_lat,nav_lon}
-   sn_nme_map = './inputs/grid_name_map.json'     ! json file mapping variable names to netcdf vars
+   sn_nme_map = './tests/data/grid_name_map.json'     ! json file mapping variable names to netcdf vars
 
 !------------------------------------------------------------------------------
 !  I/O
 !------------------------------------------------------------------------------
-   sn_src_dir = './inputs/src_data_local.ncml' ! src_files/'
-   sn_dst_dir = './outputs'
-   sn_fn      = 'NNA_R12'             ! prefix for output files
+   sn_src_dir = './tests/data/sc_test.ncml' ! src_files/'
+   sn_dst_dir = './tests/data' ! sn_dst_dir = './tests'
+   sn_fn      = 'data_output'        ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
    sn_dst_metainfo = 'Benchmarking Data'

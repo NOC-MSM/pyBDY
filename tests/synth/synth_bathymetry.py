@@ -1,12 +1,32 @@
+# ===================================================================
+# The contents of this file are dedicated to the public domain.  To
+# the extent that dedication to the public domain is not available,
+# everyone is granted a worldwide, perpetual, royalty-free,
+# non-exclusive license to exercise all rights associated with the
+# contents of this file for any purpose whatsoever.
+# No rights are reserved.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# ===================================================================
+
 """Module to generate datasets for testing."""
 
-from typing import Any, Callable, Optional, TypeVar
+# External imports
+import datetime as dt
+from typing import Optional
 
 import numpy as np
 import xarray as xr
 from xarray import DataArray, Dataset
 
-F = TypeVar("F", bound=Callable[..., Any])
+# Internal imports
 
 
 class Bathymetry:
@@ -75,7 +95,7 @@ class Bathymetry:
             * np.exp(
                 -(
                     stiff
-                    / 40.0e3**2
+                    / 4.0**2
                     * ((ds.glamt - glamt_mid) ** 2 + (ds.gphit - gphit_mid) ** 2)
                 )
             )
@@ -433,11 +453,11 @@ def generate_variables(
     ds = Dataset()
 
     # Define variables
-    temp = xr.full_like(ds_domcfg.e3t, 20.0, dtype=np.double)
-    salt = xr.full_like(ds_domcfg.e3t, 35.0, dtype=np.double)
-    uvel = xr.full_like(ds_domcfg.e3t, 1.0, dtype=np.double)
-    vvel = xr.full_like(ds_domcfg.e3t, 1.0, dtype=np.double)
-    ssh = xr.full_like(ds_domcfg.e2t, 0.0, dtype=np.double)
+    temp = xr.full_like(ds_domcfg.gdept, 20.0, dtype=np.double)
+    salt = xr.full_like(ds_domcfg.gdept, 35.0, dtype=np.double)
+    uvel = xr.full_like(ds_domcfg.gdept, 1.0, dtype=np.double)
+    vvel = xr.full_like(ds_domcfg.gdept, 1.0, dtype=np.double)
+    ssh = xr.full_like(ds_domcfg.Bathymetry, 0.0, dtype=np.double)
 
     # Add attributes
     temp.attrs = dict(units="C", long_name="Temperature (degrees centigrade)")
@@ -447,18 +467,27 @@ def generate_variables(
     ssh.attrs = dict(units="m", long_name="Sea Surface Height (m)")
 
     # Add to ds
-    ds["temp"] = temp
-    ds["salt"] = salt
-    ds["uvel"] = uvel
-    ds["vvel"] = vvel
-    ds["ssh"] = ssh
+    ds["votemper"] = temp
+    ds["vosaline"] = salt
+    ds["vozocrtx"] = uvel
+    ds["vomecrty"] = vvel
+    ds["sossheig"] = ssh
 
     # Add t dim
     # times = pd.date_range("2020","2023",freq='Y')+ DateOffset(months=6)
-    times = xr.cftime_range("2000", periods=3, freq="A-JUN", calendar="standard")
-    da_t = xr.DataArray(times, [("t", times)])
-    ds = ds.expand_dims(dim={"t": da_t})
-    ds = ds.transpose("t", "z", "y", "x")
-    ds["t"] = ds["t"]
+    # times = xr.cftime_range("1979-01-01", periods=3, freq="D", calendar="standard")# + tdelta
+    ref = dt.datetime(1960, 1, 1)
+    st = dt.datetime(1979, 11, 1)
+    date_list = [st + dt.timedelta(days=i) for i in range(31)]
+    tdelta_d = np.array([(date_list[i] - ref).days for i in range(len(date_list))])
+    tdelta_s = np.array([(date_list[i] - ref).seconds for i in range(len(date_list))])
+    tdelta = (tdelta_d * 24 * 60 * 60) + tdelta_s
+    da_t = xr.DataArray(tdelta, [("time_counter", tdelta)])
+    da_t = da_t.assign_attrs(
+        units="seconds since " + ref.strftime("%Y-%m-%d %H:%M:%S"), calendar="gregorian"
+    )
+    ds = ds.expand_dims(dim={"time_counter": da_t})
+    ds = ds.transpose("time_counter", "z", "y", "x")
+    ds["time_counter"] = da_t
 
     return ds

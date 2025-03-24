@@ -88,8 +88,8 @@ class Extract:
 
         sc_time = Grid[grd].source_time
         self.var_nam = var_nam
-        sc_z = SC.zt[:]
-        sc_z_len = len(sc_z)
+        sc_z = np.squeeze(SC.zgr.grid["gdept"][:])
+        sc_z_len = sc_z.shape[0]
 
         self.jpj, self.jpi = DC.lonlat[grd]["lon"].shape
         self.jpk = DC.depths[grd]["bdy_z"].shape[0]
@@ -135,8 +135,8 @@ class Extract:
         # ??? Should this be read from settings?
         wei_121 = np.array([0.5, 0.25, 0.25])
 
-        SC.lon = SC.lon.squeeze()
-        SC.lat = SC.lat.squeeze()
+        SC.lon = SC.hgr.grid["glamt"].squeeze()  # lon
+        SC.lat = SC.hgr.grid["gphit"].squeeze()  # lat
 
         # Check that we're only dealing with one pair of vectors
 
@@ -175,14 +175,14 @@ class Extract:
         self.id_121_2d = np.zeros((1, len(dst_lon), len(wei_121)), dtype=int)
         self.id_121_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)), dtype=int)
         if self.key_vec:
-            self.dst_gcos = np.zeros((sc_z_len, len(dst_lon)))
-            self.dst_gsin = np.zeros((sc_z_len, len(dst_lon)))
+            self.dst_gcos = np.zeros((dst_len_z, len(dst_lon)))
+            self.dst_gsin = np.zeros((dst_len_z, len(dst_lon)))
             self.gcos = np.empty((0, 9))
             self.gsin = np.empty((0, 9))
             self.sc_chunk = np.empty((0), int)
-        self.z_ind = np.zeros((num_bdy * dst_len_z, 2), dtype=np.int64)
-        self.z_dist = np.ma.zeros((num_bdy * dst_len_z, 2))
-        self.z_chunk = np.zeros((num_bdy * dst_len_z), dtype=np.int64) - 1
+        self.z_ind = np.zeros((dst_len_z * num_bdy * 9, 2), dtype=np.int64)
+        self.z_dist = np.ma.zeros((dst_len_z * num_bdy * 9, 2))
+        self.z_chunk = np.zeros((num_bdy * dst_len_z * 9), dtype=np.int64) - 1
         zc_count = 0
 
         # loop over chunks
@@ -193,9 +193,9 @@ class Extract:
             dst_lat_ch = dst_lat[chunk]
             self.num_bdy_ch[c] = len(dst_lon_ch)
             self.z_chunk[
-                zc_count : zc_count + (self.num_bdy_ch[c] * dst_len_z)
+                zc_count : zc_count + (self.num_bdy_ch[c] * dst_len_z * 9)
             ] = all_chunk[c]
-            zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z)
+            zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z * 9)
             chunk_z_bool = self.z_chunk == all_chunk[c]
 
             imin, imax, jmin, jmax = extr_assist.get_ind(
@@ -232,13 +232,11 @@ class Extract:
                 # Extract the source rotation angles on the T-Points as the C-Grid
                 # U/V points naturally average onto these
 
-                src_ga = ga.GridAngle(
-                    self.settings["src_hgr"], imin, imax, jmin, jmax, "t"
-                )
+                src_ga = ga.GridAngle(SC.hgr, imin, imax, jmin, jmax, "t")
 
                 # Extract the rotation angles for the bdy velocities points
 
-                dst_ga = ga.GridAngle(self.settings["dst_hgr"], 1, maxI, 1, maxJ, grd)
+                dst_ga = ga.GridAngle(DC.hgr, 1, maxI, 1, maxJ, grd)
 
                 sc_gcos = src_ga.cosval
                 sc_gsin = src_ga.sinval
@@ -256,8 +254,8 @@ class Extract:
                     tmp_gcos[:, p] = dst_gcos[bdy_ind[p, 1], bdy_ind[p, 0]]
                     tmp_gsin[:, p] = dst_gsin[bdy_ind[p, 1], bdy_ind[p, 0]]
 
-                self.dst_gcos[:, chunk] = np.tile(tmp_gcos, (sc_z_len, 1))
-                self.dst_gsin[:, chunk] = np.tile(tmp_gsin, (sc_z_len, 1))
+                self.dst_gcos[:, chunk] = np.tile(tmp_gcos, (dst_len_z, 1))
+                self.dst_gsin[:, chunk] = np.tile(tmp_gsin, (dst_len_z, 1))
 
             # Determine size of source data subset
 
@@ -318,7 +316,7 @@ class Extract:
             # Shuffle ind to reflect ascending dist of source and dst points
             ind = ind.T
             for p in range(ind.shape[0]):
-                ind[p, :] = ind[p, dist_ind[p, :]]
+                ind[p, :] = ind[p, dist_ind[p, :]]  # [chunk, 9]
 
             if self.key_vec:
                 self.gcos = np.append(
@@ -426,58 +424,23 @@ class Extract:
 
             # Fig not implemented
 
-            if not isslab:  # TODO or no vertical interpolation required
+            if (not isslab) & self.settings["zinterp"]:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
-                # Allocate vertical index array
-                dst_dep_rv = dst_dep[:, chunk].ravel(order="F").filled(np.nan)
-                z_ind = np.zeros((self.num_bdy_ch[c] * dst_len_z, 2), dtype=np.int64)
-                source_tree = None
-                try:
-                    source_tree = sp.cKDTree(
-                        list(zip(sc_z.ravel(order="F"))),
-                        balanced_tree=False,
-                        compact_nodes=False,
-                    )
-                except TypeError:  # fix for scipy 0.16.0
-                    source_tree = sp.cKDTree(list(zip(sc_z.ravel(order="F"))))
-
-                junk, nn_id = source_tree.query(list(zip(dst_dep_rv)), k=1)
-
-                # WORKAROUND: the tree query returns out of range val when
-                # dst_dep point is NaN, causing ref problems later.
-                nn_id[nn_id == sc_z_len] = sc_z_len - 1
-
-                # Find next adjacent point in the vertical
-                z_ind[:, 0] = nn_id
-                z_ind[sc_z[nn_id] > dst_dep_rv[:], 1] = (
-                    nn_id[sc_z[nn_id] > dst_dep_rv[:]] - 1
+                # We already have horizontal ind and dist_tot (for horiz weight)
+                z_dist, z_ind = extr_assist.get_vertical_weights(
+                    dst_dep[:, chunk],
+                    dst_len_z,
+                    self.num_bdy_ch[c],
+                    sc_z,
+                    sc_z_len,
+                    ind,
+                    SC.zgr.grid_type == "zco",
                 )
-                z_ind[sc_z[nn_id] <= dst_dep_rv[:], 1] = (
-                    nn_id[sc_z[nn_id] <= dst_dep_rv[:]] + 1
-                )
-                # Adjust out of range values
-                z_ind[z_ind == -1] = 0
-                z_ind[z_ind == sc_z_len] = sc_z_len - 1
 
-                # Create weightings array
-                z_dist = np.abs(
-                    sc_z[z_ind]
-                    - dst_dep[:, chunk].T.repeat(2).reshape(len(dst_dep_rv), 2)
-                )
-                rat = np.ma.sum(z_dist, axis=1)
-                z_dist = 1 - (z_dist / rat.repeat(2).reshape(len(rat), 2))
-
-                # Update z_ind for the dst array dims and vector indexing
-                # Replicating this part of matlab is difficult without causing
-                # a Memory Error. This workaround may be +/- brilliant
-                # In theory it maximises memory efficiency
-                z_ind[:, :] += np.arange(0, (self.num_bdy_ch[c]) * sc_z_len, sc_z_len)[
-                    np.arange(self.num_bdy_ch[c]).repeat(2 * dst_len_z)
-                ].reshape(z_ind.shape)
             else:
-                z_ind = np.zeros([1, 1])
-                z_dist = np.ma.zeros([1, 1])
+                z_ind = np.zeros([dst_len_z * int(np.sum(chunk)) * 9, 2], dtype=int)
+                z_dist = np.ma.zeros([dst_len_z * int(np.sum(chunk)) * 9, 2])
             # End isslab
 
             # Put variables in list and array
@@ -488,8 +451,8 @@ class Extract:
             self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
             self.id_121_2d[:, chunk, :] = id_121_2d
             self.id_121_3d[:, chunk, :] = id_121_3d
-            self.z_ind[chunk_z_bool, :] = z_ind
-            self.z_dist[chunk_z_bool, :] = z_dist
+            self.z_ind[chunk_z_bool, ...] = z_ind
+            self.z_dist[chunk_z_bool, ...] = z_dist
 
             # End of chunk loop
 
@@ -503,8 +466,8 @@ class Extract:
             self.bdy_z = DC.depths[self.g_type]["bdy_H"]
         else:
             self.bdy_z = np.zeros([1])
+        self.dst_z = dst_dep
         self.dst_dep = dst_dep.filled(np.nan)
-        self.dst_z = self.dst_dep
         self.sc_z_len = sc_z_len
         self.sc_time = sc_time
 
@@ -635,7 +598,11 @@ class Extract:
                     hold = np.zeros((((last_date + 1) - first_date), 1, self.num_bdy))
                 else:
                     hold = np.zeros(
-                        (((last_date + 1) - first_date), len(self.dst_z), self.num_bdy)
+                        (
+                            ((last_date + 1) - first_date),
+                            len(self.dst_dep),
+                            self.num_bdy,
+                        )
                     )
 
                 if self.key_vec is True and self.rot_dir == "j":
@@ -866,94 +833,64 @@ class Extract:
                         sc_z_len = self.sc_z_len
 
                     # identify valid pts
-                    data_ind = np.invert(np.isnan(sc_bdy[vn][:, :, :]))
-                    # dist_tot is currently 2D so extend along depth
-                    # axis to allow single array calc later, also remove
-                    # any invalid pts using our eldritch data_ind
-                    self.logger.info(
-                        "DIST TOT ZEROS BEFORE %s",
-                        np.sum(self.dist_tot[chunk_d, :] == 0),
-                    )
-                    dist_tot = (
-                        np.repeat(self.dist_tot[chunk_d, :], sc_z_len).reshape(
-                            self.dist_tot[chunk_d, :].shape[0],
-                            self.dist_tot[chunk_d, :].shape[1],
-                            sc_z_len,
+                    data_ind, _ = extr_assist.valid_index(sc_bdy[vn], self.logger)
+
+                    if not isslab:
+                        # Vertical interpolation
+                        sc_bdy_lev = extr_assist.interp_vertical(
+                            sc_bdy[vn],
+                            self.dst_dep[:, chunk_d],
+                            self.bdy_z[chunk_d],
+                            self.z_ind[chunk_z, :],
+                            self.z_dist[chunk_z, :],
+                            data_ind,
+                            self.num_bdy_ch[chk],
+                            self.settings["zinterp"],
                         )
-                    ).transpose(2, 0, 1)
-                    dist_tot *= data_ind
-                    self.logger.info("DIST TOT ZEROS %s", np.sum(dist_tot == 0))
+                    else:
+                        # No vertical interpolation
+                        sc_bdy_lev = sc_bdy[vn]
+                        sc_bdy_lev[:, np.isnan(self.bdy_z[chunk_d]), :] = np.NaN
 
-                    self.logger.info("DIST IND ZEROS %s", np.sum(data_ind == 0))
+                    _, nan_ind = extr_assist.valid_index(sc_bdy_lev, self.logger)
 
-                    # Identify problem pts due to grid discontinuities
-                    # using dists >  lat
-                    over_dist = np.sum(dist_tot[:] > 4)
-                    if over_dist > 0:
-                        raise RuntimeError(
-                            """Distance between source location
-                                              and new boundary points is greater
-                                              than 4 degrees of lon/lat"""
-                        )
-
-                    # Calculate guassian weighting with correlation dist
-                    r0 = self.settings["r0"]
-                    dist_wei = (1 / (r0 * np.power(2 * np.pi, 0.5))) * (
-                        np.exp(-0.5 * np.power(dist_tot / r0, 2))
+                    # distance weightings for averaging source data to destination
+                    dist_wei, dist_fac = extr_assist.distance_weights(
+                        sc_bdy_lev,
+                        self.dist_tot[chunk_d, :],
+                        len(sc_bdy_lev),
+                        self.settings["r0"],
+                        self.logger,
                     )
-                    # Calculate sum of weightings
-                    dist_fac = np.sum(dist_wei * data_ind, 2)
-                    # identify loc where all sc pts are land
-                    nan_ind = np.sum(data_ind, 2) == 0
-                    self.logger.info("NAN IND : %s ", np.sum(nan_ind))
 
-                    # Calc max zlevel to which data available on sc grid
-                    data_ind = np.sum(nan_ind == 0, 0) - 1
-                    # set land val to level 1 otherwise indexing problems
-                    # may occur- should not affect later results because
-                    # land is masked in weightings array
-                    data_ind[data_ind == -1] = 0
-                    # transform depth levels at each bdy pt to vector
-                    # index that can be used to speed up calcs
-                    data_ind += np.arange(0, sc_z_len * self.num_bdy_ch[chk], sc_z_len)
-
-                    # ? Attribute only used on first run so clear.
-                    del dist_tot
-
-                    # weighted averaged onto new horizontal grid
-                    self.logger.info(
-                        " sc_bdy %s %s", np.nanmin(sc_bdy[vn]), np.nanmax(sc_bdy[vn])
+                    # weighted averaged (interpolation) onto new horizontal grid
+                    dst_bdy = extr_assist.interp_horizontal(
+                        sc_bdy_lev, dist_wei, dist_fac, self.logger
                     )
-                    dst_bdy = np.zeros_like(dist_fac) * np.nan
-                    # dst_bdy = np.zeros_like(dist_fac)
-                    ind_valid = dist_fac > 0.0
-                    dst_bdy[ind_valid] = (
-                        np.nansum(sc_bdy[vn][:, :, :] * dist_wei, 2)[ind_valid]
-                        / dist_fac[ind_valid]
-                    )
-                    # dst_bdy = (np.nansum(sc_bdy[vn][:,:,:] * dist_wei, 2) /
-                    #           dist_fac)
-                    self.logger.info(
-                        " dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                    )
-                    # Quick check to see we have not got bad values
-                    if np.sum(dst_bdy == np.inf) > 0:
-                        raise RuntimeError(
-                            """Bad values found after
-                                              weighted averaging"""
-                        )
 
                     # weight vector array and rotate onto dest grid
                     if self.key_vec:
-                        # [:,:,:,vn+1]
-                        dst_bdy_2 = np.zeros_like(dist_fac)
-                        ind_valid = dist_fac > 0.0
-                        dst_bdy_2[ind_valid] = (
-                            np.nansum(sc_bdy[vn + 1][:, :, :] * dist_wei, 2)[ind_valid]
-                            / dist_fac[ind_valid]
+                        if not isslab:
+                            # Vertical interpolation
+                            sc_bdy_lev2 = extr_assist.interp_vertical(
+                                sc_bdy[vn + 1],
+                                self.dst_dep[:, chunk_d],
+                                self.bdy_z[chunk_d],
+                                self.z_ind[chunk_z, :],
+                                self.z_dist[chunk_z, :],
+                                data_ind,
+                                self.num_bdy_ch[chk],
+                                self.settings["zinterp"],
+                            )
+                        else:
+                            # No vertical interpolation
+                            sc_bdy_lev2 = sc_bdy[vn + 1]
+                            sc_bdy_lev2[:, np.isnan(self.bdy_z[chunk_d]), :] = np.NaN
+
+                        dst_bdy_2 = extr_assist.interp_horizontal(
+                            sc_bdy_lev2, dist_wei, dist_fac, self.logger
                         )
-                        # dst_bdy_2 = (np.nansum(sc_bdy[vn+1][:,:,:] * dist_wei, 2) /
-                        #             dist_fac)
+
                         self.logger.info("time to to rot and rep ")
                         self.logger.info(
                             "%s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
@@ -991,52 +928,27 @@ class Extract:
                         # Finished first run operations
                         # self.first = False
 
-                    # Set land pts to zero
-                    self.logger.info(
-                        " pre dst_bdy[nan_ind] %s %s",
-                        np.nanmin(dst_bdy),
-                        np.nanmax(dst_bdy),
-                    )
-                    dst_bdy[nan_ind] = 0
-                    self.logger.info(
-                        " post dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                    )
-                    # Remove any data on dst grid that is in land
-                    dst_bdy[:, np.isnan(self.bdy_z[chunk_d])] = 0
-                    self.logger.info(
-                        " 3 dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                    )
-
-                    # If we have depth dimension
-                    if not isslab:
-                        # If all else fails fill down using deepest pt
-                        dst_bdy = dst_bdy.flatten("F")
-                        dst_bdy += (dst_bdy == 0) * dst_bdy[data_ind].repeat(sc_z_len)
-                        # Weighted averaged on new vertical grid
-                        dst_bdy = (
-                            dst_bdy[self.z_ind[chunk_z, 0]] * self.z_dist[chunk_z, 0]
-                            + dst_bdy[self.z_ind[chunk_z, 1]] * self.z_dist[chunk_z, 1]
-                        )
-                        data_out = dst_bdy.reshape(
-                            self.dst_dep[:, chunk_d].shape, order="F"
+                    if self.settings["zinterp"]:
+                        # Set land pts to zero
+                        self.logger.info(
+                            " pre dst_bdy[nan_ind] %s %s",
+                            np.nanmin(dst_bdy),
+                            np.nanmax(dst_bdy),
                         )
 
-                        # If z-level replace data below bed !!! make stat
-                        # of this as could be problematic
-                        ind_z = self.bdy_z[chunk_d].repeat(
-                            len(self.dst_dep[:, chunk_d])
+                        dst_bdy[nan_ind] = 0
+                        self.logger.info(
+                            " post dst_bdy %s %s",
+                            np.nanmin(dst_bdy),
+                            np.nanmax(dst_bdy),
                         )
-                        ind_z = ind_z.reshape(
-                            len(self.dst_dep[:, chunk_d]),
-                            len(self.bdy_z[chunk_d]),
-                            order="F",
+                        # Remove any data on dst grid that is in land
+                        dst_bdy[:, np.isnan(self.bdy_z[chunk_d])] = 0
+                        self.logger.info(
+                            " 3 dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
                         )
-                        ind_z -= self.dst_dep[:, chunk_d]
-                        ind_z = ind_z < 0
-                        data_out[ind_z] = np.NaN
-                    else:
-                        data_out = dst_bdy
-                        data_out[:, np.isnan(self.bdy_z[chunk_d])] = np.NaN
+
+                    data_out = dst_bdy
 
                     # add data to self.d_bdy
                     if self.key_vec is True and self.rot_dir == "j":
@@ -1297,6 +1209,7 @@ class Extract:
                 (v == "vozocrtx") or (v == "vomecrty")
             ):  # Calculate depth averaged velocity
                 tile_dz = np.tile(self.bdy_dz, [len(self.time_counter), 1, 1, 1])
+                tile_dz = np.ma.filled(tile_dz, np.nan)
                 tmp_var = np.reshape(
                     self.d_bdy[v][year]["data"][:, :, :], tile_dz.shape
                 )
@@ -1307,36 +1220,51 @@ class Extract:
                 else:
                     ncpop.write_data_to_file(f_out, "vobtcrty", tmp_var)
 
-            # else: # Replace NaNs with specified fill value
+            if self.settings["zinterp"]:
+                # Replace NaNs with specified fill value
+                tmp_var = np.where(
+                    np.isnan(self.d_bdy[v][year]["data"][:, :, :]),
+                    self.settings["fv"],
+                    self.d_bdy[v][year]["data"][:, :, :],
+                )
+                jpk, jpj, jpi = tmp_var.shape
 
-            tmp_var = np.where(
-                np.isnan(self.d_bdy[v][year]["data"][:, :, :]),
-                self.settings["fv"],
-                self.d_bdy[v][year]["data"][:, :, :],
-            )
-            jpk, jpj, jpi = tmp_var.shape
-            if jpj > 1:
-                for k in range(jpk):
-                    tmp_var[k, :, :] = np.where(
-                        np.isnan(self.dst_dep), self.settings["fv"], tmp_var[k, :, :]
-                    )
+                if jpj > 1:
+                    for k in range(jpk):
+                        tmp_var[k, :, :] = np.where(
+                            np.isnan(self.dst_dep),
+                            self.settings["fv"],
+                            tmp_var[k, :, :],
+                        )
+            else:
+                # leave all data unfilled for run-time NEMO vertical interpolation
+                tmp_var = self.d_bdy[v][year]["data"][:, :, :]
+                tmp_var[np.isnan(tmp_var)] = np.nanmean(tmp_var)
 
             # Write variable to file
             ncpop.write_data_to_file(f_out, v, tmp_var)
 
-        # check depth array has had NaNs removed
+        if self.settings["zinterp"]:
+            # check depth array has had NaNs removed
 
-        tmp_dst_dep = np.where(
-            np.isnan(self.dst_dep), self.settings["fv"], self.dst_dep
-        )
+            tmp_dst_dz = np.where(
+                np.isnan(self.dst_dep), self.settings["fv"], self.bdy_dz
+            )
+            tmp_dst_dep = np.where(
+                np.isnan(self.dst_dep), self.settings["fv"], self.dst_dep
+            )
+            tmp_dst_dz = np.ma.filled(tmp_dst_dz, self.settings["fv"])
+            tmp_dst_dep = np.ma.filled(tmp_dst_dep, self.settings["fv"])
+        else:
+            tmp_dst_dz = np.ma.getdata(self.bdy_dz)
+            tmp_dst_dep = np.ma.getdata(self.dst_z)
 
         # Write remaining data to file (indices are in Python notation
         # therefore we must add 1 to i,j and r)
         ncpop.write_data_to_file(f_out, "nav_lon", self.nav_lon)
         ncpop.write_data_to_file(f_out, "nav_lat", self.nav_lat)
         ncpop.write_data_to_file(f_out, "gdep" + self.g_type, tmp_dst_dep)
-        # TODO: e3 is just populated with gdep
-        ncpop.write_data_to_file(f_out, "e3" + self.g_type, tmp_dst_dep)
+        ncpop.write_data_to_file(f_out, "e3" + self.g_type, tmp_dst_dz)
         ncpop.write_data_to_file(f_out, "nbidta", ind.bdy_i[:, 0] + 1)
         ncpop.write_data_to_file(f_out, "nbjdta", ind.bdy_i[:, 1] + 1)
         ncpop.write_data_to_file(f_out, "nbrdta", ind.bdy_r[:] + 1)
