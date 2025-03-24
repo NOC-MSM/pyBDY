@@ -6,12 +6,12 @@ Rewritting the break depth implementation from matlab version.
 import logging
 import math
 
+import gsw
 import numpy as np
 
 # import pyproj
 # import matplotlib.pyplot as plt
 import scipy.ndimage as ndimage
-import seawater
 
 
 def gcoms_break_depth(bathy):
@@ -196,8 +196,8 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
         print(lat_pts, lon_pts)
         print(lat_lon_index[0], lat_lon_index[1])
         print(len_lon, len_lat, lat_lon_index[0], lat_lon_index[1])
-        dy, py = seawater.dist(lat_pts[:, 0], lon_pts[:, 0])
-        dx, px = seawater.dist(lat_pts[0, :], lon_pts[0, :])
+        dy = gsw.distance(lon_pts[:, 0], lat_pts[:, 0]) / 1000  # m to km
+        dx = gsw.distance(lon_pts[0, :], lat_pts[0, :]) / 1000  # m to km
         r = np.rint(np.ceil(dr / np.amax([dx, dy])))
         print(dx, dy, r)
         lat_slice = slice(
@@ -211,11 +211,11 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
         lat_pts_shape = lat_pts.shape
         lat_pts = np.ravel(lat_pts)
         lon_pts = np.ravel(lon_pts)
-        # NOTE: seawater package calculates the distance from point to the next point in the array
+        # NOTE: gsw package calculates the distance from point to the next point in the array
         # that is the reason to insert reference point before every point
         lat_pts = np.insert(lat_pts, list(range(0, len(lat_pts))), lat_ob[idx])
         lon_pts = np.insert(lon_pts, list(range(0, len(lon_pts))), lon_ob[idx])
-        distance_pts = seawater.dist(lat_pts, lon_pts)
+        distance_pts = gsw.distance(lon_pts, lat_pts) / 1000  # m to km
         # distances repeat themselves so only pick every alternative distance
         distance_pts = distance_pts[0][::2]
 
@@ -267,8 +267,8 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
         print(lat_pts, lon_pts)
         print(lat_lon_index[0], lat_lon_index[1])
         print(len_lon, len_lat, lat_lon_index[0], lat_lon_index[1])
-        dy, py = seawater.dist(lat_pts[:, 0], lon_pts[:, 0])
-        dx, px = seawater.dist(lat_pts[0, :], lon_pts[0, :])
+        dy = gsw.distance(lon_pts[:, 0], lat_pts[:, 0]) / 1000  # m to km
+        dx = gsw.distance(lon_pts[0, :], lat_pts[0, :]) / 1000  # m to km
         r = np.rint(np.ceil(dr / np.amax([dx, dy])))
         print(dx, dy, r)
         lat_slice = slice(
@@ -282,11 +282,11 @@ def polcoms_select_domain(bathy, lat, lon, roi, dr):
         lat_pts_shape = lat_pts.shape
         lat_pts = np.ravel(lat_pts)
         lon_pts = np.ravel(lon_pts)
-        # NOTE: seawater package calculates the distance from point to the next point in the array
+        # NOTE: gsw package calculates the distance from point to the next point in the array
         # that is the reason to insert reference point before every point
         lat_pts = np.insert(lat_pts, list(range(0, len(lat_pts))), lat_lb[idx])
         lon_pts = np.insert(lon_pts, list(range(0, len(lon_pts))), lon_lb[idx])
-        distance_pts = seawater.dist(lat_pts, lon_pts)
+        distance_pts = gsw.distance(lon_pts, lat_pts) / 1000  # m to km
         # distances repeat themselves so only pick every alternative distance
         distance_pts = distance_pts[0][::2]
 
