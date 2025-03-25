@@ -74,7 +74,39 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     jmin = np.maximum(np.amin(sub_j), 0)
     jmax = np.minimum(np.amax(sub_j), len(sc_lon[:, 0]) - 1) + 1
 
+    import matplotlib.pyplot as plt
+
+    plt.scatter(sc_lon, sc_lat, c="b")
+    plt.scatter(sc_lon[jmin:jmax, imin:imax], sc_lat[jmin:jmax, imin:imax], c="r")
+    plt.show()
     return imin, imax, jmin, jmax
+
+
+def check_wrap(imin, imax, sc_lon):
+    """
+    Check if source domain wraps and dst spans the wrap.
+
+    Parameters
+    ----------
+    imin (int) : minimum i index
+    imax (int) : maximum i index
+    sc_lon (np.array)  : the longitude of the source grid
+
+    Returns
+    -------
+    wrap_flag (bool) :  if true the sc wraps and dst spans wrap
+    """
+    dx = sc_lon[:, -1] - sc_lon[:, -2]
+    lon_next = sc_lon[:, -1] + dx
+    lon_next[lon_next > 180] -= 360
+
+    # check if last lon is closer to first lon than the grid spacing
+    sc_wrap = np.isclose(lon_next, sc_lon[:, 0], atol=dx / 2).any()
+
+    # check if dst touches either sc i-edge
+    dst_spans = (imin == 0) | (imax == sc_lon.shape[1])
+    wrap_flag = sc_wrap & dst_spans
+    return wrap_flag
 
 
 def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
