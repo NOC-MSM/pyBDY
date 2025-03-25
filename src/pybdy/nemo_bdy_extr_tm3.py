@@ -201,6 +201,7 @@ class Extract:
             imin, imax, jmin, jmax = extr_assist.get_ind(
                 dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
             )
+
             # Summarise subset region
 
             self.logger.info("Extract __init__: subset region limits")
@@ -286,7 +287,23 @@ class Extract:
             i_sp = np.vstack((i_sp, i_sp, i_sp))
             i_sp = np.vstack((i_sp, i_sp + 1, i_sp - 1))
 
-            # Index out of bounds error check not implemented
+            # Check index out of bounds
+            if (i_sp >= source_dims[1]).any() | (i_sp < 0).any():
+                wrap_flag = extr_assist.check_wrap(imin, imax, SC.lon)
+                if wrap_flag:
+                    # If wrap_flag is true make indices wrap
+                    i_sp[i_sp >= source_dims[1]] -= source_dims[1]
+                    i_sp[i_sp < 0] += source_dims[1]
+                else:
+                    raise Exception(
+                        "Destination touches source i-edge but source is not cylindrical"
+                    )
+
+            if (j_sp >= source_dims[0]).any() | (j_sp < 0).any():
+                # North Fold not implemented yet
+                raise Exception(
+                    "Destination touches source j-edge but North Fold is not implemented"
+                )
 
             # Determine 9 nearest neighbours based on distance
             ind = sub2ind(source_dims, i_sp, j_sp)
