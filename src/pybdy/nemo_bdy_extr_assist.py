@@ -74,11 +74,6 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     jmin = np.maximum(np.amin(sub_j), 0)
     jmax = np.minimum(np.amax(sub_j), len(sc_lon[:, 0]) - 1) + 1
 
-    import matplotlib.pyplot as plt
-
-    plt.scatter(sc_lon, sc_lat, c="b")
-    plt.scatter(sc_lon[jmin:jmax, imin:imax], sc_lat[jmin:jmax, imin:imax], c="r")
-    plt.show()
     return imin, imax, jmin, jmax
 
 
