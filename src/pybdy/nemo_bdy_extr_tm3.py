@@ -291,7 +291,7 @@ class Extract:
             if (i_sp >= source_dims[1]).any() | (i_sp < 0).any():
                 wrap_flag = extr_assist.check_wrap(imin, imax, SC.lon)
                 if wrap_flag:
-                    # If wrap_flag is true make indices wrap
+                    # If wrap_flag is true make indices wrap over east-west fold
                     i_sp[i_sp >= source_dims[1]] -= source_dims[1]
                     i_sp[i_sp < 0] += source_dims[1]
                 else:
