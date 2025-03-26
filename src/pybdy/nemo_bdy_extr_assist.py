@@ -101,7 +101,12 @@ def check_wrap(imin, imax, sc_lon):
     # check if dst touches either sc i-edge
     dst_spans = (imin == 0) | (imax == sc_lon.shape[1])
     wrap_flag = sc_wrap & dst_spans
-    return wrap_flag
+
+    if wrap_flag:
+        # make sure imin and imax take the whole x dim
+        imin = 0
+        imax = sc_lon.shape[1]
+    return wrap_flag, imin, imax
 
 
 def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
