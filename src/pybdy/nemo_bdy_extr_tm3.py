@@ -668,6 +668,9 @@ class Extract:
                     np.min(j_run) : np.max(j_run) + 1,
                     np.min(i_run) : np.max(i_run) + i_plus,
                 ]
+                if t_mask.shape[1] == 1:
+                    t_mask = np.tile(t_mask, (1, sc_z_len, 1, 1))
+
                 if self.key_vec:
                     varid_3 = nc_3["umask"]
                     u_mask = varid_3[
@@ -683,6 +686,10 @@ class Extract:
                         np.min(extended_j) : np.max(extended_j) + 1,
                         np.min(i_run) : np.max(i_run) + i_plus,
                     ]
+                    if t_mask.shape[1] == 1:
+                        u_mask = np.tile(u_mask, (1, sc_z_len, 1, 1))
+                    if t_mask.shape[1] == 1:
+                        v_mask = np.tile(v_mask, (1, sc_z_len, 1, 1))
                 nc_3.close()
 
                 if self.sc_wrap[chk]:
@@ -807,7 +814,7 @@ class Extract:
                         np.nanmin(sc_array[0]),
                         np.nanmax(sc_array[0]),
                     )
-                    print(sc_z_len, sc_array[0].shape, t_mask.shape)
+
                     if isslab and not self.key_vec:
                         sc_array[0][t_mask[:, 0:1, :, :] == 0] = np.NaN
                     else:
