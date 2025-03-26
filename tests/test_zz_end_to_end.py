@@ -326,6 +326,8 @@ def test_wrap_sc():
         "Shape_v": ds_v["vomecrty"].shape,
         "Mean_u": float(ds_u["vozocrtx"].mean().to_numpy()),
         "Mean_v": float(ds_v["vomecrty"].mean().to_numpy()),
+        "Temp_Strip1": ds_t["votemper"].to_numpy()[0, 0, 0, 123:127].tolist(),
+        "Temp_Strip2": ds_t["votemper"].to_numpy()[0, 0, 0, 1439:1441].tolist(),
     }
 
     # Clean up files
@@ -346,14 +348,21 @@ def test_wrap_sc():
         "Shape_temp": (30, 25, 1, 1584),
         "Shape_ssh": (30, 1, 1584),
         "Shape_mask": (60, 50),
-        "Mean_temp": 16.437015533447266,
-        "Mean_sal": 30.8212833404541,
+        "Mean_temp": 17.540178298950195,
+        "Mean_sal": 30.812232971191406,
         "Sum_unmask": 495030,
         "Sum_mask": 692970,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.9023050665855408,
-        "Mean_v": 0.8996582627296448,
+        "Mean_u": 0.9030880331993103,
+        "Mean_v": 0.9035892486572266,
+        "Temp_Strip1": [
+            19.80881690979004,
+            24.904409408569336,
+            24.904409408569336,
+            30.0,
+        ],
+        "Temp_Strip2": [30.0, 19.80881690979004],
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -465,6 +474,12 @@ def generate_sc_test_case(zco, wrap=0):
     depth = depth.transpose("time_counter", "z", "y", "x")
 
     data_vars["votemper"] = synth_temp_sal.temperature_profile(depth)
+    if wrap:
+        temp = np.array(data_vars["votemper"].to_numpy())
+        temp[:, :, :, 0] = 30
+        data_vars["votemper"] = xr.DataArray(
+            temp, dims=["time_counter", "z", "y", "x"], name="votemper"
+        ).copy()
     data_vars["vosaline"] = synth_temp_sal.salinity_profile(depth)
     uvel = np.ones_like(data_vars["vozocrtx"])
     uvel[:, -10:, :, :] = 0.5
