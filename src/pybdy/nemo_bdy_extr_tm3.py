@@ -167,6 +167,7 @@ class Extract:
         all_chunk = np.unique(chunk_number)
 
         sc_ind_ch = []
+        self.sc_wrap = np.zeros((len(all_chunk)), dtype=bool)
         self.dst_chunk = chunk_number.copy()
         self.dist_tot = np.zeros((len(dst_lon), 9))
         self.num_bdy_ch = np.zeros((len(all_chunk)), dtype=int)
@@ -201,6 +202,7 @@ class Extract:
             imin, imax, jmin, jmax = extr_assist.get_ind(
                 dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
             )
+            wrap_flag, imin, imax = extr_assist.check_wrap(imin, imax, SC.lon)
 
             # Summarise subset region
 
@@ -289,7 +291,6 @@ class Extract:
 
             # Check index out of bounds
             if (i_sp >= source_dims[1]).any() | (i_sp < 0).any():
-                wrap_flag = extr_assist.check_wrap(imin, imax, SC.lon)
                 if wrap_flag:
                     # If wrap_flag is true make indices wrap over east-west fold
                     i_sp[i_sp >= source_dims[1]] -= source_dims[1]
@@ -463,6 +464,7 @@ class Extract:
             # Put variables in list and array
 
             sc_ind_ch.append(sc_ind)
+            self.sc_wrap[c] = wrap_flag
             self.dist_tot[chunk, :] = dist_tot
             self.tmp_filt_2d[:, chunk, :] = tmp_filt_2d
             self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
@@ -646,6 +648,14 @@ class Extract:
             extended_j = np.arange(
                 self.sc_ind_ch[chk]["jmin"] - 1, self.sc_ind_ch[chk]["jmax"]
             )
+            if self.sc_wrap[chk]:
+                # If wrap_flag is true make indices wrap over east-west fold
+                # imax is already adjusted to x dim max if wrapped
+                extended_i[extended_i < 0] += self.sc_ind_ch[chk]["imax"]
+                i_plus = 0
+            else:
+                i_plus = 1
+
             ind = self.sc_ind_ch[chk]["ind"]
 
             if self.first:
@@ -656,7 +666,7 @@ class Extract:
                     :1,
                     :sc_z_len,
                     np.min(j_run) : np.max(j_run) + 1,
-                    np.min(i_run) : np.max(i_run) + 1,
+                    np.min(i_run) : np.max(i_run) + i_plus,
                 ]
                 if self.key_vec:
                     varid_3 = nc_3["umask"]
@@ -664,16 +674,26 @@ class Extract:
                         :1,
                         :sc_z_len,
                         np.min(j_run) : np.max(j_run) + 1,
-                        np.min(extended_i) : np.max(extended_i) + 1,
+                        np.min(extended_i) : np.max(extended_i) + i_plus,
                     ]
                     varid_3 = nc_3["vmask"]
                     v_mask = varid_3[
                         :1,
                         :sc_z_len,
                         np.min(extended_j) : np.max(extended_j) + 1,
-                        np.min(i_run) : np.max(i_run) + 1,
+                        np.min(i_run) : np.max(i_run) + i_plus,
                     ]
                 nc_3.close()
+
+                if self.sc_wrap[chk]:
+                    # Stick first and last slice on opposite end
+                    t_mask = np.concatenate((t_mask, t_mask[:, :, :, 0:1]), axis=3)
+                    if self.key_vec:
+                        u_mask = np.concatenate(
+                            (u_mask[:, :, :, -2:-1], u_mask, u_mask[:, :, :, 0:1]),
+                            axis=3,
+                        )
+                        v_mask = np.concatenate((v_mask, v_mask[:, :, :, 0:1]), axis=3)
 
             # Loop over identified files
             for f in range(first_date, last_date + 1):
@@ -719,7 +739,7 @@ class Extract:
                             f : f + 1,
                             :sc_z_len,
                             np.min(j_run) : np.max(j_run) + 1,
-                            np.min(i_run) : np.max(i_run) + 1,
+                            np.min(i_run) : np.max(i_run) + i_plus,
                         ]
                     # Extract 3D vector variables
                     elif self.key_vec:
@@ -728,14 +748,14 @@ class Extract:
                             f : f + 1,
                             :sc_z_len,
                             np.min(j_run) : np.max(j_run) + 1,
-                            np.min(extended_i) : np.max(extended_i) + 1,
+                            np.min(extended_i) : np.max(extended_i) + i_plus,
                         ]
                         # For v vels take j-1
                         sc_alt_arr[1] = varid_2[
                             f : f + 1,
                             :sc_z_len,
                             np.min(extended_j) : np.max(extended_j) + 1,
-                            np.min(i_run) : np.max(i_run) + 1,
+                            np.min(i_run) : np.max(i_run) + i_plus,
                         ]
                     # Extract 2D scalar vars
                     else:
@@ -743,8 +763,27 @@ class Extract:
                         sc_array[0] = varid[
                             f : f + 1,
                             np.min(j_run) : np.max(j_run) + 1,
-                            np.min(i_run) : np.max(i_run) + 1,
-                        ].reshape([1, 1, j_run.size, i_run.size])
+                            np.min(i_run) : np.max(i_run) + i_plus,
+                        ][:, np.newaxis, :, :]
+
+                    if self.sc_wrap[chk]:
+                        # Stick first and last slice on opposite end
+                        if self.key_vec:
+                            sc_alt_arr[0] = np.concatenate(
+                                (
+                                    sc_alt_arr[0][:, :, :, -2:-1],
+                                    sc_alt_arr[0],
+                                    sc_alt_arr[0][:, :, :, 0:1],
+                                ),
+                                axis=3,
+                            )
+                            sc_alt_arr[1] = np.concatenate(
+                                (sc_alt_arr[1], sc_alt_arr[1][:, :, :, 0:1]), axis=3
+                            )
+                        else:
+                            sc_array[0] = np.concatenate(
+                                (sc_array[0], sc_array[0][:, :, :, 0:1]), axis=3
+                            )
 
                     # Average vector vars onto T-grid
                     if self.key_vec:
@@ -768,7 +807,7 @@ class Extract:
                         np.nanmin(sc_array[0]),
                         np.nanmax(sc_array[0]),
                     )
-
+                    print(sc_z_len, sc_array[0].shape, t_mask.shape)
                     if isslab and not self.key_vec:
                         sc_array[0][t_mask[:, 0:1, :, :] == 0] = np.NaN
                     else:
