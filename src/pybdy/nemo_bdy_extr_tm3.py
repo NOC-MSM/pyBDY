@@ -669,7 +669,12 @@ class Extract:
                     np.min(i_run) : np.max(i_run) + i_plus,
                 ]
                 if t_mask.shape[1] == 1:
-                    t_mask = np.tile(t_mask, (1, sc_z_len, 1, 1))
+                    raise Exception(
+                        "Mask dimensions are not correct. Depth is "
+                        + str(sc_z_len)
+                        + " but tmask is shape "
+                        + str(t_mask.shape)
+                    )
 
                 if self.key_vec:
                     varid_3 = nc_3["umask"]
@@ -686,10 +691,20 @@ class Extract:
                         np.min(extended_j) : np.max(extended_j) + 1,
                         np.min(i_run) : np.max(i_run) + i_plus,
                     ]
-                    if t_mask.shape[1] == 1:
-                        u_mask = np.tile(u_mask, (1, sc_z_len, 1, 1))
-                    if t_mask.shape[1] == 1:
-                        v_mask = np.tile(v_mask, (1, sc_z_len, 1, 1))
+                    if u_mask.shape[1] == 1:
+                        raise Exception(
+                            "Mask dimensions are not correct. Depth is "
+                            + str(sc_z_len)
+                            + " but umask is shape "
+                            + str(u_mask.shape)
+                        )
+                    if v_mask.shape[1] == 1:
+                        raise Exception(
+                            "Mask dimensions are not correct. Depth is "
+                            + str(sc_z_len)
+                            + " but vmask is shape "
+                            + str(v_mask.shape)
+                        )
                 nc_3.close()
 
                 if self.sc_wrap[chk]:
