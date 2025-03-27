@@ -29,6 +29,7 @@ $Last commit on:$
 """
 # External Imports
 import copy
+import datetime as dt
 import logging
 from calendar import isleap, monthrange
 
@@ -535,24 +536,33 @@ class Extract:
             # Set time counter for output as array
             self.time_counter = sc_time.time_counter[last_date : last_date + 1]
         else:
+            # Calculate the dates we want for dst output
+
             sf, ed = self.cal_trans(
                 sc_time.calendar,  # sc_time[0].calendar
                 self.settings["dst_calendar"],
                 year,
                 month,
             )
-            DstCal = utime("seconds since %d-1-1" % year, self.settings["dst_calendar"])
-            dst_start = DstCal.date2num(datetime(year, month, 1))
-            dst_end = DstCal.date2num(datetime(year, month, ed, 23, 59, 59))
+            DstCal = utime(
+                "seconds since %d" % self.settings["date_origin"],
+                self.settings["dst_calendar"],
+            )
+            st_d = dt.datetime.strptime(self.settings["date_start"], "%Y-%m-%d")
+            en_d = dt.datetime.strptime(self.settings["date_end"], "%Y-%m-%d")
+            if en_d.day < ed:
+                ed = en_d.day
+            dst_start = DstCal.date2num(datetime(st_d.year, st_d.month, st_d.day))
+            dst_end = DstCal.date2num(datetime(en_d.year, en_d.month, ed, 23, 59, 59))
 
             self.S_cal = utime(
                 sc_time.units, sc_time.calendar
             )  # sc_time[0].units,sc_time[0].calendar)
 
-            self.D_cal = utime(
-                "seconds since %d-1-1" % self.settings["base_year"],
-                self.settings["dst_calendar"],
-            )
+            # self.D_cal = utime(
+            #    "seconds since %d-1-1" % self.settings["base_year"],
+            #    self.settings["dst_calendar"],
+            # )
 
             src_date_seconds = np.zeros(len(sc_time.time_counter))
             for index in range(len(sc_time.time_counter)):
@@ -1149,14 +1159,15 @@ class Extract:
         nt = len(self.d_bdy[self.var_nam[var_id]]["date"])
         time_counter = np.zeros([nt])
         tmp_cal = utime(
-            "seconds since %d-1-1" % year, self.settings["dst_calendar"].lower()
+            "seconds since %d" % self.settings["date_origin"],
+            self.settings["dst_calendar"].lower(),
         )
 
         for t in range(nt):
             time_counter[t] = tmp_cal.date2num(
                 self.d_bdy[self.var_nam[var_id]]["date"][t]
             )
-
+        ###### got here
         date_000 = datetime(year, month, 1, 12, 0, 0)
         if month < 12:
             date_end = datetime(year, month + 1, 1, 12, 0, 0)
@@ -1224,7 +1235,7 @@ class Extract:
         year         (int) : year to write out
         month        (int) : month to write out
         ind          (dict): dictionary holding grid information
-        unit_origin  (str) : time reference '%d-01-01 00:00:00' %year_000
+        unit_origin  (str) : time reference '%d 00:00:00' %date_origin
 
         Returns
         -------
