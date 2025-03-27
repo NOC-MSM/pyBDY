@@ -28,6 +28,7 @@ $Last commit on:$
 """
 
 # External imports
+import datetime as dt
 import logging
 import time
 
@@ -231,7 +232,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     for grd in ["t", "u", "v"]:
         bdy_ind[grd].source_time = reader[grd]
 
-    unit_origin = "%d-01-01 00:00:00" % settings["base_year"]
+    unit_origin = "%d 00:00:00" % settings["date_origin"]
 
     # Extract source data on dst grid
 
@@ -259,36 +260,32 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # Set the year and month range
 
-    yr_000 = settings["year_000"]
-    yr_end = settings["year_end"]
-    mn_000 = settings["month_000"]
-    mn_end = settings["month_end"]
+    st_d = dt.datetime.strptime(settings["date_start"], "%Y-%m-%d")
+    en_d = dt.datetime.strptime(settings["date_end"], "%Y-%m-%d")
 
-    if yr_000 > yr_end:
+    if st_d.year > en_d.year:
         logging.error(
             "Please check the nn_year_000 and nn_year_end " + "values in input bdy file"
         )
         return
 
-    yrs = list(range(yr_000, yr_end + 1))
+    yrs = list(range(st_d.year, en_d.year + 1))
 
-    if yr_end - yr_000 >= 1:
-        if mn_end - mn_000 < 12:
+    if en_d.year - st_d.year >= 1:
+        if en_d.month - st_d.month < 12:
             logger.info(
                 "Warning: All months will be extracted as the number "
                 + "of years is greater than 1"
             )
         mns = list(range(1, 13))
     else:
-        mn_000 = settings["month_000"]
-        mn_end = settings["month_end"]
-        if mn_end > 12 or mn_000 < 1:
+        if en_d.month > 12 or st_d.month < 1:
             logging.error(
-                "Please check the nn_month_000 and nn_month_end "
-                + "values in input bdy file"
+                "Please check the nn_date_start and nn_date_end "
+                + "month values in input bdy file"
             )
             return
-        mns = list(range(mn_000, mn_end + 1))
+        mns = list(range(st_d.month, en_d.month + 1))
 
     # Enter the loop for each year and month extraction
 
