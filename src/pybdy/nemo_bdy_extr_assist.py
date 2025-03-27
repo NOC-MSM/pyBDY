@@ -48,9 +48,13 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     """
     ind_e = sc_lon < np.amax(dst_lon)
     ind_w = sc_lon > np.amin(dst_lon)
+    ind_e[:, 2:] = ind_e[:, :-2]
+    ind_w[:, :-2] = ind_w[:, 2:]
     ind_ew = np.logical_and(ind_e, ind_w)
     ind_s = sc_lat > np.amin(dst_lat)
     ind_n = sc_lat < np.amax(dst_lat)
+    ind_s[:-2, :] = ind_s[2:, :]
+    ind_n[2:, :] = ind_n[:-2, :]
     ind_sn = np.logical_and(ind_s, ind_n)
 
     ind = np.where(np.logical_and(ind_ew, ind_sn) != 0)
@@ -65,12 +69,44 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
             "The destination grid lat, lon is not inside the source grid lat, lon."
         )
 
-    imin = np.maximum(np.amin(sub_i) - 2, 0)
-    imax = np.minimum(np.amax(sub_i) + 2, len(sc_lon[0, :]) - 1) + 1
-    jmin = np.maximum(np.amin(sub_j) - 2, 0)
-    jmax = np.minimum(np.amax(sub_j) + 2, len(sc_lon[:, 0]) - 1) + 1
+    imin = np.maximum(np.amin(sub_i), 0)
+    imax = np.minimum(np.amax(sub_i), len(sc_lon[0, :]) - 1) + 1
+    jmin = np.maximum(np.amin(sub_j), 0)
+    jmax = np.minimum(np.amax(sub_j), len(sc_lon[:, 0]) - 1) + 1
 
     return imin, imax, jmin, jmax
+
+
+def check_wrap(imin, imax, sc_lon):
+    """
+    Check if source domain wraps and dst spans the wrap.
+
+    Parameters
+    ----------
+    imin (int) : minimum i index
+    imax (int) : maximum i index
+    sc_lon (np.array)  : the longitude of the source grid
+
+    Returns
+    -------
+    wrap_flag (bool) :  if true the sc wraps and dst spans wrap
+    """
+    dx = sc_lon[:, -1] - sc_lon[:, -2]
+    lon_next = sc_lon[:, -1] + dx
+    lon_next[lon_next > 180] -= 360
+
+    # check if last lon is closer to first lon than the grid spacing
+    sc_wrap = np.isclose(lon_next, sc_lon[:, 0], atol=dx / 2).any()
+
+    # check if dst touches either sc i-edge
+    dst_spans = (imin == 0) | (imax == sc_lon.shape[1])
+    wrap_flag = sc_wrap & dst_spans
+
+    if wrap_flag:
+        # make sure imin and imax take the whole x dim
+        imin = 0
+        imax = sc_lon.shape[1]
+    return wrap_flag, imin, imax
 
 
 def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
