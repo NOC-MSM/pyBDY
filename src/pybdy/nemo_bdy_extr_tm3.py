@@ -672,8 +672,8 @@ class Extract:
                     raise Exception(
                         "Mask dimensions are not correct. Depth is "
                         + str(sc_z_len)
-                        + " but tmask is shape "
-                        + str(t_mask.shape)
+                        + " but tmask is "
+                        + str(t_mask.shape[1])
                     )
 
                 if self.key_vec:
@@ -695,15 +695,15 @@ class Extract:
                         raise Exception(
                             "Mask dimensions are not correct. Depth is "
                             + str(sc_z_len)
-                            + " but umask is shape "
-                            + str(u_mask.shape)
+                            + " but umask is "
+                            + str(u_mask.shape[1])
                         )
                     if v_mask.shape[1] == 1:
                         raise Exception(
                             "Mask dimensions are not correct. Depth is "
                             + str(sc_z_len)
-                            + " but vmask is shape "
-                            + str(v_mask.shape)
+                            + " but vmask is "
+                            + str(v_mask.shape[1])
                         )
                 nc_3.close()
 
