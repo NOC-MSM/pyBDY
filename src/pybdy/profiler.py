@@ -285,7 +285,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
                 + "month values in input bdy file"
             )
             return
-        mns = list(range(st_d.month, en_d.month + 1))
+        if en_d.day == 1:
+            mns = list(range(st_d.month, en_d.month))
+        else:
+            mns = list(range(st_d.month, en_d.month + 1))
 
     # Enter the loop for each year and month extraction
 

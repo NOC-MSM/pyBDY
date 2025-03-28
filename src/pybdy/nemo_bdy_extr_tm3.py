@@ -577,7 +577,6 @@ class Extract:
                     break
 
         self.logger.info("first/last dates: %s %s", first_date, last_date)
-        print(first_date, last_date)
 
         # Identify missing values and scale factors if defined
         meta_data = []
@@ -1170,10 +1169,11 @@ class Extract:
 
         st_d = dt.datetime.strptime(self.settings["date_start"], "%Y-%m-%d")
         en_d = dt.datetime.strptime(self.settings["date_end"], "%Y-%m-%d")
+
         if date_000 < datetime(st_d.year, st_d.month, st_d.day):
             date_000 = datetime(st_d.year, st_d.month, st_d.day, 12, 0, 0)
         if date_end > datetime(en_d.year, en_d.month, en_d.day):
-            date_000 = datetime(en_d.year, en_d.month, en_d.day, 12, 0, 0)
+            date_end = datetime(en_d.year, en_d.month, en_d.day, 12, 0, 0)
         time_000 = tmp_cal.date2num(date_000)
         time_end = tmp_cal.date2num(date_end)
 
@@ -1194,32 +1194,34 @@ class Extract:
 
         # target time index
         target_time = np.arange(time_000, time_end, 86400)
-
-        # interpolate
-        for v in varnams:
-            if del_t >= 86400.0:  # upsampling
-                intfn = interp1d(
-                    time_counter,
-                    self.d_bdy[v][year]["data"][:, :, :],
-                    axis=0,
-                    bounds_error=True,
-                )
-                self.d_bdy[v][year]["data"] = intfn(target_time)
-            else:  # downsampling
-                for t in range(dstep):
+        if len(target_time):
+            # interpolate
+            for v in varnams:
+                if del_t >= 86400.0:  # upsampling
                     intfn = interp1d(
-                        time_counter[t::dstep],
-                        self.d_bdy[v].data[t::dstep, :, :],
+                        time_counter,
+                        self.d_bdy[v][year]["data"][:, :, :],
                         axis=0,
                         bounds_error=True,
                     )
-                    self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
+                    self.d_bdy[v][year]["data"] = intfn(target_time)
+                else:  # downsampling
+                    for t in range(dstep):
+                        intfn = interp1d(
+                            time_counter[t::dstep],
+                            self.d_bdy[v].data[t::dstep, :, :],
+                            axis=0,
+                            bounds_error=True,
+                        )
+                        self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
 
-        # update time_counter
-        self.time_counter = target_time
+            # update time_counter
+            self.time_counter = target_time
+        else:
+            self.time_counter = None
 
-        # RDP: self.d_bdy[v]["date"] is not updated during interpolation, but
-        #      self.time_counter is. This could be prone to unexpected errors.
+            # RDP: self.d_bdy[v]["date"] is not updated during interpolation, but
+            #      self.time_counter is. This could be prone to unexpected errors.
 
     def write_out(self, year, month, ind, unit_origin):
         """
