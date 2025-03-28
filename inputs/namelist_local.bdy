@@ -91,11 +91,11 @@
 !------------------------------------------------------------------------------
 !  Time information for output
 !------------------------------------------------------------------------------
-    nn_date_start   = 2024-12-12    !  output date start YYYY-MM-DD
-    nn_date_end     = 2024-12-22    !  output date end YYYY-MM-DD
-    sn_dst_calendar = 'gregorian'   !  output calendar format
-    nn_date_origin  = 2024-12-12    !  reference for time counter YYYY-MM-DD
-    ln_time_interpolation = .false. !  set to false to use parent frequency and calender
+    sn_date_start   = '1979-11-03'    !  dst output date start YYYY-MM-DD
+    sn_date_end     = '1979-11-30'    !  dst output date end YYYY-MM-DD
+    sn_dst_calendar = 'gregorian'     !  output calendar format
+    sn_date_origin  = '1960-01-01'    !  reference for time counter YYYY-MM-DD
+    ln_time_interpolation = .true. !  set to false to use parent frequency and calender
 
 !------------------------------------------------------------------------------
 !  Additional parameters
