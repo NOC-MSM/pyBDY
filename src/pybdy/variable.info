@@ -30,12 +30,10 @@ ln_tide = if .true. : produce bdy tidal conditions
 sn_tide_model  = 'FES'
 clname(0) = constituent name
 ln_trans =
-nn_year_000 = year start
-nn_year_end = year end
-nn_month_000 = month start (default = 1 is years>1)
-nn_month_end = month end (default = 12 is years>1)
+sn_date_start = dst output date start YYYY-MM-DD
+sn_date_end = dst output date end YYYY-MM-DD
 sn_dst_calendar = output calendar format
-nn_base_year = base year for time counter
+sn_date_origin = reference for time counter YYYY-MM-DD
 ln_time_interpolation = Move from source to destination calendar
 sn_tide_grid_7p2   =
 sn_tide_h          =

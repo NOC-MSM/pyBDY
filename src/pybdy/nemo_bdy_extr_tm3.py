@@ -29,6 +29,7 @@ $Last commit on:$
 """
 # External Imports
 import copy
+import datetime as dt
 import logging
 from calendar import isleap, monthrange
 
@@ -167,6 +168,7 @@ class Extract:
         all_chunk = np.unique(chunk_number)
 
         sc_ind_ch = []
+        self.sc_wrap = np.zeros((len(all_chunk)), dtype=bool)
         self.dst_chunk = chunk_number.copy()
         self.dist_tot = np.zeros((len(dst_lon), 9))
         self.num_bdy_ch = np.zeros((len(all_chunk)), dtype=int)
@@ -201,6 +203,8 @@ class Extract:
             imin, imax, jmin, jmax = extr_assist.get_ind(
                 dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
             )
+            wrap_flag, imin, imax = extr_assist.check_wrap(imin, imax, SC.lon)
+
             # Summarise subset region
 
             self.logger.info("Extract __init__: subset region limits")
@@ -286,7 +290,22 @@ class Extract:
             i_sp = np.vstack((i_sp, i_sp, i_sp))
             i_sp = np.vstack((i_sp, i_sp + 1, i_sp - 1))
 
-            # Index out of bounds error check not implemented
+            # Check index out of bounds
+            if (i_sp >= source_dims[1]).any() | (i_sp < 0).any():
+                if wrap_flag:
+                    # If wrap_flag is true make indices wrap over east-west fold
+                    i_sp[i_sp >= source_dims[1]] -= source_dims[1]
+                    i_sp[i_sp < 0] += source_dims[1]
+                else:
+                    raise Exception(
+                        "Destination touches source i-edge but source is not cylindrical"
+                    )
+
+            if (j_sp >= source_dims[0]).any() | (j_sp < 0).any():
+                # North Fold not implemented yet
+                raise Exception(
+                    "Destination touches source j-edge but North Fold is not implemented"
+                )
 
             # Determine 9 nearest neighbours based on distance
             ind = sub2ind(source_dims, i_sp, j_sp)
@@ -446,6 +465,7 @@ class Extract:
             # Put variables in list and array
 
             sc_ind_ch.append(sc_ind)
+            self.sc_wrap[c] = wrap_flag
             self.dist_tot[chunk, :] = dist_tot
             self.tmp_filt_2d[:, chunk, :] = tmp_filt_2d
             self.tmp_filt_3d[:, chunk, :] = tmp_filt_3d
@@ -516,24 +536,26 @@ class Extract:
             # Set time counter for output as array
             self.time_counter = sc_time.time_counter[last_date : last_date + 1]
         else:
+            # Calculate the dates we want for dst output
+
             sf, ed = self.cal_trans(
                 sc_time.calendar,  # sc_time[0].calendar
                 self.settings["dst_calendar"],
                 year,
                 month,
             )
-            DstCal = utime("seconds since %d-1-1" % year, self.settings["dst_calendar"])
-            dst_start = DstCal.date2num(datetime(year, month, 1))
-            dst_end = DstCal.date2num(datetime(year, month, ed, 23, 59, 59))
-
-            self.S_cal = utime(
-                sc_time.units, sc_time.calendar
-            )  # sc_time[0].units,sc_time[0].calendar)
-
-            self.D_cal = utime(
-                "seconds since %d-1-1" % self.settings["base_year"],
+            DstCal = utime(
+                "seconds since " + self.settings["date_origin"],
                 self.settings["dst_calendar"],
             )
+            st_d = dt.datetime.strptime(self.settings["date_start"], "%Y-%m-%d")
+            en_d = dt.datetime.strptime(self.settings["date_end"], "%Y-%m-%d")
+            if en_d.day < ed:
+                ed = en_d.day
+            dst_start = DstCal.date2num(datetime(st_d.year, st_d.month, st_d.day))
+            dst_end = DstCal.date2num(datetime(en_d.year, en_d.month, ed, 23, 59, 59))
+
+            self.S_cal = utime(sc_time.units, sc_time.calendar)
 
             src_date_seconds = np.zeros(len(sc_time.time_counter))
             for index in range(len(sc_time.time_counter)):
@@ -629,6 +651,14 @@ class Extract:
             extended_j = np.arange(
                 self.sc_ind_ch[chk]["jmin"] - 1, self.sc_ind_ch[chk]["jmax"]
             )
+            if self.sc_wrap[chk]:
+                # If wrap_flag is true make indices wrap over east-west fold
+                # imax is already adjusted to x dim max if wrapped
+                extended_i[extended_i < 0] += self.sc_ind_ch[chk]["imax"]
+                i_plus = 0
+            else:
+                i_plus = 1
+
             ind = self.sc_ind_ch[chk]["ind"]
 
             if self.first:
@@ -639,24 +669,56 @@ class Extract:
                     :1,
                     :sc_z_len,
                     np.min(j_run) : np.max(j_run) + 1,
-                    np.min(i_run) : np.max(i_run) + 1,
+                    np.min(i_run) : np.max(i_run) + i_plus,
                 ]
+                if t_mask.shape[1] == 1:
+                    raise Exception(
+                        "Mask dimensions are not correct. Depth is "
+                        + str(sc_z_len)
+                        + " but tmask is "
+                        + str(t_mask.shape[1])
+                    )
+
                 if self.key_vec:
                     varid_3 = nc_3["umask"]
                     u_mask = varid_3[
                         :1,
                         :sc_z_len,
                         np.min(j_run) : np.max(j_run) + 1,
-                        np.min(extended_i) : np.max(extended_i) + 1,
+                        np.min(extended_i) : np.max(extended_i) + i_plus,
                     ]
                     varid_3 = nc_3["vmask"]
                     v_mask = varid_3[
                         :1,
                         :sc_z_len,
                         np.min(extended_j) : np.max(extended_j) + 1,
-                        np.min(i_run) : np.max(i_run) + 1,
+                        np.min(i_run) : np.max(i_run) + i_plus,
                     ]
+                    if u_mask.shape[1] == 1:
+                        raise Exception(
+                            "Mask dimensions are not correct. Depth is "
+                            + str(sc_z_len)
+                            + " but umask is "
+                            + str(u_mask.shape[1])
+                        )
+                    if v_mask.shape[1] == 1:
+                        raise Exception(
+                            "Mask dimensions are not correct. Depth is "
+                            + str(sc_z_len)
+                            + " but vmask is "
+                            + str(v_mask.shape[1])
+                        )
                 nc_3.close()
+
+                if self.sc_wrap[chk]:
+                    # Stick first and last slice on opposite end
+                    t_mask = np.concatenate((t_mask, t_mask[:, :, :, 0:1]), axis=3)
+                    if self.key_vec:
+                        u_mask = np.concatenate(
+                            (u_mask[:, :, :, -2:-1], u_mask, u_mask[:, :, :, 0:1]),
+                            axis=3,
+                        )
+                        v_mask = np.concatenate((v_mask, v_mask[:, :, :, 0:1]), axis=3)
 
             # Loop over identified files
             for f in range(first_date, last_date + 1):
@@ -702,7 +764,7 @@ class Extract:
                             f : f + 1,
                             :sc_z_len,
                             np.min(j_run) : np.max(j_run) + 1,
-                            np.min(i_run) : np.max(i_run) + 1,
+                            np.min(i_run) : np.max(i_run) + i_plus,
                         ]
                     # Extract 3D vector variables
                     elif self.key_vec:
@@ -711,14 +773,14 @@ class Extract:
                             f : f + 1,
                             :sc_z_len,
                             np.min(j_run) : np.max(j_run) + 1,
-                            np.min(extended_i) : np.max(extended_i) + 1,
+                            np.min(extended_i) : np.max(extended_i) + i_plus,
                         ]
                         # For v vels take j-1
                         sc_alt_arr[1] = varid_2[
                             f : f + 1,
                             :sc_z_len,
                             np.min(extended_j) : np.max(extended_j) + 1,
-                            np.min(i_run) : np.max(i_run) + 1,
+                            np.min(i_run) : np.max(i_run) + i_plus,
                         ]
                     # Extract 2D scalar vars
                     else:
@@ -726,8 +788,27 @@ class Extract:
                         sc_array[0] = varid[
                             f : f + 1,
                             np.min(j_run) : np.max(j_run) + 1,
-                            np.min(i_run) : np.max(i_run) + 1,
-                        ].reshape([1, 1, j_run.size, i_run.size])
+                            np.min(i_run) : np.max(i_run) + i_plus,
+                        ][:, np.newaxis, :, :]
+
+                    if self.sc_wrap[chk]:
+                        # Stick first and last slice on opposite end
+                        if self.key_vec:
+                            sc_alt_arr[0] = np.concatenate(
+                                (
+                                    sc_alt_arr[0][:, :, :, -2:-1],
+                                    sc_alt_arr[0],
+                                    sc_alt_arr[0][:, :, :, 0:1],
+                                ),
+                                axis=3,
+                            )
+                            sc_alt_arr[1] = np.concatenate(
+                                (sc_alt_arr[1], sc_alt_arr[1][:, :, :, 0:1]), axis=3
+                            )
+                        else:
+                            sc_array[0] = np.concatenate(
+                                (sc_array[0], sc_array[0][:, :, :, 0:1]), axis=3
+                            )
 
                     # Average vector vars onto T-grid
                     if self.key_vec:
@@ -1071,7 +1152,8 @@ class Extract:
         nt = len(self.d_bdy[self.var_nam[var_id]]["date"])
         time_counter = np.zeros([nt])
         tmp_cal = utime(
-            "seconds since %d-1-1" % year, self.settings["dst_calendar"].lower()
+            "seconds since " + self.settings["date_origin"],
+            self.settings["dst_calendar"].lower(),
         )
 
         for t in range(nt):
@@ -1084,6 +1166,14 @@ class Extract:
             date_end = datetime(year, month + 1, 1, 12, 0, 0)
         else:
             date_end = datetime(year + 1, 1, 1, 12, 0, 0)
+
+        st_d = dt.datetime.strptime(self.settings["date_start"], "%Y-%m-%d")
+        en_d = dt.datetime.strptime(self.settings["date_end"], "%Y-%m-%d")
+
+        if date_000 < datetime(st_d.year, st_d.month, st_d.day):
+            date_000 = datetime(st_d.year, st_d.month, st_d.day, 12, 0, 0)
+        if date_end > datetime(en_d.year, en_d.month, en_d.day):
+            date_end = datetime(en_d.year, en_d.month, en_d.day, 12, 0, 0)
         time_000 = tmp_cal.date2num(date_000)
         time_end = tmp_cal.date2num(date_end)
 
@@ -1104,32 +1194,34 @@ class Extract:
 
         # target time index
         target_time = np.arange(time_000, time_end, 86400)
-
-        # interpolate
-        for v in varnams:
-            if del_t >= 86400.0:  # upsampling
-                intfn = interp1d(
-                    time_counter,
-                    self.d_bdy[v][year]["data"][:, :, :],
-                    axis=0,
-                    bounds_error=True,
-                )
-                self.d_bdy[v][year]["data"] = intfn(target_time)
-            else:  # downsampling
-                for t in range(dstep):
+        if len(target_time):
+            # interpolate
+            for v in varnams:
+                if del_t >= 86400.0:  # upsampling
                     intfn = interp1d(
-                        time_counter[t::dstep],
-                        self.d_bdy[v].data[t::dstep, :, :],
+                        time_counter,
+                        self.d_bdy[v][year]["data"][:, :, :],
                         axis=0,
                         bounds_error=True,
                     )
-                    self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
+                    self.d_bdy[v][year]["data"] = intfn(target_time)
+                else:  # downsampling
+                    for t in range(dstep):
+                        intfn = interp1d(
+                            time_counter[t::dstep],
+                            self.d_bdy[v].data[t::dstep, :, :],
+                            axis=0,
+                            bounds_error=True,
+                        )
+                        self.d_bdy[v].data[t::dstep, :, :] = intfn(target_time)
 
-        # update time_counter
-        self.time_counter = target_time
+            # update time_counter
+            self.time_counter = target_time
+        else:
+            self.time_counter = None
 
-        # RDP: self.d_bdy[v]["date"] is not updated during interpolation, but
-        #      self.time_counter is. This could be prone to unexpected errors.
+            # RDP: self.d_bdy[v]["date"] is not updated during interpolation, but
+            #      self.time_counter is. This could be prone to unexpected errors.
 
     def write_out(self, year, month, ind, unit_origin):
         """
@@ -1146,7 +1238,7 @@ class Extract:
         year         (int) : year to write out
         month        (int) : month to write out
         ind          (dict): dictionary holding grid information
-        unit_origin  (str) : time reference '%d-01-01 00:00:00' %year_000
+        unit_origin  (str) : time reference '%d 00:00:00' %date_origin
 
         Returns
         -------
