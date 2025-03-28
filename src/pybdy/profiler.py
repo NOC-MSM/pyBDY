@@ -232,7 +232,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     for grd in ["t", "u", "v"]:
         bdy_ind[grd].source_time = reader[grd]
 
-    unit_origin = "%d 00:00:00" % settings["date_origin"]
+    unit_origin = settings["date_origin"] + " 00:00:00"
 
     # Extract source data on dst grid
 
@@ -353,6 +353,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     for year in yrs:
         for month in mns:
+            if (dt.datetime(year, month, 1) < dt.datetime(st_d.year, st_d.month, 1)) | (
+                dt.datetime(year, month, 1) > dt.datetime(en_d.year, en_d.month, 1)
+            ):
+                continue
             for key, val in list(emap.items()):
                 # Extract the data for a given month and year
                 extract_obj[key].extract_month(year, month)
