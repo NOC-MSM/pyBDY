@@ -545,7 +545,7 @@ class Extract:
                 month,
             )
             DstCal = utime(
-                "seconds since %d" % self.settings["date_origin"],
+                "seconds since " + self.settings["date_origin"],
                 self.settings["dst_calendar"],
             )
             st_d = dt.datetime.strptime(self.settings["date_start"], "%Y-%m-%d")
@@ -555,14 +555,7 @@ class Extract:
             dst_start = DstCal.date2num(datetime(st_d.year, st_d.month, st_d.day))
             dst_end = DstCal.date2num(datetime(en_d.year, en_d.month, ed, 23, 59, 59))
 
-            self.S_cal = utime(
-                sc_time.units, sc_time.calendar
-            )  # sc_time[0].units,sc_time[0].calendar)
-
-            # self.D_cal = utime(
-            #    "seconds since %d-1-1" % self.settings["base_year"],
-            #    self.settings["dst_calendar"],
-            # )
+            self.S_cal = utime(sc_time.units, sc_time.calendar)
 
             src_date_seconds = np.zeros(len(sc_time.time_counter))
             for index in range(len(sc_time.time_counter)):
@@ -584,6 +577,7 @@ class Extract:
                     break
 
         self.logger.info("first/last dates: %s %s", first_date, last_date)
+        print(first_date, last_date)
 
         # Identify missing values and scale factors if defined
         meta_data = []
@@ -1159,7 +1153,7 @@ class Extract:
         nt = len(self.d_bdy[self.var_nam[var_id]]["date"])
         time_counter = np.zeros([nt])
         tmp_cal = utime(
-            "seconds since %d" % self.settings["date_origin"],
+            "seconds since " + self.settings["date_origin"],
             self.settings["dst_calendar"].lower(),
         )
 
@@ -1167,12 +1161,19 @@ class Extract:
             time_counter[t] = tmp_cal.date2num(
                 self.d_bdy[self.var_nam[var_id]]["date"][t]
             )
-        ###### got here
+
         date_000 = datetime(year, month, 1, 12, 0, 0)
         if month < 12:
             date_end = datetime(year, month + 1, 1, 12, 0, 0)
         else:
             date_end = datetime(year + 1, 1, 1, 12, 0, 0)
+
+        st_d = dt.datetime.strptime(self.settings["date_start"], "%Y-%m-%d")
+        en_d = dt.datetime.strptime(self.settings["date_end"], "%Y-%m-%d")
+        if date_000 < datetime(st_d.year, st_d.month, st_d.day):
+            date_000 = datetime(st_d.year, st_d.month, st_d.day, 12, 0, 0)
+        if date_end > datetime(en_d.year, en_d.month, en_d.day):
+            date_000 = datetime(en_d.year, en_d.month, en_d.day, 12, 0, 0)
         time_000 = tmp_cal.date2num(date_000)
         time_end = tmp_cal.date2num(date_end)
 
