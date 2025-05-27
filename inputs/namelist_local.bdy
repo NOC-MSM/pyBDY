@@ -95,7 +95,8 @@
     sn_date_end     = '1979-12-01'    !  dst output date end YYYY-MM-DD
     sn_dst_calendar = 'gregorian'     !  output calendar format
     sn_date_origin  = '1960-01-01'    !  reference for time counter YYYY-MM-DD
-    ln_time_interpolation = .true. !  set to false to use parent frequency and calender
+    ln_time_interpolation = .true. !  set to false to use parent
+                                   !  calender for monthly frequency only
 
 !------------------------------------------------------------------------------
 !  Additional parameters
