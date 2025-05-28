@@ -79,13 +79,10 @@
 !------------------------------------------------------------------------------
 !  Time information
 !------------------------------------------------------------------------------
-    nn_year_000     = 1979        !  year start
-    nn_year_end     = 1979        !  year end
-    nn_month_000    = 11          !  month start (default = 1 is years>1)
-    nn_month_end    = 11          !  month end (default = 12 is years>1)
-    sn_dst_calendar = 'gregorian' !  output calendar format
-    nn_base_year    = 1960        !  base year for time counter
-	! location of TPXO7.2 data
+    sn_date_start   = '1979-11-01'    !  dst output date start YYYY-MM-DD
+    sn_date_end     = '1979-12-01'    !  dst output date end YYYY-MM-DD
+    sn_dst_calendar = 'gregorian'     !  output calendar format
+    sn_date_origin  = '1960-01-01'    !  reference for time counter YYYY-MM-DD	! location of TPXO7.2 data
 	sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
 	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
 	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'

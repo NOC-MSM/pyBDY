@@ -91,14 +91,12 @@
 !------------------------------------------------------------------------------
 !  Time information for output
 !------------------------------------------------------------------------------
-    nn_year_000     = 1979        !  year start
-    nn_year_end     = 1979        !  year end
-    nn_month_000    = 11          !  month start (default = 1 is years>1)
-    nn_month_end    = 11          !  month end (default = 12 is years>1)
-    sn_dst_calendar = 'gregorian' !  output calendar format
-    nn_base_year    = 1960        !  base year for time counter
-    ln_time_interpolation = .true. !  set to false to use parent frequency and calender
-                                   !  for monthly only
+    sn_date_start   = '1979-11-01'    !  dst output date start YYYY-MM-DD
+    sn_date_end     = '1979-12-01'    !  dst output date end YYYY-MM-DD
+    sn_dst_calendar = 'gregorian'     !  output calendar format
+    sn_date_origin  = '1960-01-01'    !  reference for time counter YYYY-MM-DD
+    ln_time_interpolation = .true. !  set to false to use parent
+                                   !  calender for monthly frequency only
 
 !------------------------------------------------------------------------------
 !  Additional parameters
