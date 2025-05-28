@@ -153,6 +153,9 @@ Here we will summarise the main variables that will need changing to get started
 
 ##### File Paths
 
+Directory paths in bdy file can be relative or absolute.
+The application picks the relative path from the current working directory.
+
 - **`sn_src_hgr`**: Source horizontal grid file. Should include:
 
     - Ideal: `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
@@ -223,6 +226,8 @@ Here we will summarise the main variables that will need changing to get started
     </ns0:netcdf>
     ```
 
+    - Regular expression (Regex) is a special text string that can be used in the xml file for describing a search pattern to match against some text. You may compare using regex to filter what files to include in your datasets against using wildcard (\*) to specify a file search pattern in your computer. More information on Regex patterns can be found here [Regex](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference).
+
 - **`sn_dst_dir`**: Output directory for PyBDY data
 
 ##### Other Settings
@@ -262,10 +267,12 @@ Here we will summarise the main variables that will need changing to get started
 
 ### Step 3: Running pyBDY
 
-To use pyBDY, the following command is entered: (the example will run an benchmarking test):
+To use pyBDY, the following command is entered: (the example will run a benchmarking test):
 
 ```
 pybdy -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 ```
+
+This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation.
 
 ## Function List :scroll:
