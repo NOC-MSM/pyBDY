@@ -16,12 +16,12 @@ convient GUI.
 ## Contents
 
 - [Dependencies :globe_with_meridians:](#dependencies)
-- [Quick Start Installation :rocket:](#quick-start-installation-)
+- [Quick Start Installation :rocket:](#quick-start-installation-rocket)
 - [How to use pyBDY :mechanical_arm:](#how-to-use-pybdy-)
 - [Tidal Boundary Conditions Generation :sailboat:](#tidal-boundary-conditions-generation)
 - [CMEMS Downloader :inbox_tray:](#cmems-downloader-)
+- [Troubleshooting :safety_vest:](#troubleshooting)
 - [Function List :scroll:](#function-list-)
--
 
 ## Dependencies :globe_with_meridians:
 
@@ -460,7 +460,7 @@ $ where cdo
 
 Finally the last box, this is where the extent to download is configured, it is up to the user to decide but it is suggested this is at least 1 degree wider than the destination or child configuration. The depth range to request is also defined here. This information can be extracted from the CMEMS catalogue. Once set for a given configuration this will not need to be edited.
 
-## Troubleshooting
+## Troubleshooting :safety_vest:
 
 [Back to top](#pybdy-documentation)
 
