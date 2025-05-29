@@ -1,6 +1,3 @@
-ln_zco = z-coordinate - full    steps   (T/F)
-ln_zps = z-coordinate - partial steps   (T/F)
-ln_sco = s- or hybrid z-s-coordinate    (T/F)
 rn_hmin = min depth of the ocean (>0) or min number of ocean level (<0)
 rn_sbot_min = minimum depth of s-bottom surface (>0) (m)
 rn_sbot_max = maximum depth of s-bottom surface (= ocean depth) (>0) (m)
@@ -12,6 +9,7 @@ sn_dst_hgr = destination grid hgr
 sn_dst_zgr = destination grid zgr
 sn_src_msk = source mask
 sn_bathy = destination bathymetry file path
+sn_nme_map = json file mapping variable names to netcdf vars
 sn_src_dir = data directory or thredds server url path
 sn_dst_dir = directory where the output data files need to be stored
 sn_fn = prefix for output files
@@ -26,17 +24,16 @@ ln_dyn2d = boundary conditions for barotropic fields
 ln_dyn3d = boundary conditions for baroclinic velocities
 ln_tra = boundary conditions for T and S
 ln_ice = ice boundary condition
+ln_zinterp = vertical interpolation
 nn_rimwidth = width of the relaxation zone
 ln_tide = if .true. : produce bdy tidal conditions
 sn_tide_model  = 'FES'
 clname(0) = constituent name
 ln_trans =
-nn_year_000 = year start
-nn_year_end = year end
-nn_month_000 = month start (default = 1 is years>1)
-nn_month_end = month end (default = 12 is years>1)
+sn_date_start = dst output date start YYYY-MM-DD
+sn_date_end = dst output date end YYYY-MM-DD
 sn_dst_calendar = output calendar format
-nn_base_year = base year for time counter
+sn_date_origin = reference for time counter YYYY-MM-DD
 ln_time_interpolation = Move from source to destination calendar
 sn_tide_grid_7p2   =
 sn_tide_h          =

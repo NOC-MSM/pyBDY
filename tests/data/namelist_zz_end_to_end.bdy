@@ -30,20 +30,21 @@
 !------------------------------------------------------------------------------
 !  grid information
 !------------------------------------------------------------------------------
-   sn_src_hgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_low_res_C/mesh_hgr.nc'
-   sn_src_zgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_low_res_C/mesh_zgr.nc'
-   sn_dst_hgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/mesh_hgr_zps.nc'
-   sn_dst_zgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/mesh_zgr_zps.nc'
-   sn_src_msk = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_low_res_C/mask.nc'
-   sn_bathy   = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_C/NNA_R12_bathy_meter_bench.nc'
-   sn_nme_map = './inputs/grid_name_map.json'     ! json file mapping variable names to netcdf vars
+   sn_src_hgr = './tests/data/mesh_synth_sc.nc' ! sn_src_hgr = './tests/mesh_hgr.nc'
+   sn_src_zgr = './tests/data/mesh_synth_sc.nc' ! sn_src_zgr = './tests/mesh_zgr.nc'
+   sn_dst_hgr = './tests/data/mesh_synth_dst.nc' ! Expects vars found in domain_cfg.nc
+   sn_dst_zgr = './tests/data/mesh_synth_dst.nc' ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
+   sn_src_msk = './tests/data/mesh_synth_sc.nc' ! sn_src_msk = './tests/mask.nc'
+   sn_bathy   = './tests/data/mesh_synth_dst.nc' ! dst bathymetry w/o time dimension
+                                                                            !Expects vars: {Bathymetry,nav_lat,nav_lon}
+   sn_nme_map = './tests/data/grid_name_map.json'     ! json file mapping variable names to netcdf vars
 
 !------------------------------------------------------------------------------
 !  I/O
 !------------------------------------------------------------------------------
-   sn_src_dir = '/Users/thopri/Projects/pyBDY/inputs/src_data_remote.ncml' ! src_files/'
-   sn_dst_dir = '/Users/thopri/Projects/pyBDY/outputs'
-   sn_fn      = 'NNA_R12'             ! prefix for output files
+   sn_src_dir = './tests/data/sc_test.ncml' ! src_files/'
+   sn_dst_dir = './tests/data' ! sn_dst_dir = './tests'
+   sn_fn      = 'data_output'        ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
    sn_dst_metainfo = 'Benchmarking Data'
@@ -57,7 +58,7 @@
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .false.              !  boundary conditions for
+    ln_dyn2d       = .true.               !  boundary conditions for
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
@@ -74,23 +75,30 @@
     clname(1)      = 'M2'                 !  constituent name
     clname(2)      = 'S2'
     clname(3)      = 'K2'
+    clname(4)      = 'O1'
+    clname(5)      = 'P1'
+    clname(6)      = 'Q1'
+    clname(7)      = 'M4'
     ln_trans       = .true.               !  interpolate transport rather than
                                           !  velocities
+	! location of TPXO7.2 data
+	sn_tide_grid_7p2   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+	sn_tide_h          = './inputs/tpxo7.2/h_tpxo7.2.nc'
+	sn_tide_u          = './inputs/tpxo7.2/u_tpxo7.2.nc'
+	! location of TPXO9v5 data: single constituents per file
+	sn_tide_grid_9p5   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
+	sn_tide_dir        = './inputs/TPXO9_atlas_v5_nc/'
+	! location of FES2014 data
+	sn_tide_fes        = './inputs/FES2014/'
+
 !------------------------------------------------------------------------------
-!  Time information
+!  Time information for output
 !------------------------------------------------------------------------------
     sn_date_start   = '1979-11-01'    !  dst output date start YYYY-MM-DD
     sn_date_end     = '1979-12-01'    !  dst output date end YYYY-MM-DD
     sn_dst_calendar = 'gregorian'     !  output calendar format
-    sn_date_origin  = '1960-01-01'    !  reference for time counter YYYY-MM-DD	! location of TPXO7.2 data
-	sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
-	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
-	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
-	! location of TPXO9v5 data: single constituents per file
-	sn_tide_grid   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
-	sn_tide_dir    = './inputs/TPXO9_atlas_v5_nc/'
-	! location of FES2014 data
-	sn_tide_fes      = './inputs/FES2014/'
+    sn_date_origin  = '1960-01-01'    !  reference for time counter YYYY-MM-DD    ln_time_interpolation = .true. !  set to false to use parent frequency and calender
+                                   !  for monthly only
 
 !------------------------------------------------------------------------------
 !  Additional parameters

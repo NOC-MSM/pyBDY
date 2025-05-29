@@ -12,9 +12,6 @@
 !------------------------------------------------------------------------------
 !   vertical coordinate
 !------------------------------------------------------------------------------
-   ln_zco      = .false.   !  z-coordinate - full    steps   (T/F)
-   ln_zps      = .true.    !  z-coordinate - partial steps   (T/F)
-   ln_sco      = .false.   !  s- or hybrid z-s-coordinate    (T/F)
    rn_hmin     =   -10     !  min depth of the ocean (>0) or
                            !  min number of ocean level (<0)
 
@@ -37,6 +34,7 @@
    sn_src_msk = './inputs/benchmark/grid_low_res_C/mask.nc'
    sn_bathy   = './inputs/benchmark/grid_C/NNA_R12_bathy_meter_bench.nc'    ! dst bathymetry w/o time dimension
                                                                             !Expects vars: {Bathymetry,nav_lat,nav_lon}
+   sn_nme_map = './inputs/grid_name_map.json'     ! json file mapping variable names to netcdf vars
 
 !------------------------------------------------------------------------------
 !  I/O
@@ -57,12 +55,13 @@
     ln_mask_file   = .false.              !  =T : read mask from file
     cn_mask_file   = 'mask.nc'            !  name of mask file
                                           !  (if ln_mask_file=.TRUE.)
-    ln_dyn2d       = .true.              !  boundary conditions for
+    ln_dyn2d       = .true.               !  boundary conditions for
                                           !  barotropic fields
     ln_dyn3d       = .false.              !  boundary conditions for
                                           !  baroclinic velocities
     ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition
+    ln_zinterp     = .true.               !  vertical interpolation
     nn_rimwidth    = 9                    !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
@@ -92,14 +91,12 @@
 !------------------------------------------------------------------------------
 !  Time information for output
 !------------------------------------------------------------------------------
-    nn_year_000     = 1979        !  year start
-    nn_year_end     = 1979        !  year end
-    nn_month_000    = 11          !  month start (default = 1 is years>1)
-    nn_month_end    = 11          !  month end (default = 12 is years>1)
-    sn_dst_calendar = 'gregorian' !  output calendar format
-    nn_base_year    = 1960        !  base year for time counter
-    ln_time_interpolation = .true. !  set to false to use parent frequency and calender
-                                   !  for monthly only
+    sn_date_start   = '1979-11-01'    !  dst output date start YYYY-MM-DD
+    sn_date_end     = '1979-12-01'    !  dst output date end YYYY-MM-DD
+    sn_dst_calendar = 'gregorian'     !  output calendar format
+    sn_date_origin  = '1960-01-01'    !  reference for time counter YYYY-MM-DD
+    ln_time_interpolation = .true. !  set to false to use parent
+                                   !  calender for monthly frequency only
 
 !------------------------------------------------------------------------------
 !  Additional parameters
