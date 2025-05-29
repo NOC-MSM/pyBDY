@@ -20,10 +20,10 @@ Master horizontal class.
 
 ### Args:
 
-> hgr_file (str) : string of file for loading hgr data
-> name_map_file (str) : string of file for mapping variable names
-> logger (object) : log error and messages
-> dst (bool) : flag for destination (true) or source (false)
+> hgr_file (str) : string of file for loading hgr data <br>
+> name_map_file (str) : string of file for mapping variable names <br>
+> logger (object) : log error and messages <br>
+> dst (bool) : flag for destination (true) or source (false) <br>
 
 ### Returns:
 
