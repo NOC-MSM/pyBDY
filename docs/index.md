@@ -472,6 +472,7 @@ Always check the pyBDY log file. This is usually saved in the working directory 
 
 [Back to top](#pybdy-documentation)
 
+```
 <a id="module-src.grid.hgr"></a>
 
 Created on Mon Feb 03 18:01:00 2025.
@@ -484,20 +485,20 @@ Created on Mon Feb 03 18:01:00 2025.
 
 Bases: `object`
 
-#### \_\_init\_\_(hgr_file, name_map_file, logger, dst=1)
+#### \_\_init_\_(hgr_file, name_map_file, logger, dst=1)
 
 Master horizontal class.
 
 ### Args:
 
-> hgr_file (str) : string of file for loading hgr data
-> name_map_file (str) : string of file for mapping variable names
-> logger (object) : log error and messages
-> dst (bool) : flag for destination (true) or source (false)
+> hgr_file (str)           : string of file for loading hgr data
+> name_map_file (str)      : string of file for mapping variable names
+> logger (object)          : log error and messages
+> dst (bool)               : flag for destination (true) or source (false)
 
 ### Returns:
 
-> H_grid (object) : horizontal grid object
+> H_grid (object)          : horizontal grid object
 
 #### find_hgrid_type()
 
@@ -509,7 +510,7 @@ Get the glam, gphi and e scale factors from file if possible.
 
 ### Args:
 
-> vars_want (list) : variables needed from file.
+> vars_want (list)       : variables needed from file.
 
 ### src.grid.hgr.calc_e1_e2(glam, gphi, ij)
 
@@ -517,13 +518,13 @@ Calculate missing scale factor e1 and e2 from glam or gphi.
 
 ### Args:
 
-> glam (np.array) : mesh variable glam (lon) [time, j, i]
-> gphi (np.array) : mesh variable gphi (lat) [time, j, i]
-> ij (int) : ij direction 1 (i or x direction) or 2 (j or y direction)
+> glam (np.array)  : mesh variable glam (lon) [time, j, i]
+> gphi (np.array)  : mesh variable gphi (lat) [time, j, i]
+> ij (int)         : ij direction 1 (i or x direction) or 2 (j or y direction)
 
 ### Returns:
 
-> e (np.array) : horizontal distance scale factor e
+> e (np.array)     : horizontal distance scale factor e
 
 ### src.grid.hgr.calc_grid_from_t(t_mesh, mesh)
 
@@ -531,12 +532,12 @@ Calculate missing glam, gphi or gdep from t-grid.
 
 ### Args:
 
-> t_mesh (np.array) : mesh variable glam or gphi on t-grid
-> mesh (str) : grid mesh type (glam, gphi, or gdep of u, v, f)
+> t_mesh (np.array)  : mesh variable glam or gphi on t-grid
+> mesh (str)         : grid mesh type (glam, gphi, or gdep of u, v, f)
 
 ### Returns:
 
-> mesh_out (dict) : horizontal grid mesh data variable
+> mesh_out (dict)     : horizontal grid mesh data variable
 
 ### src.grid.hgr.fill_hgrid_vars(grid_type, grid, missing)
 
@@ -544,10 +545,13 @@ Calculate the missing horizontal grid variables and add them to grid.
 
 ### Args:
 
-> grid_type (str) : type of horizontal grid (A, B or C)
-> grid (dict) : dictionary of grid data variable
-> missing (list) : list of missing variables to calculate
+> grid_type (str)     : type of horizontal grid (A, B or C)
+> grid (dict)         : dictionary of grid data variable
+> missing (list)      : list of missing variables to calculate
 
 ### Returns:
 
-> grid (dict) : horizontal grid data dictionary
+> grid (dict)          : horizontal grid data dictionary
+```
+
+[Back to top](#pybdy-documentation)
