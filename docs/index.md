@@ -15,13 +15,13 @@ convient GUI.
 
 ## Contents
 
-- [Dependencies :globe_with_meridians:](#dependencies)
+- [Dependencies :globe_with_meridians:](#dependencies-globe_with_meridians)
 - [Quick Start Installation :rocket:](#quick-start-installation-rocket)
-- [How to use pyBDY :mechanical_arm:](#how-to-use-pybdy-)
-- [Tidal Boundary Conditions Generation :sailboat:](#tidal-boundary-conditions-generation)
-- [CMEMS Downloader :inbox_tray:](#cmems-downloader-)
-- [Troubleshooting :safety_vest:](#troubleshooting)
-- [Function List :scroll:](#function-list-)
+- [How to use pyBDY :mechanical_arm:](#how-to-use-pybdy-mechanical_arm)
+- [Tidal Boundary Conditions Generation :sailboat:](#tidal-boundary-conditions-generation-sailboat)
+- [CMEMS Downloader :inbox_tray:](#cmems-downloader-inbox_tray)
+- [Troubleshooting :safety_vest:](#troubleshooting-safety_vest)
+- [Function List :scroll:](#function-list-scroll)
 
 ## Dependencies :globe_with_meridians:
 
