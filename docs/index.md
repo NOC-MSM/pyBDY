@@ -15,9 +15,11 @@ convient GUI.
 
 ## Contents
 
-- [Dependencies :globe_with_meridians:](#dependencies-)
+- [Dependencies :globe_with_meridians:](#dependencies)
 - [Quick Start Installation :rocket:](#quick-start-installation-)
 - [How to use pyBDY :mechanical_arm:](#how-to-use-pybdy-)
+- [Tidal Boundary Conditions Generation :sailboat:](#tidal-boundary-conditions-generation)
+- [CMEMS Downloader :inbox_tray:](#cmems-downloader-)
 - [Function List :scroll:](#function-list-)
 -
 
@@ -282,11 +284,7 @@ pybdy -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 
 This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation.
 
-## Function List :scroll:
-
-[Back to top](#pybdy-documentation)
-
-## Tidal Boundary Conditions Generation
+## Tidal Boundary Conditions Generation :sailboat:
 
 [Back to top](#pybdy-documentation)
 
@@ -363,7 +361,7 @@ Percentage Exceedance = 26.933 * Reference Amplitude ^ -0.396’
 Phase Exceedance = 5.052 * pyBDY Amplitude ^ -0.60
 ```
 
-## CMEMS Downloader
+## CMEMS Downloader :inbox_tray:
 
 [Back to top](#pybdy-documentation)
 
@@ -467,3 +465,7 @@ Finally the last box, this is where the extent to download is configured, it is 
 [Back to top](#pybdy-documentation)
 
 Always check the pyBDY log file. This is usually saved in the working directory of pyBDY as nrct.log. It gives helpful information which may help to diagnose issues. E.g. ValueErrors that are result of a THREDDS server being down and unable to provide data files.
+
+## Function List :scroll:
+
+[Back to top](#pybdy-documentation)
