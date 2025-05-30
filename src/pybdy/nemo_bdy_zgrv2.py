@@ -41,9 +41,8 @@ def get_bdy_depths_old(bdy_t, bdy_u, bdy_v, DstCoord, settings):
     Written by John Kazimierz Farey, Sep 2012
     Port of Matlab code of James Harle
 
-    Generates depth points for t, u and v in one loop iteration
-
-    Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary
+    Generates depth points for t, u and v in one loop iteration.
+    Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary.
     """
     logger = logging.getLogger(__name__)
     logger.debug("init Depth")
@@ -139,13 +138,13 @@ def get_bdy_depths(DstCoord, bdy_i, grd):
     """
     Depth levels from the nearest neighbour on the source grid.
 
-    Args:
-    ----
+    Parameters
+    ----------
         DstCoord (object)      : Object containing destination grid info
         bdy_i (np.array)       : indices of the i, j bdy points [bdy, 2]
         grd (str)              : grid type t, u, v
 
-    Returns:
+    Returns
     -------
         bdy_tz (array)          : sc depths on bdy points on t levels
         bdy_wz (array)          : sc depths on bdy points on w levels
@@ -193,13 +192,13 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, grd):
     """
     Depth levels from the nearest neighbour on the source grid.
 
-    Args:
-    ----
+    Parameters
+    ----------
         SourceCoord (object)   : Object containing source grid info
         DstCoord (object)      : Object containing destination grid info
         grd (str)              : grid type t, u, v
 
-    Returns:
+    Returns
     -------
         bdy_tz (array)          : sc depths on bdy points on t levels
         bdy_wz (array)          : sc depths on bdy points on w levels

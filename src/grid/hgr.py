@@ -39,14 +39,14 @@ class H_Grid:
         """
         Master horizontal class.
 
-        Args:
-        ----
+        Parameters
+        ----------
             hgr_file (str)           : string of file for loading hgr data
             name_map_file (str)      : string of file for mapping variable names
             logger (object)          : log error and messages
             dst (bool)               : flag for destination (true) or source (false)
 
-        Returns:
+        Returns
         -------
             H_grid (object)          : horizontal grid object
         """
@@ -101,9 +101,13 @@ class H_Grid:
         """
         Get the glam, gphi and e scale factors from file if possible.
 
-        Args:
-        ----
+        Parameters
+        ----------
             vars_want (list)       : variables needed from file.
+
+        Returns
+        -------
+            None    : var_list is populated
         """
         # find the variables that have been name mapped
         if self.dst:
@@ -185,13 +189,13 @@ def fill_hgrid_vars(grid_type, grid, missing):
     """
     Calculate the missing horizontal grid variables and add them to grid.
 
-    Args:
-    ----
+    Parameters
+    ----------
             grid_type (str)     : type of horizontal grid (A, B or C)
             grid (dict)         : dictionary of grid data variable
             missing (list)      : list of missing variables to calculate
 
-    Returns:
+    Returns
     -------
             grid (dict)          : horizontal grid data dictionary
     """
@@ -225,12 +229,12 @@ def calc_grid_from_t(t_mesh, mesh):
     """
     Calculate missing glam, gphi or gdep from t-grid.
 
-    Args:
-    ----
+    Parameters
+    ----------
             t_mesh (np.array)  : mesh variable glam or gphi on t-grid
             mesh (str)         : grid mesh type (glam, gphi, or gdep of u, v, f)
 
-    Returns:
+    Returns
     -------
             mesh_out (dict)     : horizontal grid mesh data variable
     """
@@ -265,13 +269,13 @@ def calc_e1_e2(glam, gphi, ij):
     """
     Calculate missing scale factor e1 and e2 from glam or gphi.
 
-    Args:
-    ----
+    Parameters
+    ----------
             glam (np.array)  : mesh variable glam (lon) [time, j, i]
             gphi (np.array)  : mesh variable gphi (lat) [time, j, i]
             ij (int)         : ij direction 1 (i or x direction) or 2 (j or y direction)
 
-    Returns:
+    Returns
     -------
             e (np.array)     : horizontal distance scale factor e
     """

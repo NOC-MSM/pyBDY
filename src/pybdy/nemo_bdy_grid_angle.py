@@ -36,7 +36,6 @@ class GridAngle:
         Returns
         -------
             None : object
-        -------
         """
         # set case and check validity
         self.CASES = {
