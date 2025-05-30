@@ -463,7 +463,6 @@ the interpolation onto the destination grid.
 @author John Kazimierz Farey
 
 > @author: Mr. Srikanth Nagella<br>
-> $Last commit on:$<br>
 
 ## *class* pybdy.nemo_bdy_extr_tm3.Extract(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)
 
@@ -481,17 +480,14 @@ weightings for vector quantities.
 > setup (list) : settings for bdy<br>
 > SourceCoord (obj) : source grid information<br>
 > DstCoord (obj) : destination grid information<br>
-> Grid (dict) : containing grid type ‘t’, ‘u’, ‘v’<br>
-
-> and source time<br>
-
+> Grid (dict) : containing grid type ‘t’, ‘u’, ‘v’ and source time<br>
 > var_name (list) : netcdf file variable names (str)<br>
 > years (list) : years to extract (default [1979])<br>
 > months (list) : months to extract (default [11])<br>
 
 > ### Returns<br>
 
-> None<br>
+> Extract (obj) : Object with indexing arrays and weightings ready for interpolation<br>
 
 ### *method* cal_trans(source, dest, year, month)
 
@@ -499,10 +495,15 @@ Translate between calendars and return scale factor and number of days in month.
 
 > ### Parameters<br>
 
-source – source calendar
-dest – destination calendar
-year – input year
-month – input month
+> source : source calendar<br>
+> dest : destination calendar<br>
+> year : input year<br>
+> month : input month<br>
+
+> ### Returns<br>
+
+> sf : scale factor<br>
+> ed : number of days in month<br>
 
 ### *method* extract_month(year, month)
 
@@ -510,8 +511,12 @@ Extract monthly data and interpolates onto the destination grid.
 
 > ### Parameters<br>
 
-year – year of data to be extracted
-month – month of the year to be extracted
+> year : year of data to be extracted<br>
+> month : month of the year to be extracted<br>
+
+> ### Returns<br>
+
+> self.data_out : data from source on bdy locations and depths<br>
 
 ### *method* time_delta(time_counter)
 
@@ -522,19 +527,12 @@ these are uniform. Then retrives the number of time steps per day.
 
 > ### Parameters<br>
 
-time_counter
-
-> : model time coordinate<br>
+> time_counter : model time coordinate<br>
 
 > ### Returns<br>
 
-deltaT
-
-> : length of time step<br>
-
-dstep
-
-> : number of time steps per day<br>
+> deltaT : length of time step<br>
+> dstep : number of time steps per day<br>
 
 ### *method* time_interp(year, month)
 
@@ -589,13 +587,13 @@ Generate the indices for NEMO Boundary and returns a Grid object with indices.
 
 > ### Parameters<br>
 
-boundary_mask – boundary mask
-settings – dictionary of setting values
-grid – type of the grid ‘t’, ‘u’, ‘v’
+> boundary_mask : boundary mask<br>
+> settings : dictionary of setting values<br>
+> grid : type of the grid ‘t’, ‘u’, ‘v’<br>
 
-> Attributes:<br>
-> bdy_i – index
-> bdy_r – r index
+> ### Returns<br>
+
+> Boundary (object) : where bdy_i is index and bdy_r is the r index<br>
 
 # pybdy.nemo_bdy_grid_angle module
 
@@ -661,8 +659,6 @@ Parses a file to find out which nemo boundary settings to use
 
 @author John Kazimierz Farey
 @author James Harle
-
-> $Last commit on:$<br>
 
 ## *class* pybdy.nemo_bdy_setup.Setup(setfile)
 
