@@ -4,8 +4,6 @@ markdown_files = glob.glob("./*.md")
 index_files = glob.glob("./index*.md")
 
 markdown_mods = list(set(markdown_files) - set(index_files))
-print(markdown_mods)
-
 
 for i in range(len(markdown_mods)):
     with open(markdown_mods[i], "r") as f:
