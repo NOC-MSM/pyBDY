@@ -28,6 +28,6 @@ template-update:
 	pre-commit run --all-files cruft -c .pre-commit-config-cruft.yaml
 
 docs-build:
-	cd docs && rm -fr _api && make clean && make html
+	cd docs && bash make_docs.sh
 
 # DO NOT EDIT ABOVE THIS LINE, ADD COMMANDS BELOW
