@@ -15,6 +15,7 @@ convient GUI.
 
 ## Contents
 
+- [Changes]
 - [Dependencies :globe_with_meridians:](#dependencies-globe_with_meridians)
 - [Quick Start Installation :rocket:](#quick-start-installation-rocket)
 - [How to use pyBDY :mechanical_arm:](#how-to-use-pybdy-mechanical_arm)

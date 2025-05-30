@@ -215,14 +215,14 @@
 
 ## Submodules
 
-## pybdy.nemo_bdy_chunk module
+# pybdy.nemo_bdy_chunk module
 
-Created on Thu Dec 19 10:39:46 2024.
+> Created on Thu Dec 19 10:39:46 2024.<br>
 
 @author James Harle
 @author Benjamin Barton
 
-### pybdy.nemo_bdy_chunk.chunk_bdy(bdy)
+## pybdy.nemo_bdy_chunk.chunk_bdy(bdy)
 
 Master chunking function.
 
@@ -232,7 +232,7 @@ The chunks are then split near corners.
 The chunks are then optionally split in the middle if they’re above a certain size
 after attempting to split at corners.
 
-### Args:
+### Parameters
 
 > bdy (Boundary object)<br>
 > : bdy.bdy_i[bdy point, i/j grid]<br>
@@ -241,17 +241,17 @@ after attempting to split at corners.
 
 > logger : log error and messages<br>
 
-### Returns:
+### Returns
 
 > numpy.array : array of chunk numbers<br>
 
-### pybdy.nemo_bdy_chunk.chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw)
+## pybdy.nemo_bdy_chunk.chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw)
 
 Find corners and split along the change in direction.
 
 To do this we look for a change in direction along each rim.
 
-### Args:
+### Parameters
 
 > ibdy (numpy.array) : index in i direction<br>
 > jbdy (numpy.array) : index in j direction<br>
@@ -260,75 +260,75 @@ To do this we look for a change in direction along each rim.
 > rw (int) : rimwidth<br>
 > mid_split (list) : list of chunk numbers that need splitting<br>
 
-### Returns:
+### Returns
 
 > numpy.array : array of chunk numbers<br>
 
-### pybdy.nemo_bdy_chunk.chunk_land(ibdy, jbdy, chunk_number, rw)
+## pybdy.nemo_bdy_chunk.chunk_land(ibdy, jbdy, chunk_number, rw)
 
 Find natural breaks in the boundary looking for gaps in i and j.
 
-### Args:
+### Parameters
 
 > ibdy (numpy.array) : index in i direction<br>
 > jbdy (numpy.array) : index in j direction<br>
 > chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
 > rw (int) : rimwidth<br>
 
-### Returns:
+### Returns
 
 > numpy.array : array of chunk numbers<br>
 
-### pybdy.nemo_bdy_chunk.chunk_large(ibdy, jbdy, chunk_number)
+## pybdy.nemo_bdy_chunk.chunk_large(ibdy, jbdy, chunk_number)
 
 Split boundaries that have too much white space and are too large.
 
-### Args:
+### Parameters
 
 > ibdy (numpy.array) : index in i direction<br>
 > jbdy (numpy.array) : index in j direction<br>
 > chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
 
-### Returns:
+### Returns
 
 > numpy.array : array of chunk numbers<br>
 
-## pybdy.nemo_bdy_dst_coord module
+# pybdy.nemo_bdy_dst_coord module
 
-### *class* pybdy.nemo_bdy_dst_coord.DstCoord
+## *class* pybdy.nemo_bdy_dst_coord.DstCoord
 
-Bases: `object`
+> Bases: `object`<br>
 
 Object is currently empty and has data bound to it externally.
 
 Equivalent to Matlab dst_coord.
 
-## pybdy.nemo_bdy_extr_assist module
+# pybdy.nemo_bdy_extr_assist module
 
-Created on Thu Dec 21 17:34:00 2024.
+> Created on Thu Dec 21 17:34:00 2024.<br>
 
 @author James Harle
 @author Benjamin Barton
 
-### pybdy.nemo_bdy_extr_assist.check_wrap(imin, imax, sc_lon)
+## pybdy.nemo_bdy_extr_assist.check_wrap(imin, imax, sc_lon)
 
 Check if source domain wraps and dst spans the wrap.
 
 ### Parameters
 
-imin (int) : minimum i index
-imax (int) : maximum i index
-sc_lon (np.array) : the longitude of the source grid
+> imin (int) : minimum i index<br>
+> imax (int) : maximum i index<br>
+> sc_lon (np.array) : the longitude of the source grid<br>
 
 ### Returns
 
-wrap_flag (bool) : if true the sc wraps and dst spans wrap
+> wrap_flag (bool) : if true the sc wraps and dst spans wrap<br>
 
-### pybdy.nemo_bdy_extr_assist.distance_weights(sc_bdy, dist_tot, sc_z_len, r0, logger)
+## pybdy.nemo_bdy_extr_assist.distance_weights(sc_bdy, dist_tot, sc_z_len, r0, logger)
 
 Find the distance weightings for averaging source data to destination.
 
-### Args:
+### Parameters
 
 > sc_bdy (numpy.array) : source data<br>
 > dist_tot (numpy.array) : distance from dst point to 9 nearest sc points<br>
@@ -336,30 +336,30 @@ Find the distance weightings for averaging source data to destination.
 > r0 (float) : correlation distance<br>
 > logger : log of statements<br>
 
-### Returns:
+### Returns
 
 > dist_wei (numpy.array) : weightings for averaging<br>
 > dist_fac (numpy.array) : total weighting factor<br>
 
-### pybdy.nemo_bdy_extr_assist.get_ind(dst_lon, dst_lat, sc_lon, sc_lat)
+## pybdy.nemo_bdy_extr_assist.get_ind(dst_lon, dst_lat, sc_lon, sc_lat)
 
 Calculate indicies of max and min for data extraction.
 
 ### Parameters
 
-dst_lon (np.array) : the longitude of the destination grid
-dst_lat (np.array) : the latitude of the destination grid
-sc_lon (np.array) : the longitude of the source grid
-sc_lat (np.array) : the latitude of the source grid
+> dst_lon (np.array) : the longitude of the destination grid<br>
+> dst_lat (np.array) : the latitude of the destination grid<br>
+> sc_lon (np.array) : the longitude of the source grid<br>
+> sc_lat (np.array) : the latitude of the source grid<br>
 
 ### Returns
 
-imin (int) : minimum i index
-imax (int) : maximum i index
-jmin (int) : minimum j index
-jmax (int) : maximum j index
+> imin (int) : minimum i index<br>
+> imax (int) : maximum i index<br>
+> jmin (int) : minimum j index<br>
+> jmax (int) : maximum j index<br>
 
-### pybdy.nemo_bdy_extr_assist.get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco)
+## pybdy.nemo_bdy_extr_assist.get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco)
 
 Determine 3D depth vertical weights for the linear interpolation onto Dst grid.
 
@@ -369,23 +369,23 @@ be used in weightings. The resulting arrays are [nz * nbdy * 9, 2].
 
 ### Parameters
 
-dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]
-dst_len_z (int) : the length of depth axis of the destination grid
-num_bdy (int) : number of boundary points in chunk
-sc_z (np.array) : the depth of the source grid [k, j, i]
-sc_z_len (int) : the length of depth axis of the source grid
-ind (np.array) : indices of bdy points and 9 nearest neighbours
+> dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
+> dst_len_z (int) : the length of depth axis of the destination grid<br>
+> num_bdy (int) : number of boundary points in chunk<br>
+> sc_z (np.array) : the depth of the source grid [k, j, i]<br>
+> sc_z_len (int) : the length of depth axis of the source grid<br>
+> ind (np.array) : indices of bdy points and 9 nearest neighbours<br>
 
 > for flattened j,i array order=”F” [nbdy, 9]<br>
 
-zco (bool) : if True z levels are not spatially varying
+> zco (bool) : if True z levels are not spatially varying<br>
 
 ### Returns
 
-z9_dist (np.array) : the distance weights of the selected points
-z9_ind (np.array) : the indices of the sc depth above and below bdy
+> z9_dist (np.array) : the distance weights of the selected points<br>
+> z9_ind (np.array) : the indices of the sc depth above and below bdy<br>
 
-### pybdy.nemo_bdy_extr_assist.get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len)
+## pybdy.nemo_bdy_extr_assist.get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len)
 
 Determine vertical weights for the linear interpolation onto Dst grid.
 
@@ -394,108 +394,109 @@ be used in weightings. The resulting arrays are [nbdy * nz, 2].
 
 ### Parameters
 
-dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]
-dst_len_z (int) : the length of depth axis of the destination grid
-num_bdy (int) : number of boundary points in chunk
-sc_z (np.array) : the depth of the source grid [k, j, i]
-sc_z_len (int) : the length of depth axis of the source grid
+> dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
+> dst_len_z (int) : the length of depth axis of the destination grid<br>
+> num_bdy (int) : number of boundary points in chunk<br>
+> sc_z (np.array) : the depth of the source grid [k, j, i]<br>
+> sc_z_len (int) : the length of depth axis of the source grid<br>
 
 ### Returns
 
-z_dist (np.array) : the distance weights of the selected points
-z_ind (np.array) : the indices of the sc depth above and below bdy
+> z_dist (np.array) : the distance weights of the selected points<br>
+> z_ind (np.array) : the indices of the sc depth above and below bdy<br>
 
-### pybdy.nemo_bdy_extr_assist.interp_horizontal(sc_bdy, dist_wei, dist_fac, logger)
+## pybdy.nemo_bdy_extr_assist.interp_horizontal(sc_bdy, dist_wei, dist_fac, logger)
 
 Interpolate the source data to the destination grid using weighted average.
 
-### Args:
+### Parameters
 
 > sc_bdy (numpy.array) : source data<br>
 > dist_wei (numpy.array) : weightings for interpolation<br>
 > dist_fac (numpy.array) : sum of weightings<br>
 > logger : log of statements<br>
 
-### Returns:
+### Returns
 
 > dst_bdy (numpy.array) : destination bdy points with data from source grid<br>
 
-### pybdy.nemo_bdy_extr_assist.interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, num_bdy, zinterp=True)
+## pybdy.nemo_bdy_extr_assist.interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, num_bdy, zinterp=True)
 
 Interpolate source data onto destination vertical levels.
 
 ### Parameters
 
-sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]
-dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]
-bdy_bathy (np.array): the destination grid bdy points bathymetry
-z_ind (np.array) : the indices of the sc depth above and below bdy
-z_dist (np.array) : the distance weights of the selected points
-data_ind (np.array) : bool points above bathymetry that are valid
-num_bdy (int) : number of boundary points in chunk
-zinterp (bool) : vertical interpolation flag
+> sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]<br>
+> dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
+> bdy_bathy (np.array): the destination grid bdy points bathymetry<br>
+> z_ind (np.array) : the indices of the sc depth above and below bdy<br>
+> z_dist (np.array) : the distance weights of the selected points<br>
+> data_ind (np.array) : bool points above bathymetry that are valid<br>
+> num_bdy (int) : number of boundary points in chunk<br>
+> zinterp (bool) : vertical interpolation flag<br>
 
 ### Returns
 
-data_out (np.array) : source data on destination depth levels
+> data_out (np.array) : source data on destination depth levels<br>
 
-### pybdy.nemo_bdy_extr_assist.valid_index(sc_bdy, logger)
+## pybdy.nemo_bdy_extr_assist.valid_index(sc_bdy, logger)
 
 Find an array of valid indicies.
 
-### Args:
+### Parameters
 
 > sc_bdy (numpy.array) : source data<br>
 > logger : log of statements<br>
 
-### Returns:
+### Returns
 
 > data_ind (numpy.array) : indicies of max depth of valid data<br>
 > nan_ind (numpy.array) : indicies where source is land<br>
 
-## pybdy.nemo_bdy_extr_tm3 module
+# pybdy.nemo_bdy_extr_tm3 module
 
-Created on Wed Sep 12 08:02:46 2012.
+> Created on Wed Sep 12 08:02:46 2012.<br>
 
 This Module defines the extraction of the data from the source grid and does
 the interpolation onto the destination grid.
 
 @author James Harle
 @author John Kazimierz Farey
-@author: Mr. Srikanth Nagella
-$Last commit on:$
 
-### *class* pybdy.nemo_bdy_extr_tm3.Extract(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)
+> @author: Mr. Srikanth Nagella<br>
+> $Last commit on:$<br>
 
-Bases: `object`
+## *class* pybdy.nemo_bdy_extr_tm3.Extract(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)
 
-#### \_\_init\_\_(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)
+> Bases: `object`<br>
+
+### \_\_init\_\_(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)
 
 Initialise the Extract object.
 
-### Notes
+## Notes
 
 Parent grid to child grid weights are defined along with rotation
 weightings for vector quantities.
 
 ### Parameters
 
-setup (list) : settings for bdy
-SourceCoord (obj) : source grid information
-DstCoord (obj) : destination grid information
-Grid (dict) : containing grid type ‘t’, ‘u’, ‘v’
+> setup (list) : settings for bdy<br>
+> SourceCoord (obj) : source grid information<br>
+> DstCoord (obj) : destination grid information<br>
+> Grid (dict) : containing grid type ‘t’, ‘u’, ‘v’<br>
 
 > and source time<br>
 
-var_name (list) : netcdf file variable names (str)
-years (list) : years to extract (default [1979])
-months (list) : months to extract (default [11])
+> var_name (list) : netcdf file variable names (str)<br>
+> years (list) : years to extract (default [1979])<br>
+> months (list) : months to extract (default [11])<br>
 
 ### Returns
 
 > None<br>
 
-#### cal_trans(source, dest, year, month)
+### cal_trans(source, dest, year, month)
 
 Translate between calendars and return scale factor and number of days in month.
 
@@ -506,7 +507,7 @@ dest – destination calendar
 year – input year
 month – input month
 
-#### extract_month(year, month)
+### extract_month(year, month)
 
 Extract monthly data and interpolates onto the destination grid.
 
@@ -515,7 +516,7 @@ Extract monthly data and interpolates onto the destination grid.
 year – year of data to be extracted
 month – month of the year to be extracted
 
-#### time_delta(time_counter)
+### time_delta(time_counter)
 
 Get time delta and number of time steps per day.
 
@@ -525,33 +526,37 @@ these are uniform. Then retrives the number of time steps per day.
 ### Parameters
 
 time_counter
-: model time coordinate
+
+> : model time coordinate<br>
 
 ### Returns
 
 deltaT
-: length of time step
+
+> : length of time step<br>
 
 dstep
-: number of time steps per day
 
-#### time_interp(year, month)
+> : number of time steps per day<br>
+
+### time_interp(year, month)
 
 Perform a time interpolation of the BDY data to daily frequency.
 
-### Notes
+## Notes
 
 This method performs a time interpolation (if required). This is
 necessary if the time frequency is not a factor of monthly output or the
 input and output calendars differ. CF compliant calendar options
-accepted: gregorian | standard, proleptic_gregorian, noleap | 365_day,
-360_day or julian.\*
 
-#### write_out(year, month, ind, unit_origin)
+> accepted: gregorian | standard, proleptic_gregorian, noleap | 365_day,<br>
+> 360_day or julian.\*
+
+### write_out(year, month, ind, unit_origin)
 
 Write monthy BDY data to netCDF file.
 
-### Notes
+## Notes
 
 This method writes out all available variables for a given grid along with
 any asscoaied metadata. Currently data are only written out as monthly
@@ -559,16 +564,16 @@ files.
 
 ### Parameters
 
-year (int) : year to write out
-month (int) : month to write out
-ind (dict): dictionary holding grid information
-unit_origin (str) : time reference ‘%d 00:00:00’ %date_origin
+> year (int) : year to write out<br>
+> month (int) : month to write out<br>
+> ind (dict): dictionary holding grid information<br>
+> unit_origin (str) : time reference ‘%d 00:00:00’ %date_origin<br>
 
 ### Returns
 
 > None<br>
 
-## pybdy.nemo_bdy_gen_c module
+# pybdy.nemo_bdy_gen_c module
 
 NEMO Boundary module.
 
@@ -577,65 +582,67 @@ The variable names have been renamed to keep consistent with python standards an
 the variable names eg. bdy_i is used instead of bdy_t
 
 Ported from Matlab code by James Harle
-@author: John Kazimierz Farey
-@author: Srikanth Nagella.
 
-### *class* pybdy.nemo_bdy_gen_c.Boundary(boundary_mask, settings, grid)
+> @author: John Kazimierz Farey<br>
+> @author: Srikanth Nagella.<br>
 
-Bases: `object`
+## *class* pybdy.nemo_bdy_gen_c.Boundary(boundary_mask, settings, grid)
 
-#### \_\_init\_\_(boundary_mask, settings, grid)
+> Bases: `object`<br>
+
+### \_\_init\_\_(boundary_mask, settings, grid)
 
 Generate the indices for NEMO Boundary and returns a Grid object with indices.
 
-### Paramemters
+### Parameters
 
 boundary_mask – boundary mask
 settings – dictionary of setting values
 grid – type of the grid ‘t’, ‘u’, ‘v’
-Attributes:
-bdy_i – index
-bdy_r – r index
 
-## pybdy.nemo_bdy_grid_angle module
+> Attributes:<br>
+> bdy_i – index
+> bdy_r – r index
 
-### *class* pybdy.nemo_bdy_grid_angle.GridAngle(hgr, imin, imax, jmin, jmax, cd_type)
+# pybdy.nemo_bdy_grid_angle module
 
-Bases: `object`
+## *class* pybdy.nemo_bdy_grid_angle.GridAngle(hgr, imin, imax, jmin, jmax, cd_type)
 
-#### CASES *= {'f': [0, 1, 0, 0], 't': [0, 0, 0, -1], 'u': [0, 0, 0, -1], 'v': [0, 0, -1, 0]}*
+> Bases: `object`<br>
 
-#### MAP *= {'f': 'u', 't': 'v', 'u': 'f', 'v': 'f'}*
+> ### CASES *= {'f': [0, 1, 0, 0], 't': [0, 0, 0, -1], 'u': [0, 0, 0, -1], 'v': [0, 0, -1, 0]}*<br>
 
-#### \_\_init\_\_(hgr, imin, imax, jmin, jmax, cd_type)
+> ### MAP *= {'f': 'u', 't': 'v', 'u': 'f', 'v': 'f'}*<br>
 
-## pybdy.nemo_bdy_ice module
+### \_\_init\_\_(hgr, imin, imax, jmin, jmax, cd_type)
 
-### *class* pybdy.nemo_bdy_ice.BoundaryIce
+# pybdy.nemo_bdy_ice module
 
-Bases: `object`
+## *class* pybdy.nemo_bdy_ice.BoundaryIce
 
-#### \_\_init\_\_()
+> Bases: `object`<br>
 
-## pybdy.nemo_bdy_ncgen module
+### \_\_init\_\_()
+
+# pybdy.nemo_bdy_ncgen module
 
 Create a Nemo Bdy netCDF file ready for population.
 
 Written by John Kazimierz Farey, started August 30, 2012
 Port of Matlab code of James Harle
 
-### pybdy.nemo_bdy_ncgen.CreateBDYNetcdfFile(filename, xb_len, x_len, y_len, depth_len, rw, h, orig, fv, calendar, grd)
+## pybdy.nemo_bdy_ncgen.CreateBDYNetcdfFile(filename, xb_len, x_len, y_len, depth_len, rw, h, orig, fv, calendar, grd)
 
 Create a template of bdy netcdf files. A common for T, I, U, V, E grid types.
 
-## pybdy.nemo_bdy_ncpop module
+# pybdy.nemo_bdy_ncpop module
 
 Created on 3 Oct 2014.
 
-@author: Mr. Srikanth Nagella
-Netcdf writer for the bdy output
+> @author: Mr. Srikanth Nagella<br>
+> Netcdf writer for the bdy output
 
-### pybdy.nemo_bdy_ncpop.write_data_to_file(filename, variable_name, data)
+## pybdy.nemo_bdy_ncpop.write_data_to_file(filename, variable_name, data)
 
 Write the data to the netcdf templete file.
 
@@ -645,182 +652,184 @@ filename – output filename
 variable_name – variable name into which the data is written to.
 data – data that will be written to variable in netcdf.
 
-## pybdy.nemo_bdy_scr_coord module
+# pybdy.nemo_bdy_scr_coord module
 
-### *class* pybdy.nemo_bdy_scr_coord.ScrCoord
+## *class* pybdy.nemo_bdy_scr_coord.ScrCoord
 
-Bases: `object`
+> Bases: `object`<br>
 
-#### \_\_init\_\_()
+### \_\_init\_\_()
 
-## pybdy.nemo_bdy_setup module
+# pybdy.nemo_bdy_setup module
 
-Created on Wed Sep 12 08:02:46 2012.
+> Created on Wed Sep 12 08:02:46 2012.<br>
 
 Parses a file to find out which nemo boundary settings to use
 
 @author John Kazimierz Farey
 @author James Harle
-$Last commit on:$
 
-### *class* pybdy.nemo_bdy_setup.Setup(setfile)
+> $Last commit on:$<br>
 
-Bases: `object`
+## *class* pybdy.nemo_bdy_setup.Setup(setfile)
+
+> Bases: `object`<br>
 
 Invoke with a text file location, class init reads and deciphers variables.
 
-### Notes
+## Notes
 
 This class holds the settings information
 
-### Attributes
-
-<settings> is a dict holding all the vars.
-
-#### \_\_init\_\_(setfile)
+### \_\_init\_\_(setfile)
 
 Set up the constructor.
 
-#### Notes
+### Notes
 
 This constructor reads the settings file and sets the dictionary with
 setting name/key and it’s value.
 
-#### refresh()
+### Parameters
+
+> setfile (str) : settings file<br>
+
+### refresh()
 
 Reload the settings from file.
 
-#### variable_info_reader(filename)
+### variable_info_reader(filename)
 
 Read the variable description data from the ‘variable.info’ file.
 
-#### Notes
+### Notes
 
 This method reads the variable description data from ‘variable.info’ file
 in the pybdy installation path if it can’t find the file with the same
 name as input bdy file with extension .info
 
-#### Parameters
+### Parameters
 
 filename – filename of the variables information
 returns a dictionary with variable name and its description.
 
-#### Returns
+### Returns
 
-variable_info : dict
+> variable_info : dict<br>
 
-#### write()
+### write()
 
 Write backs the variable data back into the file.
 
-### pybdy.nemo_bdy_setup.strip_comments(line)
+## pybdy.nemo_bdy_setup.strip_comments(line)
 
 Strip the comments in the line. removes text after !.
 
-## pybdy.nemo_bdy_source_coord module
+# pybdy.nemo_bdy_source_coord module
 
-### *class* pybdy.nemo_bdy_source_coord.SourceCoord
+## *class* pybdy.nemo_bdy_source_coord.SourceCoord
 
-Bases: `object`
+> Bases: `object`<br>
 
-#### \_\_init\_\_()
+### \_\_init\_\_()
 
 Initialise the source coordinates attributes of the object.
 
-## pybdy.nemo_bdy_src_time module
+# pybdy.nemo_bdy_src_time module
 
-## pybdy.nemo_bdy_zgrv2 module
+# pybdy.nemo_bdy_zgrv2 module
 
 Created.
 
 @author John Kazimierz Farey
 @author Benjamin Barton.
 
-### pybdy.nemo_bdy_zgrv2.get_bdy_depths(DstCoord, bdy_i, grd)
+## pybdy.nemo_bdy_zgrv2.get_bdy_depths(DstCoord, bdy_i, grd)
 
 Depth levels from the nearest neighbour on the source grid.
 
-### Args:
+### Parameters
 
 > DstCoord (object) : Object containing destination grid info<br>
 > bdy_i (np.array) : indices of the i, j bdy points [bdy, 2]<br>
 > grd (str) : grid type t, u, v<br>
 
-### Returns:
+### Returns
 
 > bdy_tz (array) : sc depths on bdy points on t levels<br>
 > bdy_wz (array) : sc depths on bdy points on w levels<br>
 > bdy_e3 (array) : sc level thickness on bdy points on t levels<br>
 
-### pybdy.nemo_bdy_zgrv2.get_bdy_depths_old(bdy_t, bdy_u, bdy_v, DstCoord, settings)
+## pybdy.nemo_bdy_zgrv2.get_bdy_depths_old(bdy_t, bdy_u, bdy_v, DstCoord, settings)
 
 Generate Depth information.
 
 Written by John Kazimierz Farey, Sep 2012
 Port of Matlab code of James Harle
 
-# Generates depth points for t, u and v in one loop iteration
+Generates depth points for t, u and v in one loop iteration
 
 Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary
 
-### pybdy.nemo_bdy_zgrv2.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
+## pybdy.nemo_bdy_zgrv2.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
 
 Depth levels from the nearest neighbour on the source grid.
 
-### Args:
+### Parameters
 
 > SourceCoord (object) : Object containing source grid info<br>
 > DstCoord (object) : Object containing destination grid info<br>
 > grd (str) : grid type t, u, v<br>
 
-### Returns:
+### Returns
 
 > bdy_tz (array) : sc depths on bdy points on t levels<br>
 > bdy_wz (array) : sc depths on bdy points on w levels<br>
 > bdy_e3 (array) : sc level thickness on bdy points on t levels<br>
 
-## pybdy.nemo_coord_gen_pop module
+# pybdy.nemo_coord_gen_pop module
 
 Module that combines matlab coord gen and pop.
 
 Initialise with netcdf file name and dictionary containing all bdy grids (objects).
 
-### *class* pybdy.nemo_coord_gen_pop.Coord(fname, bdy_ind)
+## *class* pybdy.nemo_coord_gen_pop.Coord(fname, bdy_ind)
 
-Bases: `object`
+> Bases: `object`<br>
 
-#### \_\_init\_\_(fname, bdy_ind)
+### \_\_init\_\_(fname, bdy_ind)
 
-#### closeme()
+### closeme()
 
-#### populate(hgr)
+### populate(hgr)
 
-#### set_lenvar(vardic, hgr=None, unt=None)
+### set_lenvar(vardic, hgr=None, unt=None)
 
-## pybdy.profiler module
+# pybdy.profiler module
 
-Created on Wed Sep 12 08:02:46 2012.
+> Created on Wed Sep 12 08:02:46 2012.<br>
 
 The main application script for the NRCT.
 
 @author James Harle
 @author John Kazimierz Farey
 @author Srikanth Nagella
-$Last commit on:$
 
-### *class* pybdy.profiler.Grid
+> $Last commit on:$<br>
 
-Bases: `object`
+## *class* pybdy.profiler.Grid
+
+> Bases: `object`<br>
 
 A Grid object that stores bdy grid information.
 
-#### \_\_init\_\_()
+### \_\_init\_\_()
 
-### pybdy.profiler.process_bdy(setup_filepath=0, mask_gui=False)
+## pybdy.profiler.process_bdy(setup_filepath=0, mask_gui=False)
 
 Handle all the calls to generate open boundary conditions for a given regional domain.
 
-### Notes
+## Notes
 
 This is main entry for processing BDY lateral boundary conditions.
 This is the main script that handles all the calls to generate open
@@ -833,7 +842,7 @@ the user to create a mask that defines the extent of the regional model.
 > setup_filepath (str) : file path to find namelist.bdy<br>
 > mask_gui (bool): whether use of the GUI is required<br>
 
-### pybdy.profiler.write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons)
+## pybdy.profiler.write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons)
 
 Write the tidal data to a NetCDF file.
 
@@ -845,65 +854,65 @@ Write the tidal data to a NetCDF file.
 > tide_cons (list): Description of arg1<br>
 > cons (data): cosz, sinz, cosu, sinu, cosv, sinv<br>
 
-## pybdy.pybdy_exe module
+# pybdy.pybdy_exe module
 
 Entry for the project.
 
-@author: Mr. Srikanth Nagella
+> @author: Mr. Srikanth Nagella<br>
 
-### pybdy.pybdy_exe.main()
+## pybdy.pybdy_exe.main()
 
 Run main function.
 
 Checks the command line parameters and passes them to the profile module for processing.
 
-## pybdy.pybdy_ncml_generator module
+# pybdy.pybdy_ncml_generator module
 
 Created on 2 Jul 2015.
 
 The main application object for hosting the pybdy ncml editor.
 Used for development purposes to display the ncml editor dialog.
 
-@author: Shirley Crompton, UK Science and Technology Facilities Council
+> @author: Shirley Crompton, UK Science and Technology Facilities Council<br>
 
-### pybdy.pybdy_ncml_generator.main()
+## pybdy.pybdy_ncml_generator.main()
 
 Command line execution method.
 
-### Notes
+## Notes
 
 Checks the input arguments and passes on to method to open the ncml generator window.
 
-## pybdy.pybdy_settings_editor module
+# pybdy.pybdy_settings_editor module
 
 Created on 7 Jan 2015.
 
-@author: Mr. Srikanth Nagella
+> @author: Mr. Srikanth Nagella<br>
 
-### pybdy.pybdy_settings_editor.main()
+## pybdy.pybdy_settings_editor.main()
 
 Command line execution method.
 
 Checks the input arguments and passes on to method to open the settings window.
 
-### pybdy.pybdy_settings_editor.open_settings_dialog(setup)
+## pybdy.pybdy_settings_editor.open_settings_dialog(setup)
 
 Start the settings window using the setup settings provided in the input.
 
-### Notes
+## Notes
 
 On clicking the cancel button it doesn’t shutdown the applicaiton but carries on with the execution.
 
-### pybdy.pybdy_settings_editor.open_settings_window(fname)
+## pybdy.pybdy_settings_editor.open_settings_window(fname)
 
 Start a Qt application.
 
-### Notes
+## Notes
 
 This method gives the user the option to pick a namelist.bdy file to edit.
 Once user selects it it will open a dialog box where users can edit the parameters.
 
-## pybdy.version module
+# pybdy.version module
 
 ## Module contents
 
