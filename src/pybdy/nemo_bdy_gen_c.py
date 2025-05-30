@@ -26,8 +26,8 @@ class Boundary:
         """
         Generate the indices for NEMO Boundary and returns a Grid object with indices.
 
-        Paramemters
-        -----------
+        Parameters
+        ----------
         boundary_mask -- boundary mask
         settings -- dictionary of setting values
         grid -- type of the grid 't', 'u', 'v'

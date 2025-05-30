@@ -41,7 +41,7 @@ def get_bdy_depths_old(bdy_t, bdy_u, bdy_v, DstCoord, settings):
     Written by John Kazimierz Farey, Sep 2012
     Port of Matlab code of James Harle
 
-    # Generates depth points for t, u and v in one loop iteration
+    Generates depth points for t, u and v in one loop iteration
 
     Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary
     """

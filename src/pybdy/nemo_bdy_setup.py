@@ -38,10 +38,6 @@ class Setup(object):
     Notes
     -----
     This class holds the settings information
-
-    Attributes
-    ----------
-    <settings> is a dict holding all the vars.
     """
 
     def __init__(self, setfile):
@@ -52,10 +48,15 @@ class Setup(object):
         -----
         This constructor reads the settings file and sets the dictionary with
         setting name/key and it's value.
+
+        Parameters
+        ----------
+            setfile   (str) : settings file
         """
         # Logging for class
         self.logger = logging.getLogger(__name__)
         self.filename = setfile
+        self.settings = {}
         if not setfile:  # debug
             self.filename = "../data/namelist.bdy"
         self._load_settings()
