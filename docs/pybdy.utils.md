@@ -95,8 +95,6 @@ Return the distance between two points.
 
 Get the distance of a point to a segment.
 
-## Notes
-
 *p*, *s0*, *s1* are *xy* sequences
 This algorithm from
 

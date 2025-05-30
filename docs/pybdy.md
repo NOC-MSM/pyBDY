@@ -243,7 +243,7 @@ after attempting to split at corners.
 
 ### Returns
 
-> numpy.array : array of chunk numbers<br>
+> chunk_number (numpy.array) : array of chunk numbers<br>
 
 ## pybdy.nemo_bdy_chunk.chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw)
 
@@ -258,11 +258,10 @@ To do this we look for a change in direction along each rim.
 > rbdy (numpy.array) : rim index<br>
 > chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
 > rw (int) : rimwidth<br>
-> mid_split (list) : list of chunk numbers that need splitting<br>
 
 ### Returns
 
-> numpy.array : array of chunk numbers<br>
+> chunk_number (numpy.array) : array of chunk numbers<br>
 
 ## pybdy.nemo_bdy_chunk.chunk_land(ibdy, jbdy, chunk_number, rw)
 
@@ -277,7 +276,7 @@ Find natural breaks in the boundary looking for gaps in i and j.
 
 ### Returns
 
-> numpy.array : array of chunk numbers<br>
+> chunk_number (numpy.array) : array of chunk numbers<br>
 
 ## pybdy.nemo_bdy_chunk.chunk_large(ibdy, jbdy, chunk_number)
 
@@ -291,7 +290,7 @@ Split boundaries that have too much white space and are too large.
 
 ### Returns
 
-> numpy.array : array of chunk numbers<br>
+> chunk_number (numpy.array) : array of chunk numbers<br>
 
 # pybdy.nemo_bdy_dst_coord module
 
@@ -474,8 +473,6 @@ the interpolation onto the destination grid.
 
 Initialise the Extract object.
 
-## Notes
-
 Parent grid to child grid weights are defined along with rotation
 weightings for vector quantities.
 
@@ -543,8 +540,6 @@ dstep
 
 Perform a time interpolation of the BDY data to daily frequency.
 
-## Notes
-
 This method performs a time interpolation (if required). This is
 necessary if the time frequency is not a factor of monthly output or the
 input and output calendars differ. CF compliant calendar options
@@ -555,8 +550,6 @@ input and output calendars differ. CF compliant calendar options
 ### write_out(year, month, ind, unit_origin)
 
 Write monthy BDY data to netCDF file.
-
-## Notes
 
 This method writes out all available variables for a given grid along with
 any asscoaied metadata. Currently data are only written out as monthly
@@ -677,15 +670,11 @@ Parses a file to find out which nemo boundary settings to use
 
 Invoke with a text file location, class init reads and deciphers variables.
 
-## Notes
-
 This class holds the settings information
 
 ### \_\_init\_\_(setfile)
 
 Set up the constructor.
-
-### Notes
 
 This constructor reads the settings file and sets the dictionary with
 setting name/key and it’s value.
@@ -701,8 +690,6 @@ Reload the settings from file.
 ### variable_info_reader(filename)
 
 Read the variable description data from the ‘variable.info’ file.
-
-### Notes
 
 This method reads the variable description data from ‘variable.info’ file
 in the pybdy installation path if it can’t find the file with the same
@@ -829,8 +816,6 @@ A Grid object that stores bdy grid information.
 
 Handle all the calls to generate open boundary conditions for a given regional domain.
 
-## Notes
-
 This is main entry for processing BDY lateral boundary conditions.
 This is the main script that handles all the calls to generate open
 boundary conditions for a given regional domain. Input options are handled
@@ -879,8 +864,6 @@ Used for development purposes to display the ncml editor dialog.
 
 Command line execution method.
 
-## Notes
-
 Checks the input arguments and passes on to method to open the ncml generator window.
 
 # pybdy.pybdy_settings_editor module
@@ -899,15 +882,11 @@ Checks the input arguments and passes on to method to open the settings window.
 
 Start the settings window using the setup settings provided in the input.
 
-## Notes
-
 On clicking the cancel button it doesn’t shutdown the applicaiton but carries on with the execution.
 
 ## pybdy.pybdy_settings_editor.open_settings_window(fname)
 
 Start a Qt application.
-
-## Notes
 
 This method gives the user the option to pick a namelist.bdy file to edit.
 Once user selects it it will open a dialog box where users can edit the parameters.

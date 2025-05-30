@@ -119,8 +119,6 @@ Read the mask data from the mask file.
 
 Tide up the mask by selecting the largest masked region.
 
-## Notes
-
 This is to avoid two disconnected masked regions.
 
 ### set_bathymetry_file(bathy_file)
@@ -130,8 +128,6 @@ Read the bathymetry file and sets the land to 0 and ocean to 1.
 ### set_mask_file(mask_file)
 
 Read the mask data from the mask file.
-
-## Notes
 
 Assumes the mask file is 2D.
 
@@ -208,8 +204,6 @@ Set the mask type.
 > Bases: `NavigationToolbar2QT`<br>
 
 Custom toolbar for the nemo.
-
-## Notes
 
 Includes additional buttons for drawing tool and (add,remove) for mask
 in addtion to default NavigationToolbar provided by matplotlib.
@@ -290,8 +284,6 @@ Initialise the constructor for setting up the gui using the settings.
 
 Run callback for the dropdown in the settings.
 
-## Notes
-
 Run callback when the True/False dropdown for the settings,
 
 > : which has a boolean value, is changed.<br>
@@ -314,8 +306,6 @@ Run callback when the text is changed in the text box.
 
 Run callback when the check box state is changed.
 
-## Notes
-
 This updates the bool_setting.
 
 # pybdy.gui.nemo_ncml_generator module
@@ -329,8 +319,6 @@ Created on 6 Aug 2015.
 > Bases: `QDialog`<br>
 
 Gui editor to capture user input.
-
-## Notes
 
 This is done for the purpose of generating NCML representation of pybdy source datasets.
 
@@ -503,8 +491,6 @@ Redraw the polygon.
 ### refresh()
 
 Refresh the canvas.
-
-## Notes
 
 This method looks at the list of points available and depending on the number of points
 
