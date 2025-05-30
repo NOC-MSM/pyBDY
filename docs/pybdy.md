@@ -234,16 +234,16 @@ after attempting to split at corners.
 
 ### Args:
 
-> bdy (Boundary object)
-> : bdy.bdy_i[bdy point, i/j grid]
-> and rim width number
-> bdy.bdy_r[bdy_point]
+> bdy (Boundary object)<br>
+> : bdy.bdy_i[bdy point, i/j grid]<br>
+> and rim width number<br>
+> bdy.bdy_r[bdy_point]<br>
 
-> logger : log error and messages
+> logger : log error and messages<br>
 
 ### Returns:
 
-> numpy.array : array of chunk numbers
+> numpy.array : array of chunk numbers<br>
 
 ### pybdy.nemo_bdy_chunk.chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw)
 
@@ -253,16 +253,16 @@ To do this we look for a change in direction along each rim.
 
 ### Args:
 
-> ibdy (numpy.array) : index in i direction
-> jbdy (numpy.array) : index in j direction
-> rbdy (numpy.array) : rim index
-> chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
-> rw (int) : rimwidth
-> mid_split (list) : list of chunk numbers that need splitting
+> ibdy (numpy.array) : index in i direction<br>
+> jbdy (numpy.array) : index in j direction<br>
+> rbdy (numpy.array) : rim index<br>
+> chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
+> rw (int) : rimwidth<br>
+> mid_split (list) : list of chunk numbers that need splitting<br>
 
 ### Returns:
 
-> numpy.array : array of chunk numbers
+> numpy.array : array of chunk numbers<br>
 
 ### pybdy.nemo_bdy_chunk.chunk_land(ibdy, jbdy, chunk_number, rw)
 
@@ -270,14 +270,14 @@ Find natural breaks in the boundary looking for gaps in i and j.
 
 ### Args:
 
-> ibdy (numpy.array) : index in i direction
-> jbdy (numpy.array) : index in j direction
-> chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
-> rw (int) : rimwidth
+> ibdy (numpy.array) : index in i direction<br>
+> jbdy (numpy.array) : index in j direction<br>
+> chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
+> rw (int) : rimwidth<br>
 
 ### Returns:
 
-> numpy.array : array of chunk numbers
+> numpy.array : array of chunk numbers<br>
 
 ### pybdy.nemo_bdy_chunk.chunk_large(ibdy, jbdy, chunk_number)
 
@@ -285,13 +285,13 @@ Split boundaries that have too much white space and are too large.
 
 ### Args:
 
-> ibdy (numpy.array) : index in i direction
-> jbdy (numpy.array) : index in j direction
-> chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
+> ibdy (numpy.array) : index in i direction<br>
+> jbdy (numpy.array) : index in j direction<br>
+> chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
 
 ### Returns:
 
-> numpy.array : array of chunk numbers
+> numpy.array : array of chunk numbers<br>
 
 ## pybdy.nemo_bdy_dst_coord module
 
@@ -330,16 +330,16 @@ Find the distance weightings for averaging source data to destination.
 
 ### Args:
 
-> sc_bdy (numpy.array) : source data
-> dist_tot (numpy.array) : distance from dst point to 9 nearest sc points
-> sc_z_len (int) : the number of depth levels
-> r0 (float) : correlation distance
-> logger : log of statements
+> sc_bdy (numpy.array) : source data<br>
+> dist_tot (numpy.array) : distance from dst point to 9 nearest sc points<br>
+> sc_z_len (int) : the number of depth levels<br>
+> r0 (float) : correlation distance<br>
+> logger : log of statements<br>
 
 ### Returns:
 
-> dist_wei (numpy.array) : weightings for averaging
-> dist_fac (numpy.array) : total weighting factor
+> dist_wei (numpy.array) : weightings for averaging<br>
+> dist_fac (numpy.array) : total weighting factor<br>
 
 ### pybdy.nemo_bdy_extr_assist.get_ind(dst_lon, dst_lat, sc_lon, sc_lat)
 
@@ -376,7 +376,7 @@ sc_z (np.array) : the depth of the source grid [k, j, i]
 sc_z_len (int) : the length of depth axis of the source grid
 ind (np.array) : indices of bdy points and 9 nearest neighbours
 
-> for flattened j,i array order=”F” [nbdy, 9]
+> for flattened j,i array order=”F” [nbdy, 9]<br>
 
 zco (bool) : if True z levels are not spatially varying
 
@@ -411,14 +411,14 @@ Interpolate the source data to the destination grid using weighted average.
 
 ### Args:
 
-> sc_bdy (numpy.array) : source data
-> dist_wei (numpy.array) : weightings for interpolation
-> dist_fac (numpy.array) : sum of weightings
-> logger : log of statements
+> sc_bdy (numpy.array) : source data<br>
+> dist_wei (numpy.array) : weightings for interpolation<br>
+> dist_fac (numpy.array) : sum of weightings<br>
+> logger : log of statements<br>
 
 ### Returns:
 
-> dst_bdy (numpy.array) : destination bdy points with data from source grid
+> dst_bdy (numpy.array) : destination bdy points with data from source grid<br>
 
 ### pybdy.nemo_bdy_extr_assist.interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, num_bdy, zinterp=True)
 
@@ -445,13 +445,13 @@ Find an array of valid indicies.
 
 ### Args:
 
-> sc_bdy (numpy.array) : source data
-> logger : log of statements
+> sc_bdy (numpy.array) : source data<br>
+> logger : log of statements<br>
 
 ### Returns:
 
-> data_ind (numpy.array) : indicies of max depth of valid data
-> nan_ind (numpy.array) : indicies where source is land
+> data_ind (numpy.array) : indicies of max depth of valid data<br>
+> nan_ind (numpy.array) : indicies where source is land<br>
 
 ## pybdy.nemo_bdy_extr_tm3 module
 
@@ -485,7 +485,7 @@ SourceCoord (obj) : source grid information
 DstCoord (obj) : destination grid information
 Grid (dict) : containing grid type ‘t’, ‘u’, ‘v’
 
-> and source time
+> and source time<br>
 
 var_name (list) : netcdf file variable names (str)
 years (list) : years to extract (default [1979])
@@ -493,7 +493,7 @@ months (list) : months to extract (default [11])
 
 ### Returns
 
-> None
+> None<br>
 
 #### cal_trans(source, dest, year, month)
 
@@ -566,7 +566,7 @@ unit_origin (str) : time reference ‘%d 00:00:00’ %date_origin
 
 ### Returns
 
-> None
+> None<br>
 
 ## pybdy.nemo_bdy_gen_c module
 
@@ -742,15 +742,15 @@ Depth levels from the nearest neighbour on the source grid.
 
 ### Args:
 
-> DstCoord (object) : Object containing destination grid info
-> bdy_i (np.array) : indices of the i, j bdy points [bdy, 2]
-> grd (str) : grid type t, u, v
+> DstCoord (object) : Object containing destination grid info<br>
+> bdy_i (np.array) : indices of the i, j bdy points [bdy, 2]<br>
+> grd (str) : grid type t, u, v<br>
 
 ### Returns:
 
-> bdy_tz (array) : sc depths on bdy points on t levels
-> bdy_wz (array) : sc depths on bdy points on w levels
-> bdy_e3 (array) : sc level thickness on bdy points on t levels
+> bdy_tz (array) : sc depths on bdy points on t levels<br>
+> bdy_wz (array) : sc depths on bdy points on w levels<br>
+> bdy_e3 (array) : sc level thickness on bdy points on t levels<br>
 
 ### pybdy.nemo_bdy_zgrv2.get_bdy_depths_old(bdy_t, bdy_u, bdy_v, DstCoord, settings)
 
@@ -769,15 +769,15 @@ Depth levels from the nearest neighbour on the source grid.
 
 ### Args:
 
-> SourceCoord (object) : Object containing source grid info
-> DstCoord (object) : Object containing destination grid info
-> grd (str) : grid type t, u, v
+> SourceCoord (object) : Object containing source grid info<br>
+> DstCoord (object) : Object containing destination grid info<br>
+> grd (str) : grid type t, u, v<br>
 
 ### Returns:
 
-> bdy_tz (array) : sc depths on bdy points on t levels
-> bdy_wz (array) : sc depths on bdy points on w levels
-> bdy_e3 (array) : sc level thickness on bdy points on t levels
+> bdy_tz (array) : sc depths on bdy points on t levels<br>
+> bdy_wz (array) : sc depths on bdy points on w levels<br>
+> bdy_e3 (array) : sc level thickness on bdy points on t levels<br>
 
 ## pybdy.nemo_coord_gen_pop module
 
@@ -830,8 +830,8 @@ the user to create a mask that defines the extent of the regional model.
 
 ### Parameters
 
-> setup_filepath (str) : file path to find namelist.bdy
-> mask_gui (bool): whether use of the GUI is required
+> setup_filepath (str) : file path to find namelist.bdy<br>
+> mask_gui (bool): whether use of the GUI is required<br>
 
 ### pybdy.profiler.write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons)
 
@@ -839,11 +839,11 @@ Write the tidal data to a NetCDF file.
 
 ### Parameters
 
-> setup_var (list): Description of arg1
-> dst_coord_var (obj) : Description of arg1
-> grid (dict): Description of arg1
-> tide_cons (list): Description of arg1
-> cons (data): cosz, sinz, cosu, sinu, cosv, sinv
+> setup_var (list): Description of arg1<br>
+> dst_coord_var (obj) : Description of arg1<br>
+> grid (dict): Description of arg1<br>
+> tide_cons (list): Description of arg1<br>
+> cons (data): cosz, sinz, cosu, sinu, cosv, sinv<br>
 
 ## pybdy.pybdy_exe module
 

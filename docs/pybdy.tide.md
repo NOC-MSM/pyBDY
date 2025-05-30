@@ -95,11 +95,11 @@ Grid_T : grid_type, bdy_r
 Grid_U, Grid_V : bdy_i , grid_type, bdy_r
 comp: dictionary of harmonics read from namelist.
 
-> e.g. {‘1’:”M2” , ‘2’:”<constituent name>”, …}
+> e.g. {‘1’:”M2” , ‘2’:”<constituent name>”, …}<br>
 
 ### Returns
 
-> cosz, sinz, cosu, sinu, cosv, sinv: [# of constituents, number of bdy points]
+> cosz, sinz, cosu, sinu, cosv, sinv: [# of constituents, number of bdy points]<br>
 
 ## pybdy.tide.nemo_bdy_tide_ncgen module
 

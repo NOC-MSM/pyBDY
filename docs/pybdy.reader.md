@@ -27,8 +27,8 @@ Reader for all the files in the directory as one single object.
 ### Examples
 
 ```pycon
->>> reader = Reader("Folder path")
->>> reader["t"]["votemper"][:, :, :, :]
+>>> reader = Reader("Folder path")<br>
+>>> reader["t"]["votemper"][:, :, :, :]<br>
 ```
 
 #### \_\_init\_\_(directory, time_adjust)
@@ -119,8 +119,8 @@ High level object for the NCML reader, from here using grid type will return the
 ### Examples
 
 ```pycon
->>> reader = Reader("NCML Filename")
->>> reader["t"]["votemper"][:, :, :, :]
+>>> reader = Reader("NCML Filename")<br>
+>>> reader["t"]["votemper"][:, :, :, :]<br>
 ```
 
 #### \_\_init\_\_(uri, time_adjust)

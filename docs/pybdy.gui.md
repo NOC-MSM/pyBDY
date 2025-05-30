@@ -16,25 +16,25 @@ Initialise an APLpyNormalize instance.
 
 Optional Keyword Arguments:
 
-> *vmin*: [ None | float ]
-> : Minimum pixel value to use for the scaling.
+> *vmin*: [ None | float ]<br>
+> : Minimum pixel value to use for the scaling.<br>
 
-> *vmax*: [ None | float ]
-> : Maximum pixel value to use for the scaling.
+> *vmax*: [ None | float ]<br>
+> : Maximum pixel value to use for the scaling.<br>
 
-> *stretch*: [ ‘linear’ | ‘log’ | ‘sqrt’ | ‘arcsinh’ | ‘power’ ]
-> : The stretch function to use (default is ‘linear’).
+> *stretch*: [ ‘linear’ | ‘log’ | ‘sqrt’ | ‘arcsinh’ | ‘power’ ]<br>
+> : The stretch function to use (default is ‘linear’).<br>
 
-> *vmid*: [ None | float ]
-> : Mid-pixel value used for the log and arcsinh stretches. If
-> set to None, a default value is picked.
+> *vmid*: [ None | float ]<br>
+> : Mid-pixel value used for the log and arcsinh stretches. If<br>
+> set to None, a default value is picked.<br>
 
-> *exponent*: [ float ]
-> : if self.stretch is set to ‘power’, this is the exponent to use.
+> *exponent*: [ float ]<br>
+> : if self.stretch is set to ‘power’, this is the exponent to use.<br>
 
-> *clip*: [ True | False ]
-> : If clip is True and the given value falls outside the range,
-> the returned value will be 0 or 1, whichever is closer.
+> *clip*: [ True | False ]<br>
+> : If clip is True and the given value falls outside the range,<br>
+> the returned value will be 0 or 1, whichever is closer.<br>
 
 #### inverse(value)
 
