@@ -29,7 +29,7 @@ Rewritting the break depth implementation from matlab version.
 
 \_Summary.
 
-### Parameters
+> ### Parameters<br>
 
 > - **type bathy:**<br>
 > - **param bathy:**<br>
@@ -60,15 +60,16 @@ Create a mask for the break depth using histograms.
 
 Calculate the shelf break.
 
-- **Parameters**
-    - **bathy** (*numpy array*) – This is the input bathymetry data
-    - **lat** (*numpy array*) – Latittude array
-    - **lon** (*numpy array*) – Longitude array
-    - **roi** (*python array*) – region of interest array [4]
-    - **dr** (*float*) – shelf break distance
-- **Returns**
-    returns the depth_shelf, h_max
+> - **Parameters**<br>
 
+- **bathy** (*numpy array*) – This is the input bathymetry data
+- **lat** (*numpy array*) – Latittude array
+- **lon** (*numpy array*) – Longitude array
+- **roi** (*python array*) – region of interest array [4]
+- **dr** (*float*) – shelf break distance
+
+> - **Returns**<br>
+>     returns the depth_shelf, h_max
 > - **Return type:**<br>
 >     numpy arrays.
 > - **Example:**<br>

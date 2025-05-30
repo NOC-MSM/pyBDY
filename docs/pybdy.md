@@ -232,7 +232,7 @@ The chunks are then split near corners.
 The chunks are then optionally split in the middle if they’re above a certain size
 after attempting to split at corners.
 
-### Parameters
+> ### Parameters<br>
 
 > bdy (Boundary object)<br>
 > : bdy.bdy_i[bdy point, i/j grid]<br>
@@ -241,7 +241,7 @@ after attempting to split at corners.
 
 > logger : log error and messages<br>
 
-### Returns
+> ### Returns<br>
 
 > chunk_number (numpy.array) : array of chunk numbers<br>
 
@@ -251,7 +251,7 @@ Find corners and split along the change in direction.
 
 To do this we look for a change in direction along each rim.
 
-### Parameters
+> ### Parameters<br>
 
 > ibdy (numpy.array) : index in i direction<br>
 > jbdy (numpy.array) : index in j direction<br>
@@ -259,7 +259,7 @@ To do this we look for a change in direction along each rim.
 > chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
 > rw (int) : rimwidth<br>
 
-### Returns
+> ### Returns<br>
 
 > chunk_number (numpy.array) : array of chunk numbers<br>
 
@@ -267,14 +267,14 @@ To do this we look for a change in direction along each rim.
 
 Find natural breaks in the boundary looking for gaps in i and j.
 
-### Parameters
+> ### Parameters<br>
 
 > ibdy (numpy.array) : index in i direction<br>
 > jbdy (numpy.array) : index in j direction<br>
 > chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
 > rw (int) : rimwidth<br>
 
-### Returns
+> ### Returns<br>
 
 > chunk_number (numpy.array) : array of chunk numbers<br>
 
@@ -282,13 +282,13 @@ Find natural breaks in the boundary looking for gaps in i and j.
 
 Split boundaries that have too much white space and are too large.
 
-### Parameters
+> ### Parameters<br>
 
 > ibdy (numpy.array) : index in i direction<br>
 > jbdy (numpy.array) : index in j direction<br>
 > chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
 
-### Returns
+> ### Returns<br>
 
 > chunk_number (numpy.array) : array of chunk numbers<br>
 
@@ -313,13 +313,13 @@ Equivalent to Matlab dst_coord.
 
 Check if source domain wraps and dst spans the wrap.
 
-### Parameters
+> ### Parameters<br>
 
 > imin (int) : minimum i index<br>
 > imax (int) : maximum i index<br>
 > sc_lon (np.array) : the longitude of the source grid<br>
 
-### Returns
+> ### Returns<br>
 
 > wrap_flag (bool) : if true the sc wraps and dst spans wrap<br>
 
@@ -327,7 +327,7 @@ Check if source domain wraps and dst spans the wrap.
 
 Find the distance weightings for averaging source data to destination.
 
-### Parameters
+> ### Parameters<br>
 
 > sc_bdy (numpy.array) : source data<br>
 > dist_tot (numpy.array) : distance from dst point to 9 nearest sc points<br>
@@ -335,7 +335,7 @@ Find the distance weightings for averaging source data to destination.
 > r0 (float) : correlation distance<br>
 > logger : log of statements<br>
 
-### Returns
+> ### Returns<br>
 
 > dist_wei (numpy.array) : weightings for averaging<br>
 > dist_fac (numpy.array) : total weighting factor<br>
@@ -344,14 +344,14 @@ Find the distance weightings for averaging source data to destination.
 
 Calculate indicies of max and min for data extraction.
 
-### Parameters
+> ### Parameters<br>
 
 > dst_lon (np.array) : the longitude of the destination grid<br>
 > dst_lat (np.array) : the latitude of the destination grid<br>
 > sc_lon (np.array) : the longitude of the source grid<br>
 > sc_lat (np.array) : the latitude of the source grid<br>
 
-### Returns
+> ### Returns<br>
 
 > imin (int) : minimum i index<br>
 > imax (int) : maximum i index<br>
@@ -366,7 +366,7 @@ Selects 9 source points horizontally around a destination grid point.
 Calculated the distance from each source point to the destination to
 be used in weightings. The resulting arrays are [nz * nbdy * 9, 2].
 
-### Parameters
+> ### Parameters<br>
 
 > dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
 > dst_len_z (int) : the length of depth axis of the destination grid<br>
@@ -379,7 +379,7 @@ be used in weightings. The resulting arrays are [nz * nbdy * 9, 2].
 
 > zco (bool) : if True z levels are not spatially varying<br>
 
-### Returns
+> ### Returns<br>
 
 > z9_dist (np.array) : the distance weights of the selected points<br>
 > z9_ind (np.array) : the indices of the sc depth above and below bdy<br>
@@ -391,7 +391,7 @@ Determine vertical weights for the linear interpolation onto Dst grid.
 Calculated the vertical distance from each source point to the destination to
 be used in weightings. The resulting arrays are [nbdy * nz, 2].
 
-### Parameters
+> ### Parameters<br>
 
 > dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
 > dst_len_z (int) : the length of depth axis of the destination grid<br>
@@ -399,7 +399,7 @@ be used in weightings. The resulting arrays are [nbdy * nz, 2].
 > sc_z (np.array) : the depth of the source grid [k, j, i]<br>
 > sc_z_len (int) : the length of depth axis of the source grid<br>
 
-### Returns
+> ### Returns<br>
 
 > z_dist (np.array) : the distance weights of the selected points<br>
 > z_ind (np.array) : the indices of the sc depth above and below bdy<br>
@@ -408,14 +408,14 @@ be used in weightings. The resulting arrays are [nbdy * nz, 2].
 
 Interpolate the source data to the destination grid using weighted average.
 
-### Parameters
+> ### Parameters<br>
 
 > sc_bdy (numpy.array) : source data<br>
 > dist_wei (numpy.array) : weightings for interpolation<br>
 > dist_fac (numpy.array) : sum of weightings<br>
 > logger : log of statements<br>
 
-### Returns
+> ### Returns<br>
 
 > dst_bdy (numpy.array) : destination bdy points with data from source grid<br>
 
@@ -423,7 +423,7 @@ Interpolate the source data to the destination grid using weighted average.
 
 Interpolate source data onto destination vertical levels.
 
-### Parameters
+> ### Parameters<br>
 
 > sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]<br>
 > dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
@@ -434,7 +434,7 @@ Interpolate source data onto destination vertical levels.
 > num_bdy (int) : number of boundary points in chunk<br>
 > zinterp (bool) : vertical interpolation flag<br>
 
-### Returns
+> ### Returns<br>
 
 > data_out (np.array) : source data on destination depth levels<br>
 
@@ -442,12 +442,12 @@ Interpolate source data onto destination vertical levels.
 
 Find an array of valid indicies.
 
-### Parameters
+> ### Parameters<br>
 
 > sc_bdy (numpy.array) : source data<br>
 > logger : log of statements<br>
 
-### Returns
+> ### Returns<br>
 
 > data_ind (numpy.array) : indicies of max depth of valid data<br>
 > nan_ind (numpy.array) : indicies where source is land<br>
@@ -469,14 +469,14 @@ the interpolation onto the destination grid.
 
 > Bases: `object`<br>
 
-### \_\_init\_\_(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)
+### *method* \_\_init\_\_(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)
 
 Initialise the Extract object.
 
 Parent grid to child grid weights are defined along with rotation
 weightings for vector quantities.
 
-### Parameters
+> ### Parameters<br>
 
 > setup (list) : settings for bdy<br>
 > SourceCoord (obj) : source grid information<br>
@@ -489,44 +489,44 @@ weightings for vector quantities.
 > years (list) : years to extract (default [1979])<br>
 > months (list) : months to extract (default [11])<br>
 
-### Returns
+> ### Returns<br>
 
 > None<br>
 
-### cal_trans(source, dest, year, month)
+### *method* cal_trans(source, dest, year, month)
 
 Translate between calendars and return scale factor and number of days in month.
 
-### Parameters
+> ### Parameters<br>
 
 source – source calendar
 dest – destination calendar
 year – input year
 month – input month
 
-### extract_month(year, month)
+### *method* extract_month(year, month)
 
 Extract monthly data and interpolates onto the destination grid.
 
-### Parameters
+> ### Parameters<br>
 
 year – year of data to be extracted
 month – month of the year to be extracted
 
-### time_delta(time_counter)
+### *method* time_delta(time_counter)
 
 Get time delta and number of time steps per day.
 
 Calculates difference between time steps for time_counter and checks
 these are uniform. Then retrives the number of time steps per day.
 
-### Parameters
+> ### Parameters<br>
 
 time_counter
 
 > : model time coordinate<br>
 
-### Returns
+> ### Returns<br>
 
 deltaT
 
@@ -536,7 +536,7 @@ dstep
 
 > : number of time steps per day<br>
 
-### time_interp(year, month)
+### *method* time_interp(year, month)
 
 Perform a time interpolation of the BDY data to daily frequency.
 
@@ -547,7 +547,7 @@ input and output calendars differ. CF compliant calendar options
 > accepted: gregorian | standard, proleptic_gregorian, noleap | 365_day,<br>
 > 360_day or julian.\*
 
-### write_out(year, month, ind, unit_origin)
+### *method* write_out(year, month, ind, unit_origin)
 
 Write monthy BDY data to netCDF file.
 
@@ -555,14 +555,14 @@ This method writes out all available variables for a given grid along with
 any asscoaied metadata. Currently data are only written out as monthly
 files.
 
-### Parameters
+> ### Parameters<br>
 
 > year (int) : year to write out<br>
 > month (int) : month to write out<br>
 > ind (dict): dictionary holding grid information<br>
 > unit_origin (str) : time reference ‘%d 00:00:00’ %date_origin<br>
 
-### Returns
+> ### Returns<br>
 
 > None<br>
 
@@ -583,11 +583,11 @@ Ported from Matlab code by James Harle
 
 > Bases: `object`<br>
 
-### \_\_init\_\_(boundary_mask, settings, grid)
+### *method* \_\_init\_\_(boundary_mask, settings, grid)
 
 Generate the indices for NEMO Boundary and returns a Grid object with indices.
 
-### Parameters
+> ### Parameters<br>
 
 boundary_mask – boundary mask
 settings – dictionary of setting values
@@ -603,11 +603,11 @@ grid – type of the grid ‘t’, ‘u’, ‘v’
 
 > Bases: `object`<br>
 
-> ### CASES *= {'f': [0, 1, 0, 0], 't': [0, 0, 0, -1], 'u': [0, 0, 0, -1], 'v': [0, 0, -1, 0]}*<br>
+> ### *method* CASES *= {'f': [0, 1, 0, 0], 't': [0, 0, 0, -1], 'u': [0, 0, 0, -1], 'v': [0, 0, -1, 0]}*<br>
 
-> ### MAP *= {'f': 'u', 't': 'v', 'u': 'f', 'v': 'f'}*<br>
+> ### *method* MAP *= {'f': 'u', 't': 'v', 'u': 'f', 'v': 'f'}*<br>
 
-### \_\_init\_\_(hgr, imin, imax, jmin, jmax, cd_type)
+### *method* \_\_init\_\_(hgr, imin, imax, jmin, jmax, cd_type)
 
 # pybdy.nemo_bdy_ice module
 
@@ -615,7 +615,7 @@ grid – type of the grid ‘t’, ‘u’, ‘v’
 
 > Bases: `object`<br>
 
-### \_\_init\_\_()
+### *method* \_\_init\_\_()
 
 # pybdy.nemo_bdy_ncgen module
 
@@ -639,7 +639,7 @@ Created on 3 Oct 2014.
 
 Write the data to the netcdf templete file.
 
-### Parameters
+> ### Parameters<br>
 
 filename – output filename
 variable_name – variable name into which the data is written to.
@@ -651,7 +651,7 @@ data – data that will be written to variable in netcdf.
 
 > Bases: `object`<br>
 
-### \_\_init\_\_()
+### *method* \_\_init\_\_()
 
 # pybdy.nemo_bdy_setup module
 
@@ -672,22 +672,22 @@ Invoke with a text file location, class init reads and deciphers variables.
 
 This class holds the settings information
 
-### \_\_init\_\_(setfile)
+### *method* \_\_init\_\_(setfile)
 
 Set up the constructor.
 
 This constructor reads the settings file and sets the dictionary with
 setting name/key and it’s value.
 
-### Parameters
+> ### Parameters<br>
 
 > setfile (str) : settings file<br>
 
-### refresh()
+### *method* refresh()
 
 Reload the settings from file.
 
-### variable_info_reader(filename)
+### *method* variable_info_reader(filename)
 
 Read the variable description data from the ‘variable.info’ file.
 
@@ -695,16 +695,16 @@ This method reads the variable description data from ‘variable.info’ file
 in the pybdy installation path if it can’t find the file with the same
 name as input bdy file with extension .info
 
-### Parameters
+> ### Parameters<br>
 
 filename – filename of the variables information
 returns a dictionary with variable name and its description.
 
-### Returns
+> ### Returns<br>
 
 > variable_info : dict<br>
 
-### write()
+### *method* write()
 
 Write backs the variable data back into the file.
 
@@ -718,7 +718,7 @@ Strip the comments in the line. removes text after !.
 
 > Bases: `object`<br>
 
-### \_\_init\_\_()
+### *method* \_\_init\_\_()
 
 Initialise the source coordinates attributes of the object.
 
@@ -735,13 +735,13 @@ Created.
 
 Depth levels from the nearest neighbour on the source grid.
 
-### Parameters
+> ### Parameters<br>
 
 > DstCoord (object) : Object containing destination grid info<br>
 > bdy_i (np.array) : indices of the i, j bdy points [bdy, 2]<br>
 > grd (str) : grid type t, u, v<br>
 
-### Returns
+> ### Returns<br>
 
 > bdy_tz (array) : sc depths on bdy points on t levels<br>
 > bdy_wz (array) : sc depths on bdy points on w levels<br>
@@ -762,13 +762,13 @@ Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings diction
 
 Depth levels from the nearest neighbour on the source grid.
 
-### Parameters
+> ### Parameters<br>
 
 > SourceCoord (object) : Object containing source grid info<br>
 > DstCoord (object) : Object containing destination grid info<br>
 > grd (str) : grid type t, u, v<br>
 
-### Returns
+> ### Returns<br>
 
 > bdy_tz (array) : sc depths on bdy points on t levels<br>
 > bdy_wz (array) : sc depths on bdy points on w levels<br>
@@ -784,13 +784,13 @@ Initialise with netcdf file name and dictionary containing all bdy grids (object
 
 > Bases: `object`<br>
 
-### \_\_init\_\_(fname, bdy_ind)
+### *method* \_\_init\_\_(fname, bdy_ind)
 
-### closeme()
+### *method* closeme()
 
-### populate(hgr)
+### *method* populate(hgr)
 
-### set_lenvar(vardic, hgr=None, unt=None)
+### *method* set_lenvar(vardic, hgr=None, unt=None)
 
 # pybdy.profiler module
 
@@ -810,7 +810,7 @@ The main application script for the NRCT.
 
 A Grid object that stores bdy grid information.
 
-### \_\_init\_\_()
+### *method* \_\_init\_\_()
 
 ## pybdy.profiler.process_bdy(setup_filepath=0, mask_gui=False)
 
@@ -822,7 +822,7 @@ boundary conditions for a given regional domain. Input options are handled
 in a NEMO style namelist (namelist.bdy). There is an optional GUI allowing
 the user to create a mask that defines the extent of the regional model.
 
-### Parameters
+> ### Parameters<br>
 
 > setup_filepath (str) : file path to find namelist.bdy<br>
 > mask_gui (bool): whether use of the GUI is required<br>
@@ -831,7 +831,7 @@ the user to create a mask that defines the extent of the regional model.
 
 Write the tidal data to a NetCDF file.
 
-### Parameters
+> ### Parameters<br>
 
 > setup_var (list): Description of arg1<br>
 > dst_coord_var (obj) : Description of arg1<br>
