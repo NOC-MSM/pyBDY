@@ -39,15 +39,12 @@ def chunk_bdy(bdy):
     The chunks are then optionally split in the middle if they're above a certain size
     after attempting to split at corners.
 
-    Args:
-    ----
-        bdy (Boundary object)   : object with indices of the boundary organised as
-                                  bdy.bdy_i[bdy point, i/j grid]
-                                  and rim width number
-                                  bdy.bdy_r[bdy_point]
+    Parameters
+    ----------
+        bdy (obj)   : organised as bdy_i[point, i/j grid] and rim width bdy_r[point]
         logger                  : log error and messages
 
-    Returns:
+    Returns
     -------
         chunk_number (numpy.array) : array of chunk numbers
     """
@@ -71,14 +68,14 @@ def chunk_land(ibdy, jbdy, chunk_number, rw):
     """
     Find natural breaks in the boundary looking for gaps in i and j.
 
-    Args:
-    ----
+    Parameters
+    ----------
         ibdy (numpy.array)         : index in i direction
         jbdy (numpy.array)         : index in j direction
         chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
         rw (int)                   : rimwidth
 
-    Returns:
+    Returns
     -------
         chunk_number (numpy.array) : array of chunk numbers
     """
@@ -132,15 +129,15 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
 
     To do this we look for a change in direction along each rim.
 
-    Args:
-    ----
+    Parameters
+    ----------
         ibdy (numpy.array)         : index in i direction
         jbdy (numpy.array)         : index in j direction
         rbdy (numpy.array)         : rim index
         chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
         rw (int)                   : rimwidth
 
-    Returns:
+    Returns
     -------
         chunk_number (numpy.array) : array of chunk numbers
     """
@@ -339,13 +336,13 @@ def chunk_large(ibdy, jbdy, chunk_number):
     """
     Split boundaries that have too much white space and are too large.
 
-    Args:
-    ----
+    Parameters
+    ----------
         ibdy (numpy.array)         : index in i direction
         jbdy (numpy.array)         : index in j direction
         chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
 
-    Returns:
+    Returns
     -------
         chunk_number (numpy.array) : array of chunk numbers
     """
