@@ -16,11 +16,7 @@ import numpy as np
 
 
 class Boundary:
-    # Bearings for overlays
-    _NORTH = [1, -1, 1, -1, 2, None, 1, -1]
-    _SOUTH = [1, -1, 1, -1, None, -2, 1, -1]
-    _EAST = [1, -1, 1, -1, 1, -1, 2, None]
-    _WEST = [1, -1, 1, -1, 1, -1, None, -2]
+    """Class for boundary definitions."""
 
     def __init__(self, boundary_mask, settings, grid):
         """
@@ -36,6 +32,12 @@ class Boundary:
         -------
         Boundary (object) : where bdy_i is index and bdy_r is the r index
         """
+        # Bearings for overlays
+        self._NORTH = [1, -1, 1, -1, 2, None, 1, -1]
+        self._SOUTH = [1, -1, 1, -1, None, -2, 1, -1]
+        self._EAST = [1, -1, 1, -1, 1, -1, 2, None]
+        self._WEST = [1, -1, 1, -1, 1, -1, None, -2]
+
         self.logger = logging.getLogger(__name__)
         bdy_msk = boundary_mask
         self.settings = settings
@@ -91,10 +93,10 @@ class Boundary:
             np.arange(bdy_msk.shape[1]), np.arange(bdy_msk.shape[0])
         )
 
-        SBi, SBj = self._find_bdy(igrid, jgrid, msk, self._SOUTH)
-        NBi, NBj = self._find_bdy(igrid, jgrid, msk, self._NORTH)
-        EBi, EBj = self._find_bdy(igrid, jgrid, msk, self._EAST)
-        WBi, WBj = self._find_bdy(igrid, jgrid, msk, self._WEST)
+        SBi, SBj = self.find_bdy(igrid, jgrid, msk, self._SOUTH)
+        NBi, NBj = self.find_bdy(igrid, jgrid, msk, self._NORTH)
+        EBi, EBj = self.find_bdy(igrid, jgrid, msk, self._EAST)
+        WBi, WBj = self.find_bdy(igrid, jgrid, msk, self._WEST)
 
         # create a 2D array index for the points that are on border
         tij = np.column_stack(
@@ -124,8 +126,8 @@ class Boundary:
 
         ##   Remove duplicate and open sea points  ##
 
-        bdy_i, bdy_r = self._remove_duplicate_points(bdy_i, bdy_r)
-        bdy_i, bdy_r, nonmask_index = self._remove_landpoints_open_ocean(
+        bdy_i, bdy_r = self.remove_duplicate_points(bdy_i, bdy_r)
+        bdy_i, bdy_r, nonmask_index = self.remove_landpoints_open_ocean(
             bdy_msk, bdy_i, bdy_r
         )
 
@@ -145,7 +147,7 @@ class Boundary:
         for i in range(rw - 1):
             # Check each bearing
             for b in [self._SOUTH, self._NORTH, self._WEST, self._EAST]:
-                r_msk, r_msk_ref = self._fill(r_msk, r_msk_ref, b)
+                r_msk, r_msk_ref = self.fill(r_msk, r_msk_ref, b)
         self.logger.debug("done loop")
 
         # update bdy_i and bdy_r
@@ -155,7 +157,7 @@ class Boundary:
         bdy_r_tmp = r_msk.T[new_ind.T]
         bdy_i = np.vstack((bdy_i_tmp.T, bdy_i))
 
-        uniqind = self._unique_rows(bdy_i)
+        uniqind = self.unique_rows(bdy_i)
         bdy_i = bdy_i[uniqind, :]
         bdy_r = np.hstack((bdy_r_tmp, bdy_r))
         bdy_r = bdy_r[uniqind]
@@ -170,7 +172,7 @@ class Boundary:
 
         self.logger.debug("Final bdy_i: %s", self.bdy_i.shape)
 
-    def _remove_duplicate_points(self, bdy_i, bdy_r):
+    def remove_duplicate_points(self, bdy_i, bdy_r):
         """
         Remove the duplicate points in the bdy_i and return the bdy_i and bdy_r.
 
@@ -185,20 +187,20 @@ class Boundary:
         bdy_r : bdy rim values.
         """
         bdy_i2 = np.transpose(bdy_i, (1, 0))
-        uniqind = self._unique_rows(bdy_i2)
+        uniqind = self.unique_rows(bdy_i2)
 
         bdy_i = bdy_i2[uniqind]
         bdy_r = bdy_r[uniqind]
         return bdy_i, bdy_r
 
-    def _remove_landpoints_open_ocean(self, mask, bdy_i, bdy_r):
+    def remove_landpoints_open_ocean(self, mask, bdy_i, bdy_r):
         """Remove the land points and open ocean points."""
         unmask_index = mask[bdy_i[:, 1], bdy_i[:, 0]] == 1
         bdy_i = bdy_i[unmask_index, :]
         bdy_r = bdy_r[unmask_index]
         return bdy_i, bdy_r, unmask_index
 
-    def _find_bdy(self, igrid, jgrid, mask, brg):
+    def find_bdy(self, igrid, jgrid, mask, brg):
         """
         Find the border indexes by checking the change from ocean to land.
 
@@ -230,7 +232,7 @@ class Boundary:
 
         return bdy_I, bdy_J
 
-    def _fill(self, mask, ref, brg):
+    def fill(self, mask, ref, brg):
         tmp = mask[brg[4] : brg[5], brg[6] : brg[7]]
         ind = (ref - tmp) > 1
         ref[ind] = tmp[ind] + 1
@@ -238,9 +240,9 @@ class Boundary:
 
         return mask, ref
 
-    def _unique_rows(self, t):
+    def unique_rows(self, t):
         """
-        Return indexes of unique rows in the input 2D array.
+        Find indexes of unique rows in the input 2D array.
 
         Parameters
         ----------

@@ -18,8 +18,8 @@ class Reader(object):
 
     Examples
     --------
-    >>> reader = Reader("Folder path")
-    >>> reader["t"]["votemper"][:, :, :, :]
+    reader = Reader("Folder path")
+    reader["t"]["votemper"][:, :, :, :]
     """
 
     grid_type_list = ["t", "u", "v", "i"]
@@ -28,33 +28,37 @@ class Reader(object):
         """
         Take in directory path as input and return the required information to the bdy.
 
-        Keyword Arguments:
-        -----------------
-        directory -- The directory in which to look for the files
-        time_adjust -- amount of time to be adjusted to the time read from file.
+        Parameters
+        ----------
+        directory   : The directory in which to look for the files
+        time_adjust : amount of time to be adjusted to the time read from file.
+
+        Returns
+        -------
+        None        : object
         """
         self.directory = directory
         self.day_interval = 1
         self.hr_interval = 0
         self.grid_source_data = {}
         for grid_type in self.grid_type_list:
-            self.grid_source_data[grid_type] = self._get_source_timedata(
+            self.grid_source_data[grid_type] = self.get_source_timedata(
                 grid_type, time_adjust
             )
         if self.grid_type_list is not None and len(self.grid_source_data) != 0:
-            self._calculate_time_interval()
+            self.calculate_time_interval()
 
-    def _get_dir_list(self, grid):
+    def get_dir_list(self, grid):
         """
         Scan the directory for a input grid related NetCDF files (i.e., ending with the grid name.
 
         Parameters
         ----------
-        grid -- grid name eg. 't','v','u','i'.
+        grid      (str) : grid name eg. 't','v','u','i'.
 
         Returns
         -------
-        list of files
+        dir_list (list) : list of files
         """
         fend = "%s.nc" % grid.upper()
         dir_list = listdir(self.directory)
@@ -67,7 +71,7 @@ class Reader(object):
         dir_list.sort()
         return [_f for _f in dir_list if _f]
 
-    def _delta_time_interval(self, time1, time2):
+    def delta_time_interval(self, time1, time2):
         """Get the difference between the two times in days and hours."""
         timedif = time2 - time1
         days = timedif / (60 * 60 * 24)
@@ -75,7 +79,7 @@ class Reader(object):
         hrs = hrs / (60 * 60)
         return days, hrs
 
-    def _get_source_timedata(self, grid, t_adjust):
+    def get_source_timedata(self, grid, t_adjust):
         """
         Get the source time data information.
 
@@ -83,7 +87,7 @@ class Reader(object):
         -----
         Builds up sourcedata objects of a given grid.
         """
-        dir_list = self._get_dir_list(grid)
+        dir_list = self.get_dir_list(grid)
         group = GridGroup()
         group.data_list = []
         group.time_counter = []
@@ -110,7 +114,7 @@ class Reader(object):
         group.time_counter = tmp_time_counter
         return group
 
-    def _calculate_time_interval(self):
+    def calculate_time_interval(self):
         """
         Calculate the time interval of the each grid.
 
@@ -120,7 +124,7 @@ class Reader(object):
         days = set()
         hrs = set()
         for grid_type in list(self.grid_source_data.keys()):
-            day, hr = self._delta_time_interval(
+            day, hr = self.delta_time_interval(
                 self.grid_source_data[grid_type].time_counter[0],
                 self.grid_source_data[grid_type].time_counter[1],
             )
@@ -177,8 +181,8 @@ class Variable(object):
     def __init__(self, filenames, variable):
         self.variable = variable
         self.file_names = filenames
-        self.dimensions = self._get_dimensions()
-        self._set_time_dimension_index()
+        self.dimensions = self.get_dimensions()
+        self.set_time_dimension_index()
         self.logger = logging.getLogger(__name__)
 
     def __str__(self):
@@ -273,7 +277,7 @@ class Variable(object):
             self.logger.error("Cannot open the file " + self.file_names[0])
         return None
 
-    def _get_dimensions(self):
+    def get_dimensions(self):
         """Return the dimensions of the variables."""
         try:
             dataset = Dataset(self.file_names[0][0], "r")
@@ -285,7 +289,7 @@ class Variable(object):
             self.logger.error("Cannot open the file " + self.file_names[0])
         return None
 
-    def _set_time_dimension_index(self):
+    def set_time_dimension_index(self):
         """Set the time dimension index."""
         self.time_dim_index = -1
         for index in range(len(self.dimensions)):

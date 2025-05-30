@@ -55,8 +55,8 @@ class Reader(object):
 
     Examples
     --------
-    >>> reader = Reader("NCML Filename")
-    >>> reader["t"]["votemper"][:, :, :, :]
+    reader = Reader("NCML Filename")
+    reader["t"]["votemper"][:, :, :, :]
     """
 
     grid_type_list = ["t", "u", "v", "i"]
