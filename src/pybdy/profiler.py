@@ -24,7 +24,6 @@ The main application script for the NRCT.
 @author James Harle
 @author John Kazimierz Farey
 @author Srikanth Nagella
-$Last commit on:$
 """
 
 # External imports
@@ -87,6 +86,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     ----------
         setup_filepath (str) : file path to find namelist.bdy
         mask_gui       (bool): whether use of the GUI is required
+
+    Returns
+    -------
+        None          : bdy data is written out to NetCDF file
 
     """
     # Start Logger
@@ -390,6 +393,10 @@ def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
         grid          (dict): Description of arg1
         tide_cons     (list): Description of arg1
         cons          (data): cosz, sinz, cosu, sinu, cosv, sinv
+
+    Returns
+    -------
+        None    : tidal data is written to NetCDF file
     """
     # Mapping of variable names to grid types
 
@@ -491,7 +498,7 @@ def _get_mask(Setup, mask_gui):
 
     Returns:
     -------
-        numpy.array     : a mask array of the regional domain
+        bdy_msk (numpy.array) : a mask array of the regional domain
     """
     # Initialise bdy_msk array
 
