@@ -23,7 +23,7 @@ Parses a file to find out which nemo boundary settings to use
 
 @author John Kazimierz Farey
 @author James Harle
-$Last commit on:$
+
 """
 # External imports
 import logging

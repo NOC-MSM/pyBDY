@@ -25,7 +25,6 @@ the interpolation onto the destination grid.
 @author James Harle
 @author John Kazimierz Farey
 @author: Mr. Srikanth Nagella
-$Last commit on:$
 """
 # External Imports
 import copy
@@ -64,15 +63,14 @@ class Extract:
         setup           (list) : settings for bdy
         SourceCoord     (obj)  : source grid information
         DstCoord        (obj)  : destination grid information
-        Grid            (dict) : containing grid type 't', 'u', 'v'
-                                    and source time
+        Grid            (dict) : containing grid type 't', 'u', 'v' and source time
         var_name        (list) : netcdf file variable names (str)
         years           (list) : years to extract (default [1979])
         months          (list) : months to extract (default [11])
 
         Returns
         -------
-            None
+        Extract       (obj) : Object with indexing arrays and weightings ready for interpolation
         """
         self.logger = logging.getLogger(__name__)
         self.g_type = grd
@@ -506,8 +504,12 @@ class Extract:
 
         Parameters
         ----------
-        year -- year of data to be extracted
-        month -- month of the year to be extracted
+        year  : year of data to be extracted
+        month : month of the year to be extracted
+
+        Returns
+        -------
+        self.data_out : data from source on bdy locations and depths
         """
         self.logger.info("extract_month function called")
 
@@ -1051,12 +1053,16 @@ class Extract:
     # equivalent to Matlab alpha(beta(:))
     def _flat_ref(self, alpha, beta):
         """
-        Extract input index elements from array and order them in Fotran array and return the new array.
+        Extract input index elements from array and order them in Fortran array and return the new array.
 
         Parameters
         ----------
-        alpha -- input array
-        beta -- index array
+        alpha : input array
+        beta  : index array
+
+        Returns
+        -------
+        alpha : index elements in flat Fortran array
         """
         return alpha.flatten("F")[beta.flatten("F")].reshape(beta.shape, order="F")
 
@@ -1071,10 +1077,15 @@ class Extract:
 
         Parameters
         ----------
-        source -- source calendar
-        dest -- destination calendar
-        year -- input year
-        month -- input month
+        source  : source calendar
+        dest    : destination calendar
+        year    : input year
+        month   : input month
+
+        Returns
+        -------
+        sf  : scale factor
+        ed  : number of days in month
         """
         vals = {"gregorian": 365.0 + isleap(year), "noleap": 365.0, "360_day": 360.0}
         if source not in list(vals.keys()):
@@ -1104,15 +1115,12 @@ class Extract:
 
         Parameters
         ----------
-        time_counter
-            model time coordinate
+        time_counter  : model time coordinate
 
         Returns
         -------
-        deltaT
-            length of time step
-        dstep
-            number of time steps per day
+        deltaT   : length of time step
+        dstep    : number of time steps per day
         """
         # get time derivative
         deltaT = np.diff(time_counter)
@@ -1235,10 +1243,10 @@ class Extract:
 
         Parameters
         ----------
-        year         (int) : year to write out
-        month        (int) : month to write out
-        ind          (dict): dictionary holding grid information
-        unit_origin  (str) : time reference '%d 00:00:00' %date_origin
+            year         (int) : year to write out
+            month        (int) : month to write out
+            ind          (dict): dictionary holding grid information
+            unit_origin  (str) : time reference '%d 00:00:00' %date_origin
 
         Returns
         -------

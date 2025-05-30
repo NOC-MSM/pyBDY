@@ -28,12 +28,13 @@ class Boundary:
 
         Parameters
         ----------
-        boundary_mask -- boundary mask
-        settings -- dictionary of setting values
-        grid -- type of the grid 't', 'u', 'v'
-        Attributes:
-        bdy_i -- index
-        bdy_r -- r index
+        boundary_mask : boundary mask
+        settings      : dictionary of setting values
+        grid          : type of the grid 't', 'u', 'v'
+
+        Returns
+        -------
+        Boundary (object) : where bdy_i is index and bdy_r is the r index
         """
         self.logger = logging.getLogger(__name__)
         bdy_msk = boundary_mask
@@ -175,8 +176,13 @@ class Boundary:
 
         Parameters
         ----------
-        bdy_i -- bdy indexes
-        bdy_r -- bdy rim values.
+        bdy_i : bdy indexes
+        bdy_r : bdy rim values.
+
+        Returns
+        -------
+        bdy_i : bdy indexes
+        bdy_r : bdy rim values.
         """
         bdy_i2 = np.transpose(bdy_i, (1, 0))
         uniqind = self._unique_rows(bdy_i2)
@@ -202,10 +208,15 @@ class Boundary:
 
         Parameters
         ----------
-        igrid -- I x direction indexes
-        jgrid -- J y direction indexes
-        mask -- mask data
-        brg -- mask index range
+        igrid : I x direction indexes
+        jgrid : J y direction indexes
+        mask  : mask data
+        brg   : mask index range
+
+        Returns
+        -------
+        bdy_i : bdy indexes
+        bdy_r : bdy rim values.
         """
         # subtract matrices to find boundaries, set to True
         m1 = mask[brg[0] : brg[1], brg[2] : brg[3]]
@@ -233,7 +244,11 @@ class Boundary:
 
         Parameters
         ----------
-        t -- input 2D array.
+        t : input 2D array.
+
+        Returns
+        -------
+        indx : indexes of unique rows
         """
         sh = np.shape(t)
         if (len(sh) > 2) or (sh[0] == 0) or (sh[1] == 0):
