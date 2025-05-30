@@ -26,19 +26,51 @@ Reader for all the files in the directory as one single object.
 
 ## Examples
 
-```pycon
->>> reader = Reader("Folder path")<br>
->>> reader["t"]["votemper"][:, :, :, :]<br>
-```
+reader = Reader(“Folder path”)
+
+> reader[“t”][“votemper”][:, :, :, :]<br>
 
 ### *method* \_\_init\_\_(directory, time_adjust)
 
 Take in directory path as input and return the required information to the bdy.
 
-> ### Keyword Parametersument<br>
+> ### Parameters<br>
 
-directory – The directory in which to look for the files
-time_adjust – amount of time to be adjusted to the time read from file.
+> directory : The directory in which to look for the files<br>
+> time_adjust : amount of time to be adjusted to the time read from file.<br>
+
+> ### Returns<br>
+
+> None : object<br>
+
+### *method* calculate_time_interval()
+
+Calculate the time interval of the each grid.
+
+If all the grids get the same interval then it sets it to the days and hours.
+Otherwise it throws an error.
+
+### *method* delta_time_interval(time1, time2)
+
+Get the difference between the two times in days and hours.
+
+### *method* get_dir_list(grid)
+
+Scan the directory for a input grid related NetCDF files (i.e., ending with the grid name.
+
+> ### Parameters<br>
+
+> grid (str) : grid name eg. ‘t’,’v’,’u’,’i’.<br>
+
+> ### Returns<br>
+
+> dir_list (list) : list of files<br>
+
+### *method* get_source_timedata(grid, t_adjust)
+
+Get the source time data information.
+
+Builds up sourcedata objects of a given grid.
 
 ### *method* grid_type_list *= ['t', 'u', 'v', 'i']*
 
@@ -51,6 +83,14 @@ time_adjust – amount of time to be adjusted to the time read from file.
 ### *method* get_attribute_values(attr_name)
 
 Return the attribute value of the variable.
+
+### *method* get_dimensions()
+
+Return the dimensions of the variables.
+
+### *method* set_time_dimension_index()
+
+Set the time dimension index.
 
 ### *method* time_counter_const *= 'time_counter'*
 
@@ -116,10 +156,9 @@ High level object for the NCML reader, from here using grid type will return the
 
 ## Examples
 
-```pycon
->>> reader = Reader("NCML Filename")<br>
->>> reader["t"]["votemper"][:, :, :, :]<br>
-```
+reader = Reader(“NCML Filename”)
+
+> reader[“t”][“votemper”][:, :, :, :]<br>
 
 ### *method* \_\_init\_\_(uri, time_adjust)
 

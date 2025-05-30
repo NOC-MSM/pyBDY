@@ -136,10 +136,16 @@
             - [`GridGroup.get_meta_data()`](pybdy.reader.md#pybdy.reader.directory.GridGroup.get_meta_data)
         - [`Reader`](pybdy.reader.md#pybdy.reader.directory.Reader)
             - [`Reader.__init__()`](pybdy.reader.md#pybdy.reader.directory.Reader.__init__)
+            - [`Reader.calculate_time_interval()`](pybdy.reader.md#pybdy.reader.directory.Reader.calculate_time_interval)
+            - [`Reader.delta_time_interval()`](pybdy.reader.md#pybdy.reader.directory.Reader.delta_time_interval)
+            - [`Reader.get_dir_list()`](pybdy.reader.md#pybdy.reader.directory.Reader.get_dir_list)
+            - [`Reader.get_source_timedata()`](pybdy.reader.md#pybdy.reader.directory.Reader.get_source_timedata)
             - [`Reader.grid_type_list`](pybdy.reader.md#pybdy.reader.directory.Reader.grid_type_list)
         - [`Variable`](pybdy.reader.md#pybdy.reader.directory.Variable)
             - [`Variable.__init__()`](pybdy.reader.md#pybdy.reader.directory.Variable.__init__)
             - [`Variable.get_attribute_values()`](pybdy.reader.md#pybdy.reader.directory.Variable.get_attribute_values)
+            - [`Variable.get_dimensions()`](pybdy.reader.md#pybdy.reader.directory.Variable.get_dimensions)
+            - [`Variable.set_time_dimension_index()`](pybdy.reader.md#pybdy.reader.directory.Variable.set_time_dimension_index)
             - [`Variable.time_counter_const`](pybdy.reader.md#pybdy.reader.directory.Variable.time_counter_const)
     - [pybdy.reader.factory module](pybdy.reader.md#module-pybdy.reader.factory)
         - [`GetFile()`](pybdy.reader.md#pybdy.reader.factory.GetFile)
@@ -234,11 +240,7 @@ after attempting to split at corners.
 
 > ### Parameters<br>
 
-> bdy (Boundary object)<br>
-> : bdy.bdy_i[bdy point, i/j grid]<br>
-> and rim width number<br>
-> bdy.bdy_r[bdy_point]<br>
-
+> bdy (obj) : organised as bdy_i[point, i/j grid] and rim width bdy_r[point]<br>
 > logger : log error and messages<br>
 
 > ### Returns<br>
@@ -373,10 +375,7 @@ be used in weightings. The resulting arrays are [nz * nbdy * 9, 2].
 > num_bdy (int) : number of boundary points in chunk<br>
 > sc_z (np.array) : the depth of the source grid [k, j, i]<br>
 > sc_z_len (int) : the length of depth axis of the source grid<br>
-> ind (np.array) : indices of bdy points and 9 nearest neighbours<br>
-
-> for flattened j,i array order=”F” [nbdy, 9]<br>
-
+> ind (np.array) : indices of bdy and 9 nearest neighbours flattened “F” j,i [nbdy, 9]<br>
 > zco (bool) : if True z levels are not spatially varying<br>
 
 > ### Returns<br>
@@ -390,6 +389,10 @@ Determine vertical weights for the linear interpolation onto Dst grid.
 
 Calculated the vertical distance from each source point to the destination to
 be used in weightings. The resulting arrays are [nbdy * nz, 2].
+
+> Note: z_dist and z_ind are [nbdy\*nz, 2] where [:, 0] is the nearest vertical index<br>
+> and [:, 1] is the index above or below i.e. the vertical index -1 for sc_z > dst_z<br>
+> and vertical index +1 for sc_z \<= dst_z
 
 > ### Parameters<br>
 
@@ -581,6 +584,8 @@ Ported from Matlab code by James Harle
 
 > Bases: `object`<br>
 
+Class for boundary definitions.
+
 ### *method* \_\_init\_\_(boundary_mask, settings, grid)
 
 Generate the indices for NEMO Boundary and returns a Grid object with indices.
@@ -595,17 +600,102 @@ Generate the indices for NEMO Boundary and returns a Grid object with indices.
 
 > Boundary (object) : where bdy_i is index and bdy_r is the r index<br>
 
+### *method* fill(mask, ref, brg)
+
+### *method* find_bdy(igrid, jgrid, mask, brg)
+
+Find the border indexes by checking the change from ocean to land.
+
+> Returns the i and j index array where the shift happens.<br>
+
+> ### Parameters<br>
+
+> igrid : I x direction indexes<br>
+> jgrid : J y direction indexes<br>
+> mask : mask data<br>
+> brg : mask index range<br>
+
+> ### Returns<br>
+
+> bdy_i : bdy indexes<br>
+> bdy_r : bdy rim values.<br>
+
+### *method* remove_duplicate_points(bdy_i, bdy_r)
+
+Remove the duplicate points in the bdy_i and return the bdy_i and bdy_r.
+
+> ### Parameters<br>
+
+> bdy_i : bdy indexes<br>
+> bdy_r : bdy rim values.<br>
+
+> ### Returns<br>
+
+> bdy_i : bdy indexes<br>
+> bdy_r : bdy rim values.<br>
+
+### *method* remove_landpoints_open_ocean(mask, bdy_i, bdy_r)
+
+Remove the land points and open ocean points.
+
+### *method* unique_rows(t)
+
+Find indexes of unique rows in the input 2D array.
+
+> ### Parameters<br>
+
+> t : input 2D array.<br>
+
+> ### Returns<br>
+
+> indx : indexes of unique rows<br>
+
 # pybdy.nemo_bdy_grid_angle module
 
 ## *class* pybdy.nemo_bdy_grid_angle.GridAngle(hgr, imin, imax, jmin, jmax, cd_type)
 
 > Bases: `object`<br>
 
-> ### *method* CASES *= {'f': [0, 1, 0, 0], 't': [0, 0, 0, -1], 'u': [0, 0, 0, -1], 'v': [0, 0, -1, 0]}*<br>
-
-> ### *method* MAP *= {'f': 'u', 't': 'v', 'u': 'f', 'v': 'f'}*<br>
+Class to get orientation of grid from I and J offsets for different grid types.
 
 ### *method* \_\_init\_\_(hgr, imin, imax, jmin, jmax, cd_type)
+
+Get sin and cosin files for the grid angle from North.
+
+> ### Parameters<br>
+
+> hgr : grid object<br>
+> imin : minimum model zonal indices<br>
+> imax : maximum model zonal indices<br>
+> jmin : minimum model meridional indices<br>
+> jmax : maximum model meridional indices<br>
+> cd_type: define the nature of pt2d grid points<br>
+
+> ### Returns<br>
+
+> None : object<br>
+
+### *method* get_lam_phi(map=False, i=0, j=0, single=False)
+
+Get lam/phi in (offset) i/j range for init grid type.
+
+Data must be converted to float64 to prevent dementation of later results.
+
+### *method* get_north_dir()
+
+Find North pole direction and modulus of some point.
+
+### *method* get_seg_dir(north_n)
+
+Find segmentation direction of some point.
+
+### *method* get_sin_cos(nx, ny, nn, sx, sy, sn)
+
+Get sin and cos from lat and lon using using scaler/vectorial products.
+
+### *method* trig_eq(x, eq, z_one, z_two)
+
+Calculate long winded equation of two vars; some lam and phi.
 
 # pybdy.nemo_bdy_ice module
 
@@ -718,8 +808,6 @@ Strip the comments in the line. removes text after !.
 
 Initialise the source coordinates attributes of the object.
 
-# pybdy.nemo_bdy_src_time module
-
 # pybdy.nemo_bdy_zgrv2 module
 
 Created.
@@ -750,9 +838,8 @@ Generate Depth information.
 Written by John Kazimierz Farey, Sep 2012
 Port of Matlab code of James Harle
 
-Generates depth points for t, u and v in one loop iteration
-
-Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary
+Generates depth points for t, u and v in one loop iteration.
+Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary.
 
 ## pybdy.nemo_bdy_zgrv2.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
 
@@ -780,13 +867,45 @@ Initialise with netcdf file name and dictionary containing all bdy grids (object
 
 > Bases: `object`<br>
 
+Class for writing boundayr coordinate data to netcdf file.
+
 ### *method* \_\_init\_\_(fname, bdy_ind)
+
+Create Nemo bdy indices for t, u, v points.
+
+> ### Parameters<br>
+
+> fname (str) : file name of coords file for output<br>
+> bdy_ind (numpy.array) : indicies of bdy points<br>
+
+> ### Returns<br>
+
+> None : object<br>
+
+### *method* add_vars(dim, grd, unt)
+
+Create a var w/ attributes.
+
+### *method* build_dict(dim, units)
+
+Set up a grid dictionary.
 
 ### *method* closeme()
 
+### *method* create_dims()
+
+Create dims and returns a dictionary of them.
+
 ### *method* populate(hgr)
 
+Populate the file with indices, lat, lon, and e dimensions.
+
 ### *method* set_lenvar(vardic, hgr=None, unt=None)
+
+Set the len var of each array in the var dictionary.
+
+Use by specifying hgr and unt which pulls data from loaded grid data.
+Otherwise pull it from the class dict.
 
 # pybdy.profiler module
 
@@ -797,8 +916,6 @@ The main application script for the NRCT.
 @author James Harle
 @author John Kazimierz Farey
 @author Srikanth Nagella
-
-> $Last commit on:$<br>
 
 ## *class* pybdy.profiler.Grid
 
@@ -823,6 +940,10 @@ the user to create a mask that defines the extent of the regional model.
 > setup_filepath (str) : file path to find namelist.bdy<br>
 > mask_gui (bool): whether use of the GUI is required<br>
 
+> ### Returns<br>
+
+> None : bdy data is written out to NetCDF file<br>
+
 ## pybdy.profiler.write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons)
 
 Write the tidal data to a NetCDF file.
@@ -834,6 +955,10 @@ Write the tidal data to a NetCDF file.
 > grid (dict): Description of arg1<br>
 > tide_cons (list): Description of arg1<br>
 > cons (data): cosz, sinz, cosu, sinu, cosv, sinv<br>
+
+> ### Returns<br>
+
+> None : tidal data is written to NetCDF file<br>
 
 # pybdy.pybdy_exe module
 

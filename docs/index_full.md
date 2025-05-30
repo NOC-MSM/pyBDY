@@ -8,14 +8,14 @@ pyBDY is a python package to generate lateral boundary conditions for regional N
 It has been developed to uses geographical and depth information from an a source data (e.g. a global ocean
 simulation) and translate them to a destination NEMO region simulation. It makes use of a kdtree approximate
 nearest neighbour algorithm in order to provide a generic method of weighted average interpolation for any
-flavour of ocean model. The available options are accessed either through a NEMO style namelist or a
-convient GUI.
+flavour of ocean model. The available options are accessed either through a NEMO style namelist.
 
 ---
 
 ## Contents
 
-- [Changes]
+- [How to cite :bookmark:](#how-to-cite-bookmark)
+- [Change Log :twisted_rightwards_arrows:](#change-log-twisted_rightwards_arrows)
 - [Dependencies :globe_with_meridians:](#dependencies-globe_with_meridians)
 - [Quick Start Installation :rocket:](#quick-start-installation-rocket)
 - [How to use pyBDY :mechanical_arm:](#how-to-use-pybdy-mechanical_arm)
@@ -24,6 +24,36 @@ convient GUI.
 - [Troubleshooting :safety_vest:](#troubleshooting-safety_vest)
 - [pyBDY Module Structure :scroll:](#pybdy-module-structure-scroll)
 
+## How to cite :bookmark:
+
+[Back to top](#pybdy-documentation)
+
+Please cite pyBDY version 0.4.0 in your work using:
+
+Harle, J., Barton, B.I., Nagella, S., Crompton, S., Polton J., Patmore, R., Morado, J., Thopri, Wise, A., De Dominicis, M., Blaker, A. Farey, J.K., (2025). pyBDY - NEMO lateral boundary conditions v0.4.0 [Software]. [https://doi.org](<>)
+
+## Change Log :twisted_rightwards_arrows:
+
+[Back to top](#pybdy-documentation)
+
+The lastes version of pyBDY is version 0.4.0.
+The changes relative to the previous version (0.3.0) are:
+
+- Sigma to sigma vertical layer interpolation is now possible.
+- Vertical interpolation in pyBDY can now be turned off for zco vertical coodinate data.
+- Time input in the namelist has changed to offer more granularity.
+- Grid variables names are now specified using a .json file instead of .ncml. Source data is still specified with .nmcl.
+- The boundary is split into chunks to allow for processing smaller sections of data.
+- Boundaries that cross an east - west wrap in source data can be processed.
+- The 1-2-1 horizontal filter has been turned off.
+- The *seawater* dependancy updated to *gsw*.
+- A plotting masking bug has been fixed.
+- Bug fix for 90 boundaries that meet diagonally to produce a 90 degree corner.
+- Documentation has been restructured and updated.
+
+**There is a new library for generating NEMO initial conditions called pyIC.**
+pyIC can be found at: [https://github.com/NOC-MSM/pyIC](https://github.com/NOC-MSM/pyIC)
+
 ## Dependencies :globe_with_meridians:
 
 [Back to top](#pybdy-documentation)
@@ -31,9 +61,11 @@ convient GUI.
 pyBDY is installed under a conda/mamba environment to aid wider distribution and to facilitate development.
 The key dependecies are listed below:
 
+- python=3.9
 - netCDF4
 - scipy
 - numpy
+- xarray
 - matplotlib
 - cartopy
 - thredds_crawler
@@ -41,6 +73,7 @@ The key dependecies are listed below:
 - pyqt5
 - pyjnius
 - cftime
+- gsw
 
 A recent JAVA installation is also required.
 
@@ -469,6 +502,13 @@ Finally the last box, this is where the extent to download is configured, it is 
 
 Always check the pyBDY log file. This is usually saved in the working directory of pyBDY as nrct.log. It gives helpful information which may help to diagnose issues. E.g. ValueErrors that are result of a THREDDS server being down and unable to provide data files.
 
+If you get the error message "Destination touches source i-edge but source is not cylindrical" or you get the error message "Destination touches source j-edge but North Fold is not implemented". There is a plot you can uncomment in pybdy.nemo_bdy_chunk.chunk_bdy() that will show you where pyBDY is attempting to place bdy points.
+
+- For "Destination touches source i-edge but source is not cylindrical", you may have an open boundary in your mask or bathymetry file that is not inside the domain of the source data. If this is the case you need to edit your mask to be land (i.e. zeros) to block the incorrect open boundary.
+- For "Destination touches source j-edge but North Fold is not implemented", your domain probably touches the Arctic North Fold and pyBDY is trying to put an open boundary there. If this is the case you need to edit your mask to be land (i.e. zeros) to block the incorrect open boundary along the north edge of the domain. Do not attept to have a regional model with a boundary crossing the North Fold, this has not be implemented yet.
+
+If you have time interpolation problems read the section [Time Settings](#time-settings).
+
 ## pyBDY Module Structure :scroll:
 
 [Back to top](#pybdy-documentation)
@@ -558,11 +598,19 @@ Here is a list of all the classes, methods and functions in pyBDY.
     - [pybdy.nemo_bdy_gen_c module](pybdy.md#module-pybdy.nemo_bdy_gen_c)
         - [`Boundary`](pybdy.md#pybdy.nemo_bdy_gen_c.Boundary)
             - [`Boundary.__init__()`](pybdy.md#pybdy.nemo_bdy_gen_c.Boundary.__init__)
+            - [`Boundary.fill()`](pybdy.md#pybdy.nemo_bdy_gen_c.Boundary.fill)
+            - [`Boundary.find_bdy()`](pybdy.md#pybdy.nemo_bdy_gen_c.Boundary.find_bdy)
+            - [`Boundary.remove_duplicate_points()`](pybdy.md#pybdy.nemo_bdy_gen_c.Boundary.remove_duplicate_points)
+            - [`Boundary.remove_landpoints_open_ocean()`](pybdy.md#pybdy.nemo_bdy_gen_c.Boundary.remove_landpoints_open_ocean)
+            - [`Boundary.unique_rows()`](pybdy.md#pybdy.nemo_bdy_gen_c.Boundary.unique_rows)
     - [pybdy.nemo_bdy_grid_angle module](pybdy.md#module-pybdy.nemo_bdy_grid_angle)
         - [`GridAngle`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle)
-            - [`GridAngle.CASES`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle.CASES)
-            - [`GridAngle.MAP`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle.MAP)
             - [`GridAngle.__init__()`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle.__init__)
+            - [`GridAngle.get_lam_phi()`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle.get_lam_phi)
+            - [`GridAngle.get_north_dir()`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle.get_north_dir)
+            - [`GridAngle.get_seg_dir()`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle.get_seg_dir)
+            - [`GridAngle.get_sin_cos()`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle.get_sin_cos)
+            - [`GridAngle.trig_eq()`](pybdy.md#pybdy.nemo_bdy_grid_angle.GridAngle.trig_eq)
     - [pybdy.nemo_bdy_ice module](pybdy.md#module-pybdy.nemo_bdy_ice)
         - [`BoundaryIce`](pybdy.md#pybdy.nemo_bdy_ice.BoundaryIce)
             - [`BoundaryIce.__init__()`](pybdy.md#pybdy.nemo_bdy_ice.BoundaryIce.__init__)
@@ -583,7 +631,6 @@ Here is a list of all the classes, methods and functions in pyBDY.
     - [pybdy.nemo_bdy_source_coord module](pybdy.md#module-pybdy.nemo_bdy_source_coord)
         - [`SourceCoord`](pybdy.md#pybdy.nemo_bdy_source_coord.SourceCoord)
             - [`SourceCoord.__init__()`](pybdy.md#pybdy.nemo_bdy_source_coord.SourceCoord.__init__)
-    - [pybdy.nemo_bdy_src_time module](pybdy.md#pybdy-nemo-bdy-src-time-module)
     - [pybdy.nemo_bdy_zgrv2 module](pybdy.md#module-pybdy.nemo_bdy_zgrv2)
         - [`get_bdy_depths()`](pybdy.md#pybdy.nemo_bdy_zgrv2.get_bdy_depths)
         - [`get_bdy_depths_old()`](pybdy.md#pybdy.nemo_bdy_zgrv2.get_bdy_depths_old)
@@ -591,7 +638,10 @@ Here is a list of all the classes, methods and functions in pyBDY.
     - [pybdy.nemo_coord_gen_pop module](pybdy.md#module-pybdy.nemo_coord_gen_pop)
         - [`Coord`](pybdy.md#pybdy.nemo_coord_gen_pop.Coord)
             - [`Coord.__init__()`](pybdy.md#pybdy.nemo_coord_gen_pop.Coord.__init__)
+            - [`Coord.add_vars()`](pybdy.md#pybdy.nemo_coord_gen_pop.Coord.add_vars)
+            - [`Coord.build_dict()`](pybdy.md#pybdy.nemo_coord_gen_pop.Coord.build_dict)
             - [`Coord.closeme()`](pybdy.md#pybdy.nemo_coord_gen_pop.Coord.closeme)
+            - [`Coord.create_dims()`](pybdy.md#pybdy.nemo_coord_gen_pop.Coord.create_dims)
             - [`Coord.populate()`](pybdy.md#pybdy.nemo_coord_gen_pop.Coord.populate)
             - [`Coord.set_lenvar()`](pybdy.md#pybdy.nemo_coord_gen_pop.Coord.set_lenvar)
     - [pybdy.profiler module](pybdy.md#module-pybdy.profiler)

@@ -87,13 +87,12 @@ Global Tidal model interpolation onto target grid, including grid rotation.
 
 > ### Parameters<br>
 
-> setup: settings<br>
-> DstCoord: …<br>
-> Grid_T : grid_type, bdy_r<br>
-> Grid_U, Grid_V : bdy_i , grid_type, bdy_r<br>
-> comp: dictionary of harmonics read from namelist.<br>
-
-> e.g. {‘1’:”M2” , ‘2’:”<constituent name>”, …}<br>
+> setup : settings<br>
+> DstCoord : destination coordinate object<br>
+> Grid_T : t grid bdy_i, grid_type, bdy_r<br>
+> Grid_U : u grid bdy_i, grid_type, bdy_r<br>
+> Grid_V : v grid bdy_i, grid_type, bdy_r<br>
+> comp : dictionary of harmonics read from namelist {‘1’:”M2” , ‘2’:”<const name>”}<br>
 
 > ### Returns<br>
 

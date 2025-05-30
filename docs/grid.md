@@ -41,6 +41,10 @@ Get the glam, gphi and e scale factors from file if possible.
 
 > vars_want (list) : variables needed from file.<br>
 
+> ### Returns<br>
+
+> None : var_list is populated<br>
+
 ## grid.hgr.calc_e1_e2(glam, gphi, ij)
 
 Calculate missing scale factor e1 and e2 from glam or gphi.
@@ -123,6 +127,10 @@ Get the gdep and e3 scale factors from file if possible.
 > ### Parameters<br>
 
 > vars_want (list) : variables needed from file.<br>
+
+> ### Returns<br>
+
+> None : var_list is populated<br>
 
 ## grid.zgr.calc_gdepw(gdept)
 
