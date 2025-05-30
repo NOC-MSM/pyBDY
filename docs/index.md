@@ -49,7 +49,8 @@ The changes relative to the previous version (0.3.0) are:
 - The *seawater* dependancy updated to *gsw*.
 - A plotting masking bug has been fixed.
 - Bug fix for 90 boundaries that meet diagonally to produce a 90 degree corner.
-- Documentation has been restructured and updated.
+- Some unit tests have been added and full integration tests.
+- Documentation has been updated and restructured.
 
 **There is a new library for generating NEMO initial conditions called pyIC.**
 pyIC can be found at: [https://github.com/NOC-MSM/pyIC](https://github.com/NOC-MSM/pyIC)
