@@ -49,7 +49,7 @@ def chunk_bdy(bdy):
 
     Returns:
     -------
-        numpy.array             : array of chunk numbers
+        chunk_number (numpy.array) : array of chunk numbers
     """
     rw = bdy.settings["rimwidth"]
 
@@ -80,7 +80,7 @@ def chunk_land(ibdy, jbdy, chunk_number, rw):
 
     Returns:
     -------
-        numpy.array          : array of chunk numbers
+        chunk_number (numpy.array) : array of chunk numbers
     """
     if np.min(chunk_number) <= -1:
         chk = 0
@@ -139,11 +139,10 @@ def chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw):
         rbdy (numpy.array)         : rim index
         chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number
         rw (int)                   : rimwidth
-        mid_split (list)           : list of chunk numbers that need splitting
 
     Returns:
     -------
-        numpy.array          : array of chunk numbers
+        chunk_number (numpy.array) : array of chunk numbers
     """
     all_chunk = np.unique(chunk_number)
     all_chunk_st = all_chunk * 1
@@ -348,7 +347,7 @@ def chunk_large(ibdy, jbdy, chunk_number):
 
     Returns:
     -------
-        numpy.array          : array of chunk numbers
+        chunk_number (numpy.array) : array of chunk numbers
     """
     thresh_ratio = 1 / 3  # 1:3
     thresh_large = 2000
