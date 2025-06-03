@@ -1,6 +1,6 @@
 # pyBDY
 
-[pyBDY documentation](http://pynemo.readthedocs.io/en/latest/index.html). To be updated soon.
+[pyBDY documentation](https://noc-msm.github.io/pyBDY/).
 
 ## How do I get set up?
 
