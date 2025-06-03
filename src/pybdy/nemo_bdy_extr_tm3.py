@@ -1009,26 +1009,6 @@ class Extract:
                         # Finished first run operations
                         # self.first = False
 
-                    if self.settings["zinterp"]:
-                        # Set land pts to zero
-                        self.logger.info(
-                            " pre dst_bdy[nan_ind] %s %s",
-                            np.nanmin(dst_bdy),
-                            np.nanmax(dst_bdy),
-                        )
-
-                        dst_bdy[nan_ind] = 0
-                        self.logger.info(
-                            " post dst_bdy %s %s",
-                            np.nanmin(dst_bdy),
-                            np.nanmax(dst_bdy),
-                        )
-                        # Remove any data on dst grid that is in land
-                        dst_bdy[:, np.isnan(self.bdy_z[chunk_d])] = 0
-                        self.logger.info(
-                            " 3 dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                        )
-
                     data_out = dst_bdy
 
                     # add data to self.d_bdy
