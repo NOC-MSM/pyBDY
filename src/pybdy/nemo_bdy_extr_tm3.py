@@ -914,7 +914,7 @@ class Extract:
                         sc_z_len = self.sc_z_len
 
                     # identify valid pts
-                    data_ind, _ = extr_assist.valid_index(sc_bdy[vn], self.logger)
+                    data_ind, nan_ind = extr_assist.valid_index(sc_bdy[vn], self.logger)
 
                     if not isslab:
                         # Vertical interpolation
@@ -926,14 +926,14 @@ class Extract:
                             self.z_dist[chunk_z, :],
                             data_ind,
                             self.num_bdy_ch[chk],
+                            nan_ind,
+                            self.bdy_z[chunk_d],
                             self.settings["zinterp"],
                         )
                     else:
                         # No vertical interpolation
                         sc_bdy_lev = sc_bdy[vn]
                         sc_bdy_lev[:, np.isnan(self.bdy_z[chunk_d]), :] = np.NaN
-
-                    _, nan_ind = extr_assist.valid_index(sc_bdy_lev, self.logger)
 
                     # distance weightings for averaging source data to destination
                     dist_wei, dist_fac = extr_assist.distance_weights(
@@ -961,6 +961,8 @@ class Extract:
                                 self.z_dist[chunk_z, :],
                                 data_ind,
                                 self.num_bdy_ch[chk],
+                                nan_ind,
+                                self.bdy_z[chunk_d],
                                 self.settings["zinterp"],
                             )
                         else:

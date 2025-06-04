@@ -318,7 +318,16 @@ def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
 
 
 def interp_vertical(
-    sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, num_bdy, zinterp=True
+    sc_bdy,
+    dst_dep,
+    bdy_bathy,
+    z_ind,
+    z_dist,
+    data_ind,
+    num_bdy,
+    nan_ind,
+    bdy_z,
+    zinterp=True,
 ):
     """
     Interpolate source data onto destination vertical levels.
@@ -338,6 +347,9 @@ def interp_vertical(
     -------
     data_out (np.array) : source data on destination depth levels
     """
+    # Set sc land pts to nan
+    sc_bdy[nan_ind] = np.nan
+
     # If all else fails fill down using deepest pt
     sc_shape = sc_bdy.shape
     ind_bdy = np.arange(sc_bdy.shape[1])
@@ -358,7 +370,8 @@ def interp_vertical(
         ind_z = np.transpose(np.tile(bdy_bathy, (len(dst_dep), 9, 1)), axes=(0, 2, 1))
         dst_dep9 = np.transpose(np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0])
         ind_z -= dst_dep9
-        ind_z = ind_z < 0
+        # Remove any data on dst grid levels that is in land
+        ind_z = (ind_z < 0) | np.isnan(bdy_z)
         sc_bdy_lev[ind_z] = np.nan
     else:
         # if zinterp is false leave data below bottom for NEMO run-time interpolation
