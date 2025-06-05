@@ -317,18 +317,45 @@ def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
     return z9_dist, z9_ind
 
 
-def interp_vertical(
-    sc_bdy,
-    dst_dep,
-    bdy_bathy,
-    z_ind,
-    z_dist,
-    data_ind,
-    num_bdy,
-    nan_ind,
-    bdy_z,
-    zinterp=True,
-):
+def flood_fill(sc_bdy, data_ind, nan_ind, isslab):
+    """
+    Fill the data downwards then horizontally to remove nans before interpolation.
+
+    Parameters
+    ----------
+    sc_bdy (np.array)   : souce data [nz_sc, nbdy, 9]
+    data_ind (np.array) : bool points above bathymetry that are valid
+    nan_ind (np.array)  : boolean array of nans in the sc data
+    isslab (bool)       : if true data has vertical cells for vertical flood fill
+
+    Returns
+    -------
+    sc_bdy (np.array)   : souce data [nz_sc, nbdy, 9]
+    """
+    # Set sc land pts to nan
+    sc_bdy[nan_ind] = np.nan
+
+    if not isslab:
+        # Fill down using deepest pt
+        sc_shape = sc_bdy.shape
+        ind_bdy = np.arange(sc_shape[1])
+        all_bot = np.tile(
+            sc_bdy[data_ind[:, 0], ind_bdy, 0], (sc_shape[0], sc_shape[2], 1)
+        ).transpose((0, 2, 1))
+        sc_bdy[np.isnan(sc_bdy)] = all_bot[np.isnan(sc_bdy)]
+
+    while np.isnan(sc_bdy).any():
+        # Flood sc land horizontally within the chunk
+        # This may not be perfect but better than filling with zeros
+        sc_nan = np.isnan(sc_bdy)
+        sc_bdy[:, 1:, :][sc_nan[:, 1:, :]] = sc_bdy[:, :-1, :][sc_nan[:, 1:, :]]
+        sc_nan = np.isnan(sc_bdy)
+        sc_bdy[:, :-1, :][sc_nan[:, :-1, :]] = sc_bdy[:, 1:, :][sc_nan[:, :-1, :]]
+
+    return sc_bdy
+
+
+def interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy, zinterp=True):
     """
     Interpolate source data onto destination vertical levels.
 
@@ -339,7 +366,6 @@ def interp_vertical(
     bdy_bathy (np.array): the destination grid bdy points bathymetry
     z_ind (np.array)    : the indices of the sc depth above and below bdy
     z_dist (np.array)   : the distance weights of the selected points
-    data_ind (np.array) : bool points above bathymetry that are valid
     num_bdy (int)       : number of boundary points in chunk
     zinterp (bool)      : vertical interpolation flag
 
@@ -347,18 +373,8 @@ def interp_vertical(
     -------
     data_out (np.array) : source data on destination depth levels
     """
-    # Set sc land pts to nan
-    sc_bdy[nan_ind] = np.nan
-
-    # If all else fails fill down using deepest pt
-    sc_shape = sc_bdy.shape
-    ind_bdy = np.arange(sc_bdy.shape[1])
-    all_bot = np.tile(
-        sc_bdy[data_ind[:, 0], ind_bdy, 0], (sc_bdy.shape[0], sc_bdy.shape[2], 1)
-    ).transpose((0, 2, 1))
-    sc_bdy[np.isnan(sc_bdy)] = all_bot[np.isnan(sc_bdy)]
-
     if zinterp is True:
+        sc_shape = sc_bdy.shape
         sc_bdy = sc_bdy.flatten("F")
 
         # Weighted averaged on new vertical grid
@@ -370,8 +386,7 @@ def interp_vertical(
         ind_z = np.transpose(np.tile(bdy_bathy, (len(dst_dep), 9, 1)), axes=(0, 2, 1))
         dst_dep9 = np.transpose(np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0])
         ind_z -= dst_dep9
-        # Remove any data on dst grid levels that is in land
-        ind_z = (ind_z < 0) | np.isnan(bdy_z)
+        ind_z = ind_z < 0
         sc_bdy_lev[ind_z] = np.nan
     else:
         # if zinterp is false leave data below bottom for NEMO run-time interpolation
