@@ -1,8 +1,3 @@
-rn_hmin = min depth of the ocean (>0) or min number of ocean level (<0)
-rn_sbot_min = minimum depth of s-bottom surface (>0) (m)
-rn_sbot_max = maximum depth of s-bottom surface (= ocean depth) (>0) (m)
-ln_s_sigma = hybrid s-sigma coordinates
-rn_hc = critical depth with s-sigma
 sn_src_hgr = source grid hgr
 sn_src_zgr = source grid zgr
 sn_dst_hgr = destination grid hgr
