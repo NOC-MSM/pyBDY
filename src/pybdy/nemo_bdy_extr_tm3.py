@@ -916,6 +916,11 @@ class Extract:
                     # identify valid pts
                     data_ind, nan_ind = extr_assist.valid_index(sc_bdy[vn], self.logger)
 
+                    # Flood fill
+                    sc_bdy[vn] = extr_assist.flood_fill(
+                        sc_bdy[vn], data_ind, nan_ind, isslab
+                    )
+
                     if not isslab:
                         # Vertical interpolation
                         sc_bdy_lev = extr_assist.interp_vertical(
@@ -924,10 +929,7 @@ class Extract:
                             self.bdy_z[chunk_d],
                             self.z_ind[chunk_z, :],
                             self.z_dist[chunk_z, :],
-                            data_ind,
                             self.num_bdy_ch[chk],
-                            nan_ind,
-                            self.bdy_z[chunk_d],
                             self.settings["zinterp"],
                         )
                     else:
@@ -951,6 +953,13 @@ class Extract:
 
                     # weight vector array and rotate onto dest grid
                     if self.key_vec:
+                        # Do the same for both components of u and v velocities
+
+                        # Flood fill
+                        sc_bdy[vn + 1] = extr_assist.flood_fill(
+                            sc_bdy[vn + 1], data_ind, nan_ind, isslab
+                        )
+
                         if not isslab:
                             # Vertical interpolation
                             sc_bdy_lev2 = extr_assist.interp_vertical(
@@ -959,10 +968,7 @@ class Extract:
                                 self.bdy_z[chunk_d],
                                 self.z_ind[chunk_z, :],
                                 self.z_dist[chunk_z, :],
-                                data_ind,
                                 self.num_bdy_ch[chk],
-                                nan_ind,
-                                self.bdy_z[chunk_d],
                                 self.settings["zinterp"],
                             )
                         else:
