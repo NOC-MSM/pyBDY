@@ -10,21 +10,6 @@
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 !------------------------------------------------------------------------------
-!   vertical coordinate
-!------------------------------------------------------------------------------
-   rn_hmin     =   -10     !  min depth of the ocean (>0) or
-                           !  min number of ocean level (<0)
-
-!------------------------------------------------------------------------------
-!   s-coordinate or hybrid z-s-coordinate
-!------------------------------------------------------------------------------
-   rn_sbot_min =   10.     !  minimum depth of s-bottom surface (>0) (m)
-   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface
-                           !  (= ocean depth) (>0) (m)
-   ln_s_sigma  = .false.   !  hybrid s-sigma coordinates
-   rn_hc       =  150.0    !  critical depth with s-sigma
-
-!------------------------------------------------------------------------------
 !  grid information
 !------------------------------------------------------------------------------
    sn_src_hgr = './inputs/benchmark/grid_low_res_C/mesh_hgr.nc'
