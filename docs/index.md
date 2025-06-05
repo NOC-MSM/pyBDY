@@ -329,49 +329,29 @@ This command line tool reads a BDY file, extracts boundary data and prepares the
 Here we show a worked example of how to set up the namelist for a different domain than the examples found in the *inputs* folder.
 The example child (destination) here is a regional NEMO model that covers the Indian Ocean and the parent (source) used here is a global NEMO model.
 
-```
-!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-!! NEMO/OPA  : namelist for BDY generation tool
-!!
-!!             User inputs for generating open boundary conditions
-!!             employed by the BDY module in NEMO. Boundary data
-!!             can be set up for v3.2 NEMO and above.
-!!
-!!             More info here.....
-!!
-!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+### Namelist File
 
-!------------------------------------------------------------------------------
-!   vertical coordinate
-!------------------------------------------------------------------------------
-   rn_hmin     =   -10     !  min depth of the ocean (>0) or
-                           !  min number of ocean level (<0)
-```
+Below is excerpts from an example *namelist.bdy*.
 
-Here the minimum quantity of ocean depth levels is set to 10
+Here the file paths are set. These can be absolute (i.e. starting with "/") or relative (i.e. starting with "./").
 
 ```
-!------------------------------------------------------------------------------
-!   s-coordinate or hybrid z-s-coordinate
-!------------------------------------------------------------------------------
-   rn_sbot_min =   10.     !  minimum depth of s-bottom surface (>0) (m)
-   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface
-                           !  (= ocean depth) (>0) (m)
-   ln_s_sigma  = .false.   !  hybrid s-sigma coordinates
-   rn_hc       =  150.0    !  critical depth with s-sigma
-
 !------------------------------------------------------------------------------
 !  grid information
 !------------------------------------------------------------------------------
-   sn_src_hgr = '/scratch/benbar/India_Test/mesh_mask_ORCA025_light.nc4'
-   sn_src_zgr = '/scratch/benbar/India_Test/20241211_restart.nc'
-   sn_dst_hgr = '/scratch/benbar/India_Test/domain_cfg.nc'     ! Expects vars found in domain_cfg.nc
-   sn_dst_zgr = '/scratch/benbar/India_Test/domain_cfg.nc'     ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
-   sn_src_msk = '/scratch/benbar/India_Test/mask_3D.nc'
-   sn_bathy   = '/scratch/benbar/India_Test/domain_cfg_bathy.nc'    ! dst bathymetry w/o time dimension
+   sn_src_hgr = '/scratch/India_Test/mesh_mask_ORCA025_light.nc4'
+   sn_src_zgr = '/scratch/India_Test/20241211_restart.nc'
+   sn_dst_hgr = '/scratch/India_Test/domain_cfg.nc'     ! Expects vars found in domain_cfg.nc
+   sn_dst_zgr = '/scratch/India_Test/domain_cfg.nc'     ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
+   sn_src_msk = '/scratch/India_Test/mask_3D.nc'
+   sn_bathy   = '/scratch/India_Test/domain_cfg_bathy.nc'    ! dst bathymetry w/o time dimension
                                                                             !Expects vars: {Bathymetry,nav_lat,nav_lon}
    sn_nme_map = './india_test/grid_name_map.json'     ! json file mapping variable names to netcdf vars
+```
 
+Here the source (parent) data is specified via the .nmcl file in XML format. The output directory, file name prefix and *\_FillValue* in the netCDF4 file is specified.
+
+```
 !------------------------------------------------------------------------------
 !  I/O
 !------------------------------------------------------------------------------
@@ -381,7 +361,15 @@ Here the minimum quantity of ocean depth levels is set to 10
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
    sn_dst_metainfo = 'India Data'
+```
 
+Here some options are set. cn_coords_file is a file that can be output by pybdy.
+In this case, the child (destination) data does not have a pre-defined mask file so pybdy will use the bathymetry provided in sn_bathy to calculate the mask. If the mask produced if not giving the correct boundaries you may need to provide a mask.nc file which you generate. This file contains a 2d mask the same shape as the bathymetry where 1 = "water", 0 = "land" and -1 = "out of domain". Boundary points will be generated between water and "out of domain" which can also be where water meets the edge of the defined 2d area.
+ln_dyn3d and ln_dyn3d define variables that will be in the output. Here, ln_dyn2d will provide an additon variable in the output for barotropic velocities and ln_dyn3d will not include the barotropic component in the 3d velocities. One or the other should be selected and match options in NEMO.
+Here, ln_tra shows temperature and salinity will be output. ln_ice shows ice will not be output. ln_zinterp shows the vertical interpolation is calculated by pybdy (so should be turned off in NEMO).
+Here, nn_rimwidth is set to 9 to provide 9 layers of boundary points along all boundaries.
+
+```
 !------------------------------------------------------------------------------
 !  unstructured open boundaries
 !------------------------------------------------------------------------------
@@ -398,8 +386,12 @@ Here the minimum quantity of ocean depth levels is set to 10
     ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .false.              !  ice boundary condition
     ln_zinterp     = .true.               !  vertical interpolation
-    nn_rimwidth    = 1                    !  width of the relaxation zone
+    nn_rimwidth    = 9                    !  width of the relaxation zone
+```
 
+In this example we are not producing the tidal forcing on the boundary because ln_tide is set to false. This means the rest of this section does not matter.
+
+```
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters
 !------------------------------------------------------------------------------
@@ -423,7 +415,11 @@ Here the minimum quantity of ocean depth levels is set to 10
     sn_tide_dir        = './inputs/TPXO9_atlas_v5_nc/'
     ! location of FES2014 data
     sn_tide_fes        = './inputs/FES2014/'
+```
 
+The time step required in output here are 3 days starting on 12th Dec 2024 (which is also used as the reference date).
+
+```
 !------------------------------------------------------------------------------
 !  Time information for output
 !------------------------------------------------------------------------------
@@ -433,7 +429,11 @@ Here the minimum quantity of ocean depth levels is set to 10
     sn_date_origin  = '2024-12-12'    !  reference for time counter YYYY-MM-DD
     ln_time_interpolation = .true. !  set to false to use parent
                                    !  calender for monthly frequency only
+```
 
+These parameters can be left unchanged.
+
+```
 !------------------------------------------------------------------------------
 !  Additional parameters
 !------------------------------------------------------------------------------
@@ -449,6 +449,123 @@ Here the minimum quantity of ocean depth levels is set to 10
     nn_gamma    = 0               !  Euler rotation angle
     rn_mask_max_depth = 100.0     !  Maximum depth to be ignored for the mask
     rn_mask_shelfbreak_dist = 20000.0 !  Distance from the shelf break
+```
+
+### JSON File
+
+The example files name is *grid_name_map.json*.
+
+```
+{
+    "dimension_map": {
+            "t": "t",
+            "z": "z",
+            "y": "y",
+            "x": "x"
+    },
+    "sc_variable_map": {
+            "nav_lon": "nav_lon",
+            "nav_lat": "nav_lat",
+            "glamt": "glamt",
+            "gphit": "gphit",
+            "glamf": "glamf",
+            "gphif": "gphif",
+            "glamu": "glamu",
+            "gphiu": "gphiu",
+            "glamv": "glamv",
+            "gphiv": "gphiv",
+            "e1t": "e1t",
+            "e2t": "e2t",
+            "e1f": "e1f",
+            "e2f": "e2f",
+            "e1u": "e1u",
+            "e2u": "e2u",
+            "e1v": "e1v",
+            "e2v": "e2v",
+            "mbathy": "nav_lon",
+            "gdept_0": "nav_lev",
+            "gdept": "gdept",
+            "gdepu": "gdepu",
+            "gdepv": "gdepv",
+            "gdepf": "gdepf",
+            "gdepw": "gdepw",
+            "gdepuw": "gdepuw",
+            "gdepvw": "gdepvw",
+            "e3t": "e3t",
+            "e3w": "e3w",
+            "e3u": "e3u",
+            "e3v": "e3v",
+            "e3f": "e3f",
+            "e3uw": "e3uw",
+            "e3vw": "e3vw",
+            "e3fw": "e3fw"
+    },
+    "dst_variable_map": {
+            "nav_lon": "nav_lon",
+            "nav_lat": "nav_lat",
+            "glamt": "glamt",
+            "gphit": "gphit",
+            "glamf": "glamf",
+            "gphif": "gphif",
+            "glamu": "glamu",
+            "gphiu": "gphiu",
+            "glamv": "glamv",
+            "gphiv": "gphiv",
+            "e1t": "e1t",
+            "e2t": "e2t",
+            "e1f": "e1f",
+            "e2f": "e2f",
+            "e1u": "e1u",
+            "e2u": "e2u",
+            "e1v": "e1v",
+            "e2v": "e2v",
+            "mbathy": "bottom_level",
+            "gdept_0": "gdept_0",
+            "gdept": "gdept",
+            "gdepu": "gdepu",
+            "gdepv": "gdepv",
+            "gdepf": "gdepf",
+            "gdepw": "gdepw",
+            "gdepuw": "gdepuw",
+            "gdepvw": "gdepvw",
+            "e3t": "e3t_0",
+            "e3w": "e3w_0",
+            "e3u": "e3u_0",
+            "e3v": "e3v_0",
+            "e3f": "e3f_0",
+            "e3uw": "e3uw_0",
+            "e3vw": "e3vw_0",
+            "e3fw": "e3fw"
+    }
+}
+```
+
+### XML File
+
+This is an example XML file which is used to providing file paths for parent (source) data that pybdy will read in.
+The example files name is *src_data_local.ncml*.
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<netcdf title="aggregation example" xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+  <aggregation type="union" >
+     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+        <aggregation type="joinExisting" dimName="time_counter" >
+           <netcdf location="/scratch/benbar/India_Test/mersea.grid_V.nc" />
+        </aggregation>
+     </netcdf>
+     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+        <aggregation type="joinExisting" dimName="time_counter" >
+           <netcdf location="/scratch/benbar/India_Test/mersea.grid_U.nc" />
+        </aggregation>
+     </netcdf>
+     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+        <aggregation type="joinExisting" dimName="time_counter" >
+           <netcdf location="/scratch/benbar/India_Test/mersea.grid_T.nc" />
+        </aggregation>
+     </netcdf>
+  </aggregation>
+</netcdf>
 ```
 
 ## Tidal Boundary Conditions Generation :sailboat:
