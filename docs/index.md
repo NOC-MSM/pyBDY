@@ -18,7 +18,8 @@ flavour of ocean model. The available options are accessed through a NEMO style 
 - [Change Log :twisted_rightwards_arrows:](#change-log-twisted_rightwards_arrows)
 - [Dependencies :globe_with_meridians:](#dependencies-globe_with_meridians)
 - [Quick Start Installation :rocket:](#quick-start-installation-rocket)
-- [How to use pyBDY :mechanical_arm:](#how-to-use-pybdy-mechanical_arm)
+- [How to use pyBDY :student:](#how-to-use-pybdy-student)
+- [Worked Example :mechanical_arm:](#worked-example-mechanical_arm)
 - [Tidal Boundary Conditions Generation :sailboat:](#tidal-boundary-conditions-generation-sailboat)
 - [Troubleshooting :safety_vest:](#troubleshooting-safety_vest)
 - [pyBDY Module Structure :scroll:](#pybdy-module-structure-scroll)
@@ -47,6 +48,7 @@ The changes relative to the previous version (0.3.0) are:
 - The 1-2-1 horizontal filter has been turned off.
 - The *seawater* dependancy updated to *gsw*.
 - A plotting masking bug has been fixed.
+- There is now horizontal flood filling that will remove zeros from salinity and temperature near land.
 - Bug fix for 90 boundaries that meet diagonally to produce a 90 degree corner.
 - Some unit tests have been added and full integration tests.
 - Documentation has been updated and restructured.
@@ -152,7 +154,7 @@ To deactivate the conda environment:
 conda deactivate
 ```
 
-## How to use pyBDY :mechanical_arm:
+## How to use pyBDY :student:
 
 [Back to top](#pybdy-documentation)
 
@@ -319,6 +321,135 @@ pybdy -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 ```
 
 This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation.
+
+## Worked Example :mechanical_arm:
+
+[Back to top](#pybdy-documentation)
+
+Here we show a worked example of how to set up the namelist for a different domain than the examples found in the *inputs* folder.
+The example child (destination) here is a regional NEMO model that covers the Indian Ocean and the parent (source) used here is a global NEMO model.
+
+```
+!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+!! NEMO/OPA  : namelist for BDY generation tool
+!!
+!!             User inputs for generating open boundary conditions
+!!             employed by the BDY module in NEMO. Boundary data
+!!             can be set up for v3.2 NEMO and above.
+!!
+!!             More info here.....
+!!
+!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+!------------------------------------------------------------------------------
+!   vertical coordinate
+!------------------------------------------------------------------------------
+   rn_hmin     =   -10     !  min depth of the ocean (>0) or
+                           !  min number of ocean level (<0)
+```
+
+Here the minimum quantity of ocean depth levels is set to 10
+
+```
+!------------------------------------------------------------------------------
+!   s-coordinate or hybrid z-s-coordinate
+!------------------------------------------------------------------------------
+   rn_sbot_min =   10.     !  minimum depth of s-bottom surface (>0) (m)
+   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface
+                           !  (= ocean depth) (>0) (m)
+   ln_s_sigma  = .false.   !  hybrid s-sigma coordinates
+   rn_hc       =  150.0    !  critical depth with s-sigma
+
+!------------------------------------------------------------------------------
+!  grid information
+!------------------------------------------------------------------------------
+   sn_src_hgr = '/scratch/benbar/India_Test/mesh_mask_ORCA025_light.nc4'
+   sn_src_zgr = '/scratch/benbar/India_Test/20241211_restart.nc'
+   sn_dst_hgr = '/scratch/benbar/India_Test/domain_cfg.nc'     ! Expects vars found in domain_cfg.nc
+   sn_dst_zgr = '/scratch/benbar/India_Test/domain_cfg.nc'     ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
+   sn_src_msk = '/scratch/benbar/India_Test/mask_3D.nc'
+   sn_bathy   = '/scratch/benbar/India_Test/domain_cfg_bathy.nc'    ! dst bathymetry w/o time dimension
+                                                                            !Expects vars: {Bathymetry,nav_lat,nav_lon}
+   sn_nme_map = './india_test/grid_name_map.json'     ! json file mapping variable names to netcdf vars
+
+!------------------------------------------------------------------------------
+!  I/O
+!------------------------------------------------------------------------------
+   sn_src_dir = './india_test/src_data_local.ncml' ! src_files/'
+   sn_dst_dir = '/scratch/benbar/India_Test/'
+   sn_fn      = 'india'             ! prefix for output files
+   nn_fv      = -1e20                 !  set fill value for output files
+   nn_src_time_adj = 0                ! src time adjustment
+   sn_dst_metainfo = 'India Data'
+
+!------------------------------------------------------------------------------
+!  unstructured open boundaries
+!------------------------------------------------------------------------------
+    ln_coords_file = .true.               !  =T : produce bdy coordinates files
+    cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files
+                                          !  (if ln_coords_file=.TRUE.)
+    ln_mask_file   = .false.              !  =T : read mask from file
+    cn_mask_file   = 'mask.nc'            !  name of mask file
+                                          !  (if ln_mask_file=.TRUE.)
+    ln_dyn2d       = .true.               !  boundary conditions for
+                                          !  barotropic fields
+    ln_dyn3d       = .false.              !  boundary conditions for
+                                          !  baroclinic velocities
+    ln_tra         = .true.               !  boundary conditions for T and S
+    ln_ice         = .false.              !  ice boundary condition
+    ln_zinterp     = .true.               !  vertical interpolation
+    nn_rimwidth    = 1                    !  width of the relaxation zone
+
+!------------------------------------------------------------------------------
+!  unstructured open boundaries tidal parameters
+!------------------------------------------------------------------------------
+    ln_tide        = .false.              !  =T : produce bdy tidal conditions
+    sn_tide_model  = 'FES2014'            !  Name of tidal model. Accepts FES2014, TPXO7p2, or TPXO9v5
+    clname(1)      = 'M2'                 !  constituent name
+    clname(2)      = 'S2'
+    clname(3)      = 'K2'
+    clname(4)      = 'O1'
+    clname(5)      = 'P1'
+    clname(6)      = 'Q1'
+    clname(7)      = 'M4'
+    ln_trans       = .true.               !  interpolate transport rather than
+                                          !  velocities
+    ! location of TPXO7.2 data
+    sn_tide_grid_7p2   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+    sn_tide_h          = './inputs/tpxo7.2/h_tpxo7.2.nc'
+    sn_tide_u          = './inputs/tpxo7.2/u_tpxo7.2.nc'
+    ! location of TPXO9v5 data: single constituents per file
+    sn_tide_grid_9p5   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
+    sn_tide_dir        = './inputs/TPXO9_atlas_v5_nc/'
+    ! location of FES2014 data
+    sn_tide_fes        = './inputs/FES2014/'
+
+!------------------------------------------------------------------------------
+!  Time information for output
+!------------------------------------------------------------------------------
+    sn_date_start   = '2024-12-12'    !  dst output date start YYYY-MM-DD
+    sn_date_end     = '2024-12-15'    !  dst output date end YYYY-MM-DD
+    sn_dst_calendar = 'gregorian'     !  output calendar format
+    sn_date_origin  = '2024-12-12'    !  reference for time counter YYYY-MM-DD
+    ln_time_interpolation = .true. !  set to false to use parent
+                                   !  calender for monthly frequency only
+
+!------------------------------------------------------------------------------
+!  Additional parameters
+!------------------------------------------------------------------------------
+    nn_wei  = 1                   !  smoothing filter weights
+    rn_r0   = 0.041666666         !  decorrelation distance use in gauss
+                                  !  smoothing onto dst points. Need to
+                                  !  make this a funct. of dlon
+    sn_history  = 'Benchmarking test case'
+                                  !  history for netcdf file
+    ln_nemo3p4  = .true.          !  else presume v3.2 or v3.3
+    nn_alpha    = 0               !  Euler rotation angle
+    nn_beta     = 0               !  Euler rotation angle
+    nn_gamma    = 0               !  Euler rotation angle
+    rn_mask_max_depth = 100.0     !  Maximum depth to be ignored for the mask
+    rn_mask_shelfbreak_dist = 20000.0 !  Distance from the shelf break
+```
 
 ## Tidal Boundary Conditions Generation :sailboat:
 
