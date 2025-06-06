@@ -213,7 +213,7 @@ The application picks the relative path from the current working directory.
 
     - Ideal requirements: 3D grid `gdept`, `e3t`, and 2D grid `mbathy` (aka `bottom_level`)
     - Minimum requirements: several variations are possible
-        - `gdep` and `e3` values can be calculated if `gdept` or `e3t` are specified or 1D depth `gdept_0`.
+        - `gdept` or `e3t` are specified on 3D grids or 1D depth `gdept_0` is specified. From these, other `gdep` and `e3` values can be calculated.
         - **Note**: `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept`.
         - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
 
@@ -265,7 +265,7 @@ The application picks the relative path from the current working directory.
         - `ice3` - a sea ice parameter
     - See `inputs` folder for more examples.
 
-    Example structure:
+    Example structure combining data on the T grid, U grid and V grid each along the time dimension then aggregating them together into a single virtual file:
 
     ```xml
     <ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" title="aggregation example">
@@ -376,7 +376,7 @@ Here the file paths are set. These can be absolute (i.e. starting with "/") or r
    sn_nme_map = './india_test/grid_name_map.json'     ! json file mapping variable names to netcdf vars
 ```
 
-Here the source (parent) data is specified via the .nmcl file in NcML format. For setting up the src_data_local.ncml see the NcML file example section below. The output directory, file name prefix and `\_FillValue` in the netCDF file is specified. The sn_dst_metainfo is set in the netcdf output file `history` attribute.
+Here the source (parent) data is specified via the .nmcl file in NcML format. For setting up the src_data_local.ncml see the NcML file example section below. The output directory, file name prefix and `\_FillValue` in the netCDF file is specified. The sn_dst_metainfo is set in the netcdf output file `history` attribute. `nn_src_time_adj` does not get used???
 
 ```
 !------------------------------------------------------------------------------
@@ -481,7 +481,7 @@ These parameters can be left unchanged. We do not recommend changing them.
 
 ### JSON File
 
-This is an example .json file: *grid_name_map.json*. It specifise the names of variables in the source (parent) and destination (child) netCDF grid files. The grid files need to be checked with "ncdump -h" and the variable names matched appropriately. See [How to use pyBDY :student:](#how-to-use-pybdy-student) for minimum requirements.
+This is an example .json file: *grid_name_map.json*. It specifise the names of variables in the source (parent) and destination (child) netCDF grid files. The grid files need to be checked with "ncdump -h" and the variable names matched appropriately. It is expected that some of these variables will not be in your grid files. That is not a problem as long at you map the variables that meet the minimum requirements: see [How to use pyBDY :student:](#how-to-use-pybdy-student) for the minimum requirements.
 
 ```json
 {
@@ -571,26 +571,14 @@ This is an example .json file: *grid_name_map.json*. It specifise the names of v
 ### NcML File
 
 This is an example NcML file which is used to providing file paths for parent (source) data that pybdy will read in.
-The example files name is *src_data_local.ncml*.
+The example files name is *src_data_local.ncml*. Here the NcML file combines data on the T grid, U grid and V grid each along the time dimension then aggregating them together into a single virtual file
 
 ```xml
 <ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" title="aggregation example">
   <ns0:aggregation type="union">
-    <ns0:netcdf>
-      <ns0:aggregation type="joinExisting" dimName="time_counter">
-        <ns0:netcdf location="/scratch/India_Test/mersea.grid_V.nc" />
-      </ns0:aggregation>
-    </ns0:netcdf>
-    <ns0:netcdf>
-      <ns0:aggregation type="joinExisting" dimName="time_counter">
-        <ns0:netcdf location="/scratch/India_Test/mersea.grid_U.nc" />
-      </ns0:aggregation>
-    </ns0:netcdf>
-    <ns0:netcdf>
-      <ns0:aggregation type="joinExisting" dimName="time_counter">
-        <ns0:netcdf location="/scratch/India_Test/mersea.grid_T.nc" />
-      </ns0:aggregation>
-    </ns0:netcdf>
+    <ns0:netcdf location="/scratch/India_Test/mersea.grid_V.nc" />
+    <ns0:netcdf location="/scratch/India_Test/mersea.grid_U.nc" />
+    <ns0:netcdf location="/scratch/India_Test/mersea.grid_T.nc" />
   </ns0:aggregation>
 </ns0:netcdf>
 ```
@@ -682,6 +670,8 @@ If you get the error message "Destination touches source i-edge but source is no
 
 - For "Destination touches source i-edge but source is not cylindrical", you may have an open boundary in your mask or bathymetry file that is not inside the domain of the source data. If this is the case you need to edit your mask to be land (i.e. zeros) to block the incorrect open boundary.
 - For "Destination touches source j-edge but North Fold is not implemented", your domain probably touches the Arctic North Fold and pyBDY is trying to put an open boundary there. If this is the case you need to edit your mask to be land (i.e. zeros) to block the incorrect open boundary along the north edge of the domain. Do not attept to have a regional model with a boundary crossing the North Fold, this has not be implemented yet.
+
+Check your variable and dimension names match the requirements and are mapped correctly either in the NcML file or JSON for the source data and grid data respectively (see section [How to use pyBDY :student:](#how-to-use-pybdy-student))
 
 If you have time interpolation problems read the section [Time Settings](#time-settings).
 
