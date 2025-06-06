@@ -469,8 +469,6 @@ These parameters can be left unchanged. We do not recommend changing them.
     rn_r0   = 0.041666666         !  decorrelation distance use in gauss
                                   !  smoothing onto dst points. Need to
                                   !  make this a funct. of dlon
-    sn_history  = 'Benchmarking test case'
-                                  !  history for netcdf file
     ln_nemo3p4  = .true.          !  else presume v3.2 or v3.3
     nn_alpha    = 0               !  Euler rotation angle
     nn_beta     = 0               !  Euler rotation angle
