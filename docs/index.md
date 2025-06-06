@@ -41,6 +41,7 @@ The changes relative to the previous version (0.3.0) are:
 
 - Sigma to sigma vertical layer interpolation is now possible.
 - Vertical interpolation in pyBDY can now be turned off for zco vertical coodinate data.
+- The namelist has been streamlined to removed variables that are no longer used.
 - Time input in the namelist has changed to offer more granularity.
 - Grid variables names are now specified using a .json file instead of .ncml. Source data is still specified with .nmcl.
 - The boundary is split into chunks to allow for processing smaller sections of data.
@@ -203,22 +204,18 @@ Here we will summarise the main variables that will need changing to get started
 Directory paths in bdy file can be relative or absolute.
 The application picks the relative path from the current working directory.
 
-- **`sn_src_hgr`**: Source horizontal grid file. Should include:
+- **`sn_src_hgr`**: Source horizontal grid file. Use `ncdump -h` or `ncview` to inspect variables. The variable names are mapped in grid_name_map.json. Map extra variable names in `grid_name_map.json` to avoid recalculation.
 
-    - Ideal: `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
-    - Minimum: `nav_lat`, `nav_lon` on a 2D grid.
-    - Use `ncdump -h` or `ncview` to inspect variables.
-    - Map extra variable names in `grid_name_map.json` to avoid recalculation.
+    - Ideal requirements: `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
+    - Minimum requirements: `nav_lat`, `nav_lon` on a 2D grid.
 
-- **`sn_src_zgr`**: Source vertical grid file. May be the same as `sn_src_hgr`.
+- **`sn_src_zgr`**: Source vertical grid file. The file may be the same file as `sn_src_hgr`. The variable names are mapped in grid_name_map.json. Map extra variables like `gdepw`, `gdepu`, `e3w` in `grid_name_map.json` to avoid recalculation. **Note**: Time-varying depths are not used in PyBDY.
 
-    - Ideal: `gdept`, `e3t`, `mbathy` (aka `bottom_level`)
-    - If `mbathy` is missing:
-        - Use `gdept_0` (1D depth)
-        - Use any 2D field (e.g., `nav_lon`) for `mbathy`
-        - **Not recommended for destination**
-    - Map variables like `gdepw`, `gdepu`, `e3w` in `grid_name_map.json`
-    - **Note**: Time-varying depths are not used in PyBDY.
+    - Ideal requirements: 3D grid `gdept`, `e3t`, and 2D grid `mbathy` (aka `bottom_level`)
+    - Minimum requirements: several variations are possible
+        - `gdep` and `e3` values can be calculated if `gdept` or `e3t` are specified or 1D depth `gdept_0`.
+        - **Note**: `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept`.
+        - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
 
 - **`sn_dst_hgr`, `sn_dst_zgr`**: Destination equivalents of the above.
 
@@ -246,7 +243,26 @@ The application picks the relative path from the current working directory.
 
 - **`sn_src_dir`**: Path to `src_data.ncml`
 
-    - This is an xml file that points to source data (not grid) paths. It can also include THREDDS URLs (see `inputs/namelist_remote.bdy` for example).
+    - This is an NcML (XML) file that points to source data (not grid) paths. It can also include THREDDS URLs (see `inputs/namelist_remote.bdy` for example).
+    - The NcML file has wrappers like:
+        - `<netcdf>` which specifies a single NetCDF file or dataset reference. The top level in the example below declares a virtual NetCDF dataset.
+        - `<aggregation>` virtually combine multiple NetCDF files into a single dataset. It has attributes `type` and `dimName`. The `type` of combination can be `joinExisting` or `union`. The `dimName` specifies the dimension along which to join files.
+        - `<scan>` is used inside the `<aggregation>` wrapper to find multiple NetCDF files in a directory. This is instead of or in addition to listing them manually with several `<netcdf location="./example_path.nc"/>` wrappers. `<scan>` has attributes like `location` which gives the path to search, `suffix` which gives the file ending and `regExp` which can provide a search expression using Regular Expression (Regex) format. Regex is a special text string that can be used in the NcML file for describing a search pattern to match against some text. You may compare using Regex to filter what files to include in your datasets against using wildcard (\*) to specify a file search pattern in your computer. More information on Regex patterns can be found here [Regex](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference).
+        - `<dimension>` is a wrapper that allows for renaming a dimension (e.g. time_counter).
+        - `<variable>` is a wrapper that allows for renaming or modifying a variable or variable attributes (e.g. units).
+        - `<rename>` maps a variable or dimension from its original name to a new name. It must be placed inside a `<variable>` or `<dimension>` wrapper. Variable names can be remapped in a way that only affects the reading of the file whithout modifying the original NetCDF file. This can be useful if the source (parent) data does not have the variables named in the standard way pybdy expects. The renaming can be do using `<variable name="v1">` and `<rename name="v2">` where the "v1" is the original name and "v2" is the new name.
+    - The dimensions that pybdy expects in the source data are:
+        - `time_counter` - this is the required time dimension name
+        - dimensions in variables must be ordered `time_counter`, `depth`, `y`, `x` if 4 dimensional or ordered `time_counter`, `y`, `x` if 3 dimensional.
+    - The variables that pybdy expects in the source data are:
+        - `votemper` - the water temperature
+        - `votemper` - the water salinity
+        - `sossheig` - the sea surface height
+        - `vozocrtx` - the u (northward) component of velocity
+        - `vomecrty` - the v (eastward) component of velocity
+        - `ice1` - a sea ice parameter
+        - `ice2` - a sea ice parameter
+        - `ice3` - a sea ice parameter
     - See `inputs` folder for more examples.
 
     Example structure:
@@ -273,7 +289,18 @@ The application picks the relative path from the current working directory.
     </ns0:netcdf>
     ```
 
-    - Regular expression (Regex) is a special text string that can be used in the xml file for describing a search pattern to match against some text. You may compare using regex to filter what files to include in your datasets against using wildcard (\*) to specify a file search pattern in your computer. More information on Regex patterns can be found here [Regex](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference).
+    An example NcML expression renaming a variable in joined NetCDF files:
+
+    ```xml
+    <ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:scan location="./monthly/" suffix=".nc" subdirs="false" />
+        <ns0:variable name="temp">
+          <ns0:rename name="temperature" />
+        </ns0:variable>
+      </ns0:aggregation>
+    </ns0:netcdf>
+    ```
 
 - **`sn_dst_dir`**: Output directory for PyBDY data
 
@@ -333,7 +360,7 @@ The example child (destination) here is a regional NEMO model that covers the In
 
 Below is excerpts from an example *namelist.bdy*.
 
-Here the file paths are set. These can be absolute (i.e. starting with "/") or relative (i.e. starting with "./").
+Here the file paths are set. These can be absolute (i.e. starting with "/") or relative (i.e. starting with "./"). For help with what variables are needed in these files see [How to use pyBDY :student:](#how-to-use-pybdy-student). In the example case, the bathmetry file needed to be calculated before running pybdy. It may also be the case that you need to calculate variables like gdept for the sn_src_zgr file fore running pybdy. For setting up the grid_name_map.json see the JSON file example section below.
 
 ```
 !------------------------------------------------------------------------------
@@ -349,7 +376,7 @@ Here the file paths are set. These can be absolute (i.e. starting with "/") or r
    sn_nme_map = './india_test/grid_name_map.json'     ! json file mapping variable names to netcdf vars
 ```
 
-Here the source (parent) data is specified via the .nmcl file in XML format. The output directory, file name prefix and *\_FillValue* in the netCDF4 file is specified.
+Here the source (parent) data is specified via the .nmcl file in NcML format. For setting up the src_data_local.ncml see the NcML file example section below. The output directory, file name prefix and `\_FillValue` in the netCDF file is specified. The sn_dst_metainfo is set in the netcdf output file `history` attribute.
 
 ```
 !------------------------------------------------------------------------------
@@ -360,12 +387,13 @@ Here the source (parent) data is specified via the .nmcl file in XML format. The
    sn_fn      = 'india'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
-   sn_dst_metainfo = 'India Data'
+   sn_dst_metainfo = 'India Data'  ! history info
 ```
 
 Here some options are set. cn_coords_file is a file that can be output by pybdy.
 In this case, the child (destination) data does not have a pre-defined mask file so pybdy will use the bathymetry provided in sn_bathy to calculate the mask. If the mask produced if not giving the correct boundaries you may need to provide a mask.nc file which you generate. This file contains a 2d mask the same shape as the bathymetry where 1 = "water", 0 = "land" and -1 = "out of domain". Boundary points will be generated between water and "out of domain" which can also be where water meets the edge of the defined 2d area.
-ln_dyn3d and ln_dyn3d define variables that will be in the output. Here, ln_dyn2d will provide an additon variable in the output for barotropic velocities and ln_dyn3d will not include the barotropic component in the 3d velocities. One or the other should be selected and match options in NEMO.
+Here, ln_dyn2d will provide a sea surface height (`sossheig`) variable in the output for barotropic velocities.
+ln_dyn3d defines variables that will be in the output. Here, ln_dyn3d will not include the barotropic component in the 3d velocities. One or the other of ln_dyn2d or ln_dyn3d should be selected and match options in NEMO.
 Here, ln_tra shows temperature and salinity will be output. ln_ice shows ice will not be output. ln_zinterp shows the vertical interpolation is calculated by pybdy (so should be turned off in NEMO).
 Here, nn_rimwidth is set to 9 to provide 9 layers of boundary points along all boundaries.
 
@@ -389,7 +417,7 @@ Here, nn_rimwidth is set to 9 to provide 9 layers of boundary points along all b
     nn_rimwidth    = 9                    !  width of the relaxation zone
 ```
 
-In this example we are not producing the tidal forcing on the boundary because ln_tide is set to false. This means the rest of this section does not matter.
+In this example we are not producing the tidal forcing on the boundary because ln_tide is set to false. This means the rest of this section does not matter. See [Tidal Boundary Conditions Generation :sailboat:](#tidal-boundary-conditions-generation-sailboat) for more on setting up tidal boundaries.
 
 ```
 !------------------------------------------------------------------------------
@@ -431,7 +459,7 @@ The time step required in output here are 3 days starting on 12th Dec 2024 (whic
                                    !  calender for monthly frequency only
 ```
 
-These parameters can be left unchanged.
+These parameters can be left unchanged. We do not recommend changing them.
 
 ```
 !------------------------------------------------------------------------------
@@ -453,119 +481,118 @@ These parameters can be left unchanged.
 
 ### JSON File
 
-The example files name is *grid_name_map.json*.
+This is an example .json file: *grid_name_map.json*. It specifise the names of variables in the source (parent) and destination (child) netCDF grid files. The grid files need to be checked with "ncdump -h" and the variable names matched appropriately. See [How to use pyBDY :student:](#how-to-use-pybdy-student) for minimum requirements.
 
-```
+```json
 {
-    "dimension_map": {
-            "t": "t",
-            "z": "z",
-            "y": "y",
-            "x": "x"
-    },
-    "sc_variable_map": {
-            "nav_lon": "nav_lon",
-            "nav_lat": "nav_lat",
-            "glamt": "glamt",
-            "gphit": "gphit",
-            "glamf": "glamf",
-            "gphif": "gphif",
-            "glamu": "glamu",
-            "gphiu": "gphiu",
-            "glamv": "glamv",
-            "gphiv": "gphiv",
-            "e1t": "e1t",
-            "e2t": "e2t",
-            "e1f": "e1f",
-            "e2f": "e2f",
-            "e1u": "e1u",
-            "e2u": "e2u",
-            "e1v": "e1v",
-            "e2v": "e2v",
-            "mbathy": "nav_lon",
-            "gdept_0": "nav_lev",
-            "gdept": "gdept",
-            "gdepu": "gdepu",
-            "gdepv": "gdepv",
-            "gdepf": "gdepf",
-            "gdepw": "gdepw",
-            "gdepuw": "gdepuw",
-            "gdepvw": "gdepvw",
-            "e3t": "e3t",
-            "e3w": "e3w",
-            "e3u": "e3u",
-            "e3v": "e3v",
-            "e3f": "e3f",
-            "e3uw": "e3uw",
-            "e3vw": "e3vw",
-            "e3fw": "e3fw"
-    },
-    "dst_variable_map": {
-            "nav_lon": "nav_lon",
-            "nav_lat": "nav_lat",
-            "glamt": "glamt",
-            "gphit": "gphit",
-            "glamf": "glamf",
-            "gphif": "gphif",
-            "glamu": "glamu",
-            "gphiu": "gphiu",
-            "glamv": "glamv",
-            "gphiv": "gphiv",
-            "e1t": "e1t",
-            "e2t": "e2t",
-            "e1f": "e1f",
-            "e2f": "e2f",
-            "e1u": "e1u",
-            "e2u": "e2u",
-            "e1v": "e1v",
-            "e2v": "e2v",
-            "mbathy": "bottom_level",
-            "gdept_0": "gdept_0",
-            "gdept": "gdept",
-            "gdepu": "gdepu",
-            "gdepv": "gdepv",
-            "gdepf": "gdepf",
-            "gdepw": "gdepw",
-            "gdepuw": "gdepuw",
-            "gdepvw": "gdepvw",
-            "e3t": "e3t_0",
-            "e3w": "e3w_0",
-            "e3u": "e3u_0",
-            "e3v": "e3v_0",
-            "e3f": "e3f_0",
-            "e3uw": "e3uw_0",
-            "e3vw": "e3vw_0",
-            "e3fw": "e3fw"
-    }
+  "dimension_map": {
+    "t": "t",
+    "z": "z",
+    "y": "y",
+    "x": "x"
+  },
+  "sc_variable_map": {
+    "nav_lon": "nav_lon",
+    "nav_lat": "nav_lat",
+    "glamt": "glamt",
+    "gphit": "gphit",
+    "glamf": "glamf",
+    "gphif": "gphif",
+    "glamu": "glamu",
+    "gphiu": "gphiu",
+    "glamv": "glamv",
+    "gphiv": "gphiv",
+    "e1t": "e1t",
+    "e2t": "e2t",
+    "e1f": "e1f",
+    "e2f": "e2f",
+    "e1u": "e1u",
+    "e2u": "e2u",
+    "e1v": "e1v",
+    "e2v": "e2v",
+    "mbathy": "nav_lon",
+    "gdept_0": "nav_lev",
+    "gdept": "gdept",
+    "gdepu": "gdepu",
+    "gdepv": "gdepv",
+    "gdepf": "gdepf",
+    "gdepw": "gdepw",
+    "gdepuw": "gdepuw",
+    "gdepvw": "gdepvw",
+    "e3t": "e3t",
+    "e3w": "e3w",
+    "e3u": "e3u",
+    "e3v": "e3v",
+    "e3f": "e3f",
+    "e3uw": "e3uw",
+    "e3vw": "e3vw",
+    "e3fw": "e3fw"
+  },
+  "dst_variable_map": {
+    "nav_lon": "nav_lon",
+    "nav_lat": "nav_lat",
+    "glamt": "glamt",
+    "gphit": "gphit",
+    "glamf": "glamf",
+    "gphif": "gphif",
+    "glamu": "glamu",
+    "gphiu": "gphiu",
+    "glamv": "glamv",
+    "gphiv": "gphiv",
+    "e1t": "e1t",
+    "e2t": "e2t",
+    "e1f": "e1f",
+    "e2f": "e2f",
+    "e1u": "e1u",
+    "e2u": "e2u",
+    "e1v": "e1v",
+    "e2v": "e2v",
+    "mbathy": "bottom_level",
+    "gdept_0": "gdept_0",
+    "gdept": "gdept",
+    "gdepu": "gdepu",
+    "gdepv": "gdepv",
+    "gdepf": "gdepf",
+    "gdepw": "gdepw",
+    "gdepuw": "gdepuw",
+    "gdepvw": "gdepvw",
+    "e3t": "e3t_0",
+    "e3w": "e3w_0",
+    "e3u": "e3u_0",
+    "e3v": "e3v_0",
+    "e3f": "e3f_0",
+    "e3uw": "e3uw_0",
+    "e3vw": "e3vw_0",
+    "e3fw": "e3fw"
+  }
 }
 ```
 
-### XML File
+### NcML File
 
-This is an example XML file which is used to providing file paths for parent (source) data that pybdy will read in.
+This is an example NcML file which is used to providing file paths for parent (source) data that pybdy will read in.
 The example files name is *src_data_local.ncml*.
 
-```
-<?xml version="1.0" encoding="UTF-8"?>
-<netcdf title="aggregation example" xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
-  <aggregation type="union" >
-     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
-        <aggregation type="joinExisting" dimName="time_counter" >
-           <netcdf location="/scratch/benbar/India_Test/mersea.grid_V.nc" />
-        </aggregation>
-     </netcdf>
-     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
-        <aggregation type="joinExisting" dimName="time_counter" >
-           <netcdf location="/scratch/benbar/India_Test/mersea.grid_U.nc" />
-        </aggregation>
-     </netcdf>
-     <netcdf xmlns="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
-        <aggregation type="joinExisting" dimName="time_counter" >
-           <netcdf location="/scratch/benbar/India_Test/mersea.grid_T.nc" />
-        </aggregation>
-     </netcdf>
-  </aggregation>
-</netcdf>
+```xml
+<ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" title="aggregation example">
+  <ns0:aggregation type="union">
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:netcdf location="/scratch/India_Test/mersea.grid_V.nc" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:netcdf location="/scratch/India_Test/mersea.grid_U.nc" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:netcdf location="/scratch/India_Test/mersea.grid_T.nc" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+  </ns0:aggregation>
+</ns0:netcdf>
 ```
 
 ## Tidal Boundary Conditions Generation :sailboat:
