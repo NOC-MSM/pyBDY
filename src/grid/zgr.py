@@ -40,8 +40,8 @@ class Z_Grid:
         """
         Master depth class.
 
-        Args:
-        ----
+        Parameters
+        ----------
             zgr_file (str)           : string of file for loading zgr data
             name_map_file (str)      : string of file for mapping variable names
             hgr_type (str)           : horizontal grid type
@@ -49,7 +49,7 @@ class Z_Grid:
             logger (object)          : log error and messages
             dst (bool)               : flag for destination (true) or source (false)
 
-        Returns:
+        Returns
         -------
             Depth (object)          : Depth object
         """
@@ -110,9 +110,13 @@ class Z_Grid:
         """
         Get the gdep and e3 scale factors from file if possible.
 
-        Args:
-        ----
+        Parameters
+        ----------
             vars_want (list)       : variables needed from file.
+
+        Returns
+        -------
+            None    : var_list is populated
         """
         # find the variables that have been name mapped
         if self.dst:
@@ -199,15 +203,15 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
     """
     Calculate the missing vertical grid variables and add them to grid.
 
-    Args:
-    ----
+    Parameters
+    ----------
             zgr_type (str)      : type of vertical grid (zco, zps or sco)
             grid (dict)         : dictionary of grid data variable
             hgr_type (str)      : horizontal grid type
             e_dict (dict)       : dictionary of e1 and e2 scale factors
             missing (list)      : list of missing variables to calculate
 
-    Returns:
+    Returns
     -------
             grid (dict)          : vertical grid data dictionary
     """
@@ -289,11 +293,11 @@ def calc_gdepw(gdept):
     """
     Calculate missing gdepw from gdept.
 
-    Args:
-    ----
+    Parameters
+    ----------
             gdept (np.array)   : mesh variable gdept on t-grid
 
-    Returns:
+    Returns
     -------
             dep_out (np.array) : vertical grid mesh data variable
     """
@@ -314,13 +318,13 @@ def vert_calc_e3(gdep_mid, gdep_top, lev):
     """
     Calculate missing vertical scale factors e3 from gdep.
 
-    Args:
-    ----
+    Parameters
+    ----------
             gdep_mid (np.array)  : mesh variable on t levels
             gdep_top (np.array)  : mesh variable on w levels
             lev (str)            : grid level type (e3 of t, w, u, v)
 
-    Returns:
+    Returns
     -------
             e3 (np.array)    : vertical distance scale factor e3 of lev
     """
@@ -351,14 +355,14 @@ def horiz_interp_lev(t, w, zgr_type, hgr_type):
     For C-Grids, zps or sco verticle coords are used to define u, v, and f.
     For B-Grids, u and v values are set to f values following zps or sco.
 
-    Args:
-    ----
+    Parameters
+    ----------
             t (np.array)       : vertical scale factors e or dep on t points
             w (np.array)       : vertical scale factors e or dep on w points
             zgr_type (str)     : type of vertical grid (zco, zps or sco)
             hgr_type (str)     : horizontal grid type (A, B or C)
 
-    Returns:
+    Returns
     -------
             lev (dict)            : vertical distance scale factor e or gdep
     """
@@ -412,13 +416,13 @@ def horiz_interp_e3_old(e_in, var_in, lev):
     To interpolate to get e3u or e3v, input var_in as e3t data but for e3f this
     should be e3u.
 
-    Args:
-    ----
+    Parameters
+    ----------
             e_in (dict)       : all horizontal scale factors e1 and e2 in dictionary
             var_in (np.array) : e scale factor to interpolate from e3t (or e3u for f)
             lev (str)         : grid level type (e3 of u, v, f)
 
-    Returns:
+    Returns
     -------
             e3 (np.array)    : vertical distance scale factor e3 of lev
     """
