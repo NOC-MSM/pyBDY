@@ -90,7 +90,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     """
     # Start Logger
-
+    st_time = dt.datetime.now()
     logger.info("Start NRCT Logging: " + time.asctime())
     logger.info("============================================")
 
@@ -104,7 +104,9 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     bdy_msk = _get_mask(Setup, mask_gui)
     DstCoord.bdy_msk = bdy_msk == 1
+    logger.info("Reading mask completed")
 
+    print(dt.datetime.now() - st_time)
     DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
     DstCoord.zgr = zgr.Z_Grid(
         settings["dst_zgr"],
@@ -114,8 +116,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger,
         dst=1,
     )
-
-    logger.info("Reading mask completed")
+    print(dt.datetime.now() - st_time)
 
     bdy_ind = {}  # define a dictionary to hold the grid information
 
@@ -126,6 +127,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
         # function to split the bdy into several boundary chunks
         bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
+    print(dt.datetime.now() - st_time)
 
     if Setup.bool_settings["coords_file"]:
         # Write out grid information to coordinates.bdy.nc
@@ -136,6 +138,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger.info("File: coordinates.bdy.nc generated and populated")
 
     # Idenitify number of boundary points
+    print(dt.datetime.now() - st_time)
 
     nbdy = {}
 
@@ -156,6 +159,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger,
         dst=0,
     )
+    print(dt.datetime.now() - st_time)
 
     # Fill horizontal grid information
 
@@ -377,6 +381,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     logger.info("End NRCT Logging: " + time.asctime())
     logger.info("==========================================")
+    print(dt.datetime.now() - st_time)
 
 
 def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
