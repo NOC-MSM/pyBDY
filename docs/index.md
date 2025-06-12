@@ -381,7 +381,8 @@ Summary of minimum requirements:
 "y" = horizontal dimension often aligned with latitude
 "x" = horizontal dimension often aligned with longitude
 
-"sc_variable_map" and "dst_variable_map" which refer to sc (source grid variables in `sn_src_hgr`, `sn_src_zgr`) and dst (destination grid variables in `sn_dst_hgr`, `sn_dst_zgr`)
+"sc_variable_map" and "dst_variable_map" which refer to sc (source grid variables in "sn_src_hgr",
+"sn_src_zgr") and dst (destination grid variables in "sn_dst_hgr", "sn_dst_zgr")
 
 "nav_lon" = ** Longitude on t-grid (dims [y, x])
             (only needed if glamt is not present in the file)
