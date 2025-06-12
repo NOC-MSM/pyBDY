@@ -252,11 +252,11 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
             grid["gdepw"] = np.cumsum(grid["e3w"], axis=1)
         elif zgr_type == "zco":
             # Don't waste time calculating gdepw everywhere if it all the same.
-            gdepw = calc_gdepw(
+            gdepw_0 = calc_gdepw(
                 grid["gdept_0"][np.newaxis, :, np.newaxis, np.newaxis]
             ).squeeze()
             grid["gdepw"] = np.tile(
-                gdepw,
+                gdepw_0,
                 (
                     grid["mbathy"].shape[0],
                     grid["mbathy"].shape[1],
