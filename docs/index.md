@@ -204,17 +204,9 @@ Here we will summarise the main variables that will need changing to get started
 Directory paths in bdy file can be relative or absolute.
 The application picks the relative path from the current working directory.
 
-- **`sn_src_hgr`**: Source horizontal grid file. Use `ncdump -h` or `ncview` to inspect variables. The variable names are mapped in grid_name_map.json. Map extra variable names in `grid_name_map.json` to avoid recalculation.
+- **`sn_src_hgr`**: Source horizontal grid file. Use `ncdump -h` or `ncview` to inspect variables. The variable names are mapped in grid_name_map.json. Map extra variable names in `grid_name_map.json` to avoid recalculation. See [Step 4: Setting up the JSON file](#step-4:-setting-up-the-json-file) for variable descriptions and requirements.
 
-    - Ideal requirements: `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
-    - Minimum requirements: `nav_lat`, `nav_lon` on a 2D grid.
-
-- **`sn_src_zgr`**: Source vertical grid file. The file may be the same file as `sn_src_hgr`. The variable names are mapped in grid_name_map.json. Map extra variables like `gdepw`, `gdepu`, `e3w` in `grid_name_map.json` to avoid recalculation. **Note**: Time-varying depths are not used in PyBDY.
-
-    - Ideal requirements: 3D grid `gdept`, `e3t`, and 2D grid `mbathy` (aka `bottom_level`)
-    - Minimum requirements: several variations are possible
-        - `gdept` or `e3t` are specified on 3D grids or 1D depth `gdept_0` is specified. From these, other `gdep` and `e3` values can be calculated.
-        - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
+- **`sn_src_zgr`**: Source vertical grid file. The file may be the same file as `sn_src_hgr`. The variable names are mapped in grid_name_map.json. Map extra variables like `gdepw`, `gdepu`, `e3w` in `grid_name_map.json` to avoid recalculation. **Note**: Time-varying depths are not used in PyBDY. See [Step 4: Setting up the JSON file](#step-4:-setting-up-the-json-file) for variable descriptions and requirements.
 
 - **`sn_dst_hgr`, `sn_dst_zgr`**: Destination equivalents of the above.
 
@@ -367,10 +359,14 @@ otherwise pybdy may incorrectly interpret the grid type for example. Variables
 marked \*\* may be optional depending on what other variables are provided.
 In all cases "t" should be size 1. Pybdy does not deal with time varying grids.
 
+Summary of ideal requirements:
+\- 2D grid of `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
+\- 3D grid of `gdept`, `gdepw`, `e3t`, `e3w`, and 2D grid of `mbathy` (aka `bottom_level`)
+
 Summary of minimum requirements:
 
-- for the horizontal grid variables we need `nav_lat`, `nav_lon` on a 2D grid.
-- for the vertical grid variables we have several possible variation:
+- for the horizontal grid variables we need at least `nav_lat`, `nav_lon` on a 2D grid.
+- for the vertical grid variables we have several possible variations:
     - `gdept` or `e3t` are specified on 3D grids
     - 1D depth `gdept_0` is specified in addition to `mbathy`.
     - **Note**: `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept`.
