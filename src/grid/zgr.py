@@ -26,6 +26,7 @@ Created on Mon Feb 03 18:01:00 2025.
 """
 
 # External imports
+import datetime as dt
 import json
 
 import numpy as np
@@ -53,6 +54,7 @@ class Z_Grid:
         -------
             Depth (object)          : Depth object
         """
+        st_time = dt.datetime.now()
         # Set up variables
         self.file_path = zgr_file
         self.name_map = name_map_file
@@ -97,7 +99,7 @@ class Z_Grid:
 
         # Work out what sort of source grid we have
         self.find_zgrid_type()
-
+        print(dt.datetime.now() - st_time)
         # Fill in missing variables we need for the grid type
         missing_vars = sorted(list(set(vars_want) - set(self.var_list)))
 
@@ -212,7 +214,7 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
             grid (dict)          : vertical grid data dictionary
     """
     # gdep
-
+    st_time = dt.datetime.now()
     t_done = "gdept" not in missing
     if t_done is False:
         # Fill in the 3D gdept data from 1D gdept_0
@@ -243,19 +245,34 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
 
     if "gdept_0" in missing:
         missing = sorted(list(set(missing) - set(["gdept_0"])))
-
+    print(dt.datetime.now() - st_time)  # 1
     w_done = "gdepw" not in missing
     if w_done is False:
         if "e3w" not in missing:
             grid["gdepw"] = np.cumsum(grid["e3w"], axis=1)
+        elif zgr_type == "zco":
+            # Don't waste time calculating gdepw everywhere if it all the same.
+            gdepw = calc_gdepw(
+                grid["gdept_0"][np.newaxis, :, np.newaxis, np.newaxis]
+            ).squeeze()
+            grid["gdepw"] = np.tile(
+                gdepw,
+                (
+                    grid["mbathy"].shape[0],
+                    grid["mbathy"].shape[1],
+                    grid["mbathy"].shape[2],
+                    1,
+                ),
+            )
+            grid["gdepw"] = np.transpose(grid["gdepw"], axes=[0, 3, 1, 2])
         else:
             # Fill in the 3D gdepw data from gdept
             grid["gdepw"] = calc_gdepw(grid["gdept"])
-            missing = sorted(list(set(missing) - set(["gdepw"])))
-
+        missing = sorted(list(set(missing) - set(["gdepw"])))
+    print(dt.datetime.now() - st_time)  # 2
     # Calculate other gdep values
     gdep = horiz_interp_lev(grid["gdept"], grid["gdepw"], zgr_type, hgr_type)
-
+    print(dt.datetime.now() - st_time)  # 3
     for vi in missing:
         if "gdep" in vi:
             if "e3" + vi[4:] not in missing:
@@ -264,7 +281,7 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
                 grid[vi] = gdep[vi[4:]]
 
     # e3
-
+    print(dt.datetime.now() - st_time)  # 4
     e3t_done = "e3t" not in missing
     if e3t_done is False:
         grid["e3t"] = vert_calc_e3(grid["gdept"], grid["gdepw"], "e3t")
@@ -281,7 +298,7 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
     for vi in missing:
         if "e" in vi[0]:
             grid[vi] = e3[vi[2:]]
-
+    print(dt.datetime.now() - st_time)  # 5
     return grid
 
 
@@ -301,8 +318,10 @@ def calc_gdepw(gdept):
     dep_out = np.zeros((gdept.shape))
     indxt = np.arange(gdept.shape[1])
     indxw = indxt[:-1] + 0.5
+
     for j in range(gdept.shape[2]):
         for i in range(gdept.shape[3]):
+            # dep_out[0, 1:, j, i] = np.interp(indxw, indxt, gdept[0, :, j, i])
             func = interp.interp1d(indxt, gdept[0, :, j, i], kind="cubic")
             # top gdepw is zero
             dep_out[0, 1:, j, i] = func(indxw)
