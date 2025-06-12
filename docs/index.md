@@ -360,8 +360,9 @@ marked \*\* may be optional depending on what other variables are provided.
 In all cases "t" should be size 1. Pybdy does not deal with time varying grids.
 
 Summary of ideal requirements:
-\- 2D grid of `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
-\- 3D grid of `gdept`, `gdepw`, `e3t`, `e3w`, and 2D grid of `mbathy` (aka `bottom_level`)
+
+- 2D grid of `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
+- 3D grid of `gdept`, `gdepw`, `e3t`, `e3w`, and 2D grid of `mbathy` (aka `bottom_level`)
 
 Summary of minimum requirements:
 
