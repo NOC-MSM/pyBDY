@@ -8,7 +8,7 @@ pyBDY is a python package to generate lateral boundary conditions for regional N
 It has been developed to uses geographical and depth information from an a source data (e.g. a global ocean
 simulation) and translate them to a destination NEMO region simulation. It makes use of a kdtree approximate
 nearest neighbour algorithm in order to provide a generic method of weighted average interpolation for any
-flavour of ocean model. The available options are accessed either through a NEMO style namelist.
+flavour of ocean model. The available options are accessed through a NEMO style namelist.
 
 ---
 
@@ -18,9 +18,9 @@ flavour of ocean model. The available options are accessed either through a NEMO
 - [Change Log :twisted_rightwards_arrows:](#change-log-twisted_rightwards_arrows)
 - [Dependencies :globe_with_meridians:](#dependencies-globe_with_meridians)
 - [Quick Start Installation :rocket:](#quick-start-installation-rocket)
-- [How to use pyBDY :mechanical_arm:](#how-to-use-pybdy-mechanical_arm)
+- [How to use pyBDY :student:](#how-to-use-pybdy-student)
+- [Worked Example :mechanical_arm:](#worked-example-mechanical_arm)
 - [Tidal Boundary Conditions Generation :sailboat:](#tidal-boundary-conditions-generation-sailboat)
-- [CMEMS Downloader :inbox_tray:](#cmems-downloader-inbox_tray)
 - [Troubleshooting :safety_vest:](#troubleshooting-safety_vest)
 - [pyBDY Module Structure :scroll:](#pybdy-module-structure-scroll)
 
@@ -30,7 +30,7 @@ flavour of ocean model. The available options are accessed either through a NEMO
 
 Please cite pyBDY version 0.4.0 in your work using:
 
-Harle, J., Barton, B.I., Nagella, S., Crompton, S., Polton J., Patmore, R., Morado, J., Thopri, Wise, A., De Dominicis, M., Blaker, A. Farey, J.K., (2025). pyBDY - NEMO lateral boundary conditions v0.4.0 [Software]. [https://doi.org](<>)
+Harle, J., Barton, B.I., Nagella, S., Crompton, S., Polton J., Patmore, R., Morado, J., Prime, T., Wise, A., De Dominicis, M., Blaker, A. Farey, J.K., (2025). pyBDY - NEMO lateral boundary conditions v0.4.0 [Software]. [https://doi.org](<>)
 
 ## Change Log :twisted_rightwards_arrows:
 
@@ -41,6 +41,7 @@ The changes relative to the previous version (0.3.0) are:
 
 - Sigma to sigma vertical layer interpolation is now possible.
 - Vertical interpolation in pyBDY can now be turned off for zco vertical coodinate data.
+- The namelist has been streamlined to removed variables that are no longer used.
 - Time input in the namelist has changed to offer more granularity.
 - Grid variables names are now specified using a .json file instead of .ncml. Source data is still specified with .nmcl.
 - The boundary is split into chunks to allow for processing smaller sections of data.
@@ -48,6 +49,7 @@ The changes relative to the previous version (0.3.0) are:
 - The 1-2-1 horizontal filter has been turned off.
 - The *seawater* dependancy updated to *gsw*.
 - A plotting masking bug has been fixed.
+- There is now horizontal flood filling that will remove zeros from salinity and temperature near land.
 - Bug fix for 90 boundaries that meet diagonally to produce a 90 degree corner.
 - Some unit tests have been added and full integration tests.
 - Documentation has been updated and restructured.
@@ -153,7 +155,7 @@ To deactivate the conda environment:
 conda deactivate
 ```
 
-## How to use pyBDY :mechanical_arm:
+## How to use pyBDY :student:
 
 [Back to top](#pybdy-documentation)
 
@@ -202,22 +204,17 @@ Here we will summarise the main variables that will need changing to get started
 Directory paths in bdy file can be relative or absolute.
 The application picks the relative path from the current working directory.
 
-- **`sn_src_hgr`**: Source horizontal grid file. Should include:
+- **`sn_src_hgr`**: Source horizontal grid file. Use `ncdump -h` or `ncview` to inspect variables. The variable names are mapped in grid_name_map.json. Map extra variable names in `grid_name_map.json` to avoid recalculation.
 
-    - Ideal: `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
-    - Minimum: `nav_lat`, `nav_lon` on a 2D grid.
-    - Use `ncdump -h` or `ncview` to inspect variables.
-    - Map extra variable names in `grid_name_map.json` to avoid recalculation.
+    - Ideal requirements: `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
+    - Minimum requirements: `nav_lat`, `nav_lon` on a 2D grid.
 
-- **`sn_src_zgr`**: Source vertical grid file. May be the same as `sn_src_hgr`.
+- **`sn_src_zgr`**: Source vertical grid file. The file may be the same file as `sn_src_hgr`. The variable names are mapped in grid_name_map.json. Map extra variables like `gdepw`, `gdepu`, `e3w` in `grid_name_map.json` to avoid recalculation. **Note**: Time-varying depths are not used in PyBDY.
 
-    - Ideal: `gdept`, `e3t`, `mbathy` (aka `bottom_level`)
-    - If `mbathy` is missing:
-        - Use `gdept_0` (1D depth)
-        - Use any 2D field (e.g., `nav_lon`) for `mbathy`
-        - **Not recommended for destination**
-    - Map variables like `gdepw`, `gdepu`, `e3w` in `grid_name_map.json`
-    - **Note**: Time-varying depths are not used in PyBDY.
+    - Ideal requirements: 3D grid `gdept`, `e3t`, and 2D grid `mbathy` (aka `bottom_level`)
+    - Minimum requirements: several variations are possible
+        - `gdept` or `e3t` are specified on 3D grids or 1D depth `gdept_0` is specified. From these, other `gdep` and `e3` values can be calculated.
+        - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
 
 - **`sn_dst_hgr`, `sn_dst_zgr`**: Destination equivalents of the above.
 
@@ -241,38 +238,13 @@ The application picks the relative path from the current working directory.
 
 - **`sn_nme_map`**: Path to `grid_name_map.json`
 
-    - **Note**: `ncml` is no longer used for grid input. Use `grid_name_map.json` instead. See [`inputs/grid_name_map_readme.txt`](https://github.com/NOC-MSM/pyBDY/blob/master/inputs/grid_name_map_readme.txt) for variable descriptions.
+    - **Note**: `ncml` is no longer used for grid input. Use `grid_name_map.json` instead.
+    - See [Step 4: Setting up the JSON file](#step-4:-setting-up-the-json-file) for variable descriptions and [`inputs/grid_name_map_readme.txt`](https://github.com/NOC-MSM/pyBDY/blob/master/inputs/grid_name_map_readme.txt).
 
 - **`sn_src_dir`**: Path to `src_data.ncml`
 
-    - This is an xml file that points to source data (not grid) paths. It can also include THREDDS URLs (see `inputs/namelist_remote.bdy` for example).
-    - See `inputs` folder for more examples.
-
-    Example structure:
-
-    ```xml
-    <ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" title="aggregation example">
-      <ns0:aggregation type="union">
-        <ns0:netcdf>
-          <ns0:aggregation type="joinExisting" dimName="time_counter">
-            <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_T.*" />
-          </ns0:aggregation>
-        </ns0:netcdf>
-        <ns0:netcdf>
-          <ns0:aggregation type="joinExisting" dimName="time_counter">
-            <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_U.*" />
-          </ns0:aggregation>
-        </ns0:netcdf>
-        <ns0:netcdf>
-          <ns0:aggregation type="joinExisting" dimName="time_counter">
-            <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_V.*" />
-          </ns0:aggregation>
-        </ns0:netcdf>
-      </ns0:aggregation>
-    </ns0:netcdf>
-    ```
-
-    - Regular expression (Regex) is a special text string that can be used in the xml file for describing a search pattern to match against some text. You may compare using regex to filter what files to include in your datasets against using wildcard (\*) to specify a file search pattern in your computer. More information on Regex patterns can be found here [Regex](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference).
+    - This is an NcML (XML) file that points to source data (not grid) paths. It can also include THREDDS URLs (see `inputs/namelist_remote.bdy` for example).
+    - More detail on setting up the NcML file is in [Step 3: Setting up the NcML file](#step-3:-setting-up-the-ncml-file).
 
 - **`sn_dst_dir`**: Output directory for PyBDY data
 
@@ -311,7 +283,155 @@ The application picks the relative path from the current working directory.
 - **`ln_time_interpolation`**: If `true`, interpolate to daily steps.
     - If `false`, output uses source data calendar (monthly steps only)
 
-### Step 3: Running pyBDY
+### Step 3: Setting up the NcML file
+
+- The NcML file has wrappers like:
+    - `<netcdf>` which specifies a single NetCDF file or dataset reference. The top level in the example below declares a virtual NetCDF dataset.
+    - `<aggregation>` virtually combine multiple NetCDF files into a single dataset. It has attributes `type` and `dimName`. The `type` of combination can be `joinExisting` or `union`. The `dimName` specifies the dimension along which to join files.
+    - `<scan>` is used inside the `<aggregation>` wrapper to find multiple NetCDF files in a directory. This is instead of or in addition to listing them manually with several `<netcdf location="./example_path.nc"/>` wrappers. `<scan>` has attributes like `location` which gives the path to search, `suffix` which gives the file ending and `regExp` which can provide a search expression using Regular Expression (Regex) format. Regex is a special text string that can be used in the NcML file for describing a search pattern to match against some text. You may compare using Regex to filter what files to include in your datasets against using wildcard (\*) to specify a file search pattern in your computer. More information on Regex patterns can be found here [Regex](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference).
+    - `<dimension>` is a wrapper that allows for renaming a dimension (e.g. time_counter).
+    - `<variable>` is a wrapper that allows for renaming or modifying a variable or variable attributes (e.g. units).
+    - `<rename>` maps a variable or dimension from its original name to a new name. It must be placed inside a `<variable>` or `<dimension>` wrapper. Variable names can be remapped in a way that only affects the reading of the file whithout modifying the original NetCDF file. This can be useful if the source (parent) data does not have the variables named in the standard way pybdy expects. The renaming can be do using `<variable name="v1">` and `<rename name="v2">` where the "v1" is the original name and "v2" is the new name.
+- The dimensions that pybdy expects in the source data are:
+    - `time_counter` - this is the required time dimension name
+    - dimensions in variables must be ordered `time_counter`, `depth`, `y`, `x` if 4 dimensional or ordered `time_counter`, `y`, `x` if 3 dimensional.
+- The variables that pybdy expects in the source data are:
+    - `votemper` - the water temperature
+    - `votemper` - the water salinity
+    - `sossheig` - the sea surface height
+    - `vozocrtx` - the u (northward) component of velocity
+    - `vomecrty` - the v (eastward) component of velocity
+    - `ice1` - a sea ice parameter
+    - `ice2` - a sea ice parameter
+    - `ice3` - a sea ice parameter
+- See `inputs` folder for more examples.
+
+Example structure combining data on the T grid, U grid and V grid each along the time dimension then aggregating them together into a single virtual file:
+
+```xml
+<ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" title="aggregation example">
+  <ns0:aggregation type="union">
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_T.*" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_U.*" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_V.*" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+  </ns0:aggregation>
+</ns0:netcdf>
+```
+
+An example NcML expression renaming a variable in joined NetCDF files:
+
+```xml
+<ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+  <ns0:aggregation type="joinExisting" dimName="time_counter">
+    <ns0:scan location="./monthly/" suffix=".nc" subdirs="false" />
+    <ns0:variable name="temp">
+      <ns0:rename name="temperature" />
+    </ns0:variable>
+  </ns0:aggregation>
+</ns0:netcdf>
+```
+
+### Step 4: Setting up the JSON file
+
+The JSON file "grid_name_map.json" file provides a way to rename/remap the variables from
+names in the file netcdf file to the variable names desired by pybdy. This is
+specifically for the horizontal (hgr) and vertical (vgr) grid files (not data Input/Output).
+In the past this could be done with a .ncml file but now it done using .json.
+
+The "grid_name_map.json" file has "dimension_map", "sc_variable_map" and
+"dst_variable_map", these should not be edited. "sc" refers to the source grid
+and "dst" refers to the destination grid. The list of dimensions t, z, y, x
+under "dimension_map" are "key: value" pairs, where the "key" should be unedited
+and the "value" should be changed to match the name of the respective dimension
+in your netcdf file. The is the same process for the list of variables under
+"variable_map". The "variable_map" is used for both horizontal and vertical
+grid variable names even if they come from separate files.
+
+Below is a decription of each dimension and variable. Not all variables are needed,
+those that are marked with a * below are optional, if you don't have the optional
+variable in your netcdf file leave it as the default "value" and pybdy will do its
+best to calculate it. If the variable is available it should be name mapped
+otherwise pybdy may incorrectly interpret the grid type for example. Variables
+marked \*\* may be optional depending on what other variables are provided.
+In all cases "t" should be size 1. Pybdy does not deal with time varying grids.
+
+Summary of minimum requirements:
+
+- for the horizontal grid variables we need `nav_lat`, `nav_lon` on a 2D grid.
+- for the vertical grid variables we have several possible variation:
+    - `gdept` or `e3t` are specified on 3D grids or 1D depth `gdept_0` is specified. From these, other `gdep` and `e3` values can be calculated.
+    - **Note**: `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept`.
+    - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
+
+```
+"dimension_map"
+
+"t" = time dimension (size 1)
+"z" = depth dimension
+"y" = horizontal dimension often aligned with latitude
+"x" = horizontal dimension often aligned with longitude
+
+"sc_variable_map" and "dst_variable_map" which refer to sc (source grid variables in `sn_src_hgr`, `sn_src_zgr`) and dst (destination grid variables in `sn_dst_hgr`, `sn_dst_zgr`)
+
+"nav_lon" = ** Longitude on t-grid (dims [y, x])
+            (only needed if glamt is not present in the file)
+"nav_lat" = ** Latitude on t-grid (dims [y, x])
+            (only needed if gphit is not present in the file)
+"glamt" = Longitude on t-grid (dims [t, y, x])
+"gphit" = Latitude on t-grid (dims [t, y, x])
+"glamf" = * Longitude on f-grid (dims [t, y, x])
+"gphif" = * Latitude on f-grid (dims [t, y, x])
+"glamu" = * Longitude on u-grid (dims [t, y, x])
+"gphiu" = * Latitude on u-grid (dims [t, y, x])
+"glamv" = * Longitude on v-grid (dims [t, y, x])
+"gphiv" = * Latitude on v-grid (dims [t, y, x])
+"e1t" = * scale factor distance between grid cell in x direction on t-grid (dims [t, y, x])
+"e2t" = * scale factor distance between grid cell in y direction on t-grid (dims [t, y, x])
+"e1f" = * scale factor distance between grid cell in x direction on f-grid (dims [t, y, x])
+"e2f" = * scale factor distance between grid cell in y direction on f-grid (dims [t, y, x])
+"e1u" = * scale factor distance between grid cell in x direction on u-grid (dims [t, y, x])
+"e2u" = * scale factor distance between grid cell in y direction on u-grid (dims [t, y, x])
+"e1v" = * scale factor distance between grid cell in x direction on v-grid (dims [t, y, x])
+"e2v" = * scale factor distance between grid cell in y direction on v-grid (dims [t, y, x])
+
+"mbathy" = ** index of the ocean bottom level (may be called bottom_level) (dims [t, y, x])
+            (only needed if gdept or e3t not given i.e. gdept_0 given. If gdept_0 is the
+            only option and no mbathy is available offer any variable with dims [t, y, x]
+            or dims [y, x])
+"gdept_0" = ** 1D depth of levels on t-grid and t-levels (dims [t, z])
+            (only needed if gdept or e3t not given)
+"gdept" = ** 3D depth of levels on t-grid and t-levels (dims [t, z, y, x])
+            (only needed if gdept_0 or e3t not given)
+"gdepu" = * 3D depth of levels on u-grid and t-levels (dims [t, z, y, x])
+"gdepv" = * 3D depth of levels on v-grid and t-levels (dims [t, z, y, x])
+"gdepf" = * 3D depth of levels on f-grid and t-levels (dims [t, z, y, x])
+"gdepw" = * 3D depth of levels on t-grid and w-levels (dims [t, z, y, x])
+"gdepuw" = * 3D depth of levels on u-grid and w-levels (dims [t, z, y, x])
+"gdepvw" = * 3D depth of levels on v-grid and w-levels (dims [t, z, y, x])
+"e3t" = ** vertical scale factor distance between t-levels on t-grid (dims [t, z, y, x])
+            (only needed if gdept or gdept_0 not given)
+"e3w" = * vertical scale factor distance between w-levels on t-grid (dims [t, z, y, x])
+"e3u" = * vertical scale factor distance between t-levels on u-grid (dims [t, z, y, x])
+"e3v" = * vertical scale factor distance between t-levels on v-grid (dims [t, z, y, x])
+"e3f" = * vertical scale factor distance between t-levels on f-grid (dims [t, z, y, x])
+"e3uw" = * vertical scale factor distance between w-levels on u-grid (dims [t, z, y, x])
+"e3vw" = * vertical scale factor distance between w-levels on v-grid (dims [t, z, y, x])
+"e3fw" = * vertical scale factor distance between w-levels on f-grid (dims [t, z, y, x])
+```
+
+### Step 5: Running pyBDY
 
 To use pyBDY, the following command is entered: (the example will run a benchmarking test):
 
@@ -320,6 +440,238 @@ pybdy -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 ```
 
 This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation.
+
+## Worked Example :mechanical_arm:
+
+[Back to top](#pybdy-documentation)
+
+Here we show a worked example of how to set up the namelist for a different domain than the examples found in the *inputs* folder.
+The example child (destination) here is a regional NEMO model that covers the Indian Ocean and the parent (source) used here is a global NEMO model.
+
+### Namelist File
+
+Below is excerpts from an example *namelist.bdy*.
+
+Here the file paths are set. These can be absolute (i.e. starting with "/") or relative (i.e. starting with "./"). For help with what variables are needed in these files see [How to use pyBDY :student:](#how-to-use-pybdy-student). In the example case, the bathmetry file needed to be calculated before running pybdy. It may also be the case that you need to calculate variables like gdept for the sn_src_zgr file fore running pybdy. For setting up the grid_name_map.json see the JSON file example section below.
+
+```
+!------------------------------------------------------------------------------
+!  grid information
+!------------------------------------------------------------------------------
+   sn_src_hgr = '/scratch/India_Test/mesh_mask_ORCA025_light.nc4'
+   sn_src_zgr = '/scratch/India_Test/20241211_restart.nc'
+   sn_dst_hgr = '/scratch/India_Test/domain_cfg.nc'     ! Expects vars found in domain_cfg.nc
+   sn_dst_zgr = '/scratch/India_Test/domain_cfg.nc'     ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
+   sn_src_msk = '/scratch/India_Test/mask_3D.nc'
+   sn_bathy   = '/scratch/India_Test/domain_cfg_bathy.nc'    ! dst bathymetry w/o time dimension
+                                                                            !Expects vars: {Bathymetry,nav_lat,nav_lon}
+   sn_nme_map = './india_test/grid_name_map.json'     ! json file mapping variable names to netcdf vars
+```
+
+Here the source (parent) data is specified via the .nmcl file in NcML format. For setting up the src_data_local.ncml see the NcML file example section below. The output directory, file name prefix and `\_FillValue` in the netCDF file is specified. The sn_dst_metainfo is set in the netcdf output file `history` attribute. `nn_src_time_adj` does not get used???
+
+```
+!------------------------------------------------------------------------------
+!  I/O
+!------------------------------------------------------------------------------
+   sn_src_dir = './india_test/src_data_local.ncml' ! src_files/'
+   sn_dst_dir = '/scratch/benbar/India_Test/'
+   sn_fn      = 'india'             ! prefix for output files
+   nn_fv      = -1e20                 !  set fill value for output files
+   nn_src_time_adj = 0                ! src time adjustment
+   sn_dst_metainfo = 'India Data'  ! history info
+```
+
+Here some options are set. cn_coords_file is a file that can be output by pybdy.
+In this case, the child (destination) data does not have a pre-defined mask file so pybdy will use the bathymetry provided in sn_bathy to calculate the mask. If the mask produced if not giving the correct boundaries you may need to provide a mask.nc file which you generate. This file contains a 2d mask the same shape as the bathymetry where 1 = "water", 0 = "land" and -1 = "out of domain". Boundary points will be generated between water and "out of domain" which can also be where water meets the edge of the defined 2d area.
+Here, ln_dyn2d will provide a sea surface height (`sossheig`) variable in the output for barotropic velocities.
+ln_dyn3d defines variables that will be in the output. Here, ln_dyn3d will not include the barotropic component in the 3d velocities. One or the other of ln_dyn2d or ln_dyn3d should be selected and match options in NEMO.
+Here, ln_tra shows temperature and salinity will be output. ln_ice shows ice will not be output. ln_zinterp shows the vertical interpolation is calculated by pybdy (so should be turned off in NEMO).
+Here, nn_rimwidth is set to 9 to provide 9 layers of boundary points along all boundaries.
+
+```
+!------------------------------------------------------------------------------
+!  unstructured open boundaries
+!------------------------------------------------------------------------------
+    ln_coords_file = .true.               !  =T : produce bdy coordinates files
+    cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files
+                                          !  (if ln_coords_file=.TRUE.)
+    ln_mask_file   = .false.              !  =T : read mask from file
+    cn_mask_file   = 'mask.nc'            !  name of mask file
+                                          !  (if ln_mask_file=.TRUE.)
+    ln_dyn2d       = .true.               !  boundary conditions for
+                                          !  barotropic fields
+    ln_dyn3d       = .false.              !  boundary conditions for
+                                          !  baroclinic velocities
+    ln_tra         = .true.               !  boundary conditions for T and S
+    ln_ice         = .false.              !  ice boundary condition
+    ln_zinterp     = .true.               !  vertical interpolation
+    nn_rimwidth    = 9                    !  width of the relaxation zone
+```
+
+In this example we are not producing the tidal forcing on the boundary because ln_tide is set to false. This means the rest of this section does not matter. See [Tidal Boundary Conditions Generation :sailboat:](#tidal-boundary-conditions-generation-sailboat) for more on setting up tidal boundaries.
+
+```
+!------------------------------------------------------------------------------
+!  unstructured open boundaries tidal parameters
+!------------------------------------------------------------------------------
+    ln_tide        = .false.              !  =T : produce bdy tidal conditions
+    sn_tide_model  = 'FES2014'            !  Name of tidal model. Accepts FES2014, TPXO7p2, or TPXO9v5
+    clname(1)      = 'M2'                 !  constituent name
+    clname(2)      = 'S2'
+    clname(3)      = 'K2'
+    clname(4)      = 'O1'
+    clname(5)      = 'P1'
+    clname(6)      = 'Q1'
+    clname(7)      = 'M4'
+    ln_trans       = .true.               !  interpolate transport rather than
+                                          !  velocities
+    ! location of TPXO7.2 data
+    sn_tide_grid_7p2   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+    sn_tide_h          = './inputs/tpxo7.2/h_tpxo7.2.nc'
+    sn_tide_u          = './inputs/tpxo7.2/u_tpxo7.2.nc'
+    ! location of TPXO9v5 data: single constituents per file
+    sn_tide_grid_9p5   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
+    sn_tide_dir        = './inputs/TPXO9_atlas_v5_nc/'
+    ! location of FES2014 data
+    sn_tide_fes        = './inputs/FES2014/'
+```
+
+The time step required in output here are 3 days starting on 12th Dec 2024 (which is also used as the reference date).
+
+```
+!------------------------------------------------------------------------------
+!  Time information for output
+!------------------------------------------------------------------------------
+    sn_date_start   = '2024-12-12'    !  dst output date start YYYY-MM-DD
+    sn_date_end     = '2024-12-15'    !  dst output date end YYYY-MM-DD
+    sn_dst_calendar = 'gregorian'     !  output calendar format
+    sn_date_origin  = '2024-12-12'    !  reference for time counter YYYY-MM-DD
+    ln_time_interpolation = .true. !  set to false to use parent
+                                   !  calender for monthly frequency only
+```
+
+These parameters can be left unchanged. We do not recommend changing them.
+
+```
+!------------------------------------------------------------------------------
+!  Additional parameters
+!------------------------------------------------------------------------------
+    nn_wei  = 1                   !  smoothing filter weights
+    rn_r0   = 0.041666666         !  decorrelation distance use in gauss
+                                  !  smoothing onto dst points. Need to
+                                  !  make this a funct. of dlon
+    ln_nemo3p4  = .true.          !  else presume v3.2 or v3.3
+    nn_alpha    = 0               !  Euler rotation angle
+    nn_beta     = 0               !  Euler rotation angle
+    nn_gamma    = 0               !  Euler rotation angle
+    rn_mask_max_depth = 100.0     !  Maximum depth to be ignored for the mask
+    rn_mask_shelfbreak_dist = 20000.0 !  Distance from the shelf break
+```
+
+### JSON File
+
+This is an example .json file: *grid_name_map.json*. It specifise the names of variables in the source (parent) and destination (child) netCDF grid files. The grid files need to be checked with "ncdump -h" and the variable names matched appropriately. It is expected that some of these variables will not be in your grid files. That is not a problem as long at you map the variables that meet the minimum requirements: see [How to use pyBDY :student:](#how-to-use-pybdy-student) for the minimum requirements.
+
+```json
+{
+  "dimension_map": {
+    "t": "t",
+    "z": "z",
+    "y": "y",
+    "x": "x"
+  },
+  "sc_variable_map": {
+    "nav_lon": "nav_lon",
+    "nav_lat": "nav_lat",
+    "glamt": "glamt",
+    "gphit": "gphit",
+    "glamf": "glamf",
+    "gphif": "gphif",
+    "glamu": "glamu",
+    "gphiu": "gphiu",
+    "glamv": "glamv",
+    "gphiv": "gphiv",
+    "e1t": "e1t",
+    "e2t": "e2t",
+    "e1f": "e1f",
+    "e2f": "e2f",
+    "e1u": "e1u",
+    "e2u": "e2u",
+    "e1v": "e1v",
+    "e2v": "e2v",
+    "mbathy": "nav_lon",
+    "gdept_0": "nav_lev",
+    "gdept": "gdept",
+    "gdepu": "gdepu",
+    "gdepv": "gdepv",
+    "gdepf": "gdepf",
+    "gdepw": "gdepw",
+    "gdepuw": "gdepuw",
+    "gdepvw": "gdepvw",
+    "e3t": "e3t",
+    "e3w": "e3w",
+    "e3u": "e3u",
+    "e3v": "e3v",
+    "e3f": "e3f",
+    "e3uw": "e3uw",
+    "e3vw": "e3vw",
+    "e3fw": "e3fw"
+  },
+  "dst_variable_map": {
+    "nav_lon": "nav_lon",
+    "nav_lat": "nav_lat",
+    "glamt": "glamt",
+    "gphit": "gphit",
+    "glamf": "glamf",
+    "gphif": "gphif",
+    "glamu": "glamu",
+    "gphiu": "gphiu",
+    "glamv": "glamv",
+    "gphiv": "gphiv",
+    "e1t": "e1t",
+    "e2t": "e2t",
+    "e1f": "e1f",
+    "e2f": "e2f",
+    "e1u": "e1u",
+    "e2u": "e2u",
+    "e1v": "e1v",
+    "e2v": "e2v",
+    "mbathy": "bottom_level",
+    "gdept_0": "gdept_0",
+    "gdept": "gdept",
+    "gdepu": "gdepu",
+    "gdepv": "gdepv",
+    "gdepf": "gdepf",
+    "gdepw": "gdepw",
+    "gdepuw": "gdepuw",
+    "gdepvw": "gdepvw",
+    "e3t": "e3t_0",
+    "e3w": "e3w_0",
+    "e3u": "e3u_0",
+    "e3v": "e3v_0",
+    "e3f": "e3f_0",
+    "e3uw": "e3uw_0",
+    "e3vw": "e3vw_0",
+    "e3fw": "e3fw"
+  }
+}
+```
+
+### NcML File
+
+This is an example NcML file which is used to providing file paths for parent (source) data that pybdy will read in.
+The example files name is *src_data_local.ncml*. Here the NcML file combines data on the T grid, U grid and V grid each along the time dimension then aggregating them together into a single virtual file
+
+```xml
+<ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" title="aggregation example">
+  <ns0:aggregation type="union">
+    <ns0:netcdf location="/scratch/India_Test/mersea.grid_V.nc" />
+    <ns0:netcdf location="/scratch/India_Test/mersea.grid_U.nc" />
+    <ns0:netcdf location="/scratch/India_Test/mersea.grid_T.nc" />
+  </ns0:aggregation>
+</ns0:netcdf>
+```
 
 ## Tidal Boundary Conditions Generation :sailboat:
 
@@ -398,105 +750,6 @@ Percentage Exceedance = 26.933 * Reference Amplitude ^ -0.396’
 Phase Exceedance = 5.052 * pyBDY Amplitude ^ -0.60
 ```
 
-## CMEMS Downloader :inbox_tray:
-
-[Back to top](#pybdy-documentation)
-
-IMPORTANT The CMEMS downloader has not been tested recently (May 2025).
-IMPORTANT The CMEMS downloader has only been tested with the GLOBAL_ANALYSIS_FORECAST_PHY_001_024 model and specifcally the hourly SSH and U V product. This also has temperature stored within it, but not salinity. Other models and products should work but are currently likely to need some changes to the code to cope with different variable names within the data. This will be fixed in a later release of pyBDY that is able to handle different variable and tracer names.
-
-pyBDY has a CMEMS downloading function incorporated within it, this will download a section of the CMEMS global model (more models to be added) ‘GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS’ for the defined time period in the namelist file
-
-To use the downloading function, the following command is used:
-
-```
-$ pynemo -d namelist.bdy
-```
-
-Where the -d flag tells pyBDY to use the CMEMS downloader and download data as specified in the namelist file. The log file that pyBDY produces provides a log of what the downloader does. The CMEMS MOTU system is prone to disconnects and failure so there is download retry and error handling built in. Most of the options required should not need editing and are there for future use in case URL’s and filenames on CMEMS change.
-
-The options that can be configured are described in further detail below:
-
-```
-!------------------------------------------------------------------------------
-!  I/O
-!------------------------------------------------------------------------------
-   sn_src_dir = '/Users/thopri/Projects/pyBDY/inputs/CMEMS.ncml' ! src_files/'
-   sn_dst_dir = '/Users/thopri/Projects/pyBDY/outputs'
-
-   sn_fn      = 'NNA_R12'             ! prefix for output files
-   nn_fv      = -1e20                 !  set fill value for output files
-   nn_src_time_adj = 0                ! src time adjustment
-   sn_dst_metainfo = 'CMEMS example'
-
-!------------------------------------------------------------------------------
-!  CMEMS Data Source Configuration
-!------------------------------------------------------------------------------
-   ln_use_cmems             = .true.
-   ln_download_cmems        = .true.
-   sn_cmems_dir             = '/Users/thopri/Projects/pyBDY/inputs/' ! where to download CMEMS input files (static and variable)
-   ln_download_static       = .true.
-   ln_subset_static         = .true.
-   nn_num_retry             = 4 ! how many times to retry CMEMS download after non critical errors?
-!------------------------------------------------------------------------------
-!  CMEMS MOTU Configuration (for Boundary Data)
-!------------------------------------------------------------------------------
-   sn_motu_server           = 'http://nrt.cmems-du.eu/motu-web/Motu'
-   sn_cmems_config_template = '/Users/thopri/Projects/pyBDY/pynemo/config/motu_config_template.ini'
-   sn_cmems_config          = '/Users/thopri/Projects/pyBDY/pynemo/config/motu_config.ini'
-   sn_cmems_model           = 'GLOBAL_ANALYSIS_FORECAST_PHY_001_024-TDS'
-   sn_cmems_product         = 'global-analysis-forecast-phy-001-024'
-   sn_dl_prefix             = 'subset'
-!------------------------------------------------------------------------------
-!  CMEMS FTP Configuration (for Static Files)
-!------------------------------------------------------------------------------
-    sn_ftp_server            = 'nrt.cmems-du.eu'
-    sn_static_dir            = '/Core/GLOBAL_ANALYSIS_FORECAST_PHY_001_024/global-analysis-forecast-phy-001-024-statics'
-    sn_static_filenames      = 'GLO-MFC_001_024_coordinates.nc GLO-MFC_001_024_mask_bathy.nc GLO-MFC_001_024_mdt.nc'
-    sn_cdo_loc               = '/opt/local/bin/cdo' ! location of cdo executable can be found by running "where cdo"
-!------------------------------------------------------------------------------
-!  CMEMS Extent Configuration
-!------------------------------------------------------------------------------
-    nn_latitude_min          = 40
-    nn_latitude_max          = 66
-    nn_longitude_min         = -22
-    nn_longitude_max         = 16
-    nn_depth_min             = 0.493
-    nn_depth_max             = 5727.918000000001
-```
-
-Some of the options define the behaviour of the downloader, others define locations to save files and others detail models and grid files to download. Finally the spatial extent to download is also required.
-
-#### I/O and NCML file
-
-The location of the NCML file is listed a string defining the source directory or “sn_src_dir”. The output folder is also defined here as “sn_dst_dir”, NOTE if this directory does not exist it will need to be created and permissoned correctly for pyBDY to run properly. The NCML file details the input files to agregate and what the variable names are. Variable names are in [https://resources.marine.copernicus.eu/?option=com_csw&task=results](https://resources.marine.copernicus.eu/?option=com_csw&task=results) For more information please read the ncml part.
-
-NOTE A NCML file must be used and it also must use a regular expression. The CMEMS downloader uses this regular expression to determine what grid a given variable is part of e.g. temperature and salinity on the T grid. The example CMEMS.ncml file includes: an implementation of how to define temperature, SSH and U and V components of ocean currents.
-
-Firstly, the string “sn_fn” defines the prefix for the output files. The number “nn_fv” defines the fill value, and the number “nn_src_time_adj” defines the source time adjustment. The rest of the boxes are CMEMS specific.
-
-#### Data Source Configuration
-
-The first section defines the CMESM data source configuration. The boolean “ln_use_cmems” when set to true will use the CMEMS downloader function to download the requested data, this is defined in the ncml file which can be generated using the NCML generator. Among other things this file defines what data variables to download. This term also changes the variable names to CMEMS specific ones e.g. thetao for temperature and so for salinity. This is in contrast to the NEMO specific ones such as Votemper and Vosaline. When set to false no download occurs and variable names are kept to NEMO specific.
-
-#### MOTU Configuration
-
-In the next section when set to true “ln_download_cmems” will download the boundary tracer data, e.g. time series of temperature and saliniy. When set to false pyBDY will skip this download. The string “sn_cmems_dir” defines where to save these downloaded files. pyBDY requires grid data, this isn’t possible to download using the same method as the tracer data which uses the MOTU python client. To get the grid data, an ftp request is made to download the global grids which are then subset to the relevent size. The booleans “ln_downlad_static” and “ln_subset_static” determine this behavior. Finally there is an int named “nn_num_retry” this defines the number of times to retry downloading the CMEMS data. The data connections are prone to failure so if a non critical error occurs the function will automatically try to redownload. This int defines how many times it will try to do this. Typically this static data and subsetting are only required once so these can be set to true for first download and then set to false when more time series data is required.
-
-As mentioned previously, the time series boundary data is downloaded using MOTU, this is an efficent and robust web server that handles, extracts and transforms oceanographic data. By populating a configuration file, this can be sent to the MOTU server which will return the requested data in the requested format. The section CMEMS MOTU configuration sets this up. Most of these options should not need changing. The location of the MOTU server for CMEMS is defined here, and the location of the config template file and also the location of the config file to submit. The only options that should require changing are the model, product and prefix options. These define which CMEMS model and product to download and the prefix is a user defined string to prefix the downloads. A catalogue of the CMEMS model and products can be found at https://resources.marine.copernicus.eu/?option=com_csw&task=results Currently pyBDY has only been tested using the physical global forecast model although the downloader should be able to download other models and products, it has not been tested and their are known issues with other products that restrict seamless download. e.g. the NorthWest Atlantic model is not currently compatible due to differences in how the model variables are stored.
-
-#### FTP Configuration for Static and Grid files
-
-The next section CMEMS FTP configuration, defines which FTP server, remote directory and files to download. This should require modification unless CMEMS changes the file structure or names. Note it is important that the filenames are separated by a space as this is what pyBDY is expecting. Finally the location of CDO executable which should be installed to enable subsetting to occur. This can be found by running:
-
-```
-$ where cdo
-```
-
-#### Extent configuration
-
-Finally the last box, this is where the extent to download is configured, it is up to the user to decide but it is suggested this is at least 1 degree wider than the destination or child configuration. The depth range to request is also defined here. This information can be extracted from the CMEMS catalogue. Once set for a given configuration this will not need to be edited.
-
 ## Troubleshooting :safety_vest:
 
 [Back to top](#pybdy-documentation)
@@ -507,6 +760,8 @@ If you get the error message "Destination touches source i-edge but source is no
 
 - For "Destination touches source i-edge but source is not cylindrical", you may have an open boundary in your mask or bathymetry file that is not inside the domain of the source data. If this is the case you need to edit your mask to be land (i.e. zeros) to block the incorrect open boundary.
 - For "Destination touches source j-edge but North Fold is not implemented", your domain probably touches the Arctic North Fold and pyBDY is trying to put an open boundary there. If this is the case you need to edit your mask to be land (i.e. zeros) to block the incorrect open boundary along the north edge of the domain. Do not attept to have a regional model with a boundary crossing the North Fold, this has not be implemented yet.
+
+Check your variable and dimension names match the requirements and are mapped correctly either in the NcML file or JSON for the source data and grid data respectively (see section [How to use pyBDY :student:](#how-to-use-pybdy-student))
 
 If you have time interpolation problems read the section [Time Settings](#time-settings).
 

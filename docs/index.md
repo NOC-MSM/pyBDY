@@ -214,7 +214,6 @@ The application picks the relative path from the current working directory.
     - Ideal requirements: 3D grid `gdept`, `e3t`, and 2D grid `mbathy` (aka `bottom_level`)
     - Minimum requirements: several variations are possible
         - `gdept` or `e3t` are specified on 3D grids or 1D depth `gdept_0` is specified. From these, other `gdep` and `e3` values can be calculated.
-        - **Note**: `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept`.
         - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
 
 - **`sn_dst_hgr`, `sn_dst_zgr`**: Destination equivalents of the above.
@@ -239,68 +238,13 @@ The application picks the relative path from the current working directory.
 
 - **`sn_nme_map`**: Path to `grid_name_map.json`
 
-    - **Note**: `ncml` is no longer used for grid input. Use `grid_name_map.json` instead. See [`inputs/grid_name_map_readme.txt`](https://github.com/NOC-MSM/pyBDY/blob/master/inputs/grid_name_map_readme.txt) for variable descriptions.
+    - **Note**: `ncml` is no longer used for grid input. Use `grid_name_map.json` instead.
+    - See [Step 4: Setting up the JSON file](#step-4:-setting-up-the-json-file) for variable descriptions and [`inputs/grid_name_map_readme.txt`](https://github.com/NOC-MSM/pyBDY/blob/master/inputs/grid_name_map_readme.txt).
 
 - **`sn_src_dir`**: Path to `src_data.ncml`
 
     - This is an NcML (XML) file that points to source data (not grid) paths. It can also include THREDDS URLs (see `inputs/namelist_remote.bdy` for example).
-    - The NcML file has wrappers like:
-        - `<netcdf>` which specifies a single NetCDF file or dataset reference. The top level in the example below declares a virtual NetCDF dataset.
-        - `<aggregation>` virtually combine multiple NetCDF files into a single dataset. It has attributes `type` and `dimName`. The `type` of combination can be `joinExisting` or `union`. The `dimName` specifies the dimension along which to join files.
-        - `<scan>` is used inside the `<aggregation>` wrapper to find multiple NetCDF files in a directory. This is instead of or in addition to listing them manually with several `<netcdf location="./example_path.nc"/>` wrappers. `<scan>` has attributes like `location` which gives the path to search, `suffix` which gives the file ending and `regExp` which can provide a search expression using Regular Expression (Regex) format. Regex is a special text string that can be used in the NcML file for describing a search pattern to match against some text. You may compare using Regex to filter what files to include in your datasets against using wildcard (\*) to specify a file search pattern in your computer. More information on Regex patterns can be found here [Regex](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference).
-        - `<dimension>` is a wrapper that allows for renaming a dimension (e.g. time_counter).
-        - `<variable>` is a wrapper that allows for renaming or modifying a variable or variable attributes (e.g. units).
-        - `<rename>` maps a variable or dimension from its original name to a new name. It must be placed inside a `<variable>` or `<dimension>` wrapper. Variable names can be remapped in a way that only affects the reading of the file whithout modifying the original NetCDF file. This can be useful if the source (parent) data does not have the variables named in the standard way pybdy expects. The renaming can be do using `<variable name="v1">` and `<rename name="v2">` where the "v1" is the original name and "v2" is the new name.
-    - The dimensions that pybdy expects in the source data are:
-        - `time_counter` - this is the required time dimension name
-        - dimensions in variables must be ordered `time_counter`, `depth`, `y`, `x` if 4 dimensional or ordered `time_counter`, `y`, `x` if 3 dimensional.
-    - The variables that pybdy expects in the source data are:
-        - `votemper` - the water temperature
-        - `votemper` - the water salinity
-        - `sossheig` - the sea surface height
-        - `vozocrtx` - the u (northward) component of velocity
-        - `vomecrty` - the v (eastward) component of velocity
-        - `ice1` - a sea ice parameter
-        - `ice2` - a sea ice parameter
-        - `ice3` - a sea ice parameter
-    - See `inputs` folder for more examples.
-
-    Example structure combining data on the T grid, U grid and V grid each along the time dimension then aggregating them together into a single virtual file:
-
-    ```xml
-    <ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" title="aggregation example">
-      <ns0:aggregation type="union">
-        <ns0:netcdf>
-          <ns0:aggregation type="joinExisting" dimName="time_counter">
-            <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_T.*" />
-          </ns0:aggregation>
-        </ns0:netcdf>
-        <ns0:netcdf>
-          <ns0:aggregation type="joinExisting" dimName="time_counter">
-            <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_U.*" />
-          </ns0:aggregation>
-        </ns0:netcdf>
-        <ns0:netcdf>
-          <ns0:aggregation type="joinExisting" dimName="time_counter">
-            <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_V.*" />
-          </ns0:aggregation>
-        </ns0:netcdf>
-      </ns0:aggregation>
-    </ns0:netcdf>
-    ```
-
-    An example NcML expression renaming a variable in joined NetCDF files:
-
-    ```xml
-    <ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
-      <ns0:aggregation type="joinExisting" dimName="time_counter">
-        <ns0:scan location="./monthly/" suffix=".nc" subdirs="false" />
-        <ns0:variable name="temp">
-          <ns0:rename name="temperature" />
-        </ns0:variable>
-      </ns0:aggregation>
-    </ns0:netcdf>
-    ```
+    - More detail on setting up the NcML file is in [Step 3: Setting up the NcML file](#step-3:-setting-up-the-ncml-file).
 
 - **`sn_dst_dir`**: Output directory for PyBDY data
 
@@ -339,7 +283,155 @@ The application picks the relative path from the current working directory.
 - **`ln_time_interpolation`**: If `true`, interpolate to daily steps.
     - If `false`, output uses source data calendar (monthly steps only)
 
-### Step 3: Running pyBDY
+### Step 3: Setting up the NcML file
+
+- The NcML file has wrappers like:
+    - `<netcdf>` which specifies a single NetCDF file or dataset reference. The top level in the example below declares a virtual NetCDF dataset.
+    - `<aggregation>` virtually combine multiple NetCDF files into a single dataset. It has attributes `type` and `dimName`. The `type` of combination can be `joinExisting` or `union`. The `dimName` specifies the dimension along which to join files.
+    - `<scan>` is used inside the `<aggregation>` wrapper to find multiple NetCDF files in a directory. This is instead of or in addition to listing them manually with several `<netcdf location="./example_path.nc"/>` wrappers. `<scan>` has attributes like `location` which gives the path to search, `suffix` which gives the file ending and `regExp` which can provide a search expression using Regular Expression (Regex) format. Regex is a special text string that can be used in the NcML file for describing a search pattern to match against some text. You may compare using Regex to filter what files to include in your datasets against using wildcard (\*) to specify a file search pattern in your computer. More information on Regex patterns can be found here [Regex](https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference).
+    - `<dimension>` is a wrapper that allows for renaming a dimension (e.g. time_counter).
+    - `<variable>` is a wrapper that allows for renaming or modifying a variable or variable attributes (e.g. units).
+    - `<rename>` maps a variable or dimension from its original name to a new name. It must be placed inside a `<variable>` or `<dimension>` wrapper. Variable names can be remapped in a way that only affects the reading of the file whithout modifying the original NetCDF file. This can be useful if the source (parent) data does not have the variables named in the standard way pybdy expects. The renaming can be do using `<variable name="v1">` and `<rename name="v2">` where the "v1" is the original name and "v2" is the new name.
+- The dimensions that pybdy expects in the source data are:
+    - `time_counter` - this is the required time dimension name
+    - dimensions in variables must be ordered `time_counter`, `depth`, `y`, `x` if 4 dimensional or ordered `time_counter`, `y`, `x` if 3 dimensional.
+- The variables that pybdy expects in the source data are:
+    - `votemper` - the water temperature
+    - `votemper` - the water salinity
+    - `sossheig` - the sea surface height
+    - `vozocrtx` - the u (northward) component of velocity
+    - `vomecrty` - the v (eastward) component of velocity
+    - `ice1` - a sea ice parameter
+    - `ice2` - a sea ice parameter
+    - `ice3` - a sea ice parameter
+- See `inputs` folder for more examples.
+
+Example structure combining data on the T grid, U grid and V grid each along the time dimension then aggregating them together into a single virtual file:
+
+```xml
+<ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2" title="aggregation example">
+  <ns0:aggregation type="union">
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_T.*" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_U.*" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+    <ns0:netcdf>
+      <ns0:aggregation type="joinExisting" dimName="time_counter">
+        <ns0:scan location="/path_to_src_data/Data/" regExp=".*grid_V.*" />
+      </ns0:aggregation>
+    </ns0:netcdf>
+  </ns0:aggregation>
+</ns0:netcdf>
+```
+
+An example NcML expression renaming a variable in joined NetCDF files:
+
+```xml
+<ns0:netcdf xmlns:ns0="http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2">
+  <ns0:aggregation type="joinExisting" dimName="time_counter">
+    <ns0:scan location="./monthly/" suffix=".nc" subdirs="false" />
+    <ns0:variable name="temp">
+      <ns0:rename name="temperature" />
+    </ns0:variable>
+  </ns0:aggregation>
+</ns0:netcdf>
+```
+
+### Step 4: Setting up the JSON file
+
+The JSON file "grid_name_map.json" file provides a way to rename/remap the variables from
+names in the file netcdf file to the variable names desired by pybdy. This is
+specifically for the horizontal (hgr) and vertical (vgr) grid files (not data Input/Output).
+In the past this could be done with a .ncml file but now it done using .json.
+
+The "grid_name_map.json" file has "dimension_map", "sc_variable_map" and
+"dst_variable_map", these should not be edited. "sc" refers to the source grid
+and "dst" refers to the destination grid. The list of dimensions t, z, y, x
+under "dimension_map" are "key: value" pairs, where the "key" should be unedited
+and the "value" should be changed to match the name of the respective dimension
+in your netcdf file. The is the same process for the list of variables under
+"variable_map". The "variable_map" is used for both horizontal and vertical
+grid variable names even if they come from separate files.
+
+Below is a decription of each dimension and variable. Not all variables are needed,
+those that are marked with a * below are optional, if you don't have the optional
+variable in your netcdf file leave it as the default "value" and pybdy will do its
+best to calculate it. If the variable is available it should be name mapped
+otherwise pybdy may incorrectly interpret the grid type for example. Variables
+marked \*\* may be optional depending on what other variables are provided.
+In all cases "t" should be size 1. Pybdy does not deal with time varying grids.
+
+Summary of minimum requirements:
+
+- for the horizontal grid variables we need `nav_lat`, `nav_lon` on a 2D grid.
+- for the vertical grid variables we have several possible variation:
+    - `gdept` or `e3t` are specified on 3D grids or 1D depth `gdept_0` is specified. From these, other `gdep` and `e3` values can be calculated.
+    - **Note**: `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept`.
+    - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
+
+```
+"dimension_map"
+
+"t" = time dimension (size 1)
+"z" = depth dimension
+"y" = horizontal dimension often aligned with latitude
+"x" = horizontal dimension often aligned with longitude
+
+"sc_variable_map" and "dst_variable_map" which refer to sc (source grid variables in `sn_src_hgr`, `sn_src_zgr`) and dst (destination grid variables in `sn_dst_hgr`, `sn_dst_zgr`)
+
+"nav_lon" = ** Longitude on t-grid (dims [y, x])
+            (only needed if glamt is not present in the file)
+"nav_lat" = ** Latitude on t-grid (dims [y, x])
+            (only needed if gphit is not present in the file)
+"glamt" = Longitude on t-grid (dims [t, y, x])
+"gphit" = Latitude on t-grid (dims [t, y, x])
+"glamf" = * Longitude on f-grid (dims [t, y, x])
+"gphif" = * Latitude on f-grid (dims [t, y, x])
+"glamu" = * Longitude on u-grid (dims [t, y, x])
+"gphiu" = * Latitude on u-grid (dims [t, y, x])
+"glamv" = * Longitude on v-grid (dims [t, y, x])
+"gphiv" = * Latitude on v-grid (dims [t, y, x])
+"e1t" = * scale factor distance between grid cell in x direction on t-grid (dims [t, y, x])
+"e2t" = * scale factor distance between grid cell in y direction on t-grid (dims [t, y, x])
+"e1f" = * scale factor distance between grid cell in x direction on f-grid (dims [t, y, x])
+"e2f" = * scale factor distance between grid cell in y direction on f-grid (dims [t, y, x])
+"e1u" = * scale factor distance between grid cell in x direction on u-grid (dims [t, y, x])
+"e2u" = * scale factor distance between grid cell in y direction on u-grid (dims [t, y, x])
+"e1v" = * scale factor distance between grid cell in x direction on v-grid (dims [t, y, x])
+"e2v" = * scale factor distance between grid cell in y direction on v-grid (dims [t, y, x])
+
+"mbathy" = ** index of the ocean bottom level (may be called bottom_level) (dims [t, y, x])
+            (only needed if gdept or e3t not given i.e. gdept_0 given. If gdept_0 is the
+            only option and no mbathy is available offer any variable with dims [t, y, x]
+            or dims [y, x])
+"gdept_0" = ** 1D depth of levels on t-grid and t-levels (dims [t, z])
+            (only needed if gdept or e3t not given)
+"gdept" = ** 3D depth of levels on t-grid and t-levels (dims [t, z, y, x])
+            (only needed if gdept_0 or e3t not given)
+"gdepu" = * 3D depth of levels on u-grid and t-levels (dims [t, z, y, x])
+"gdepv" = * 3D depth of levels on v-grid and t-levels (dims [t, z, y, x])
+"gdepf" = * 3D depth of levels on f-grid and t-levels (dims [t, z, y, x])
+"gdepw" = * 3D depth of levels on t-grid and w-levels (dims [t, z, y, x])
+"gdepuw" = * 3D depth of levels on u-grid and w-levels (dims [t, z, y, x])
+"gdepvw" = * 3D depth of levels on v-grid and w-levels (dims [t, z, y, x])
+"e3t" = ** vertical scale factor distance between t-levels on t-grid (dims [t, z, y, x])
+            (only needed if gdept or gdept_0 not given)
+"e3w" = * vertical scale factor distance between w-levels on t-grid (dims [t, z, y, x])
+"e3u" = * vertical scale factor distance between t-levels on u-grid (dims [t, z, y, x])
+"e3v" = * vertical scale factor distance between t-levels on v-grid (dims [t, z, y, x])
+"e3f" = * vertical scale factor distance between t-levels on f-grid (dims [t, z, y, x])
+"e3uw" = * vertical scale factor distance between w-levels on u-grid (dims [t, z, y, x])
+"e3vw" = * vertical scale factor distance between w-levels on v-grid (dims [t, z, y, x])
+"e3fw" = * vertical scale factor distance between w-levels on f-grid (dims [t, z, y, x])
+```
+
+### Step 5: Running pyBDY
 
 To use pyBDY, the following command is entered: (the example will run a benchmarking test):
 
