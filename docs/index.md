@@ -371,7 +371,8 @@ Summary of minimum requirements:
 
 - for the horizontal grid variables we need `nav_lat`, `nav_lon` on a 2D grid.
 - for the vertical grid variables we have several possible variation:
-    - `gdept` or `e3t` are specified on 3D grids or 1D depth `gdept_0` is specified. From these, other `gdep` and `e3` values can be calculated.
+    - `gdept` or `e3t` are specified on 3D grids
+    - 1D depth `gdept_0` is specified in addition to `mbathy`.
     - **Note**: `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept`.
     - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
 
