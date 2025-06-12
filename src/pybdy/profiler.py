@@ -90,7 +90,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     """
     # Start Logger
-    st_time = dt.datetime.now()
     logger.info("Start NRCT Logging: " + time.asctime())
     logger.info("============================================")
 
@@ -100,13 +99,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     Setup = setup.Setup(setup_filepath)  # default settings file
     settings = Setup.settings
 
-    logger.info("Reading grid completed")
+    logger.info("Reading setup completed")
 
     bdy_msk = _get_mask(Setup, mask_gui)
     DstCoord.bdy_msk = bdy_msk == 1
     logger.info("Reading mask completed")
 
-    print(dt.datetime.now() - st_time)
     DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
     DstCoord.zgr = zgr.Z_Grid(
         settings["dst_zgr"],
@@ -116,7 +114,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger,
         dst=1,
     )
-    print(dt.datetime.now() - st_time)
+    logger.info("Reading dst grid completed")
 
     bdy_ind = {}  # define a dictionary to hold the grid information
 
@@ -127,7 +125,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
         # function to split the bdy into several boundary chunks
         bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
-    print(dt.datetime.now() - st_time)
 
     if Setup.bool_settings["coords_file"]:
         # Write out grid information to coordinates.bdy.nc
@@ -138,39 +135,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger.info("File: coordinates.bdy.nc generated and populated")
 
     # Idenitify number of boundary points
-    print(dt.datetime.now() - st_time)
-
     nbdy = {}
 
     for grd in ["t", "u", "v"]:
         nbdy[grd] = len(bdy_ind[grd].bdy_i[:, 0])
-
-    # Gather grid information
-
-    logger.info("Gathering grid information")
-    SourceCoord.hgr = hgr.H_Grid(
-        settings["src_hgr"], settings["nme_map"], logger, dst=0
-    )
-    SourceCoord.zgr = zgr.Z_Grid(
-        settings["src_zgr"],
-        settings["nme_map"],
-        SourceCoord.hgr.grid_type,
-        SourceCoord.hgr.grid,
-        logger,
-        dst=0,
-    )
-    print(dt.datetime.now() - st_time)
-
-    # Fill horizontal grid information
-
-    try:  # if they are masked array convert them to normal arrays
-        SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
-    except Exception:
-        logger.debug("Not a masked array.")
-    try:
-        SourceCoord.hgr.grid["gphit"] = SourceCoord.hgr.grid["gphit"].filled()  # lat
-    except Exception:
-        logger.debug("Not a masked array.")
 
     # Assign horizontal grid data
 
@@ -199,6 +167,31 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         DstCoord.lonlat[grd]["lon"][DstCoord.lonlat[grd]["lon"] > 180] -= 360
 
     logger.info("BDY lons/lats identified from %s", settings["dst_hgr"])
+
+    # Gather grid information
+
+    logger.info("Gathering src grid information")
+    SourceCoord.hgr = hgr.H_Grid(
+        settings["src_hgr"], settings["nme_map"], logger, dst=0, bdy_ll=DstCoord.lonlat
+    )
+    SourceCoord.zgr = zgr.Z_Grid(
+        settings["src_zgr"],
+        settings["nme_map"],
+        SourceCoord.hgr.grid_type,
+        SourceCoord.hgr.grid,
+        dst=0,
+    )
+
+    # Fill horizontal grid information
+
+    try:  # if they are masked array convert them to normal arrays
+        SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
+    except Exception:
+        logger.debug("Not a masked array.")
+    try:
+        SourceCoord.hgr.grid["gphit"] = SourceCoord.hgr.grid["gphit"].filled()  # lat
+    except Exception:
+        logger.debug("Not a masked array.")
 
     # Define z at t/u/v points
 
@@ -381,7 +374,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     logger.info("End NRCT Logging: " + time.asctime())
     logger.info("==========================================")
-    print(dt.datetime.now() - st_time)
 
 
 def write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons):
