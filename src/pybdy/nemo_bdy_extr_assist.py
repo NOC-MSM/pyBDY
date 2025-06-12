@@ -110,7 +110,8 @@ def check_wrap(imin, imax, sc_lon):
 
 
 def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
-    """Determine 3D depth vertical weights for the linear interpolation onto Dst grid.
+    """
+    Determine 3D depth vertical weights for the linear interpolation onto Dst grid.
 
     Selects 9 source points horizontally around a destination grid point.
     Calculated the distance from each source point to the destination to
@@ -123,8 +124,7 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
     num_bdy (int)      : number of boundary points in chunk
     sc_z (np.array)    : the depth of the source grid [k, j, i]
     sc_z_len (int)     : the length of depth axis of the source grid
-    ind (np.array)     : indices of bdy points and 9 nearest neighbours
-                         for flattened j,i array order="F" [nbdy, 9]
+    ind (np.array)     : indices of bdy and 9 nearest neighbours flattened "F" j,i [nbdy, 9]
     zco (bool)         : if True z levels are not spatially varying
 
     Returns
@@ -248,6 +248,9 @@ def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
 
     Calculated the vertical distance from each source point to the destination to
     be used in weightings. The resulting arrays are [nbdy * nz, 2].
+    Note: z_dist and z_ind are [nbdy*nz, 2] where [:, 0] is the nearest vertical index
+    and [:, 1] is the index above or below i.e. the vertical index -1 for sc_z > dst_z
+    and vertical index +1 for sc_z <= dst_z
 
     Parameters
     ----------
@@ -262,12 +265,6 @@ def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
     z_dist (np.array) : the distance weights of the selected points
     z_ind (np.array)  : the indices of the sc depth above and below bdy
     """
-    # Note: z_dist and z_ind are [nbdy*nz, 2]
-    # where [:, 0] is the nearest vertical index
-    # and [:, 1] is the index above or below
-    # i.e. the vertical index -1 for sc_z > dst_z
-    # and vertical index +1 for sc_z <= dst_z
-
     # Allocate vertical index array
     sc_z = sc_z[:, 0, 0]
     dst_dep_rv = dst_dep.ravel(order="F").filled(np.nan)
@@ -374,15 +371,15 @@ def distance_weights(sc_bdy, dist_tot, sc_z_len, r0, logger):
     """
     Find the distance weightings for averaging source data to destination.
 
-    Args:
-    ----
+    Parameters
+    ----------
         sc_bdy (numpy.array)    : source data
         dist_tot (numpy.array)  : distance from dst point to 9 nearest sc points
         sc_z_len (int)          : the number of depth levels
         r0 (float)              : correlation distance
         logger                  : log of statements
 
-    Returns:
+    Returns
     -------
         dist_wei (numpy.array)  : weightings for averaging
         dist_fac (numpy.array)  : total weighting factor
@@ -433,12 +430,12 @@ def valid_index(sc_bdy, logger):
     """
     Find an array of valid indicies.
 
-    Args:
-    ----
+    Parameters
+    ----------
         sc_bdy (numpy.array)      : source data
         logger                    : log of statements
 
-    Returns:
+    Returns
     -------
         data_ind (numpy.array)    : indicies of max depth of valid data
         nan_ind (numpy.array)     : indicies where source is land
@@ -469,14 +466,14 @@ def interp_horizontal(sc_bdy, dist_wei, dist_fac, logger):
     """
     Interpolate the source data to the destination grid using weighted average.
 
-    Args:
-    ----
+    Parameters
+    ----------
         sc_bdy (numpy.array)      : source data
         dist_wei (numpy.array)    : weightings for interpolation
         dist_fac (numpy.array)    : sum of weightings
         logger                    : log of statements
 
-    Returns:
+    Returns
     -------
         dst_bdy (numpy.array)     : destination bdy points with data from source grid
     """
