@@ -172,13 +172,14 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     logger.info("Gathering src grid information")
     SourceCoord.hgr = hgr.H_Grid(
-        settings["src_hgr"], settings["nme_map"], logger, dst=0, bdy_ll=DstCoord.lonlat
+        settings["src_hgr"], settings["nme_map"], logger, dst=0
     )
     SourceCoord.zgr = zgr.Z_Grid(
         settings["src_zgr"],
         settings["nme_map"],
         SourceCoord.hgr.grid_type,
         SourceCoord.hgr.grid,
+        logger,
         dst=0,
     )
 
