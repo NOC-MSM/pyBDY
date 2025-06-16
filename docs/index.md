@@ -361,17 +361,17 @@ In all cases "t" should be size 1. Pybdy does not deal with time varying grids.
 
 Summary of ideal requirements:
 
-- 2D grid of `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
-- 3D grid of `gdept`, `gdepw`, `e3t`, `e3w`, and 2D grid of `mbathy` (aka `bottom_level`)
+- 2D grid (or 3D with time dimension = 1) of `glamt`, `gphit`, `glamu`, `e1t`, `e2t`, `e1u`, etc.
+- 3D grid (or 4D with time dimension = 1) of `gdept`, `gdepw`, `e3t`, `e3w`, and 2D grid of `mbathy` (aka `bottom_level`)
 
 Summary of minimum requirements:
 
 - for the horizontal grid variables we need at least `nav_lat`, `nav_lon` on a 2D grid.
-- for the vertical grid variables we have several possible variations:
-    - `gdept` or `e3t` are specified on 3D grids
-    - 1D depth `gdept_0` is specified in addition to `mbathy`.
-    - **Note**: `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept`.
-    - If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `nav_lon`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
+- for the vertical grid variables we have several possible variations ordered by preference:
+    1.`gdept` or `e3t` are specified on 3D grids (**Note** et3 is sometimes called et3_0 i.e. non-time varying, but has dimensions t, z, y, x, in this case specify `"et3": "et3_0"`).
+    2\. 1D depth (or 2D with dimension time and z) `gdept_0` is specified in addition to `mbathy`.
+    3\. If `mbathy` is missing in the source grid, use `gdept_0` (1D depth) and specify any 2D field (e.g., `"mbathy": "nav_lon"`) for `mbathy` **Not recommended for destination (sn_dst_zgr)**.
+    4\. `deptht_bounds` is not the same at `gdept`. If it is the only option you need to use it to calculate `gdept` yourself.
 
 ```
 "dimension_map"
