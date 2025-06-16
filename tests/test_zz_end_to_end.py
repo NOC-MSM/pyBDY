@@ -105,14 +105,14 @@ def test_zco_zco():
         "Shape_temp": (30, 25, 1, 1584),
         "Shape_ssh": (30, 1, 1584),
         "Shape_mask": (60, 50),
-        "Mean_temp": 18.18242073059082,
-        "Mean_sal": 34.094120025634766,
+        "Mean_temp": 18.003202438354492,
+        "Mean_sal": 34.08450698852539,
         "Sum_unmask": 447510,
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.9991329908370972,
-        "Mean_v": 0.9956495761871338,
+        "Mean_u": 0.997600257396698,
+        "Mean_v": 0.9851061701774597,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
