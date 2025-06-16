@@ -240,17 +240,25 @@ The application picks the relative path from the current working directory.
 
 - **`sn_dst_dir`**: Output directory for PyBDY data
 
-##### Other Settings
-
 - **`cn_mask_file`** *(optional)*: Used to define open boundaries.
 
     - Values: `-1` (out-of-domain), `0` (land), `1` (water)
     - If not provided, PyBDY uses bathymetry to infer boundaries
 
-- **`ln_zinterp`**: Disables vertical interpolation if `false` and source uses zco levels.
+##### Other Settings
 
-    - Output will match source vertical levels
-    - If source uses zps or sco, this will be set to `true` automatically
+- **`ln_dyn2d`**: used to turn on barotropic velocities in boundary processing.
+
+- **`ln_dyn3d`**: used to turn on total velocities in boundary processing. **Note** this is not baroclinic velocities, which is important when running NEMO. You may want ln_dyn2d and ln_dyn3d if testing but usually one of them is sufficient as long as it matches your NEMO namelist setup.
+
+- **`ln_tra`**: used to turn on tracers temperature and salinity in the boundary processing.
+
+- **`ln_ice`**: used to turn on ice boundary conditions so that `ice1`, `ice2` and `ice3` are processed.
+
+- **`ln_zinterp`**: Disables vertical interpolation if `false` and source (parents) **must** use zco vertical levels.
+
+    - Output will match source vertical levels.
+    - If source uses zps or sco, this will be automatically set to `true` during run-time.
 
 - **`nn_rimwidth`**: Number of interior boundary points to generate
 
@@ -484,7 +492,7 @@ Here the source (parent) data is specified via the .nmcl file in NcML format. Fo
 Here some options are set. cn_coords_file is a file that can be output by pybdy.
 In this case, the child (destination) data does not have a pre-defined mask file so pybdy will use the bathymetry provided in sn_bathy to calculate the mask. If the mask produced if not giving the correct boundaries you may need to provide a mask.nc file which you generate. This file contains a 2d mask the same shape as the bathymetry where 1 = "water", 0 = "land" and -1 = "out of domain". Boundary points will be generated between water and "out of domain" which can also be where water meets the edge of the defined 2d area.
 Here, ln_dyn2d will provide a sea surface height (`sossheig`) variable in the output for barotropic velocities.
-ln_dyn3d defines variables that will be in the output. Here, ln_dyn3d will not include the barotropic component in the 3d velocities. One or the other of ln_dyn2d or ln_dyn3d should be selected and match options in NEMO.
+ln_dyn3d would define total velocities in the in the output if set to true. Here, ln_dyn3d will not include the barotropic component in the 3d velocities but we do not need it because we have ln_dyn2d=true. At least one or the other of ln_dyn2d or ln_dyn3d should be selected and match options in NEMO.
 Here, ln_tra shows temperature and salinity will be output. ln_ice shows ice will not be output. ln_zinterp shows the vertical interpolation is calculated by pybdy (so should be turned off in NEMO).
 Here, nn_rimwidth is set to 9 to provide 9 layers of boundary points along all boundaries.
 
