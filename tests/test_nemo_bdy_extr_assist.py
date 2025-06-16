@@ -243,10 +243,8 @@ def test_flood_fill():
         :, ind
     ]
 
-    data_ind, nan_ind = extr_assist.valid_index(sc_bdy, logger)
-
     # Run function
-    sc_bdy = extr_assist.flood_fill(sc_bdy, data_ind, nan_ind, False)
+    sc_bdy = extr_assist.flood_fill(sc_bdy, False, logger)
 
     # Check results
     lev_test = np.array(
@@ -262,13 +260,13 @@ def test_flood_fill():
             8.0,
             7.5,
             7.0,
-            7.0,
-            7.0,
-            7.0,
-            7.0,
+            6.5,
+            6.0,
+            5.5,
+            5.5,
         ]
     )
-
+    print(sc_bdy[:, 0, 0])
     errors = []
     if not (sc_bdy.shape == (sc_z_len, num_bdy, 9)):
         errors.append("Error with output sc_bdy shape.")
@@ -310,8 +308,7 @@ def test_interp_vertical():
     z_dist, z_ind = extr_assist.get_vertical_weights(
         dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco
     )
-    data_ind, nan_ind = extr_assist.valid_index(sc_bdy, logger)
-    sc_bdy = extr_assist.flood_fill(sc_bdy, data_ind, nan_ind, False)
+    sc_bdy = extr_assist.flood_fill(sc_bdy, False, logger)
 
     # Run function
     sc_bdy_lev = extr_assist.interp_vertical(
