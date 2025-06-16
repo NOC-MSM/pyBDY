@@ -913,13 +913,8 @@ class Extract:
                     else:
                         sc_z_len = self.sc_z_len
 
-                    # identify valid pts
-                    data_ind, nan_ind = extr_assist.valid_index(sc_bdy[vn], self.logger)
-
                     # Flood fill
-                    sc_bdy[vn] = extr_assist.flood_fill(
-                        sc_bdy[vn], data_ind, nan_ind, isslab
-                    )
+                    sc_bdy[vn] = extr_assist.flood_fill(sc_bdy[vn], isslab, self.logger)
 
                     if not isslab:
                         # Vertical interpolation
@@ -957,7 +952,7 @@ class Extract:
 
                         # Flood fill
                         sc_bdy[vn + 1] = extr_assist.flood_fill(
-                            sc_bdy[vn + 1], data_ind, nan_ind, isslab
+                            sc_bdy[vn + 1], isslab, self.logger
                         )
 
                         if not isslab:
