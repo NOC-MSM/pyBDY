@@ -340,19 +340,12 @@ def flood_fill(sc_bdy, isslab, logger):
 
     for i in range(sc_shape[0]):
         while np.isnan(sc_bdy[i, :, 0]).any() & (~np.isnan(sc_bdy[i, :, 0])).any():
-            # Flood sc land horizontally within the chunk for the centre point first.
+            # Flood sc land horizontally within the chunk for the centre point.
             # This may not be perfect but better than filling with zeros
             sc_nan = np.isnan(sc_bdy)
             sc_bdy[:, 1:, 0][sc_nan[:, 1:, 0]] = sc_bdy[:, :-1, 0][sc_nan[:, 1:, 0]]
             sc_nan = np.isnan(sc_bdy)
             sc_bdy[:, :-1, 0][sc_nan[:, :-1, 0]] = sc_bdy[:, 1:, 0][sc_nan[:, :-1, 0]]
-
-        while np.isnan(sc_bdy[i, :, :]).any() & (~np.isnan(sc_bdy[i, :, :])).any():
-            # Flood sc land horizontally within the chunk for the 9 surrounding points.
-            sc_nan = np.isnan(sc_bdy)
-            sc_bdy[:, :, 1:][sc_nan[:, :, 1:]] = sc_bdy[:, :, :-1][sc_nan[:, :, 1:]]
-            sc_nan = np.isnan(sc_bdy)
-            sc_bdy[:, :, :-1][sc_nan[:, :, :-1]] = sc_bdy[:, :, 1:][sc_nan[:, :, :-1]]
 
     if not isslab:
         data_ind, nan_ind = valid_index(sc_bdy, logger)
@@ -361,7 +354,9 @@ def flood_fill(sc_bdy, isslab, logger):
         all_bot = np.tile(
             sc_bdy[data_ind[:, 0], ind_bdy, 0], (sc_shape[0], sc_shape[2], 1)
         ).transpose((0, 2, 1))
-        sc_bdy[np.isnan(sc_bdy)] = all_bot[np.isnan(sc_bdy)]
+        sc_bdy[:, :, 0][np.isnan(sc_bdy[:, :, 0])] = all_bot[:, :, 0][
+            np.isnan(sc_bdy[:, :, 0])
+        ]
 
     return sc_bdy
 
