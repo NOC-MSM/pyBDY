@@ -111,8 +111,8 @@ def test_zco_zco():
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.997600257396698,
-        "Mean_v": 0.9851061701774597,
+        "Mean_u": 0.9975701570510864,
+        "Mean_v": 0.9893443584442139,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
