@@ -347,7 +347,7 @@ An example NcML expression renaming a variable in joined NetCDF files:
 
 The JSON file "grid_name_map.json" file provides a way to rename/remap the variables from
 names in the file netcdf file to the variable names desired by pybdy. This is
-specifically for the horizontal (hgr) and vertical (vgr) grid files (not data Input/Output).
+specifically for the horizontal (hgr) and vertical (zgr) grid files (not data Input/Output).
 In the past this could be done with a .ncml file but now it done using .json.
 
 The "grid_name_map.json" file has "dimension_map", "sc_variable_map" and
