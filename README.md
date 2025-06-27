@@ -1,7 +1,6 @@
 # pyBDY
 
 <img src="/docs/assets/icons/pybdy_logo_small.png" alt="pybdy_logo" width="100"/>
-<img src="/docs/assets/icons/noc_logo.png" alt="noc_logo" width="100"/>
 
 [pyBDY documentation](https://noc-msm.github.io/pyBDY/).
 
