@@ -86,9 +86,9 @@ class Setup(object):
         index = "-1"
         value = ""
         if name_prefix == "ln":
-            if value_str.find("true") is not -1:
+            if value_str.find("true") != -1:
                 value = True
-            elif value_str.find("false") is not -1:
+            elif value_str.find("false") != -1:
                 value = False
             else:
                 raise ValueError(
@@ -242,11 +242,11 @@ def _get_val(vars_dictionary, bool_vars_dictionary, line):
     value = line[1].strip()
 
     if name_prefix == "ln":
-        if value.find("true") is not -1:
+        if value.find("true") != -1:
             if (name in vars_dictionary) is not True:
                 vars_dictionary[name] = True
             bool_vars_dictionary[name] = True
-        elif value.find("false") is not -1:
+        elif value.find("false") != -1:
             if (name in vars_dictionary) is not True:
                 vars_dictionary[name] = False
             bool_vars_dictionary[name] = False
