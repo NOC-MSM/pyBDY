@@ -1,6 +1,7 @@
 # pyBDY Documentation
 
 **Welcome to the documentation for pyBDY (NEMO lateral boundary conditions)**
+
 <img src="/docs/assets/icons/pybdy_logo_small.png" alt="pybdy_logo" width="100"/>
 
 ## Introduction
