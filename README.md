@@ -1,4 +1,4 @@
-# pyBDY
+# pyBDY ![pybdy_logo](/docs/assets/icons/pybdy_logo_small.png) ![noc_logo](/docs/assets/icons/noc_logo.png)
 
 [pyBDY documentation](https://noc-msm.github.io/pyBDY/).
 
