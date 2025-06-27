@@ -1,6 +1,8 @@
-# pyBDY Documentation ![pybdy_logo](/docs/assets/icons/pybdy_logo_small.png) ![noc_logo](/docs/assets/icons/noc_logo.png)
+# pyBDY Documentation
 
 **Welcome to the documentation for pyBDY (NEMO lateral boundary conditions)**
+<img src="/docs/assets/icons/pybdy_logo_small.png" alt="pybdy_logo" width="100"/>
+<img src="/docs/assets/icons/noc_logo.png" alt="noc_logo" width="100"/>
 
 ## Introduction
 
