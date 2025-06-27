@@ -10,24 +10,6 @@
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 !------------------------------------------------------------------------------
-!   vertical coordinate
-!------------------------------------------------------------------------------
-   ln_zco      = .false.   !  z-coordinate - full    steps   (T/F)
-   ln_zps      = .true.    !  z-coordinate - partial steps   (T/F)
-   ln_sco      = .false.   !  s- or hybrid z-s-coordinate    (T/F)
-   rn_hmin     =   -10     !  min depth of the ocean (>0) or
-                           !  min number of ocean level (<0)
-
-!------------------------------------------------------------------------------
-!   s-coordinate or hybrid z-s-coordinate
-!------------------------------------------------------------------------------
-   rn_sbot_min =   10.     !  minimum depth of s-bottom surface (>0) (m)
-   rn_sbot_max = 7000.     !  maximum depth of s-bottom surface
-                           !  (= ocean depth) (>0) (m)
-   ln_s_sigma  = .false.   !  hybrid s-sigma coordinates
-   rn_hc       =  150.0    !  critical depth with s-sigma
-
-!------------------------------------------------------------------------------
 !  grid information
 !------------------------------------------------------------------------------
    sn_src_hgr = 'http://opendap4gws.jasmin.ac.uk/thredds/noc_msm/dodsC/pynemo_grid_low_res_C/mesh_hgr.nc'
@@ -46,7 +28,7 @@
    sn_fn      = 'NNA_R12'             ! prefix for output files
    nn_fv      = -1e20                 !  set fill value for output files
    nn_src_time_adj = 0                ! src time adjustment
-   sn_dst_metainfo = 'Benchmarking Data'
+   sn_dst_metainfo = 'Benchmarking Data'  ! history info
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries
@@ -83,14 +65,14 @@
     sn_date_end     = '1979-12-01'    !  dst output date end YYYY-MM-DD
     sn_dst_calendar = 'gregorian'     !  output calendar format
     sn_date_origin  = '1960-01-01'    !  reference for time counter YYYY-MM-DD	! location of TPXO7.2 data
-	sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
-	sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
-	sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
-	! location of TPXO9v5 data: single constituents per file
-	sn_tide_grid   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
-	sn_tide_dir    = './inputs/TPXO9_atlas_v5_nc/'
-	! location of FES2014 data
-	sn_tide_fes      = './inputs/FES2014/'
+    sn_tide_grid   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+    sn_tide_h      = './inputs/tpxo7.2/h_tpxo7.2.nc'
+    sn_tide_u      = './inputs/tpxo7.2/u_tpxo7.2.nc'
+    ! location of TPXO9v5 data: single constituents per file
+    sn_tide_grid   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
+    sn_tide_dir    = './inputs/TPXO9_atlas_v5_nc/'
+    ! location of FES2014 data
+    sn_tide_fes      = './inputs/FES2014/'
 
 !------------------------------------------------------------------------------
 !  Additional parameters
@@ -99,11 +81,9 @@
     rn_r0   = 0.041666666         !  decorrelation distance use in gauss
                                   !  smoothing onto dst points. Need to
                                   !  make this a funct. of dlon
-    sn_history  = 'Benchmarking test case'
-                                  !  history for netcdf file
     ln_nemo3p4  = .true.          !  else presume v3.2 or v3.3
     nn_alpha    = 0               !  Euler rotation angle
     nn_beta     = 0               !  Euler rotation angle
     nn_gamma    = 0               !  Euler rotation angle
-	rn_mask_max_depth = 100.0     !  Maximum depth to be ignored for the mask
-	rn_mask_shelfbreak_dist = 20000.0 !  Distance from the shelf break
+    rn_mask_max_depth = 100.0     !  Maximum depth to be ignored for the mask
+    rn_mask_shelfbreak_dist = 20000.0 !  Distance from the shelf break

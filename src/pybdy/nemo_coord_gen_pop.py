@@ -18,10 +18,22 @@ from netCDF4 import Dataset
 
 
 class Coord:
-    _grid = ["t", "u", "v"]
+    """Class for writing boundayr coordinate data to netcdf file."""
 
-    # Init with nc fname and dictionary of bdy inds
     def __init__(self, fname, bdy_ind):
+        """
+        Create Nemo bdy indices for t, u, v points.
+
+        Parameters
+        ----------
+        fname           (str) : file name of coords file for output
+        bdy_ind (numpy.array) : indicies of bdy points
+
+        Returns
+        -------
+        None   : object
+        """
+        self._grid = ["t", "u", "v"]
         self.bdy_ind = bdy_ind
         self.logger = logging.getLogger(__name__)
         self.logger.debug(fname)
@@ -32,15 +44,15 @@ class Coord:
         self.ncid = Dataset(fname, "w", clobber=True, format="NETCDF4")
 
         # Define Dimensions
-        self.dim_id = self._create_dims()
+        self.dim_id = self.create_dims()
 
         # Create tidy dictionaries to hold all our pretty variables
-        self.var_nb_ij_id = self._build_dict(["i", "j"], ["nb", "i4", "unitless", 0])
-        self.var_nb_r_id = self._build_dict(["r"], ["nb", "i4", "unitless", 0])
-        self.var_g_lamphi_id = self._build_dict(
+        self.var_nb_ij_id = self.build_dict(["i", "j"], ["nb", "i4", "unitless", 0])
+        self.var_nb_r_id = self.build_dict(["r"], ["nb", "i4", "unitless", 0])
+        self.var_g_lamphi_id = self.build_dict(
             ["lam", "phi"], ["g", "f4", "degrees_east", "longitude"]
         )
-        self.var_e_12_id = self._build_dict(
+        self.var_e_12_id = self.build_dict(
             ["1", "2"], ["e", "f4", "metres", "scale factor"]
         )
 
@@ -51,15 +63,11 @@ class Coord:
 
         # Leave Define Mode
 
-    # # # # # # # # #
-    # # Functions # #
-    # # # # # # # # #
-
     def closeme(self):
         self.ncid.close()
 
-    # Creates dims and returns a dictionary of them
-    def _create_dims(self):
+    def create_dims(self):
+        """Create dims and returns a dictionary of them."""
         ret = {"xb": {}}
         ret["xb"]["t"] = self.ncid.createDimension("xbT", len(self.bdy_ind["t"].bdy_i))
         ret["xb"]["u"] = self.ncid.createDimension("xbU", len(self.bdy_ind["u"].bdy_i))
@@ -68,18 +76,18 @@ class Coord:
 
         return ret
 
-    # Sets up a grid dictionary
-    def _build_dict(self, dim, units):
+    def build_dict(self, dim, units):
+        """Set up a grid dictionary."""
         ret = {}
         for g in self._grid:
             ret[g] = {}
             for d in dim:
-                ret[g][d] = self._add_vars(d, g, units)
+                ret[g][d] = self.add_vars(d, g, units)
 
         return ret
 
-    # creates a var w/ attributes
-    def _add_vars(self, dim, grd, unt):
+    def add_vars(self, dim, grd, unt):
+        """Create a var w/ attributes."""
         dat = unt[2]
         lname = unt[3]
         if dim == "phi":
@@ -100,6 +108,7 @@ class Coord:
         return var
 
     def populate(self, hgr):
+        """Populate the file with indices, lat, lon, and e dimensions."""
         self.set_lenvar(self.var_nb_ij_id)
         self.set_lenvar(self.var_nb_r_id)
 
@@ -108,10 +117,13 @@ class Coord:
 
         self.closeme()
 
-    # sets the len var of each array in the var dictionary fed
-    # specifying hgr and unt pulls data from loaded grid data
-    # Otherwise pull it from the class dict
     def set_lenvar(self, vardic, hgr=None, unt=None):
+        """
+        Set the len var of each array in the var dictionary.
+
+        Use by specifying hgr and unt which pulls data from loaded grid data.
+        Otherwise pull it from the class dict.
+        """
         for ind in vardic:
             x = 0
             data = None
