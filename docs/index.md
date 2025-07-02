@@ -2,7 +2,7 @@
 
 **Welcome to the documentation for pyBDY (NEMO lateral boundary conditions)**
 
-<img src="docs/assets/icons/pybdy_logo_small.png" alt="pybdy_logo" width="100"/>
+<img src="{{ '/docs/assets/icons/pybdy_logo_small.png' | relative_url }}" alt="pybdy_logo" width="100"/>
 
 ## Introduction
 
@@ -16,7 +16,7 @@ flavour of ocean model. The available options are accessed through a NEMO style 
 
 ## Contents
 
-- [How to cite :bookmark:](#how-to-cite)
+- [How to cite :bookmark:](#how-to-cite-bookmark)
 - [Change Log :twisted_rightwards_arrows:](#change-log-twisted_rightwards_arrows)
 - [Dependencies :globe_with_meridians:](#dependencies-globe_with_meridians)
 - [Quick Start Installation :rocket:](#quick-start-installation-rocket)
@@ -26,6 +26,8 @@ flavour of ocean model. The available options are accessed through a NEMO style 
 - [Troubleshooting :safety_vest:](#troubleshooting-safety_vest)
 - [pyBDY Module Structure :scroll:](#pybdy-module-structure-scroll)
 
+<a name="how-to-cite-bookmark"></a>
+
 ## How to cite :bookmark:
 
 [Back to top](#pybdy-documentation)
@@ -33,6 +35,8 @@ flavour of ocean model. The available options are accessed through a NEMO style 
 Please cite pyBDY version 0.4.0 in your work using:
 
 Harle, J., Barton, B.I., Nagella, S., Crompton, S., Polton J., Patmore, R., Morado, J., Prime, T., Wise, A., De Dominicis, M., Blaker, A. Farey, J.K., (2025). pyBDY - NEMO lateral boundary conditions v0.4.0 [Software]. [https://doi.org](<>)
+
+<a name="change-log-twisted_rightwards_arrows"></a>
 
 ## Change Log :twisted_rightwards_arrows:
 
@@ -59,6 +63,8 @@ The changes relative to the previous version (0.3.0) are:
 **There is a new library for generating NEMO initial conditions called pyIC.**
 pyIC can be found at: [https://github.com/NOC-MSM/pyIC](https://github.com/NOC-MSM/pyIC)
 
+<a name="dependencies-globe_with_meridians"></a>
+
 ## Dependencies :globe_with_meridians:
 
 [Back to top](#pybdy-documentation)
@@ -83,6 +89,8 @@ The key dependecies are listed below:
 A recent JAVA installation is also required.
 
 ---
+
+<a name="quick-start-installation-rocket"></a>
 
 ## Quick Start Installation :rocket:
 
@@ -156,6 +164,8 @@ To deactivate the conda environment:
 ```
 conda deactivate
 ```
+
+<a name="how-to-use-pybdy-student"></a>
 
 ## How to use pyBDY :student:
 
@@ -450,6 +460,8 @@ pybdy -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 
 This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation.
 
+<a name="worked-example-mechanical_arm"></a>
+
 ## Worked Example :mechanical_arm:
 
 [Back to top](#pybdy-documentation)
@@ -682,6 +694,8 @@ The example files name is *src_data_local.ncml*. Here the NcML file combines dat
 </ns0:netcdf>
 ```
 
+<a name="tidal-boundary-conditions-generation-sailboat"></a>
+
 ## Tidal Boundary Conditions Generation :sailboat:
 
 [Back to top](#pybdy-documentation)
@@ -759,6 +773,8 @@ Percentage Exceedance = 26.933 * Reference Amplitude ^ -0.396’
 Phase Exceedance = 5.052 * pyBDY Amplitude ^ -0.60
 ```
 
+<a name="troubleshooting-safety_vest"></a>
+
 ## Troubleshooting :safety_vest:
 
 [Back to top](#pybdy-documentation)
@@ -773,6 +789,8 @@ If you get the error message "Destination touches source i-edge but source is no
 Check your variable and dimension names match the requirements and are mapped correctly either in the NcML file or JSON for the source data and grid data respectively (see section [How to use pyBDY :student:](#how-to-use-pybdy-student))
 
 If you have time interpolation problems read the section [Time Settings](#time-settings).
+
+<a name="pybdy-module-structure-scroll"></a>
 
 ## pyBDY Module Structure :scroll:
 
