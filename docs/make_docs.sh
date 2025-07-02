@@ -20,10 +20,13 @@ extensions.append('sphinx_autodoc_typehints')
 make markdown
 
 cd ..
-cp index.md index_full.md
-tail --lines=+13 ./Sphinx-docs/_build/markdown/index.md >> index_full.md
-echo "
-[Back to top](#pybdy-documentation)" >> index_full.md
+echo "All Module Structure
+" >> module_structure.md
+tail --lines=+13 ./Sphinx-docs/_build/markdown/index.md >> module_structure.md
+#cp index.md index_full.md
+#tail --lines=+13 ./Sphinx-docs/_build/markdown/index.md >> index_full.md
+#echo "
+#[Back to top](#pybdy-documentation)" >> index_full.md
 
 rm ./Sphinx-docs/_build/markdown/index.md
 mv ./Sphinx-docs/_build/markdown/*.md .
