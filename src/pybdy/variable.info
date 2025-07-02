@@ -1,8 +1,3 @@
-rn_hmin = min depth of the ocean (>0) or min number of ocean level (<0)
-rn_sbot_min = minimum depth of s-bottom surface (>0) (m)
-rn_sbot_max = maximum depth of s-bottom surface (= ocean depth) (>0) (m)
-ln_s_sigma = hybrid s-sigma coordinates
-rn_hc = critical depth with s-sigma
 sn_src_hgr = source grid hgr
 sn_src_zgr = source grid zgr
 sn_dst_hgr = destination grid hgr
@@ -15,7 +10,7 @@ sn_dst_dir = directory where the output data files need to be stored
 sn_fn = prefix for output files
 nn_fv = set fill value for output files
 nn_src_time_adj = src time adjustment
-sn_dst_metainfo = meta data information written to the output files.
+sn_dst_metainfo = meta data information written to the history of output files.
 ln_coords_file = If true : produce bdy coordinates files
 cn_coords_file = name of bdy coordinates files (if ln_coords_file is set to .TRUE.)
 ln_mask_file = If .true. : read mask from file
@@ -43,7 +38,6 @@ sn_tide_dir        =
 sn_tide_fes        =
 nn_wei = smoothing filter weights
 rn_r0 = decorrelation distance use in gauss smoothing onto dst points.Need to make this a funct. of dlon
-sn_history = history for netcdf file
 ln_nemo3p4 = else presume v3.2 or v3.3
 nn_alpha = Euler rotation angle
 nn_beta = Euler rotation angle

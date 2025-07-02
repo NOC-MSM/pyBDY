@@ -20,12 +20,12 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
     Parameters
     ----------
-    setup:                  settings
-    DstCoord:               ...
-    Grid_T         :        grid_type, bdy_r
-    Grid_U, Grid_V :        bdy_i , grid_type, bdy_r
-    comp:                   dictionary of harmonics read from namelist.
-                            e.g. {'1':"M2" , '2':"<constituent name>", ...}
+        setup          : settings
+        DstCoord       : destination coordinate object
+        Grid_T         : t grid bdy_i, grid_type, bdy_r
+        Grid_U         : u grid bdy_i, grid_type, bdy_r
+        Grid_V         : v grid bdy_i, grid_type, bdy_r
+        comp           : dictionary of harmonics read from namelist {'1':"M2" , '2':"<const name>"}
 
     Returns
     -------
