@@ -342,6 +342,20 @@ Find the distance weightings for averaging source data to destination.
 > dist_wei (numpy.array) : weightings for averaging<br>
 > dist_fac (numpy.array) : total weighting factor<br>
 
+## pybdy.nemo_bdy_extr_assist.flood_fill(sc_bdy, isslab, logger)
+
+Fill the data horizontally then downwards to remove nans before interpolation.
+
+> ### Parameters<br>
+
+> sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]<br>
+> isslab (bool) : if true data has vertical cells for vertical flood fill<br>
+> logger : log of statements<br>
+
+> ### Returns<br>
+
+> sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]<br>
+
 ## pybdy.nemo_bdy_extr_assist.get_ind(dst_lon, dst_lat, sc_lon, sc_lat)
 
 Calculate indicies of max and min for data extraction.
@@ -422,7 +436,7 @@ Interpolate the source data to the destination grid using weighted average.
 
 > dst_bdy (numpy.array) : destination bdy points with data from source grid<br>
 
-## pybdy.nemo_bdy_extr_assist.interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, num_bdy, zinterp=True)
+## pybdy.nemo_bdy_extr_assist.interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy, zinterp=True)
 
 Interpolate source data onto destination vertical levels.
 
@@ -433,7 +447,6 @@ Interpolate source data onto destination vertical levels.
 > bdy_bathy (np.array): the destination grid bdy points bathymetry<br>
 > z_ind (np.array) : the indices of the sc depth above and below bdy<br>
 > z_dist (np.array) : the distance weights of the selected points<br>
-> data_ind (np.array) : bool points above bathymetry that are valid<br>
 > num_bdy (int) : number of boundary points in chunk<br>
 > zinterp (bool) : vertical interpolation flag<br>
 

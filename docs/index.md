@@ -796,4 +796,4 @@ If you have time interpolation problems read the section [Time Settings](#time-s
 
 [Back to top](#pybdy-documentation)
 
-Here is a list of all the classes, methods and functions in pyBDY.
+All the classes, methods and functions in pyBDY can be found in the tab along the top of the page.
