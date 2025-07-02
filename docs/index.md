@@ -16,7 +16,7 @@ flavour of ocean model. The available options are accessed through a NEMO style 
 
 ## Contents
 
-- [How to cite :bookmark:](#how-to-cite-bookmark)
+- [How to cite :bookmark:](#how-to-cite-)
 - [Change Log :twisted_rightwards_arrows:](#change-log-twisted_rightwards_arrows)
 - [Dependencies :globe_with_meridians:](#dependencies-globe_with_meridians)
 - [Quick Start Installation :rocket:](#quick-start-installation-rocket)
@@ -339,7 +339,7 @@ An example NcML expression renaming a variable in joined NetCDF files:
   <ns0:aggregation type="joinExisting" dimName="time_counter">
     <ns0:scan location="./monthly/" suffix=".nc" subdirs="false" />
     <ns0:variable name="temp">
-      <ns0:rename name="temperature" />
+      <ns0:rename name="votemper" />
     </ns0:variable>
   </ns0:aggregation>
 </ns0:netcdf>
