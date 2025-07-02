@@ -2,7 +2,7 @@
 
 **Welcome to the documentation for pyBDY (NEMO lateral boundary conditions)**
 
-<img src="/docs/assets/icons/pybdy_logo_small.png" alt="pybdy_logo" width="100"/>
+<img src="docs/assets/icons/pybdy_logo_small.png" alt="pybdy_logo" width="100"/>
 
 ## Introduction
 
@@ -16,7 +16,7 @@ flavour of ocean model. The available options are accessed through a NEMO style 
 
 ## Contents
 
-- [How to cite :bookmark:](#how-to-cite-)
+- [How to cite :bookmark:](#how-to-cite)
 - [Change Log :twisted_rightwards_arrows:](#change-log-twisted_rightwards_arrows)
 - [Dependencies :globe_with_meridians:](#dependencies-globe_with_meridians)
 - [Quick Start Installation :rocket:](#quick-start-installation-rocket)
