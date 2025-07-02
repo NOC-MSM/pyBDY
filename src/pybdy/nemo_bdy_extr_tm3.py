@@ -915,8 +915,8 @@ class Extract:
                     else:
                         sc_z_len = self.sc_z_len
 
-                    # identify valid pts
-                    data_ind, _ = extr_assist.valid_index(sc_bdy[vn], self.logger)
+                    # Flood fill
+                    sc_bdy[vn] = extr_assist.flood_fill(sc_bdy[vn], isslab, self.logger)
 
                     if not isslab:
                         # Vertical interpolation
@@ -926,7 +926,6 @@ class Extract:
                             self.bdy_z[chunk_d],
                             self.z_ind[chunk_z, :],
                             self.z_dist[chunk_z, :],
-                            data_ind,
                             self.num_bdy_ch[chk],
                             self.settings["zinterp"],
                         )
@@ -934,8 +933,6 @@ class Extract:
                         # No vertical interpolation
                         sc_bdy_lev = sc_bdy[vn]
                         sc_bdy_lev[:, np.isnan(self.bdy_z[chunk_d]), :] = np.NaN
-
-                    _, nan_ind = extr_assist.valid_index(sc_bdy_lev, self.logger)
 
                     # distance weightings for averaging source data to destination
                     dist_wei, dist_fac = extr_assist.distance_weights(
@@ -953,6 +950,13 @@ class Extract:
 
                     # weight vector array and rotate onto dest grid
                     if self.key_vec:
+                        # Do the same for both components of u and v velocities
+
+                        # Flood fill
+                        sc_bdy[vn + 1] = extr_assist.flood_fill(
+                            sc_bdy[vn + 1], isslab, self.logger
+                        )
+
                         if not isslab:
                             # Vertical interpolation
                             sc_bdy_lev2 = extr_assist.interp_vertical(
@@ -961,7 +965,6 @@ class Extract:
                                 self.bdy_z[chunk_d],
                                 self.z_ind[chunk_z, :],
                                 self.z_dist[chunk_z, :],
-                                data_ind,
                                 self.num_bdy_ch[chk],
                                 self.settings["zinterp"],
                             )
@@ -1010,26 +1013,6 @@ class Extract:
 
                         # Finished first run operations
                         # self.first = False
-
-                    if self.settings["zinterp"]:
-                        # Set land pts to zero
-                        self.logger.info(
-                            " pre dst_bdy[nan_ind] %s %s",
-                            np.nanmin(dst_bdy),
-                            np.nanmax(dst_bdy),
-                        )
-
-                        dst_bdy[nan_ind] = 0
-                        self.logger.info(
-                            " post dst_bdy %s %s",
-                            np.nanmin(dst_bdy),
-                            np.nanmax(dst_bdy),
-                        )
-                        # Remove any data on dst grid that is in land
-                        dst_bdy[:, np.isnan(self.bdy_z[chunk_d])] = 0
-                        self.logger.info(
-                            " 3 dst_bdy %s %s", np.nanmin(dst_bdy), np.nanmax(dst_bdy)
-                        )
 
                     data_out = dst_bdy
 

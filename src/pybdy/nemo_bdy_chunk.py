@@ -357,8 +357,8 @@ def chunk_large(ibdy, jbdy, chunk_number):
     for i in range(len(all_chunk)):
         i_chk = ibdy[chunk_number == all_chunk[i]]
         j_chk = jbdy[chunk_number == all_chunk[i]]
-        i_range = np.max(i_chk) - np.min(i_chk)
-        j_range = np.max(j_chk) - np.min(j_chk)
+        i_range = (np.max(i_chk) - np.min(i_chk)) + 1
+        j_range = (np.max(j_chk) - np.min(j_chk)) + 1
         ratio_box[i] = np.sum(chunk_number == all_chunk[i]) / (i_range * j_range)
 
     # Calculate which boundaries are too big

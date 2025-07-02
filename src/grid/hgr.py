@@ -129,7 +129,7 @@ class H_Grid:
         nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in nm_var_list:
-                grid_tmp = nc.nc[nm[vi]][:]  # [t, y, x]
+                grid_tmp = nc.nc[nm[vi]][:].squeeze()  # [t, y, x]
                 if len(grid_tmp.shape) == 3:
                     self.grid[vi] = grid_tmp
                 elif len(grid_tmp.shape) == 2:

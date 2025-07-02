@@ -93,7 +93,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     """
     # Start Logger
-
     logger.info("Start NRCT Logging: " + time.asctime())
     logger.info("============================================")
 
@@ -103,10 +102,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     Setup = setup.Setup(setup_filepath)  # default settings file
     settings = Setup.settings
 
-    logger.info("Reading grid completed")
+    logger.info("Reading setup completed")
 
     bdy_msk = _get_mask(Setup, mask_gui)
     DstCoord.bdy_msk = bdy_msk == 1
+    logger.info("Reading mask completed")
 
     DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
     DstCoord.zgr = zgr.Z_Grid(
@@ -117,8 +117,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger,
         dst=1,
     )
-
-    logger.info("Reading mask completed")
+    logger.info("Reading dst grid completed")
 
     bdy_ind = {}  # define a dictionary to hold the grid information
 
@@ -139,37 +138,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         logger.info("File: coordinates.bdy.nc generated and populated")
 
     # Idenitify number of boundary points
-
     nbdy = {}
 
     for grd in ["t", "u", "v"]:
         nbdy[grd] = len(bdy_ind[grd].bdy_i[:, 0])
-
-    # Gather grid information
-
-    logger.info("Gathering grid information")
-    SourceCoord.hgr = hgr.H_Grid(
-        settings["src_hgr"], settings["nme_map"], logger, dst=0
-    )
-    SourceCoord.zgr = zgr.Z_Grid(
-        settings["src_zgr"],
-        settings["nme_map"],
-        SourceCoord.hgr.grid_type,
-        SourceCoord.hgr.grid,
-        logger,
-        dst=0,
-    )
-
-    # Fill horizontal grid information
-
-    try:  # if they are masked array convert them to normal arrays
-        SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
-    except Exception:
-        logger.debug("Not a masked array.")
-    try:
-        SourceCoord.hgr.grid["gphit"] = SourceCoord.hgr.grid["gphit"].filled()  # lat
-    except Exception:
-        logger.debug("Not a masked array.")
 
     # Assign horizontal grid data
 
@@ -198,6 +170,32 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         DstCoord.lonlat[grd]["lon"][DstCoord.lonlat[grd]["lon"] > 180] -= 360
 
     logger.info("BDY lons/lats identified from %s", settings["dst_hgr"])
+
+    # Gather grid information
+
+    logger.info("Gathering src grid information")
+    SourceCoord.hgr = hgr.H_Grid(
+        settings["src_hgr"], settings["nme_map"], logger, dst=0
+    )
+    SourceCoord.zgr = zgr.Z_Grid(
+        settings["src_zgr"],
+        settings["nme_map"],
+        SourceCoord.hgr.grid_type,
+        SourceCoord.hgr.grid,
+        logger,
+        dst=0,
+    )
+
+    # Fill horizontal grid information
+
+    try:  # if they are masked array convert them to normal arrays
+        SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
+    except Exception:
+        logger.debug("Not a masked array.")
+    try:
+        SourceCoord.hgr.grid["gphit"] = SourceCoord.hgr.grid["gphit"].filled()  # lat
+    except Exception:
+        logger.debug("Not a masked array.")
 
     # Define z at t/u/v points
 

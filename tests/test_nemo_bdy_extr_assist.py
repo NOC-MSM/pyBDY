@@ -215,6 +215,67 @@ def test_get_vertical_weights_sco():
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
 
+def test_flood_fill():
+    # Test the flood_fill function
+    logger = logging.getLogger(__name__)
+    max_depth = 100
+    num_bdy = 3
+    bdy_bathy = np.array([0, 0, 80.5, 100, 60])
+    sc_z_len = 15
+    gdept, _ = synth_zgrid.synth_zco(max_depth, sc_z_len)
+    sc_z = np.tile(gdept, (3, 5, 1)).T
+    sc_bdy = np.tile(np.linspace(12, 5, num=sc_z_len), (3, 5, 1)).T  # Temperature data
+
+    # Centre then clockwise from 12 then corners
+    ind_g = np.array([[1, 2, 1, 0, 1, 2, 0, 0, 2], [1, 1, 2, 1, 0, 2, 2, 0, 0]])
+    ind = np.zeros((num_bdy, 9), dtype=int)
+    ind[0, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind_g[1, :] = ind_g[1, :] + 1
+    ind[1, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind_g[1, :] = ind_g[1, :] + 1
+    ind[2, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+
+    bathy_tile = np.transpose(np.tile(bdy_bathy, (sc_z_len, 3, 1)), (0, 2, 1))
+    sc_bdy = np.ma.masked_where(sc_z > bathy_tile, sc_bdy)
+    sc_bdy = sc_bdy.filled(np.nan)
+
+    sc_bdy = sc_bdy.reshape((sc_bdy.shape[0], sc_bdy.shape[1] * sc_bdy.shape[2]))[
+        :, ind
+    ]
+
+    # Run function
+    sc_bdy = extr_assist.flood_fill(sc_bdy, False, logger)
+
+    # Check results
+    lev_test = np.array(
+        [
+            12.0,
+            11.5,
+            11.0,
+            10.5,
+            10.0,
+            9.5,
+            9.0,
+            8.5,
+            8.0,
+            7.5,
+            7.0,
+            6.5,
+            6.0,
+            5.5,
+            5.5,
+        ]
+    )
+    print(sc_bdy[:, 0, 0])
+    errors = []
+    if not (sc_bdy.shape == (sc_z_len, num_bdy, 9)):
+        errors.append("Error with output sc_bdy shape.")
+    elif not np.isclose(sc_bdy[:, 0, 0], lev_test, atol=1e-4).all():
+        errors.append("Error with sc_bdy_lev.")
+    # assert no error message has been registered, else print messages
+    assert not errors, "errors occured:\n{}".format("\n".join(errors))
+
+
 def test_interp_vertical():
     # Test the interp_vertical function
     logger = logging.getLogger(__name__)
@@ -247,11 +308,11 @@ def test_interp_vertical():
     z_dist, z_ind = extr_assist.get_vertical_weights(
         dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco
     )
-    data_ind, _ = extr_assist.valid_index(sc_bdy, logger)
+    sc_bdy = extr_assist.flood_fill(sc_bdy, False, logger)
 
     # Run function
     sc_bdy_lev = extr_assist.interp_vertical(
-        sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, data_ind, num_bdy
+        sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy
     )
     sc_bdy_lev[np.isnan(sc_bdy_lev)] = -1
 
