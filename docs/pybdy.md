@@ -830,7 +830,7 @@ Created.
 
 ## pybdy.nemo_bdy_zgrv2.get_bdy_depths(DstCoord, bdy_i, grd)
 
-Depth levels from the nearest neighbour on the source grid.
+Depth levels on the destination grid at bdy points.
 
 > ### Parameters<br>
 
