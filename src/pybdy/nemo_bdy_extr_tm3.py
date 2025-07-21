@@ -441,6 +441,8 @@ class Extract:
 
             # Fig not implemented
 
+            sc_z_ch = sc_z[:, jmin:jmax, imin:imax]
+
             if (not isslab) & self.settings["zinterp"]:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
@@ -449,7 +451,7 @@ class Extract:
                     dst_dep[:, chunk],
                     dst_len_z,
                     self.num_bdy_ch[c],
-                    sc_z,
+                    sc_z_ch,
                     sc_z_len,
                     ind,
                     SC.zgr.grid_type == "zco",
