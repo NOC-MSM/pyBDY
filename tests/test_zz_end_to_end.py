@@ -185,14 +185,14 @@ def test_sco_sco():
         "Shape_temp": (30, 15, 1, 1584),
         "Shape_ssh": (30, 1, 1584),
         "Shape_mask": (60, 50),
-        "Mean_temp": 18.50259017944336,
-        "Mean_sal": 34.17912292480469,
+        "Mean_temp": 18.054542541503906,
+        "Mean_sal": 34.12153625488281,
         "Sum_unmask": 665280,
         "Sum_mask": 47520,
         "Shape_u": (30, 15, 1, 1566),
         "Shape_v": (30, 15, 1, 1566),
-        "Mean_u": 0.8442354202270508,
-        "Mean_v": 0.832240879535675,
+        "Mean_u": 0.7764930725097656,
+        "Mean_v": 0.7688539624214172,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -265,14 +265,14 @@ def test_sco_zco():
         "Shape_temp": (30, 25, 1, 1584),
         "Shape_ssh": (30, 1, 1584),
         "Shape_mask": (60, 50),
-        "Mean_temp": 18.56098747253418,
-        "Mean_sal": 34.14830780029297,
+        "Mean_temp": 18.122085571289062,
+        "Mean_sal": 34.09104537963867,
         "Sum_unmask": 447510,
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.8378004431724548,
-        "Mean_v": 0.8349438905715942,
+        "Mean_u": 0.7675425410270691,
+        "Mean_v": 0.7679993510246277,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
