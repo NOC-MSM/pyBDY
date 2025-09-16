@@ -107,6 +107,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
     DstCoord.zgr = zgr.Z_Grid(
         settings["dst_zgr"],
+        settings["dst_zgr_type"],
         settings["nme_map"],
         DstCoord.hgr.grid_type,
         DstCoord.hgr.grid,
@@ -175,6 +176,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     )
     SourceCoord.zgr = zgr.Z_Grid(
         settings["src_zgr"],
+        settings["src_zgr_type"],
         settings["nme_map"],
         SourceCoord.hgr.grid_type,
         SourceCoord.hgr.grid,
