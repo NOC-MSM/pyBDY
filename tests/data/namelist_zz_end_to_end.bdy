@@ -10,6 +10,15 @@
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 !------------------------------------------------------------------------------
+!   vertical coordinate
+!------------------------------------------------------------------------------
+   sn_src_zgr_type = 'zco' ! vertical coordinate type: 'zco', 'zps' or 'sco'
+   sn_dst_zgr_type = 'zco' ! vertical coordinate type: 'zco', 'zps' or 'sco'
+                           ! 'zco' is z-coordinate - full    steps
+                           ! 'zps' is z-coordinate - partial steps
+                           ! 'sco' is s- or hybrid z-s-coordinate
+
+!------------------------------------------------------------------------------
 !  grid information
 !------------------------------------------------------------------------------
    sn_src_hgr = './tests/data/mesh_synth_sc.nc' ! sn_src_hgr = './tests/mesh_hgr.nc'
