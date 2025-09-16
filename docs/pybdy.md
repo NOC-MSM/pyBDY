@@ -445,7 +445,7 @@ Interpolate source data onto destination vertical levels.
 > sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]<br>
 > dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
 > bdy_bathy (np.array): the destination grid bdy points bathymetry<br>
-> z_ind (np.array) : the indices of the sc depth above and below bdy<br>
+> z_ind (np.array) : the indices of the sc depth above and below bdy point<br>
 > z_dist (np.array) : the distance weights of the selected points<br>
 > num_bdy (int) : number of boundary points in chunk<br>
 > zinterp (bool) : vertical interpolation flag<br>
@@ -498,8 +498,8 @@ weightings for vector quantities.
 > DstCoord (obj) : destination grid information<br>
 > Grid (dict) : containing grid type ‘t’, ‘u’, ‘v’ and source time<br>
 > var_name (list) : netcdf file variable names (str)<br>
-> years (list) : years to extract (default [1979])<br>
-> months (list) : months to extract (default [11])<br>
+> grd (str) : grid to process ‘t’, ‘u’, ‘v’<br>
+> pair (str) : None or ‘uv’<br>
 
 > ### Returns<br>
 
