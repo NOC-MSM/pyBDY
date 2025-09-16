@@ -44,7 +44,7 @@ def test_zco_zco():
     """
     path1, path2, path3 = generate_sc_test_case(zco=True)
     path4 = generate_dst_test_case(zco=True)
-    name_list_path = modify_namelist(path1, path3, path4)
+    name_list_path = modify_namelist(path1, path3, path4, "zco", "zco")
 
     # Run pybdy
     subprocess.run(
@@ -108,8 +108,8 @@ def test_zco_zco():
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.9975701570510864,
-        "Mean_v": 0.9893443584442139,
+        "Mean_u": 0.997593879699707,
+        "Mean_v": 0.9893401861190796,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -124,7 +124,7 @@ def test_sco_sco():
     """
     path1, path2, path3 = generate_sc_test_case(zco=False)
     path4 = generate_dst_test_case(zco=False)
-    name_list_path = modify_namelist(path1, path3, path4)
+    name_list_path = modify_namelist(path1, path3, path4, "sco", "sco")
 
     # Run pybdy
     subprocess.run(
@@ -182,14 +182,14 @@ def test_sco_sco():
         "Shape_temp": (30, 15, 1, 1584),
         "Shape_ssh": (30, 1, 1584),
         "Shape_mask": (60, 50),
-        "Mean_temp": 18.054542541503906,
+        "Mean_temp": 18.054527282714844,
         "Mean_sal": 34.12153625488281,
         "Sum_unmask": 665280,
         "Sum_mask": 47520,
         "Shape_u": (30, 15, 1, 1566),
         "Shape_v": (30, 15, 1, 1566),
-        "Mean_u": 0.7764930725097656,
-        "Mean_v": 0.7688539624214172,
+        "Mean_u": 0.7650341987609863,
+        "Mean_v": 0.7656515836715698,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -204,7 +204,7 @@ def test_sco_zco():
     """
     path1, path2, path3 = generate_sc_test_case(zco=False)
     path4 = generate_dst_test_case(zco=True)
-    name_list_path = modify_namelist(path1, path3, path4)
+    name_list_path = modify_namelist(path1, path3, path4, "sco", "zco")
 
     # Run pybdy
     subprocess.run(
@@ -262,7 +262,7 @@ def test_sco_zco():
         "Shape_temp": (30, 25, 1, 1584),
         "Shape_ssh": (30, 1, 1584),
         "Shape_mask": (60, 50),
-        "Mean_temp": 18.122085571289062,
+        "Mean_temp": 18.122074127197266,
         "Mean_sal": 34.09104537963867,
         "Sum_unmask": 447510,
         "Sum_mask": 740490,
@@ -285,7 +285,7 @@ def test_wrap_sc():
     """
     path1, path2, path3 = generate_sc_test_case(zco=True, wrap=1)
     path4 = generate_dst_test_case(zco=True)
-    name_list_path = modify_namelist(path1, path3, path4)
+    name_list_path = modify_namelist(path1, path3, path4, "zco", "zco")
 
     # Run pybdy
     subprocess.run(
@@ -609,7 +609,7 @@ def generate_dst_test_case(zco):
     return path1
 
 
-def modify_namelist(path_src, path_sc_data, path_dst):
+def modify_namelist(path_src, path_sc_data, path_dst, src_zgr, dst_zgr):
     # Modify paths in a namelist file for testing.
 
     namelist_file = "./tests/data/namelist_zz_end_to_end.bdy"
@@ -617,11 +617,20 @@ def modify_namelist(path_src, path_sc_data, path_dst):
     with open(namelist_file, "r") as f:
         lines = f.readlines()
         for li in range(len(lines)):
-            if "sn_src_hgr" in lines[li]:
+            if "sn_src_zgr_type" in lines[li]:
+                st = lines[li].split("=")[0]
+                en = lines[li].split("!")[-1]
+                lines[li] = st + "= '" + src_zgr + "' !" + en
+            if "sn_dst_zgr_type" in lines[li]:
+                st = lines[li].split("=")[0]
+                en = lines[li].split("!")[-1]
+                lines[li] = st + "= '" + dst_zgr + "' !" + en
+
+            if "sn_src_hgr " in lines[li]:
                 st = lines[li].split("=")[0]
                 en = lines[li].split("!")[-1]
                 lines[li] = st + "= '" + path_src + "' !" + en
-            if "sn_src_zgr" in lines[li]:
+            if "sn_src_zgr " in lines[li]:
                 st = lines[li].split("=")[0]
                 en = lines[li].split("!")[-1]
                 lines[li] = st + "= '" + path_src + "' !" + en
@@ -630,11 +639,11 @@ def modify_namelist(path_src, path_sc_data, path_dst):
                 en = lines[li].split("!")[-1]
                 lines[li] = st + "= '" + path_src + "' !" + en
 
-            if "sn_dst_hgr" in lines[li]:
+            if "sn_dst_hgr " in lines[li]:
                 st = lines[li].split("=")[0]
                 en = lines[li].split("!")[-1]
                 lines[li] = st + "= '" + path_dst + "' !" + en
-            if "sn_dst_zgr" in lines[li]:
+            if "sn_dst_zgr " in lines[li]:
                 st = lines[li].split("=")[0]
                 en = lines[li].split("!")[-1]
                 lines[li] = st + "= '" + path_dst + "' !" + en
