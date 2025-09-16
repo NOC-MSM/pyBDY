@@ -75,3 +75,7 @@ In all cases "t" should be size 1. Pybdy does not deal with time varying grids.
 "e3uw" = * vertical scale factor distance between w-levels on u-grid (dims [t, z, y, x])
 "e3vw" = * vertical scale factor distance between w-levels on v-grid (dims [t, z, y, x])
 "e3fw" = * vertical scale factor distance between w-levels on f-grid (dims [t, z, y, x])
+
+"ln_zco" = * flag for zco vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
+"ln_zps" = * flag for zps vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
+"ln_sco" = * flag for sco vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
