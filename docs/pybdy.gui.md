@@ -17,24 +17,24 @@ Initialise an APLpyNormalize instance.
 > Optional Keyword Parametersument<br>
 
 > *vmin*: [ None | float ]<br>
-> : Minimum pixel value to use for the scaling.<br>
+> :   Minimum pixel value to use for the scaling.<br>
 
 > *vmax*: [ None | float ]<br>
-> : Maximum pixel value to use for the scaling.<br>
+> :   Maximum pixel value to use for the scaling.<br>
 
 > *stretch*: [ ‘linear’ | ‘log’ | ‘sqrt’ | ‘arcsinh’ | ‘power’ ]<br>
-> : The stretch function to use (default is ‘linear’).<br>
+> :   The stretch function to use (default is ‘linear’).<br>
 
 > *vmid*: [ None | float ]<br>
-> : Mid-pixel value used for the log and arcsinh stretches. If<br>
-> set to None, a default value is picked.<br>
+> :   Mid-pixel value used for the log and arcsinh stretches. If<br>
+>     set to None, a default value is picked.<br>
 
 > *exponent*: [ float ]<br>
-> : if self.stretch is set to ‘power’, this is the exponent to use.<br>
+> :   if self.stretch is set to ‘power’, this is the exponent to use.<br>
 
 > *clip*: [ True | False ]<br>
-> : If clip is True and the given value falls outside the range,<br>
-> the returned value will be 0 or 1, whichever is closer.<br>
+> :   If clip is True and the given value falls outside the range,<br>
+>     the returned value will be 0 or 1, whichever is closer.<br>
 
 ### *method* inverse(value)
 
@@ -45,7 +45,7 @@ data value.
 
 value
 
-> : Normalized value.<br>
+> \: Normalized value.<br>
 
 # pybdy.gui.nemo_bdy_input_window module
 
@@ -286,7 +286,7 @@ Run callback for the dropdown in the settings.
 
 Run callback when the True/False dropdown for the settings,
 
-> : which has a boolean value, is changed.<br>
+> \: which has a boolean value, is changed.<br>
 
 ### *method* init_ui()
 
@@ -494,7 +494,7 @@ Refresh the canvas.
 
 This method looks at the list of points available and depending on the number of points
 
-> : in the list creates a point or line or a polygon and draws them.<br>
+> \: in the list creates a point or line or a polygon and draws them.<br>
 
 ### *method* reset()
 
