@@ -169,9 +169,9 @@ def get_bdy_depths(DstCoord, bdy_i, grd):
     bdy_tz = np.ma.zeros((m_t.shape[0], len(g_ind)))
     bdy_e3 = np.ma.zeros((m_e.shape[0], len(g_ind)))
     for k in range(m_w.shape[0]):
-        tmp_w = np.ma.masked_where(mbathy + 1 < k + 1, m_w[k, :, :])
-        tmp_t = np.ma.masked_where(mbathy < k + 1, m_t[k, :, :])
-        tmp_e = np.ma.masked_where(mbathy < k + 1, m_e[k, :, :])
+        tmp_w = np.ma.masked_where(mbathy + 1 < (k + 1), m_w[k, :, :])
+        tmp_t = np.ma.masked_where(mbathy < (k + 1), m_t[k, :, :])
+        tmp_e = np.ma.masked_where(mbathy < (k + 1), m_e[k, :, :])
 
         tmp_w = tmp_w.flatten("F")
         tmp_t = tmp_t.flatten("F")
