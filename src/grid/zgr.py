@@ -32,13 +32,16 @@ from pybdy.reader.factory import GetFile
 
 
 class Z_Grid:
-    def __init__(self, zgr_file, name_map_file, hgr_type, e_dict, logger, dst=1):
+    def __init__(
+        self, zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, dst=1
+    ):
         """
         Master depth class.
 
         Parameters
         ----------
             zgr_file (str)           : string of file for loading zgr data
+            zgr_type (str)           : zgr type from namelist zco, zps or sco
             name_map_file (str)      : string of file for mapping variable names
             hgr_type (str)           : horizontal grid type
             e_dict (dict)       : dictionary of e1 and e2 scale factors
@@ -84,15 +87,15 @@ class Z_Grid:
             "e3uw",
             "e3vw",
             "e3fw",
+            "ln_zco",
+            "ln_zps",
+            "ln_sco",
         ]
-        #    "gdepw_0",
-        #    "e3t_0",
-        #    "e3w_0",
 
         self.get_vars(vars_want)
 
         # Work out what sort of source grid we have
-        self.find_zgrid_type()
+        self.find_zgrid_type(zgr_type)
 
         # Fill in missing variables we need for the grid type
         missing_vars = sorted(list(set(vars_want) - set(self.var_list)))
@@ -138,59 +141,36 @@ class Z_Grid:
         nc.close()
         self.var_list = list(self.grid.keys())
 
-    def find_zgrid_type(self):
+    def find_zgrid_type(self, zgr_type):
         """Find out what type of vertical grid is provided zco, zps or sigma levels (sco)."""
-        if ("gdept" not in self.var_list) & ("gdept_0" not in self.var_list):
-            if "e3t" in self.var_list:
-                self.grid["gdept"] = np.cumsum(self.grid["e3t"], axis=1)
-                self.var_list.append("gdept")
-            else:
-                raise Exception("No gdept or gdept_0 variable present in zgr file.")
-
-        if "gdept" not in self.var_list:
-            self.grid_type = "zco"
+        if zgr_type in ["zco", "zps", "sco"]:
+            # Check namelist for user specified zgr type
+            self.grid_type = zgr_type
         else:
-            if "mbathy" not in self.var_list:
-                raise Exception("No mbathy variable present in zgr file.")
-            # Could still be z, z-partial-step (zps) or sigma
-            # "z" - Check if all levels are equal
-            x_diff = np.diff(self.grid["gdept"], axis=3).sum() == 0
-            y_diff = np.diff(self.grid["gdept"], axis=2).sum() == 0
-            dep_test_z = x_diff & y_diff
+            raise Exception("zgr_type not specified in namelist or file.")
 
-            # "zps" - Select levels 2 above bathy to remove partial steps.
-            # Then check if levels of deepest profile are equal to all levels
-            z_ind = np.indices(self.grid["gdept"].shape)[1]
-            m_tile = np.tile(self.grid["mbathy"], (self.grid["gdept"].shape[1], 1, 1))[
-                np.newaxis, ...
-            ]
-            mask_bottom = z_ind >= (m_tile - 2)
-            dep_mask = np.ma.masked_where(mask_bottom, self.grid["gdept"])
+        file_zgr = ""
+        if "ln_zco" in self.var_list:
+            # Check the zgr netcdf file for ln flags
+            if self.grid["ln_zco"]:
+                file_zgr = "zco"
+        elif "ln_zps" in self.var_list:
+            if self.grid["ln_zps"]:
+                file_zgr = "zps"
+        elif "ln_sco" in self.var_list:
+            if self.grid["ln_sco"]:
+                file_zgr = "sco"
 
-            sel = np.nonzero(np.ma.max(dep_mask) == dep_mask)
-            dep_deepest = np.tile(
-                dep_mask[sel[0][0], :, sel[2][0], sel[3][0]],
-                (self.grid["gdept"].shape[3], self.grid["gdept"].shape[2], 1),
-            ).T[np.newaxis, :, :, :]
-            dep_test_zps = (
-                dep_deepest[mask_bottom is False]
-                == self.grid["gdept"][mask_bottom is False]
-            )
-
-            # Check if all levels are inside the bathy anywhere
-            lev_deepest = np.ma.max(self.grid["mbathy"])
-            dep_test_sigma = lev_deepest >= (self.grid["gdept"].shape[1] - 1)
-            if dep_test_z:
-                # z-level
-                self.grid_type = "zco"
-            elif dep_test_zps.all():
-                # z-partial-step
-                self.grid_type = "zps"
-            elif dep_test_sigma:
-                # sigma-level
-                self.grid_type = "sco"
-            else:
-                raise Exception("Unknown/unaccounted for vertical grid type.")
+        if file_zgr != "":
+            if file_zgr != self.grid_type:
+                print(
+                    "Warning: the vertical grid in the zgr file ("
+                    + file_zgr
+                    + ") does not match the user defined"
+                    + "zgr type in the namelist ("
+                    + self.grid_type
+                    + ")"
+                )
 
         self.logger.info("Vertical grid is type: " + self.grid_type)
 
