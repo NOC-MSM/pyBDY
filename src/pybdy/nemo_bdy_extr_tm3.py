@@ -61,8 +61,8 @@ class Extract:
         DstCoord        (obj)  : destination grid information
         Grid            (dict) : containing grid type 't', 'u', 'v' and source time
         var_name        (list) : netcdf file variable names (str)
-        years           (list) : years to extract (default [1979])
-        months          (list) : months to extract (default [11])
+        grd             (str)  : grid to process 't', 'u', 'v'
+        pair            (str)  : None or 'uv'
 
         Returns
         -------
@@ -982,6 +982,7 @@ class Extract:
                         self.logger.info(
                             "%s en to %s %s", self.rot_dir, self.rot_dir, dst_bdy.shape
                         )
+
                         dst_bdy = rot_rep(
                             dst_bdy,
                             dst_bdy_2,
