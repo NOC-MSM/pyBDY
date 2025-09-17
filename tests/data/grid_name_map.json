@@ -40,7 +40,10 @@
             "e3f": "e3f",
             "e3uw": "e3uw",
             "e3vw": "e3vw",
-            "e3fw": "e3fw"
+            "e3fw": "e3fw",
+            "ln_zco": "ln_zco",
+            "ln_zps": "ln_zps",
+            "ln_sco": "ln_sco"
     },
     "dst_variable_map": {
             "nav_lon": "nav_lon",
@@ -77,6 +80,9 @@
             "e3f": "e3f",
             "e3uw": "e3uw",
             "e3vw": "e3vw",
-            "e3fw": "e3fw"
+            "e3fw": "e3fw",
+            "ln_zco": "ln_zco",
+            "ln_zps": "ln_zps",
+            "ln_sco": "ln_sco"
     }
 }

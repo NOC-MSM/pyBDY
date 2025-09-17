@@ -65,7 +65,7 @@ def test_depth_file_zps():
         e_dict = {k: hg.grid[k] for k in keys}
 
         # calc vertical grid
-        zg = zgr.Z_Grid(in_file, name_map, hg.grid_type, e_dict, logger)
+        zg = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, e_dict, logger)
 
         nc = GetFile(bench_file)
         e3t = nc.nc["e3t"][:]

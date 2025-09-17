@@ -71,15 +71,15 @@ Convert the input contituents to index in the tidal constituents.
 > ### Parameters<br>
 
 > constituents: The list of constituents available from the source data<br>
-> : e.g. TPXO: [‘m2’, ‘s2’, ‘n2’, ‘k2’, ‘k1’, ‘o1’, ‘p1’, ‘q1’, ‘mf’, ‘mm’, ‘m4’, ‘ms4’, ‘mn4’]<br>
+> :   e.g. TPXO: [‘m2’, ‘s2’, ‘n2’, ‘k2’, ‘k1’, ‘o1’, ‘p1’, ‘q1’, ‘mf’, ‘mm’, ‘m4’, ‘ms4’, ‘mn4’]<br>
 
 > inputcons: The dictionary of constituents from the namelist with their numbers<br>
-> : e.g. {‘1’: “‘M2’”, ‘3’: “‘K2’”, ‘2’: “‘S2’”, ‘4’: “‘M4’”}<br>
+> :   e.g. {‘1’: “‘M2’”, ‘3’: “‘K2’”, ‘2’: “‘S2’”, ‘4’: “‘M4’”}<br>
 
 > ### Returns<br>
 
 > retindx: The indices (relative to the source data list) of the dictionary items from the namelist<br>
-> : e.g. [ 0. 3. 1. 10.]<br>
+> :   e.g. [ 0. 3. 1. 10.]<br>
 
 ## pybdy.tide.nemo_bdy_tide3.nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp)
 
@@ -140,7 +140,7 @@ TPXO9v5 only carries the bathymetry variable
 > return: mask dataarray.<br>
 
 > Useage:<br>
-> : self.grid[mask_name] = generate_landmask(bathy_name)<br>
+> :   self.grid[mask_name] = generate_landmask(bathy_name)<br>
 
 ### *method* interpolate_constituents(nc_dataset, real_var_name, img_var_name, lon_var_name, lat_var_name, lon, lat, height_data=None, maskname=None)
 

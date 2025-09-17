@@ -332,6 +332,7 @@ def flood_fill(sc_bdy, isslab, logger):
     sc_shape = sc_bdy.shape
 
     for i in range(sc_shape[0]):
+        # Check if layer centre-point has both nans and values
         while np.isnan(sc_bdy[i, :, 0]).any() & (~np.isnan(sc_bdy[i, :, 0])).any():
             # Flood sc land horizontally within the chunk for the centre point.
             # This may not be perfect but better than filling with zeros
@@ -351,6 +352,12 @@ def flood_fill(sc_bdy, isslab, logger):
             np.isnan(sc_bdy[:, :, 0])
         ]
 
+    # Replace nans around centre-point with value.
+    sc_nan = np.isnan(sc_bdy)
+    sc_bdy[:, :, 1:][sc_nan[:, :, 1:]] = np.tile(sc_bdy[:, :, 0:1], (1, 1, 8))[
+        sc_nan[:, :, 1:]
+    ]
+
     return sc_bdy
 
 
@@ -363,7 +370,7 @@ def interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy, zinterp=
     sc_bdy (np.array)   : souce data [nz_sc, nbdy, 9]
     dst_dep (np.array)  : the depth of the destination grid chunk [nz, nbdy]
     bdy_bathy (np.array): the destination grid bdy points bathymetry
-    z_ind (np.array)    : the indices of the sc depth above and below bdy
+    z_ind (np.array)    : the indices of the sc depth above and below bdy point
     z_dist (np.array)   : the distance weights of the selected points
     num_bdy (int)       : number of boundary points in chunk
     zinterp (bool)      : vertical interpolation flag

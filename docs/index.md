@@ -59,6 +59,7 @@ The changes relative to the previous version (0.3.0) are:
 - Bug fix for 90 boundaries that meet diagonally to produce a 90 degree corner.
 - Some unit tests have been added and full integration tests.
 - Documentation has been updated and restructured.
+- sn_src_zgr_type and sn_dst_zgr_type are defined in the namelist.bdy
 
 **There is a new library for generating NEMO initial conditions called pyIC.**
 pyIC can be found at: [https://github.com/NOC-MSM/pyIC](https://github.com/NOC-MSM/pyIC)
@@ -198,6 +199,8 @@ Here we will summarise the main variables that will need changing to get started
 
 #### Key Namelist Parameters
 
+- `sn_src_zgr_type`
+- `sn_dst_zgr_type`
 - `sn_src_hgr`
 - `sn_src_zgr`
 - `sn_dst_hgr`
@@ -210,6 +213,11 @@ Here we will summarise the main variables that will need changing to get started
 - `cn_mask_file`
 - `ln_zinterp`
 - `nn_rimwidth`
+
+##### Vertical grid type
+
+- **`sn_src_zgr_type`**: The source vertical coordinate type. This can be 'zco', 'zps' or 'sco'. 'zco' for the z-coordinate full step which are not spatially verying, 'zps' for z-coordinate - partial steps which have some adjustment in height near the seabed and 'sco' for sigma or hybrid z-sigma-coordinates which get thicker or thinner depending on the bathymetry.
+- **`sn_dst_zgr_type`**: Same as `sn_src_zgr_type` but for destination vertical coordinate type.
 
 ##### File Paths
 
@@ -448,6 +456,10 @@ Summary of minimum requirements:
 "e3uw" = * vertical scale factor distance between w-levels on u-grid (dims [t, z, y, x])
 "e3vw" = * vertical scale factor distance between w-levels on v-grid (dims [t, z, y, x])
 "e3fw" = * vertical scale factor distance between w-levels on f-grid (dims [t, z, y, x])
+
+"ln_zco" = * flag for zco vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
+"ln_zps" = * flag for zps vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
+"ln_sco" = * flag for sco vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
 ```
 
 ### Step 5: Running pyBDY
@@ -472,6 +484,19 @@ The example child (destination) here is a regional NEMO model that covers the In
 ### Namelist File
 
 Below is excerpts from an example *namelist.bdy*.
+
+This sections tells pybdy the vertical coordinate type of the parent (src) and child (dst). In this case the the parent is on constant z-levels and the child is on spatially varying sigma-levels.
+
+```
+!------------------------------------------------------------------------------
+!   vertical coordinate
+!------------------------------------------------------------------------------
+   sn_src_zgr_type = 'zco' ! vertical coordinate type: 'zco', 'zps' or 'sco'
+   sn_dst_zgr_type = 'sco' ! vertical coordinate type: 'zco', 'zps' or 'sco'
+                           ! 'zco' is z-coordinate - full    steps
+                           ! 'zps' is z-coordinate - partial steps
+                           ! 'sco' is s- or hybrid z-s-coordinate
+```
 
 Here the file paths are set. These can be absolute (i.e. starting with "/") or relative (i.e. starting with "./"). For help with what variables are needed in these files see [How to use pyBDY :student:](#how-to-use-pybdy-student). In the example case, the bathmetry file needed to be calculated before running pybdy. It may also be the case that you need to calculate variables like gdept for the sn_src_zgr file fore running pybdy. For setting up the grid_name_map.json see the JSON file example section below.
 
@@ -637,7 +662,10 @@ This is an example .json file: *grid_name_map.json*. It specifise the names of v
     "e3f": "e3f",
     "e3uw": "e3uw",
     "e3vw": "e3vw",
-    "e3fw": "e3fw"
+    "e3fw": "e3fw",
+    "ln_zco": "ln_zco",
+    "ln_zps": "ln_zps",
+    "ln_sco": "ln_sco"
   },
   "dst_variable_map": {
     "nav_lon": "nav_lon",
@@ -674,7 +702,10 @@ This is an example .json file: *grid_name_map.json*. It specifise the names of v
     "e3f": "e3f_0",
     "e3uw": "e3uw_0",
     "e3vw": "e3vw_0",
-    "e3fw": "e3fw"
+    "e3fw": "e3fw",
+    "ln_zco": "ln_zco",
+    "ln_zps": "ln_zps",
+    "ln_sco": "ln_sco"
   }
 }
 ```

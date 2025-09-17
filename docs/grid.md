@@ -95,17 +95,18 @@ Calculate the missing horizontal grid variables and add them to grid.
 @author Ryan Patmore
 @author Anthony Wise
 
-## *class* grid.zgr.Z_Grid(zgr_file, name_map_file, hgr_type, e_dict, logger, dst=1)
+## *class* grid.zgr.Z_Grid(zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, dst=1)
 
 > Bases: `object`<br>
 
-### *method* \_\_init\_\_(zgr_file, name_map_file, hgr_type, e_dict, logger, dst=1)
+### *method* \_\_init\_\_(zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, dst=1)
 
 Master depth class.
 
 > ### Parameters<br>
 
 > zgr_file (str) : string of file for loading zgr data<br>
+> zgr_type (str) : zgr type from namelist zco, zps or sco<br>
 > name_map_file (str) : string of file for mapping variable names<br>
 > hgr_type (str) : horizontal grid type<br>
 > e_dict (dict) : dictionary of e1 and e2 scale factors<br>
@@ -116,7 +117,7 @@ Master depth class.
 
 > Depth (object) : Depth object<br>
 
-### *method* find_zgrid_type()
+### *method* find_zgrid_type(zgr_type)
 
 Find out what type of vertical grid is provided zco, zps or sigma levels (sco).
 
