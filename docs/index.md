@@ -154,7 +154,7 @@ pybdy -v
 If it has you should see the help usage prompt:
 
 ```
-usage: pybdy -g -s <namelist.bdy>
+usage: pybdy -s <namelist.bdy>
 ```
 
 If not please see the troubleshooting pages for common causes as
