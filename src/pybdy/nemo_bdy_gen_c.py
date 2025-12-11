@@ -119,7 +119,7 @@ class Boundary:
         bdy_i = np.tile(tij, (rw, 1, 1))
 
         bdy_i = np.transpose(bdy_i, (1, 2, 0))
-        bdy_r = bdy_r = np.tile(np.arange(0, rw), (bdy_i.shape[0], 1))
+        bdy_r = np.tile(np.arange(0, rw), (bdy_i.shape[0], 1))
 
         # Add points for relaxation zone over rim width
         # In the relaxation zone with rim width. looking into the domain up to the rim width
