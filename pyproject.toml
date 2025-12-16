@@ -67,7 +67,7 @@ pybdy_ncml_generator = "pybdy.pybdy_ncml_generator:main"
 pybdy_settings_editor = "pybdy.pybdy_settings_editor:main"
 
 [project.urls]
-documentation = "https://pynemo.readthedocs.io/en/latest/"
+documentation = "https://noc-msm.github.io/pyBDY/"
 repository = "https://github.com/NOC-MSM/pyBDY"
 
 [tool.coverage.run]
