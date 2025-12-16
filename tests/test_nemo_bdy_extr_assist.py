@@ -63,7 +63,7 @@ def test_get_ind_out_of_bound():
     lat_range_s = np.arange(30, 50, 0.5)
     lon_sc, lat_sc = np.meshgrid(lon_range_s, lat_range_s)
 
-    with pytest.raises(Exception, match="") as exc_info:
+    with pytest.raises(Exception) as exc_info:
         imin, imax, jmin, jmax = extr_assist.get_ind(dst_lon, dst_lat, lon_sc, lat_sc)
     assert (
         exc_info.value.args[0]
