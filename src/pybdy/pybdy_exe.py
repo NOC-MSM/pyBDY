@@ -43,7 +43,7 @@ def main():
             sys.argv[1:], "hs:g", ["help", "setup=", "mask_gui"]
         )
     except getopt.GetoptError:
-        print("usage: pybdy -g -s <namelist.bdy> ")
+        print("usage: pybdy -s <namelist.bdy> ")
         sys.exit(2)
 
     for opt, arg in opts:
