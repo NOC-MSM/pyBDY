@@ -89,7 +89,43 @@ def synth_zco(max_depth, n_zlevel):
     return gdept, gdepw
 
 
+def synth_zps(max_depth, bathy, n_zlevel):
+    """
+    Generate zps vertical coordinates for gdep.
+
+    Parameters
+    ----------
+    max_depth (int)    : maximum depth level
+    n_zlevel (int)     : number of z levels required
+
+    Returns
+    -------
+    gdept (np.array)   : zps depth levels on t levels points
+    gdepw (np.array)   : zps depth levels on w levels points
+    """
+    gdepw = np.linspace(0, max_depth, num=n_zlevel)
+    gdepw = np.tile(gdepw, (bathy.shape[1], bathy.shape[0], 1)).T
+
+    # modify the depth levels at gdepw k-1 where bathy intercepts
+    b_tile = np.tile(bathy, (n_zlevel, 1, 1))
+    mbathy = np.argmax(gdepw > b_tile, axis=0)
+    for i in range(mbathy.shape[0]):
+        for j in range(mbathy.shape[1]):
+            gdepw[mbathy[i, j], i, j] = bathy[i, j]
+
+    # gdept follows
+
+    gdept = gdepw.copy()
+    gdept[:-1, ...] = 0.5 * (gdepw[:-1, ...] + gdepw[1:, ...])
+    gdept[-1, ...] = gdepw[-1, ...] + (gdepw[-1, ...] - gdept[-2, ...])
+
+    return gdept, gdepw
+
+
 if __name__ == "__main__":
-    zt, zw = synth_sco(np.array([[50, 60], [40, 55.5]]), 20)
-    plt.plot(zt.reshape(len(zt), -1))
+    # zt, zw = synth_sco(np.array([[50, 60], [40, 55.5]]), 20)
+    # plt.plot(zt.reshape(len(zt), -1))
+    zt, zw = synth_zps(500, np.array([[140, 140], [320, 320]]), 20)
+    plt.plot(zw[:, 0, 0])
+    plt.plot(zt[:, 0, 0])
     plt.show()

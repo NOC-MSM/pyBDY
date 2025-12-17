@@ -42,8 +42,8 @@ def test_zco_zco():
     This test is for dst in zco and sc in zco vertical coordinates.
     Horizontal coordinates are A-Grid.
     """
-    path1, path2, path3 = generate_sc_test_case(zco=True)
-    path4 = generate_dst_test_case(zco=True)
+    path1, path2, path3 = generate_sc_test_case(ztype="zco")
+    path4 = generate_dst_test_case(ztype="zco")
     name_list_path = modify_namelist(path1, path3, path4, "zco", "zco")
 
     # Run pybdy
@@ -115,6 +115,86 @@ def test_zco_zco():
     assert summary_grid == test_grid, "May need to update regression values."
 
 
+def test_zps_sco():
+    """
+    Test the full pybdy processing using a regression test.
+
+    This test is for dst in sco and sc in zps vertical coordinates.
+    Horizontal coordinates are A-Grid.
+    """
+    path1, path2, path3 = generate_sc_test_case(ztype="zps")
+    path4 = generate_dst_test_case(ztype="sco")
+    name_list_path = modify_namelist(path1, path3, path4, "zps", "sco")
+
+    # Run pybdy
+    subprocess.run(
+        "pybdy -s " + name_list_path,
+        shell=True,
+        check=True,
+        text=True,
+    )
+
+    coords = "./tests/data/coordinates.bdy.nc"
+    output_t = "./tests/data/data_output_bdyT_y1979m11.nc"
+    output_u = "./tests/data/data_output_bdyU_y1979m11.nc"
+    output_v = "./tests/data/data_output_bdyV_y1979m11.nc"
+
+    # Check output
+    ds_c = xr.open_dataset(coords)
+    ds_t = xr.open_dataset(output_t)
+    ds_u = xr.open_dataset(output_u)
+    ds_v = xr.open_dataset(output_v)
+    temp = ds_t["votemper"].to_masked_array()
+
+    summary_grid = {
+        "Num_var_co": len(ds_c.keys()),
+        "Num_var_t": len(ds_t.keys()),
+        "Min_gdept": float(ds_t["gdept"].min().to_numpy()),
+        "Max_gdept": float(ds_t["gdept"].max().to_numpy()),
+        "Shape_temp": ds_t["votemper"].shape,
+        "Shape_ssh": ds_t["sossheig"].shape,
+        "Shape_mask": ds_t["bdy_msk"].shape,
+        "Mean_temp": float(ds_t["votemper"].mean().to_numpy()),
+        "Mean_sal": float(ds_t["vosaline"].mean().to_numpy()),
+        "Sum_unmask": np.ma.count(temp),
+        "Sum_mask": np.ma.count_masked(temp),
+        "Shape_u": ds_u["vozocrtx"].shape,
+        "Shape_v": ds_v["vomecrty"].shape,
+        "Mean_u": float(ds_u["vozocrtx"].mean().to_numpy()),
+        "Mean_v": float(ds_v["vomecrty"].mean().to_numpy()),
+    }
+
+    # Clean up files
+    os.remove(path1)
+    os.remove(path2)
+    os.remove(path4)
+    os.remove(coords)
+    os.remove(output_t)
+    os.remove(output_u)
+    os.remove(output_v)
+
+    print(summary_grid)
+    test_grid = {
+        "Num_var_co": 21,
+        "Num_var_t": 11,
+        "Min_gdept": 3.8946874141693115,
+        "Max_gdept": 966.4112548828125,
+        "Shape_temp": (30, 15, 1, 1584),
+        "Shape_ssh": (30, 1, 1584),
+        "Shape_mask": (60, 50),
+        "Mean_temp": 17.899192810058594,
+        "Mean_sal": 34.108978271484375,
+        "Sum_unmask": 665280,
+        "Sum_mask": 47520,
+        "Shape_u": (30, 15, 1, 1566),
+        "Shape_v": (30, 15, 1, 1566),
+        "Mean_u": 0.9957350492477417,
+        "Mean_v": 0.9885387420654297,
+    }
+
+    assert summary_grid == test_grid, "May need to update regression values."
+
+
 def test_sco_sco():
     """
     Test the full pybdy processing using a regression test.
@@ -122,8 +202,8 @@ def test_sco_sco():
     This test is for dst in sco and sc in sco vertical coordinates.
     Horizontal coordinates are A-Grid.
     """
-    path1, path2, path3 = generate_sc_test_case(zco=False)
-    path4 = generate_dst_test_case(zco=False)
+    path1, path2, path3 = generate_sc_test_case(ztype="sco")
+    path4 = generate_dst_test_case(ztype="sco")
     name_list_path = modify_namelist(path1, path3, path4, "sco", "sco")
 
     # Run pybdy
@@ -202,8 +282,8 @@ def test_sco_zco():
     This test is for dst in zco and sc in sco vertical coordinates.
     Horizontal coordinates are A-Grid.
     """
-    path1, path2, path3 = generate_sc_test_case(zco=False)
-    path4 = generate_dst_test_case(zco=True)
+    path1, path2, path3 = generate_sc_test_case(ztype="sco")
+    path4 = generate_dst_test_case(ztype="zco")
     name_list_path = modify_namelist(path1, path3, path4, "sco", "zco")
 
     # Run pybdy
@@ -249,8 +329,8 @@ def test_sco_zco():
     os.remove(path2)
     os.remove(path4)
     os.remove(coords)
-    os.remove(output_t)
-    os.remove(output_u)
+    # os.remove(output_t)
+    # os.remove(output_u)
     os.remove(output_v)
 
     print(summary_grid)
@@ -283,8 +363,8 @@ def test_wrap_sc():
     Horizontal coordinates are A-Grid.
     sc data wraps at 0 degrees longitude
     """
-    path1, path2, path3 = generate_sc_test_case(zco=True, wrap=1)
-    path4 = generate_dst_test_case(zco=True)
+    path1, path2, path3 = generate_sc_test_case(ztype="zco", wrap=1)
+    path4 = generate_dst_test_case(ztype="zco")
     name_list_path = modify_namelist(path1, path3, path4, "zco", "zco")
 
     # Run pybdy
@@ -365,13 +445,13 @@ def test_wrap_sc():
     assert summary_grid == test_grid, "May need to update regression values."
 
 
-def generate_sc_test_case(zco, wrap=0):
+def generate_sc_test_case(ztype="zco", wrap=0):
     """
     Generate a synthetic test case for source.
 
     Parameters
     ----------
-    zco (bool) : if true generate zco vertical coordinates, if false sco
+    ztype (str) : zco, zps or sco to generate vertical coordinates
     wrap (bool): if true lons wrap in the middle of dst
 
     Returns
@@ -414,15 +494,20 @@ def generate_sc_test_case(zco, wrap=0):
     synth = synth.drop_vars(["e1t", "e2t", "e1v", "e2v", "e1u", "e2u", "e1f", "e2f"])
 
     # Generate depth array
-    if zco:
+    if ztype == "zco":
         max_depth = 2000
         n_zlevel = 20
         gdept, gdepw = synth_zgrid.synth_zco(max_depth, n_zlevel)
         gdept = np.tile(gdept, (len(lon_t), len(lat_t), 1)).T
         gdepw = np.tile(gdepw, (len(lon_t), len(lat_t), 1)).T
-    else:
+    elif ztype == "sco":
         n_zlevel = 20
         gdept, gdepw = synth_zgrid.synth_sco(synth["Bathymetry"], n_zlevel)
+    elif ztype == "zps":
+        max_depth = 2000
+        n_zlevel = 20
+        synth["Bathymetry"]
+        gdept, gdepw = synth_zgrid.synth_zps(max_depth, synth["Bathymetry"], n_zlevel)
 
     synth["gdept"] = xr.DataArray(gdept, dims=["z", "y", "x"], name="gdept").copy()
     synth["gdepw"] = xr.DataArray(gdepw, dims=["z", "y", "x"], name="gdepw").copy()
@@ -448,6 +533,7 @@ def generate_sc_test_case(zco, wrap=0):
     umask = tmask.copy()
     vmask = tmask.copy()
     fmask = tmask.copy()
+
     synth["tmask"] = xr.DataArray(tmask, dims=["t", "z", "y", "x"], name="tmask")
     synth["umask"] = xr.DataArray(umask, dims=["t", "z", "y", "x"], name="umask")
     synth["vmask"] = xr.DataArray(vmask, dims=["t", "z", "y", "x"], name="vmask")
@@ -479,6 +565,7 @@ def generate_sc_test_case(zco, wrap=0):
         ).copy()
     data_vars["vosaline"] = synth_temp_sal.salinity_profile(depth)
     uvel = np.ones_like(data_vars["vozocrtx"])
+    # uvel[np.tile(gdept, (31, 1, 1, 1)) > 500] = 0.5
     uvel[:, -10:, :, :] = 0.5
     data_vars["vozocrtx"] = xr.DataArray(
         uvel, dims=["time_counter", "z", "y", "x"], name="vozocrtx"
@@ -503,13 +590,13 @@ def generate_sc_test_case(zco, wrap=0):
     return path1, path2 + fname, path3
 
 
-def generate_dst_test_case(zco):
+def generate_dst_test_case(ztype="zco"):
     """
     Generate a synthetic test case for destination.
 
     Parameters
     ----------
-    zco (bool) : if true generate zco vertical coordinates, if false sco
+    ztype (str) :  zco, zps or sco to generate vertical coordinates
 
     Returns
     -------
@@ -539,15 +626,20 @@ def generate_dst_test_case(zco):
             name=g_vars[i],
         )
 
-    if zco:
+    if ztype == "zco":
         max_depth = 2000
         n_zlevel = 25
         gdept, gdepw = synth_zgrid.synth_zco(max_depth, n_zlevel)
         gdept = np.tile(gdept, (len(lon_t), len(lat_t), 1)).T
         gdepw = np.tile(gdepw, (len(lon_t), len(lat_t), 1)).T
-    else:
+    elif ztype == "sco":
         n_zlevel = 15
         gdept, gdepw = synth_zgrid.synth_sco(synth["Bathymetry"], n_zlevel)
+    elif ztype == "zps":
+        max_depth = 2000
+        n_zlevel = 20
+        synth["Bathymetry"]
+        gdept, gdepw = synth_zgrid.synth_zps(max_depth, synth["Bathymetry"], n_zlevel)
 
     synth["gdept"] = xr.DataArray(
         gdept[np.newaxis, ...], dims=["t", "z", "y", "x"], name="gdept"
@@ -589,10 +681,7 @@ def generate_dst_test_case(zco):
             grid[e_grid_vars[i]], dims=["t", "y", "x"], name=e_grid_vars[i]
         )
 
-    if zco:
-        zgrid_type = "zco"
-    else:
-        zgrid_type = "sco"
+    zgrid_type = ztype
 
     grid = {}
     grid["gdept"] = synth["gdept"].to_numpy()
@@ -668,3 +757,9 @@ def modify_namelist(path_src, path_sc_data, path_dst, src_zgr, dst_zgr):
             f.write(lines[li])
 
     return namelist_file
+
+
+if __name__ == "__main__":
+    test_zps_sco()
+    # test_sco_sco()
+    # path1, path2, path3 = generate_sc_test_case(ztype='zps')
