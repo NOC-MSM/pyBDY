@@ -173,20 +173,20 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     logger.info("Gathering vertical grid information")
 
     for c in range(len(all_chunk)):
-        chunk = bdy_ind[grd].chunk_number == all_chunk[c]
+        chunk = bdy_ind["t"].chunk_number == all_chunk[c]
         dst_lon_ch = DstCoord.bdy_lonlat["t"]["lon"][chunk]
         dst_lat_ch = DstCoord.bdy_lonlat["t"]["lat"][chunk]
         dimin, dimax, djmin, djmax = extr_assist.get_ind(
-            DstCoord.bdy_lonlat["t"]["lon"],
-            DstCoord.bdy_lonlat["t"]["lat"],
             dst_lon_ch,
             dst_lat_ch,
+            DstCoord.lonlat["t"]["lon"].squeeze(),
+            DstCoord.lonlat["t"]["lat"].squeeze(),
         )
         simin, simax, sjmin, sjmax = extr_assist.get_ind(
-            SourceCoord.hgr.grid["glamt"].squeeze(),
-            SourceCoord.hgr.grid["gphit"].squeeze(),
             dst_lon_ch,
             dst_lat_ch,
+            SourceCoord.hgr.grid["glamt"].squeeze(),
+            SourceCoord.hgr.grid["gphit"].squeeze(),
         )
         wrap_flag, simin, simax = extr_assist.check_wrap(
             simin, simax, SourceCoord.hgr.grid["glamt"].squeeze()
@@ -232,7 +232,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
 
-    if (SourceCoord.zgr.grid_type != "zco") & (settings["zinterp"] is False):
+    if (settings["src_zgr_type"] != "zco") & (settings["zinterp"] is False):
         # Override use zinterp flag if vertical grid type is not zco
         logger.warning("Setting zinterp to True because vertical grid is not zco")
         settings["zinterp"] = True
