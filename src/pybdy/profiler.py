@@ -228,17 +228,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     DstCoord.hgr.grid = None
     SourceCoord.hgr.grid = None
 
-    # Fill horizontal grid information
-
-    try:  # if they are masked array convert them to normal arrays
-        SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
-    except Exception:
-        logger.debug("Not a masked array.")
-    try:
-        SourceCoord.hgr.grid["gphit"] = SourceCoord.hgr.grid["gphit"].filled()  # lat
-    except Exception:
-        logger.debug("Not a masked array.")
-
     # Define z at t/u/v points
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
