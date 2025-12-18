@@ -34,6 +34,7 @@ from PyQt5.QtWidgets import QMessageBox
 # Local imports
 from pybdy import nemo_bdy_chunk as chunk_func
 from pybdy import nemo_bdy_dst_coord as dst_coord
+from pybdy import nemo_bdy_extr_assist as extr_assist
 from pybdy import nemo_bdy_extr_tm3 as extract
 from pybdy import nemo_bdy_gen_c as gen_grid
 from pybdy import nemo_bdy_ncpop as ncpop
@@ -104,18 +105,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     DstCoord.bdy_msk = bdy_msk == 1
     logger.info("Reading mask completed")
 
-    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
-    DstCoord.zgr = zgr.Z_Grid(
-        settings["dst_zgr"],
-        settings["dst_zgr_type"],
-        settings["nme_map"],
-        DstCoord.hgr.grid_type,
-        DstCoord.hgr.grid,
-        logger,
-        dst=1,
-    )
-    logger.info("Reading dst grid completed")
-
     bdy_ind = {}  # define a dictionary to hold the grid information
 
     for grd in ["t", "u", "v"]:
@@ -125,6 +114,12 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
         # function to split the bdy into several boundary chunks
         bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
+
+    logger.info("Gathering horizontal grid information")
+    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
+    SourceCoord.hgr = hgr.H_Grid(
+        settings["src_hgr"], settings["nme_map"], logger, dst=0
+    )
 
     if Setup.bool_settings["coords_file"]:
         # Write out grid information to coordinates.bdy.nc
@@ -168,21 +163,70 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     logger.info("BDY lons/lats identified from %s", settings["dst_hgr"])
 
-    # Gather grid information
+    # Get slice indices for each chunk to subset the horizontal grids and vertical grids
 
-    logger.info("Gathering src grid information")
-    SourceCoord.hgr = hgr.H_Grid(
-        settings["src_hgr"], settings["nme_map"], logger, dst=0
-    )
-    SourceCoord.zgr = zgr.Z_Grid(
-        settings["src_zgr"],
-        settings["src_zgr_type"],
-        settings["nme_map"],
-        SourceCoord.hgr.grid_type,
-        SourceCoord.hgr.grid,
-        logger,
-        dst=0,
-    )
+    all_chunk = np.unique(bdy_ind[grd].chunk_number)
+    DstCoord.hgr.chunk = [None] * len(all_chunk)
+    SourceCoord.hgr.chunk = [None] * len(all_chunk)
+    DstCoord.zgr = [None] * len(all_chunk)
+    SourceCoord.zgr = [None] * len(all_chunk)
+    logger.info("Gathering vertical grid information")
+
+    for c in range(len(all_chunk)):
+        chunk = bdy_ind[grd].chunk_number == all_chunk[c]
+        dst_lon_ch = DstCoord.bdy_lonlat["t"]["lon"][chunk]
+        dst_lat_ch = DstCoord.bdy_lonlat["t"]["lat"][chunk]
+        dimin, dimax, djmin, djmax = extr_assist.get_ind(
+            DstCoord.bdy_lonlat["t"]["lon"],
+            DstCoord.bdy_lonlat["t"]["lat"],
+            dst_lon_ch,
+            dst_lat_ch,
+        )
+        simin, simax, sjmin, sjmax = extr_assist.get_ind(
+            SourceCoord.hgr.grid["glamt"].squeeze(),
+            SourceCoord.hgr.grid["gphit"].squeeze(),
+            dst_lon_ch,
+            dst_lat_ch,
+        )
+        wrap_flag, simin, simax = extr_assist.check_wrap(
+            simin, simax, SourceCoord.hgr.grid["glamt"].squeeze()
+        )
+        chunk_sub_dst = [dimin, dimax, djmin, djmax]
+        chunk_sub_sc = [simin, simax, sjmin, sjmax]
+
+        # Subset the horizontal grids and vertical grids for each chunk
+
+        DstCoord.hgr.chunk[c] = DstCoord.hgr.subset_hgr(chunk_sub_dst)
+        SourceCoord.hgr.chunk[c] = DstCoord.hgr.subset_hgr(chunk_sub_sc)
+
+        # Gather grid information
+
+        DstCoord.zgr[c] = zgr.Z_Grid(
+            settings["dst_zgr"],
+            settings["dst_zgr_type"],
+            settings["nme_map"],
+            DstCoord.hgr.grid_type,
+            DstCoord.hgr.chunk[c],
+            chunk_sub_dst,
+            logger,
+            dst=1,
+        )
+
+        SourceCoord.zgr[c] = zgr.Z_Grid(
+            settings["src_zgr"],
+            settings["src_zgr_type"],
+            settings["nme_map"],
+            SourceCoord.hgr.grid_type,
+            SourceCoord.hgr.chunk[c],
+            chunk_sub_sc,
+            logger,
+            dst=0,
+        )
+
+    logger.info("Reading grid completed")
+
+    DstCoord.hgr.grid = None
+    SourceCoord.hgr.grid = None
 
     # Fill horizontal grid information
 
