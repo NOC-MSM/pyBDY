@@ -207,8 +207,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             settings["nme_map"],
             DstCoord.hgr.grid_type,
             DstCoord.hgr.chunk[c],
-            chunk_sub_dst,
             logger,
+            chunk_sub_dst,
             dst=1,
         )
 
@@ -218,8 +218,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             settings["nme_map"],
             SourceCoord.hgr.grid_type,
             SourceCoord.hgr.chunk[c],
-            chunk_sub_sc,
             logger,
+            chunk_sub_sc,
             dst=0,
         )
 
