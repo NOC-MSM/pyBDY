@@ -23,7 +23,6 @@ the interpolation onto the destination grid.
 @author: Mr. Srikanth Nagella
 """
 # External Imports
-import copy
 import datetime as dt
 import logging
 from calendar import isleap, monthrange
@@ -73,11 +72,9 @@ class Extract:
         self.settings = setup
         self.key_vec = False
 
-        # TODO: Why are we deepcopying the coordinates???
-
-        SC = copy.deepcopy(SourceCoord)
-        DC = copy.deepcopy(DstCoord)
-        bdy_r = copy.deepcopy(Grid[grd].bdy_r)
+        SC = SourceCoord
+        DC = DstCoord
+        bdy_r = Grid[grd].bdy_r
 
         # Extract time and variable information
 
