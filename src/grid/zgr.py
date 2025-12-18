@@ -33,7 +33,15 @@ from pybdy.reader.factory import GetFile
 
 class Z_Grid:
     def __init__(
-        self, zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, dst=1
+        self,
+        zgr_file,
+        zgr_type,
+        name_map_file,
+        hgr_type,
+        e_dict,
+        logger,
+        indicies=[],
+        dst=1,
     ):
         """
         Master depth class.
@@ -46,6 +54,7 @@ class Z_Grid:
             hgr_type (str)           : horizontal grid type
             e_dict (dict)       : dictionary of e1 and e2 scale factors
             logger (object)          : log error and messages
+            indicies (list)          : min and max, i and j indicies for chunk
             dst (bool)               : flag for destination (true) or source (false)
 
         Returns
@@ -92,7 +101,9 @@ class Z_Grid:
             "ln_sco",
         ]
 
-        self.get_vars(vars_want)
+        if indicies == []:
+            indicies = [0, -1, 0, -1]
+        self.get_vars(vars_want, indicies)
 
         # Work out what sort of source grid we have
         self.find_zgrid_type(zgr_type)
@@ -105,7 +116,7 @@ class Z_Grid:
         )
         self.var_list = list(self.grid.keys())
 
-    def get_vars(self, vars_want):
+    def get_vars(self, vars_want, ind):
         """
         Get the gdep and e3 scale factors from file if possible.
 
@@ -137,7 +148,8 @@ class Z_Grid:
         nc = GetFile(self.file_path)
         for vi in vars_want:
             if vi in nm_var_list:
-                self.grid[vi] = nc.nc[nm[vi]][:]
+                # assume y and x are last two dimensions in t, z, y, x
+                self.grid[vi] = nc.nc[nm[vi]][..., ind[2] : ind[3], ind[0] : ind[1]]
         nc.close()
         self.var_list = list(self.grid.keys())
 
