@@ -40,7 +40,7 @@ class Z_Grid:
         hgr_type,
         e_dict,
         logger,
-        indicies=[],
+        indices=[],
         dst=1,
     ):
         """
@@ -54,7 +54,7 @@ class Z_Grid:
             hgr_type (str)           : horizontal grid type
             e_dict (dict)       : dictionary of e1 and e2 scale factors
             logger (object)          : log error and messages
-            indicies (list)          : min and max, i and j indicies for chunk
+            indices (list)          : min and max, i and j indicies for chunk
             dst (bool)               : flag for destination (true) or source (false)
 
         Returns
@@ -101,9 +101,9 @@ class Z_Grid:
             "ln_sco",
         ]
 
-        if indicies == []:
-            indicies = [0, -1, 0, -1]
-        self.get_vars(vars_want, indicies)
+        if indices == []:
+            indices = [0, -1, 0, -1]
+        self.get_vars(vars_want, indices)
 
         # Work out what sort of source grid we have
         self.find_zgrid_type(zgr_type)
