@@ -281,6 +281,7 @@ def test_interp_vertical():
     bdy_bathy = np.array([80.5, 100, 60])
     gdept, _ = synth_zgrid.synth_zco(max_depth, dst_len_z)
     dst_dep = np.tile(gdept, (num_bdy, 1)).T
+    dst_dep[dst_dep > np.tile(bdy_bathy, (dst_len_z, 1))] = np.nan
     dst_dep = np.ma.masked_array(dst_dep)
     sc_z_len = 15
     gdept, _ = synth_zgrid.synth_zco(max_depth, sc_z_len)
