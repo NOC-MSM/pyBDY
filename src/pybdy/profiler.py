@@ -116,8 +116,10 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
 
     logger.info("Gathering horizontal grid information")
-    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
-    SourceCoord.hgr = hgr.H_Grid(
+    DstCoord.hgr_full = hgr.H_Grid(
+        settings["dst_hgr"], settings["nme_map"], logger, dst=1
+    )
+    SourceCoord.hgr_full = hgr.H_Grid(
         settings["src_hgr"], settings["nme_map"], logger, dst=0
     )
 
@@ -126,7 +128,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         co_set = coord.Coord(
             settings["dst_dir"] + "/" + settings["coords_file"], bdy_ind
         )
-        co_set.populate(DstCoord.hgr)
+        co_set.populate(DstCoord.hgr_full)
         logger.info("File: coordinates.bdy.nc generated and populated")
 
     # Idenitify number of boundary points
@@ -139,8 +141,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     DstCoord.lonlat = {"t": {}, "u": {}, "v": {}}
     for grd in ["t", "u", "v"]:
-        DstCoord.lonlat[grd]["lon"] = DstCoord.hgr.grid["glam" + grd][0, :, :]
-        DstCoord.lonlat[grd]["lat"] = DstCoord.hgr.grid["gphi" + grd][0, :, :]
+        DstCoord.lonlat[grd]["lon"] = DstCoord.hgr_full.grid["glam" + grd][0, :, :]
+        DstCoord.lonlat[grd]["lat"] = DstCoord.hgr_full.grid["gphi" + grd][0, :, :]
 
     logger.info("Grid coordinates defined")
 
@@ -166,8 +168,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     # Get slice indices for each chunk to subset the horizontal grids and vertical grids
 
     all_chunk = np.unique(bdy_ind[grd].chunk_number)
-    DstCoord.hgr.chunk = [None] * len(all_chunk)
-    SourceCoord.hgr.chunk = [None] * len(all_chunk)
+    DstCoord.hgr = [None] * len(all_chunk)
+    SourceCoord.hgr = [None] * len(all_chunk)
     DstCoord.zgr = [None] * len(all_chunk)
     SourceCoord.zgr = [None] * len(all_chunk)
     logger.info("Gathering vertical grid information")
@@ -185,19 +187,19 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         simin, simax, sjmin, sjmax = extr_assist.get_ind(
             dst_lon_ch,
             dst_lat_ch,
-            SourceCoord.hgr.grid["glamt"].squeeze(),
-            SourceCoord.hgr.grid["gphit"].squeeze(),
+            SourceCoord.hgr_full.grid["glamt"].squeeze(),
+            SourceCoord.hgr_full.grid["gphit"].squeeze(),
         )
         wrap_flag, simin, simax = extr_assist.check_wrap(
-            simin, simax, SourceCoord.hgr.grid["glamt"].squeeze()
+            simin, simax, SourceCoord.hgr_full.grid["glamt"].squeeze()
         )
         chunk_sub_dst = [dimin, dimax, djmin, djmax]
         chunk_sub_sc = [simin, simax, sjmin, sjmax]
 
         # Subset the horizontal grids and vertical grids for each chunk
 
-        DstCoord.hgr.chunk[c] = DstCoord.hgr.subset_hgr(chunk_sub_dst)
-        SourceCoord.hgr.chunk[c] = DstCoord.hgr.subset_hgr(chunk_sub_sc)
+        DstCoord.hgr[c] = DstCoord.hgr_full.subset_hgr(chunk_sub_dst)
+        SourceCoord.hgr[c] = DstCoord.hgr_full.subset_hgr(chunk_sub_sc)
 
         # Gather grid information
 
@@ -206,7 +208,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             settings["dst_zgr_type"],
             settings["nme_map"],
             DstCoord.hgr.grid_type,
-            DstCoord.hgr.chunk[c],
+            DstCoord.hgr[c],
             logger,
             chunk_sub_dst,
             dst=1,
@@ -217,7 +219,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             settings["src_zgr_type"],
             settings["nme_map"],
             SourceCoord.hgr.grid_type,
-            SourceCoord.hgr.chunk[c],
+            SourceCoord.hgr[c],
             logger,
             chunk_sub_sc,
             dst=0,
@@ -225,8 +227,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     logger.info("Reading grid completed")
 
-    DstCoord.hgr.grid = None
-    SourceCoord.hgr.grid = None
+    DstCoord.hgr_full.grid = None
+    SourceCoord.hgr_full.grid = None
 
     # Define z at t/u/v points
 
