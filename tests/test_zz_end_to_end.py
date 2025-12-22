@@ -108,8 +108,8 @@ def test_zco_zco():
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.997593879699707,
-        "Mean_v": 0.9893401861190796,
+        "Mean_u": 0.8282182216644287,
+        "Mean_v": 0.8218976855278015,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -188,8 +188,8 @@ def test_zps_sco():
         "Sum_mask": 47520,
         "Shape_u": (30, 15, 1, 1566),
         "Shape_v": (30, 15, 1, 1566),
-        "Mean_u": 0.9957350492477417,
-        "Mean_v": 0.9885387420654297,
+        "Mean_u": 0.822255551815033,
+        "Mean_v": 0.8194692730903625,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -268,8 +268,8 @@ def test_sco_sco():
         "Sum_mask": 47520,
         "Shape_u": (30, 15, 1, 1566),
         "Shape_v": (30, 15, 1, 1566),
-        "Mean_u": 0.7650341987609863,
-        "Mean_v": 0.7656515836715698,
+        "Mean_u": 0.8234031200408936,
+        "Mean_v": 0.8260475397109985,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -348,8 +348,8 @@ def test_sco_zco():
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.7675425410270691,
-        "Mean_v": 0.7679993510246277,
+        "Mean_u": 0.8177974224090576,
+        "Mean_v": 0.819809079170227,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -431,8 +431,8 @@ def test_wrap_sc():
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 1.0,
-        "Mean_v": 1.0,
+        "Mean_u": 0.8305879831314087,
+        "Mean_v": 0.8278060555458069,
         "Temp_Strip1": [
             19.80881690979004,
             24.904409408569336,
@@ -565,8 +565,7 @@ def generate_sc_test_case(ztype="zco", wrap=0):
         ).copy()
     data_vars["vosaline"] = synth_temp_sal.salinity_profile(depth)
     uvel = np.ones_like(data_vars["vozocrtx"])
-    # uvel[np.tile(gdept, (31, 1, 1, 1)) > 500] = 0.5
-    uvel[:, -10:, :, :] = 0.5
+    uvel[np.tile(gdept, (31, 1, 1, 1)) > 500] = 0.5
     data_vars["vozocrtx"] = xr.DataArray(
         uvel, dims=["time_counter", "z", "y", "x"], name="vozocrtx"
     ).copy()
