@@ -397,7 +397,6 @@ def interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy, zinterp=
     if np.ma.is_masked(sc_bdy_lev):
         sc_bdy_lev = sc_bdy_lev.filled(np.nan)
 
-    print(np.sum(np.isnan(sc_bdy_lev)))
     return sc_bdy_lev
 
 
