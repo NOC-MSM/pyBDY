@@ -226,7 +226,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         )
 
     logger.info("Reading grid completed")
-
+    DstCoord.chunk_num = all_chunk
+    SourceCoord.chunk_num = all_chunk
     DstCoord.hgr_full.grid = None
     SourceCoord.hgr_full.grid = None
 
@@ -242,10 +243,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     if settings["zinterp"] is True:
         # Condition to interp data on destiantion grid levels
         for grd in ["t", "u", "v"]:
-            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_depths(
-                DstCoord, bdy_ind[grd].bdy_i, grd
-            )
-            DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
+            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_depths(DstCoord, bdy_ind, grd)
+            bdy_H = []
+            for c in range(len(all_chunk)):
+                bdy_H.append(np.ma.max(tmp_wz[c], axis=0))
+            DstCoord.depths[grd]["bdy_H"] = bdy_H
             DstCoord.depths[grd]["bdy_dz"] = tmp_e3
             DstCoord.depths[grd]["bdy_z"] = tmp_tz
         logger.info("Depths defined on destination grid levels")
@@ -253,8 +255,13 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         # Condition to keep data on parent grid levels
         for grd in ["t", "u", "v"]:
             # These are just set to the nearest neighbour in source grid
-            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
-            DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
+            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_sc_depths(
+                SourceCoord, DstCoord, bdy_ind, grd
+            )
+            bdy_H = []
+            for c in range(len(all_chunk)):
+                bdy_H.append(np.ma.max(tmp_wz[c], axis=0))
+            DstCoord.depths[grd]["bdy_H"] = bdy_H
             DstCoord.depths[grd]["bdy_dz"] = tmp_e3
             DstCoord.depths[grd]["bdy_z"] = tmp_tz
         logger.info("Depths defined with destination equal to source levels")
