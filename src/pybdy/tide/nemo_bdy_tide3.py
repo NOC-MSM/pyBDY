@@ -53,12 +53,12 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     DC = DstCoord
 
     # Loop over chunks
-    cosz = [None] * DstCoord.chunk_num
-    sinz = [None] * DstCoord.chunk_num
-    cosu = [None] * DstCoord.chunk_num
-    sinu = [None] * DstCoord.chunk_num
-    cosv = [None] * DstCoord.chunk_num
-    sinv = [None] * DstCoord.chunk_num
+    cosz = np.zeros((numharm, len(Grid_T.bdy_i)))  # [None] * DstCoord.chunk_num
+    sinz = np.zeros((numharm, len(Grid_T.bdy_i)))  # [None] * DstCoord.chunk_num
+    cosu = np.zeros((numharm, len(Grid_U.bdy_i)))  # [None] * DstCoord.chunk_num
+    sinu = np.zeros((numharm, len(Grid_U.bdy_i)))  # [None] * DstCoord.chunk_num
+    cosv = np.zeros((numharm, len(Grid_V.bdy_i)))  # [None] * DstCoord.chunk_num
+    sinv = np.zeros((numharm, len(Grid_V.bdy_i)))  # [None] * DstCoord.chunk_num
 
     for ch in range(len(DstCoord.chunk_num)):
         ct_ind = Grid_T.chunk_number == DstCoord.chunk_num[ch]
@@ -272,8 +272,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         # be the wrong bathy for tides so recalculating makes sense
         # depv = DC.depths["v"]["bdy_H"][np.newaxis, :]
 
-        cosz[ch] = np.zeros((numharm, ampz.shape[1]))
-        sinz[ch] = np.zeros((numharm, ampz.shape[1]))
+        # cosz[ch] = np.zeros((numharm, ampz.shape[1]))
+        # sinz[ch] = np.zeros((numharm, ampz.shape[1]))
         cosuX = np.zeros((numharm, nbdyu))
         sinuX = np.zeros((numharm, nbdyu))
         cosvX = np.zeros((numharm, nbdyu))
@@ -288,8 +288,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         for h in range(0, numharm):
             c = int(compindx[h])
             if c != -1:
-                cosz[c][h, :] = ampz[c, :] * np.cos(np.deg2rad(phaz[c, :]))
-                sinz[c][h, :] = ampz[c, :] * np.sin(np.deg2rad(phaz[c, :]))
+                cosz[h, ct_ind] = ampz[c, :] * np.cos(np.deg2rad(phaz[c, :]))
+                sinz[h, ct_ind] = ampz[c, :] * np.sin(np.deg2rad(phaz[c, :]))
 
                 if key_transport == 1:
                     if (np.sum(depu[:] <= 0.0) > 0) | (np.sum(depv[:] <= 0.0) > 0):
@@ -336,8 +336,8 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         dst_gcos = tmp_gcos[cu_ind]
         dst_gsin = tmp_gsin[cu_ind]
 
-        cosu[ch] = rot_rep(cosuX, cosvX, "u", "en to i", dst_gcos, dst_gsin)
-        sinu[ch] = rot_rep(sinuX, sinvX, "u", "en to i", dst_gcos, dst_gsin)
+        cosu[:, cu_ind] = rot_rep(cosuX, cosvX, "u", "en to i", dst_gcos, dst_gsin)
+        sinu[:, cu_ind] = rot_rep(sinuX, sinvX, "u", "en to i", dst_gcos, dst_gsin)
 
         # let do the v points
         dst_gcos = np.ones([maxJ, maxI])
@@ -355,9 +355,9 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         dst_gcos = tmp_gcos[cv_ind]
         dst_gsin = tmp_gsin[cv_ind]
 
-        cosv[ch] = rot_rep(cosuY, cosvY, "v", "en to j", dst_gcos, dst_gsin)
-        sinv[ch] = rot_rep(sinuY, sinvY, "v", "en to j", dst_gcos, dst_gsin)
-
+        cosv[:, cv_ind] = rot_rep(cosuY, cosvY, "v", "en to j", dst_gcos, dst_gsin)
+        sinv[:, cv_ind] = rot_rep(sinuY, sinvY, "v", "en to j", dst_gcos, dst_gsin)
+    # this should return arrays like before not lists of chunks with arrays
     # return the values
     return cosz, sinz, cosu, sinu, cosv, sinv
 
