@@ -189,10 +189,10 @@ class H_Grid:
         x2 = indices[1]
         y1 = indices[2]
         y2 = indices[3]
-        chunk = {}
+        # chunk = {}
         for var in self.var_list:
-            chunk[var] = self.grid[var][:, y1:y2, x1:x2]  # [t, y, x]
-        return chunk
+            self.grid[var] = self.grid[var][:, y1:y2, x1:x2]  # [t, y, x]
+        return self
 
 
 def fill_hgrid_vars(grid_type, grid, missing):
