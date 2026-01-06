@@ -196,6 +196,19 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         chunk_sub_dst = [dimin, dimax, djmin, djmax]
         chunk_sub_sc = [simin, simax, sjmin, sjmax]
 
+        # Make bdy_ind relevant for each chunk
+        for grd in ["t", "u", "v"]:
+            c_ind = bdy_ind[grd].chunk_number == all_chunk[c]
+            bdy_ind[grd].bdy_i_ch = np.zeros_like(bdy_ind[grd].bdy_i)
+            bdy_ind[grd].bdy_i_ch[c_ind, 0] = bdy_ind[grd].bdy_i[c_ind, 0] - dimin
+            bdy_ind[grd].bdy_i_ch[c_ind, 1] = bdy_ind[grd].bdy_i[c_ind, 1] - djmin
+            if (
+                (bdy_ind[grd].bdy_i_ch < 0).any()
+                | (bdy_ind[grd].bdy_i_ch[c_ind, 0] > (dimax - dimin)).any()
+                | (bdy_ind[grd].bdy_i_ch[c_ind, 1] > (djmax - djmin)).any()
+            ):
+                raise Exception("bdy indices outside of chunk")
+
         # Subset the horizontal grids and vertical grids for each chunk
 
         DstCoord.hgr[c] = DstCoord.hgr_full.subset_hgr(chunk_sub_dst)
@@ -207,7 +220,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             settings["dst_zgr"],
             settings["dst_zgr_type"],
             settings["nme_map"],
-            DstCoord.hgr.grid_type,
+            DstCoord.hgr[c].grid_type,
             DstCoord.hgr[c],
             logger,
             chunk_sub_dst,
@@ -218,7 +231,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             settings["src_zgr"],
             settings["src_zgr_type"],
             settings["nme_map"],
-            SourceCoord.hgr.grid_type,
+            SourceCoord.hgr[c].grid_type,
             SourceCoord.hgr[c],
             logger,
             chunk_sub_sc,
@@ -226,8 +239,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         )
 
     logger.info("Reading grid completed")
-    DstCoord.chunk_num = all_chunk
-    SourceCoord.chunk_num = all_chunk
+    DstCoord.all_chunk = all_chunk
+    SourceCoord.all_chunk = all_chunk
     DstCoord.hgr_full.grid = None
     SourceCoord.hgr_full.grid = None
 
