@@ -53,17 +53,17 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     DC = DstCoord
 
     # Loop over chunks
-    cosz = np.zeros((numharm, len(Grid_T.bdy_i)))  # [None] * DstCoord.chunk_num
-    sinz = np.zeros((numharm, len(Grid_T.bdy_i)))  # [None] * DstCoord.chunk_num
-    cosu = np.zeros((numharm, len(Grid_U.bdy_i)))  # [None] * DstCoord.chunk_num
-    sinu = np.zeros((numharm, len(Grid_U.bdy_i)))  # [None] * DstCoord.chunk_num
-    cosv = np.zeros((numharm, len(Grid_V.bdy_i)))  # [None] * DstCoord.chunk_num
-    sinv = np.zeros((numharm, len(Grid_V.bdy_i)))  # [None] * DstCoord.chunk_num
+    cosz = np.zeros((numharm, len(Grid_T.bdy_i)))
+    sinz = np.zeros((numharm, len(Grid_T.bdy_i)))
+    cosu = np.zeros((numharm, len(Grid_U.bdy_i)))
+    sinu = np.zeros((numharm, len(Grid_U.bdy_i)))
+    cosv = np.zeros((numharm, len(Grid_V.bdy_i)))
+    sinv = np.zeros((numharm, len(Grid_V.bdy_i)))
 
     for ch in range(len(DstCoord.chunk_num)):
-        ct_ind = Grid_T.chunk_number == DstCoord.chunk_num[ch]
-        cu_ind = Grid_U.chunk_number == DstCoord.chunk_num[ch]
-        cv_ind = Grid_V.chunk_number == DstCoord.chunk_num[ch]
+        ct_ind = Grid_T.chunk_number == DstCoord.all_chunk[ch]
+        cu_ind = Grid_U.chunk_number == DstCoord.all_chunk[ch]
+        cv_ind = Grid_V.chunk_number == DstCoord.all_chunk[ch]
 
         dst_lon = DC.bdy_lonlat[g_type]["lon"][(Grid_T.bdy_r == 0) & ct_ind]
         dst_lat = DC.bdy_lonlat[g_type]["lat"][(Grid_T.bdy_r == 0) & ct_ind]
