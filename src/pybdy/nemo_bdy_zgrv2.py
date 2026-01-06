@@ -137,7 +137,7 @@ def get_bdy_depths(DstCoord, bdy_ind, grd):
     Parameters
     ----------
         DstCoord (object)      : Object containing destination grid info
-        bdy_ind (np.array)     : indices of the i, j bdy points [grd][bdy, 2]
+        bdy_ind (np.array)     : indices of the i, j bdy points [grd]
         grd (str)              : grid type t, u, v
 
     Returns
@@ -147,11 +147,11 @@ def get_bdy_depths(DstCoord, bdy_ind, grd):
         bdy_e3 (array)          : sc level thickness on bdy points on t levels
     """
     # Loop over chunks
-    bdy_tz = [None] * DstCoord.chunk_num
-    bdy_wz = [None] * DstCoord.chunk_num
-    bdy_e3 = [None] * DstCoord.chunk_num
-    for c in range(len(DstCoord.chunk_num)):
-        c_ind = bdy_ind[grd].chunk_number == DstCoord.chunk_num[c]
+    bdy_tz = [None] * len(DstCoord.all_chunk)
+    bdy_wz = [None] * len(DstCoord.all_chunk)
+    bdy_e3 = [None] * len(DstCoord.all_chunk)
+    for c in range(len(DstCoord.all_chunk)):
+        c_ind = bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]
 
         # numpy requires float dtype to use NaNs
         mbathy = np.float16(DstCoord.zgr[c].grid["mbathy"].squeeze())
@@ -166,7 +166,9 @@ def get_bdy_depths(DstCoord, bdy_ind, grd):
 
         # find bdy indices from subscripts
         g_ind = sub2ind(
-            mbathy.shape, bdy_ind[grd].bdy_i[c_ind, 0], bdy_ind[grd].bdy_i[c_ind, 1]
+            mbathy.shape,
+            bdy_ind[grd].bdy_i_ch[c_ind, 0],
+            bdy_ind[grd].bdy_i_ch[c_ind, 1],
         )
 
         # Get the gdept, gdepw and e3 data from the Dst grid
@@ -201,7 +203,7 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, bdy_ind, grd):
     ----------
         SourceCoord (object)   : Object containing source grid info
         DstCoord (object)      : Object containing destination grid info
-        bdy_ind (np.array)     : indices of the i, j bdy points [grd][bdy, 2]
+        bdy_ind (np.array)     : indices of the i, j bdy points [grd]
         grd (str)              : grid type t, u, v
 
     Returns
@@ -216,11 +218,11 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, bdy_ind, grd):
         g = grd
 
     # Loop over chunks
-    bdy_tz = [None] * DstCoord.chunk_num
-    bdy_wz = [None] * DstCoord.chunk_num
-    bdy_e3 = [None] * DstCoord.chunk_num
-    for c in range(len(DstCoord.chunk_num)):
-        c_ind = bdy_ind[grd].chunk_number == DstCoord.chunk_num[c]
+    bdy_tz = [None] * len(DstCoord.all_chunk)
+    bdy_wz = [None] * len(DstCoord.all_chunk)
+    bdy_e3 = [None] * len(DstCoord.all_chunk)
+    for c in range(len(DstCoord.all_chunk)):
+        c_ind = bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]
 
         source_tree = sp.cKDTree(
             list(
