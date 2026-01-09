@@ -193,6 +193,18 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         wrap_flag, simin, simax = extr_assist.check_wrap(
             simin, simax, SourceCoord.hgr_full.grid["glamt"].squeeze()
         )
+
+        # Summarise subset region
+
+        logger.info("Extract __init__: subset region limits")
+        logger.info(
+            " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n",
+            simin,
+            simax,
+            sjmin,
+            sjmax,
+        )
+
         chunk_sub_dst = [dimin, dimax, djmin, djmax]
         chunk_sub_sc = [simin, simax, sjmin, sjmax]
 
@@ -212,7 +224,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         # Subset the horizontal grids and vertical grids for each chunk
 
         DstCoord.hgr[c] = DstCoord.hgr_full.subset_hgr(chunk_sub_dst)
-        SourceCoord.hgr[c] = DstCoord.hgr_full.subset_hgr(chunk_sub_sc)
+        SourceCoord.hgr[c] = SourceCoord.hgr_full.subset_hgr(chunk_sub_sc)
+        SourceCoord.hgr[c].wrap_flag = wrap_flag * 1  # copy
 
         # Gather grid information
 
