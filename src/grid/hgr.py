@@ -22,6 +22,7 @@ Created on Mon Feb 03 18:01:00 2025.
 """
 
 # External imports
+import copy
 import json
 import warnings
 
@@ -189,9 +190,11 @@ class H_Grid:
         x2 = indices[1]
         y1 = indices[2]
         y2 = indices[3]
+        out = copy.deepcopy(self)
         for var in self.var_list:
-            self.grid[var] = self.grid[var][:, y1:y2, x1:x2]  # [t, y, x]
-        return self
+            out.grid[var] = self.grid[var][:, y1:y2, x1:x2]  # [t, y, x]
+        out.indices = indices
+        return out
 
 
 def fill_hgrid_vars(grid_type, grid, missing):
