@@ -102,7 +102,7 @@ class Z_Grid:
         ]
 
         if indices == []:
-            indices = [0, -1, 0, -1]
+            indices = [0, None, 0, None]
         self.get_vars(vars_want, indices)
 
         # Work out what sort of source grid we have
