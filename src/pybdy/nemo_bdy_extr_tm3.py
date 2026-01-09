@@ -21,6 +21,7 @@ the interpolation onto the destination grid.
 @author James Harle
 @author John Kazimierz Farey
 @author: Mr. Srikanth Nagella
+@author Benjamin Barton
 """
 # External Imports
 import datetime as dt
@@ -80,12 +81,12 @@ class Extract:
 
         sc_time = Grid[grd].source_time
         self.var_nam = var_nam
-        sc_z = np.squeeze(SC.zgr.grid["gdept"][:])
-        sc_z_len = sc_z.shape[0]
+        sc_z_len = np.squeeze(SC.zgr[0].grid["gdept"][:]).shape[0]
 
         self.jpj, self.jpi = DC.lonlat[grd]["lon"].shape
-        self.jpk = DC.depths[grd]["bdy_z"].shape[0]
-        self.bdy_dz = DC.depths[grd]["bdy_dz"]
+        self.jpk = DC.depths[grd]["bdy_z"][0].shape[0]
+        isslab = self.jpk == 1
+
         if grd == "t":
             self.bdy_msk = DC.bdy_msk
         # Set some constants
@@ -114,21 +115,9 @@ class Extract:
 
         dst_lon = DC.bdy_lonlat[self.g_type]["lon"]
         dst_lat = DC.bdy_lonlat[self.g_type]["lat"]
-        try:
-            dst_dep = DC.depths[self.g_type]["bdy_z"]
-            dst_dep = np.ma.masked_where(np.isnan(dst_dep), dst_dep)
-        except KeyError:
-            dst_dep = np.ma.zeros([1])
-
-        isslab = len(dst_dep) == 1
-        if dst_dep.size == len(dst_dep):
-            dst_dep = np.ma.ones([1, len(dst_lon)])
 
         # ??? Should this be read from settings?
         wei_121 = np.array([0.5, 0.25, 0.25])
-
-        SC.lon = SC.hgr.grid["glamt"].squeeze()  # lon
-        SC.lat = SC.hgr.grid["gphit"].squeeze()  # lat
 
         # Check that we're only dealing with one pair of vectors
 
@@ -154,7 +143,7 @@ class Extract:
         # set up holding arrays
 
         num_bdy = len(dst_lon)
-        dst_len_z = len(dst_dep[:, 0])
+        dst_len_z = self.jpk * 1
         chunk_number = Grid[grd].chunk_number
         all_chunk = np.unique(chunk_number)
 
@@ -176,6 +165,13 @@ class Extract:
         self.z_ind = np.zeros((dst_len_z * num_bdy * 9, 2), dtype=np.int64)
         self.z_dist = np.ma.zeros((dst_len_z * num_bdy * 9, 2))
         self.z_chunk = np.zeros((num_bdy * dst_len_z * 9), dtype=np.int64) - 1
+        self.bdy_dz = np.zeros((self.jpk, len(Grid[grd].bdy_i[:, 0])))
+        if not isslab:
+            self.bdy_z = np.zeros((len(Grid[grd].bdy_i[:, 0])))
+            dst_dep = np.ma.zeros((self.jpk, len(Grid[grd].bdy_i[:, 0])))
+        else:
+            self.bdy_z = np.zeros([1])
+            dst_dep = np.ma.ones([1, len(dst_lon)])
         zc_count = 0
 
         # loop over chunks
@@ -190,35 +186,33 @@ class Extract:
             ] = all_chunk[c]
             zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z * 9)
             chunk_z_bool = self.z_chunk == all_chunk[c]
+            wrap_flag = SC.hgr[c].wrap_flag
 
-            imin, imax, jmin, jmax = extr_assist.get_ind(
-                dst_lon_ch, dst_lat_ch, SC.lon, SC.lat
-            )
-            wrap_flag, imin, imax = extr_assist.check_wrap(imin, imax, SC.lon)
-
-            # Summarise subset region
-
-            self.logger.info("Extract __init__: subset region limits")
-            self.logger.info(
-                " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n",
-                imin,
-                imax,
-                jmin,
-                jmax,
-            )
+            if not isslab:
+                self.bdy_z[chunk] = DC.depths[self.g_type]["bdy_H"][c]
+                self.bdy_dz[:, chunk] = DC.depths[grd]["bdy_dz"][c]
+                dst_dep[:, chunk] = DC.depths[self.g_type]["bdy_z"][c]
+                dst_dep[:, chunk] = np.ma.masked_where(
+                    np.isnan(dst_dep[:, chunk]), dst_dep[:, chunk]
+                )
 
             # Reduce the source coordinates to the sub region identified
 
-            SC.lon_ch = SC.lon[jmin:jmax, imin:imax]
-            SC.lat_ch = SC.lat[jmin:jmax, imin:imax]
+            SC.lon_ch = SC.hgr[c].grid["glamt"].squeeze()  # lon
+            SC.lat_ch = SC.hgr[c].grid["gphit"].squeeze()  # lat
+            sc_z_ch = SC.zgr[c].grid["gdept"].squeeze()  # depth
+
+            # Determine size of source data subset
+
+            source_dims = SC.lon_ch.shape
 
             # Initialise gsin* and gcos* for rotation of vectors
 
             if self.key_vec:
-                bdy_ind = Grid[grd].bdy_i[chunk, :]
+                bdy_ind = Grid[grd].bdy_i_ch[chunk, :]
 
-                maxI = DC.lonlat["t"]["lon"].shape[1]
-                maxJ = DC.lonlat["t"]["lon"].shape[0]
+                maxI = DC.hgr[c].grid["glamt"].squeeze().shape[1]
+                maxJ = DC.hgr[c].grid["glamt"].squeeze().shape[0]
                 dst_gcos = np.ones([maxJ, maxI])
                 dst_gsin = np.zeros([maxJ, maxI])
 
@@ -227,11 +221,13 @@ class Extract:
                 # Extract the source rotation angles on the T-Points as the C-Grid
                 # U/V points naturally average onto these
 
-                src_ga = ga.GridAngle(SC.hgr, imin, imax, jmin, jmax, "t")
+                src_ga = ga.GridAngle(
+                    SC.hgr[c], 0, source_dims[1], 0, source_dims[0], "t"
+                )
 
                 # Extract the rotation angles for the bdy velocities points
 
-                dst_ga = ga.GridAngle(DC.hgr, 1, maxI, 1, maxJ, grd)
+                dst_ga = ga.GridAngle(DC.hgr[c], 1, maxI, 1, maxJ, grd)
 
                 sc_gcos = src_ga.cosval
                 sc_gsin = src_ga.sinval
@@ -251,10 +247,6 @@ class Extract:
 
                 self.dst_gcos[:, chunk] = np.tile(tmp_gcos, (dst_len_z, 1))
                 self.dst_gsin[:, chunk] = np.tile(tmp_gsin, (dst_len_z, 1))
-
-            # Determine size of source data subset
-
-            source_dims = SC.lon_ch.shape
 
             # Find nearest neighbour on the source grid to each dst bdy point
             # Ann Query substitute
@@ -345,8 +337,8 @@ class Extract:
 
             sc_ind = {}
             sc_ind["ind"] = ind
-            sc_ind["imin"], sc_ind["imax"] = imin, imax
-            sc_ind["jmin"], sc_ind["jmax"] = jmin, jmax
+            sc_ind["imin"], sc_ind["imax"] = SC.hgr[c].indices[0], SC.hgr[c].indices[1]
+            sc_ind["jmin"], sc_ind["jmax"] = SC.hgr[c].indices[2], SC.hgr[c].indices[3]
 
             # Fig not implemented
             # Sri TODO::: key_vec compare to assign gcos and gsin
@@ -434,8 +426,6 @@ class Extract:
 
             # Fig not implemented
 
-            sc_z_ch = sc_z[:, jmin:jmax, imin:imax]
-
             if (not isslab) & self.settings["zinterp"]:
                 # Determine vertical weights for the linear interpolation
                 # onto Dst grid
@@ -447,7 +437,7 @@ class Extract:
                     sc_z_ch,
                     sc_z_len,
                     ind,
-                    SC.zgr.grid_type == "zco",
+                    SC.zgr[c].grid_type == "zco",
                 )
 
             else:
@@ -475,10 +465,6 @@ class Extract:
         self.nav_lat = DC.lonlat[grd]["lat"]
         self.sc_ind_ch = sc_ind_ch
         self.num_bdy = num_bdy
-        if not isslab:
-            self.bdy_z = DC.depths[self.g_type]["bdy_H"]
-        else:
-            self.bdy_z = np.zeros([1])
         self.dst_z = dst_dep
         self.dst_dep = dst_dep.filled(np.nan)
         self.sc_z_len = sc_z_len
