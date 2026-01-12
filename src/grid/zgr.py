@@ -151,7 +151,7 @@ class Z_Grid:
                 # assume y and x are last two dimensions in t, z, y, x
                 self.grid[vi] = nc.nc[nm[vi]][..., ind[2] : ind[3], ind[0] : ind[1]]
             elif (vi in nm_var_list) & ("ln_" in vi):
-                self.grid[vi] = nc.nc[nm[vi]]
+                self.grid[vi] = nc.nc[nm[vi]][:]
         nc.close()
         self.var_list = list(self.grid.keys())
 
