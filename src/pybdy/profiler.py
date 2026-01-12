@@ -173,6 +173,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     DstCoord.zgr = [None] * len(all_chunk)
     SourceCoord.zgr = [None] * len(all_chunk)
     logger.info("Gathering vertical grid information")
+    for grd in ["t", "u", "v"]:
+        bdy_ind[grd].bdy_i_ch = np.zeros_like(bdy_ind[grd].bdy_i)
 
     for c in range(len(all_chunk)):
         chunk = bdy_ind["t"].chunk_number == all_chunk[c]
@@ -184,6 +186,7 @@ def process_bdy(setup_filepath=0, mask_gui=False):
             DstCoord.lonlat["t"]["lon"].squeeze(),
             DstCoord.lonlat["t"]["lat"].squeeze(),
         )
+
         simin, simax, sjmin, sjmax = extr_assist.get_ind(
             dst_lon_ch,
             dst_lat_ch,
@@ -211,7 +214,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         # Make bdy_ind relevant for each chunk
         for grd in ["t", "u", "v"]:
             c_ind = bdy_ind[grd].chunk_number == all_chunk[c]
-            bdy_ind[grd].bdy_i_ch = np.zeros_like(bdy_ind[grd].bdy_i)
             bdy_ind[grd].bdy_i_ch[c_ind, 0] = bdy_ind[grd].bdy_i[c_ind, 0] - dimin
             bdy_ind[grd].bdy_i_ch[c_ind, 1] = bdy_ind[grd].bdy_i[c_ind, 1] - djmin
             if (
