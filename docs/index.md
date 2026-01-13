@@ -317,7 +317,7 @@ The application picks the relative path from the current working directory.
     - dimensions in variables must be ordered `time_counter`, `depth`, `y`, `x` if 4 dimensional or ordered `time_counter`, `y`, `x` if 3 dimensional.
 - The variables that pybdy expects in the source data are:
     - `votemper` - the water temperature
-    - `votemper` - the water salinity
+    - `vosaline` - the water salinity
     - `sossheig` - the sea surface height
     - `vozocrtx` - the u (northward) component of velocity
     - `vomecrty` - the v (eastward) component of velocity
