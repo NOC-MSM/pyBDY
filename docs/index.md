@@ -363,6 +363,12 @@ An example NcML expression renaming a variable in joined NetCDF files:
 </ns0:netcdf>
 ```
 
+Some versions of NcML maybe need to place the rename outside the aggrgation or use the following rename syntax:
+
+```xml
+<variable name="votemper" orgName="temp" />
+```
+
 ### Step 4: Setting up the JSON file
 
 The JSON file "grid_name_map.json" file provides a way to rename/remap the variables from
