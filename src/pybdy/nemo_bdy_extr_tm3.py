@@ -1095,16 +1095,16 @@ class Extract:
         deltaT   : length of time step
         dstep    : number of time steps per day
         """
+        # get time derivative
+        deltaT = np.diff(time_counter)
+
         # check dates specified are inside src data date range
-        if len(time_counter) == 0:
+        if len(deltaT) == 0:
             raise Exception(
                 "Dst dates specified are outside src data date range. "
                 + "This may be caused by specifying a calendar for dst "
                 + "other than gregorian and will need attention."
             )
-
-        # get time derivative
-        deltaT = np.diff(time_counter)
 
         # check for uniform time steps
         if not np.all(deltaT == deltaT[0]):
