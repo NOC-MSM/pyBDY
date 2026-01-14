@@ -102,7 +102,7 @@ class Z_Grid:
         ]
 
         if indices == []:
-            indices = [0, None, 0, None]
+            indices = [0, None, 0, None]  # None is end for slice
         self.get_vars(vars_want, indices)
 
         # Work out what sort of source grid we have
@@ -123,6 +123,7 @@ class Z_Grid:
         Parameters
         ----------
             vars_want (list)       : variables needed from file.
+            ind (list)             : min and max, i and j indicies for chunk
 
         Returns
         -------
