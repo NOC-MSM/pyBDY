@@ -599,6 +599,14 @@ class Extract:
                 else:
                     self.d_bdy[self.var_nam[v]][year]
             except KeyError:
+                try:
+                    len(sc_time[self.var_nam[v]]._get_dimensions())
+                except TypeError:
+                    raise Exception(
+                        'The variables in src data files may need renaming to match "'
+                        + self.var_nam[v]
+                        + '", see documentation on NcML rename.'
+                    )
                 if len(sc_time[self.var_nam[v]]._get_dimensions()) == 3:
                     hold = np.zeros((((last_date + 1) - first_date), 1, self.num_bdy))
                 else:
@@ -1087,6 +1095,14 @@ class Extract:
         deltaT   : length of time step
         dstep    : number of time steps per day
         """
+        # check dates specified are inside src data date range
+        if len(time_counter) == 0:
+            raise Exception(
+                "Dst dates specified are outside src data date range. "
+                + "This may be caused by specifying a calendar for dst "
+                + "other than gregorian and will need attention."
+            )
+
         # get time derivative
         deltaT = np.diff(time_counter)
 
