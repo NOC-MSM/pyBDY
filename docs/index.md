@@ -479,7 +479,7 @@ pybdy -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation.
 
 The image below is a rough guide for the memory requirements for running pybdy.
-<img src="assets/images/memory_guide.png" alt="memory guide" width="300"/>
+<img src="assets/images/memory_guide.png" alt="memory guide" width="400"/>
 
 <a name="worked-example-mechanical_arm"></a>
 
