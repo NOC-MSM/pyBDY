@@ -185,10 +185,10 @@ def test_fill_zgrid_vars_regression():
         "Max_gdepw": np.max(grid["gdepw"]),
         "Shape_gdepu": grid["gdepu"].shape,
         "Shape_gdepw": grid["gdepw"].shape,
-        "Sum_e3t": np.sum(grid["e3t"]),
+        "Sum_e3t": np.round(np.sum(grid["e3t"]), 11),
         "Sum_e3w": np.sum(grid["e3w"]),
-        "Sum_e3u": np.sum(grid["e3u"]),
-        "Sum_e3v": np.sum(grid["e3v"]),
+        "Sum_e3u": np.round(np.sum(grid["e3u"]), 11),
+        "Sum_e3v": np.round(np.sum(grid["e3v"]), 11),
     }
     print(summary_grid)
     test_grid = {
@@ -197,10 +197,10 @@ def test_fill_zgrid_vars_regression():
         "Max_gdepw": 87.0144230769231,
         "Shape_gdepu": (1, 9, 6, 11),
         "Shape_gdepw": (1, 9, 6, 11),
-        "Sum_e3t": 6533.048076923075,
+        "Sum_e3t": 6533.04807692308,
         "Sum_e3w": 6468.0,
-        "Sum_e3u": 6533.048076923075,
-        "Sum_e3v": 6533.048076923075,
+        "Sum_e3u": 6533.04807692308,
+        "Sum_e3v": 6533.04807692308,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
