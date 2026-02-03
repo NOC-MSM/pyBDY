@@ -387,12 +387,8 @@ def interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy, zinterp=
         sc_bdy = sc_bdy[z_ind[:, 0]] * z_dist[:, 0] + sc_bdy[z_ind[:, 1]] * z_dist[:, 1]
         sc_bdy_lev = sc_bdy.reshape((dst_dep.shape[0], num_bdy, sc_shape[2]), order="F")
 
-        # If z-level replace data below bed
-        # dst_dep9 is np.tile of 9 so it is all interpolated onto the same level
-        ind_z = np.transpose(np.tile(bdy_bathy, (len(dst_dep), 9, 1)), axes=(0, 2, 1))
-        dst_dep9 = np.transpose(np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0])
-        ind_z -= dst_dep9
-        ind_z = ind_z < 0
+        # If z-level replace data below bed using nans in dst_dep (from mbathy)
+        ind_z = np.transpose(np.tile(np.isnan(dst_dep), (9, 1, 1)), axes=[1, 2, 0])
         sc_bdy_lev[ind_z] = np.nan
     else:
         # if zinterp is false leave data below bottom for NEMO run-time interpolation
