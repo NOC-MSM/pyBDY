@@ -45,6 +45,10 @@ Get the glam, gphi and e scale factors from file if possible.
 
 > None : var_list is populated<br>
 
+### *method* subset_hgr(indices)
+
+Use indices to spatially subset the domain.
+
 ## grid.hgr.calc_e1_e2(glam, gphi, ij)
 
 Calculate missing scale factor e1 and e2 from glam or gphi.
@@ -95,11 +99,11 @@ Calculate the missing horizontal grid variables and add them to grid.
 @author Ryan Patmore
 @author Anthony Wise
 
-## *class* grid.zgr.Z_Grid(zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, dst=1)
+## *class* grid.zgr.Z_Grid(zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, indices=[], dst=1)
 
 > Bases: `object`<br>
 
-### *method* \_\_init\_\_(zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, dst=1)
+### *method* \_\_init\_\_(zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, indices=[], dst=1)
 
 Master depth class.
 
@@ -111,6 +115,7 @@ Master depth class.
 > hgr_type (str) : horizontal grid type<br>
 > e_dict (dict) : dictionary of e1 and e2 scale factors<br>
 > logger (object) : log error and messages<br>
+> indices (list) : min and max, i and j indicies for chunk<br>
 > dst (bool) : flag for destination (true) or source (false)<br>
 
 > ### Returns<br>
@@ -121,13 +126,14 @@ Master depth class.
 
 Find out what type of vertical grid is provided zco, zps or sigma levels (sco).
 
-### *method* get_vars(vars_want)
+### *method* get_vars(vars_want, ind)
 
 Get the gdep and e3 scale factors from file if possible.
 
 > ### Parameters<br>
 
 > vars_want (list) : variables needed from file.<br>
+> ind (list) : min and max, i and j indicies for chunk<br>
 
 > ### Returns<br>
 
