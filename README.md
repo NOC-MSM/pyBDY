@@ -76,7 +76,7 @@ pybdy -v
 Resulting in a help usage prompt:
 
 ```
-usage: pybdy -g -s <namelist.bdy>
+usage: pybdy -s <namelist.bdy>
 ```
 
 To use pyBDY, the following command is entered: (the example will run
