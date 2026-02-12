@@ -195,8 +195,13 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
     t_done = "gdept" not in missing
     if t_done is False:
         # Fill in the 3D gdept data from 1D gdept_0
-        if "e3t" not in missing:
-            grid["gdept"] = np.cumsum(grid["e3t"], axis=1)
+        if ("e3t" not in missing) & ("e3w" not in missing):
+            grid["gdept"] = np.append(
+                (grid["e3t"][:, 0:1, :, :] * 0.5),
+                np.cumsum(grid["e3w"][:, :-1, :, :], axis=1)
+                + (grid["e3t"][:, 0:1, :, :] * 0.5),
+                axis=1,
+            )
         elif "gdept_0" in missing:
             raise Exception("No gdept_0 in vertical grid file (zgr).")
         else:
@@ -225,8 +230,12 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
 
     w_done = "gdepw" not in missing
     if w_done is False:
-        if "e3w" not in missing:
-            grid["gdepw"] = np.cumsum(grid["e3w"], axis=1)
+        if "e3t" not in missing:
+            grid["gdepw"] = np.append(
+                (grid["e3t"][:, 0:1, :, :] * 0),
+                np.cumsum(grid["e3t"][:, :-1, :, :], axis=1),
+                axis=1,
+            )
         elif zgr_type == "zco":
             # Don't waste time calculating gdepw everywhere if it all the same.
             gdepw_0 = calc_gdepw(
@@ -252,10 +261,35 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
 
     for vi in missing:
         if "gdep" in vi:
-            if "e3" + vi[4:] not in missing:
-                grid[vi] = np.cumsum(grid["e3" + vi[4:]], axis=1)
+            if (vi == "gdepu") & ("e3u" not in missing) & ("e3uw" not in missing):
+                grid[vi] = np.append(
+                    (grid["e3u"][:, 0:1, :, :] * 0.5),
+                    np.cumsum(grid["e3uw"][:, :-1, :, :], axis=1)
+                    + (grid["e3u"][:, 0:1, :, :] * 0.5),
+                    axis=1,
+                )
+            elif (vi == "gdepuw") & ("e3u" not in missing):
+                grid[vi] = np.append(
+                    (grid["e3u"][:, 0:1, :, :] * 0),
+                    np.cumsum(grid["e3u"][:, :-1, :, :], axis=1),
+                    axis=1,
+                )
+            elif (vi == "gdepv") & ("e3v" not in missing) & ("e3vw" not in missing):
+                grid[vi] = np.append(
+                    (grid["e3v"][:, 0:1, :, :] * 0.5),
+                    np.cumsum(grid["e3vw"][:, :-1, :, :], axis=1)
+                    + (grid["e3v"][:, 0:1, :, :] * 0.5),
+                    axis=1,
+                )
+            elif (vi == "gdepvw") & ("e3v" not in missing):
+                grid[vi] = np.append(
+                    (grid["e3v"][:, 0:1, :, :] * 0),
+                    np.cumsum(grid["e3v"][:, :-1, :, :], axis=1),
+                    axis=1,
+                )
             else:
                 grid[vi] = gdep[vi[4:]]
+            missing = sorted(list(set(missing) - set([vi])))
 
     # e3
     e3t_done = "e3t" not in missing
