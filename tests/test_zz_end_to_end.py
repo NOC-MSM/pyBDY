@@ -687,7 +687,7 @@ def generate_dst_test_case(ztype="zco"):
     grid["gdepw"] = synth["gdepw"].to_numpy()
 
     e3_grid_vars = ["gdepu", "gdepv", "gdepf", "e3t", "e3w", "e3u", "e3v", "e3f"]
-    hgrid = zgr.fill_zgrid_vars(zgrid_type, grid, hgrid_type, synth, e3_grid_vars)
+    hgrid = zgr.fill_zgrid_vars(zgrid_type, grid, hgrid_type, e3_grid_vars)
     for i in range(len(e3_grid_vars)):
         synth[e3_grid_vars[i]] = xr.DataArray(
             hgrid[e3_grid_vars[i]], dims=["t", "z", "y", "x"], name=e3_grid_vars[i]

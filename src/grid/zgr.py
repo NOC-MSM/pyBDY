@@ -32,9 +32,7 @@ from pybdy.reader.factory import GetFile
 
 
 class Z_Grid:
-    def __init__(
-        self, zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, dst=1
-    ):
+    def __init__(self, zgr_file, zgr_type, name_map_file, hgr_type, logger, dst=1):
         """
         Master depth class.
 
@@ -44,7 +42,6 @@ class Z_Grid:
             zgr_type (str)           : zgr type from namelist zco, zps or sco
             name_map_file (str)      : string of file for mapping variable names
             hgr_type (str)           : horizontal grid type
-            e_dict (dict)       : dictionary of e1 and e2 scale factors
             logger (object)          : log error and messages
             dst (bool)               : flag for destination (true) or source (false)
 
@@ -100,9 +97,7 @@ class Z_Grid:
         # Fill in missing variables we need for the grid type
         missing_vars = sorted(list(set(vars_want) - set(self.var_list)))
 
-        self.grid = fill_zgrid_vars(
-            self.grid_type, self.grid, hgr_type, e_dict, missing_vars
-        )
+        self.grid = fill_zgrid_vars(self.grid_type, self.grid, hgr_type, missing_vars)
         self.var_list = list(self.grid.keys())
 
     def get_vars(self, vars_want):
@@ -175,7 +170,7 @@ class Z_Grid:
         self.logger.info("Vertical grid is type: " + self.grid_type)
 
 
-def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
+def fill_zgrid_vars(zgr_type, grid, hgr_type, missing):
     """
     Calculate the missing vertical grid variables and add them to grid.
 
@@ -184,7 +179,6 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
             zgr_type (str)      : type of vertical grid (zco, zps or sco)
             grid (dict)         : dictionary of grid data variable
             hgr_type (str)      : horizontal grid type
-            e_dict (dict)       : dictionary of e1 and e2 scale factors
             missing (list)      : list of missing variables to calculate
 
     Returns

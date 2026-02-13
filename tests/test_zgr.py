@@ -61,11 +61,9 @@ def test_depth_file_zps():
 
         # e1 and e2 data
         hg = hgr.H_Grid(bench_file_h, name_map, logger)
-        keys = ["e1t", "e2t", "e1u", "e2u", "e1v", "e2v", "e1f", "e2f"]
-        e_dict = {k: hg.grid[k] for k in keys}
 
         # calc vertical grid
-        zg = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, e_dict, logger)
+        zg = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, logger)
 
         nc = GetFile(bench_file)
         e3t = nc.nc["e3t"][:]
@@ -129,9 +127,8 @@ def test_e3_to_gdep():
 
     grid = {"e3t": e3t, "e3w": e3w}
     missing = ["gdept", "gdepw", "gdepu", "gdepvw"]
-    e_dict = {"e1t": 1}
 
-    grid = zgr.fill_zgrid_vars("zps", grid, "C", e_dict, missing)
+    grid = zgr.fill_zgrid_vars("zps", grid, "C", missing)
 
     result1 = np.array([5, 15, 27, 42, 60, 82])
     result2 = np.array([0, 10, 22, 37, 55, 77])
@@ -172,28 +169,6 @@ def test_fill_zgrid_vars_regression():
     lon_tg = lon_tg[np.newaxis, ...]
     lat_tg = lat_tg[np.newaxis, ...]
 
-    grid = {
-        "glamt": lon_tg,
-        "gphit": lat_tg,
-        "glamu": lon_tg + 0.5,
-        "gphiu": lat_tg,
-        "glamv": lon_tg,
-        "gphiv": lat_tg + 0.25,
-        "glamf": lon_tg + 0.5,
-        "gphif": lat_tg + 0.25,
-    }
-    missing = [
-        "e1t",
-        "e2t",
-        "e1u",
-        "e2u",
-        "e1v",
-        "e2v",
-        "e1f",
-        "e2f",
-    ]
-    h_grid = hgr.fill_hgrid_vars("C", grid, missing)
-
     grid = {"gdept_0": gdept_0, "mbathy": mbathy}
     missing = [
         "gdept",
@@ -207,7 +182,7 @@ def test_fill_zgrid_vars_regression():
     ]
     hgr_type = "C"
 
-    grid = zgr.fill_zgrid_vars("z", grid, hgr_type, h_grid, missing)
+    grid = zgr.fill_zgrid_vars("z", grid, hgr_type, missing)
     summary_grid = {
         "Num_var": len(grid.keys()),
         "Min_gdepw": np.min(grid["gdepw"]),
