@@ -32,9 +32,7 @@ from pybdy.reader.factory import GetFile
 
 
 class Z_Grid:
-    def __init__(
-        self, zgr_file, zgr_type, name_map_file, hgr_type, e_dict, logger, dst=1
-    ):
+    def __init__(self, zgr_file, zgr_type, name_map_file, hgr_type, logger, dst=1):
         """
         Master depth class.
 
@@ -44,7 +42,6 @@ class Z_Grid:
             zgr_type (str)           : zgr type from namelist zco, zps or sco
             name_map_file (str)      : string of file for mapping variable names
             hgr_type (str)           : horizontal grid type
-            e_dict (dict)       : dictionary of e1 and e2 scale factors
             logger (object)          : log error and messages
             dst (bool)               : flag for destination (true) or source (false)
 
@@ -100,9 +97,7 @@ class Z_Grid:
         # Fill in missing variables we need for the grid type
         missing_vars = sorted(list(set(vars_want) - set(self.var_list)))
 
-        self.grid = fill_zgrid_vars(
-            self.grid_type, self.grid, hgr_type, e_dict, missing_vars
-        )
+        self.grid = fill_zgrid_vars(self.grid_type, self.grid, hgr_type, missing_vars)
         self.var_list = list(self.grid.keys())
 
     def get_vars(self, vars_want):
@@ -175,7 +170,7 @@ class Z_Grid:
         self.logger.info("Vertical grid is type: " + self.grid_type)
 
 
-def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
+def fill_zgrid_vars(zgr_type, grid, hgr_type, missing):
     """
     Calculate the missing vertical grid variables and add them to grid.
 
@@ -184,7 +179,6 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
             zgr_type (str)      : type of vertical grid (zco, zps or sco)
             grid (dict)         : dictionary of grid data variable
             hgr_type (str)      : horizontal grid type
-            e_dict (dict)       : dictionary of e1 and e2 scale factors
             missing (list)      : list of missing variables to calculate
 
     Returns
@@ -195,8 +189,10 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
     t_done = "gdept" not in missing
     if t_done is False:
         # Fill in the 3D gdept data from 1D gdept_0
-        if "e3t" not in missing:
-            grid["gdept"] = np.cumsum(grid["e3t"], axis=1)
+        if "e3w" not in missing:
+            grid["gdept"] = np.cumsum(grid["e3w"], axis=1) - (
+                0.5 * grid["e3w"][:, 0:1, :, :]
+            )
         elif "gdept_0" in missing:
             raise Exception("No gdept_0 in vertical grid file (zgr).")
         else:
@@ -225,8 +221,8 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
 
     w_done = "gdepw" not in missing
     if w_done is False:
-        if "e3w" not in missing:
-            grid["gdepw"] = np.cumsum(grid["e3w"], axis=1)
+        if "e3t" not in missing:
+            grid["gdepw"] = np.cumsum(grid["e3t"], axis=1) - grid["e3t"]
         elif zgr_type == "zco":
             # Don't waste time calculating gdepw everywhere if it all the same.
             gdepw_0 = calc_gdepw(
@@ -252,10 +248,34 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
 
     for vi in missing:
         if "gdep" in vi:
-            if "e3" + vi[4:] not in missing:
-                grid[vi] = np.cumsum(grid["e3" + vi[4:]], axis=1)
+            if (
+                (vi == "gdepu")
+                & ("e3uw" not in missing)
+                & ("e3uw" in list(grid.keys()))
+            ):
+                grid[vi] = np.cumsum(grid["e3uw"], axis=1) - (
+                    0.5 * grid["e3uw"][:, 0:1, :, :]
+                )
+
+            elif (
+                (vi == "gdepuw") & ("e3u" not in missing) & ("e3u" in list(grid.keys()))
+            ):
+                grid[vi] = np.cumsum(grid["e3u"], axis=1) - grid["e3u"]
+            elif (
+                (vi == "gdepv")
+                & ("e3vw" not in missing)
+                & ("e3vw" in list(grid.keys()))
+            ):
+                grid[vi] = np.cumsum(grid["e3vw"], axis=1) - (
+                    0.5 * grid["e3vw"][:, 0:1, :, :]
+                )
+            elif (
+                (vi == "gdepvw") & ("e3v" not in missing) & ("e3v" in list(grid.keys()))
+            ):
+                grid[vi] = np.cumsum(grid["e3v"], axis=1) - grid["e3v"]
             else:
                 grid[vi] = gdep[vi[4:]]
+            missing = sorted(list(set(missing) - set([vi])))
 
     # e3
     e3t_done = "e3t" not in missing

@@ -61,11 +61,9 @@ def test_depth_file_zps():
 
         # e1 and e2 data
         hg = hgr.H_Grid(bench_file_h, name_map, logger)
-        keys = ["e1t", "e2t", "e1u", "e2u", "e1v", "e2v", "e1f", "e2f"]
-        e_dict = {k: hg.grid[k] for k in keys}
 
         # calc vertical grid
-        zg = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, e_dict, logger)
+        zg = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, logger)
 
         nc = GetFile(bench_file)
         e3t = nc.nc["e3t"][:]
@@ -122,6 +120,78 @@ def test_depth_file_zps():
         assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
 
+def test_e3_to_gdep():
+    e3t = np.array(
+        [
+            1.02390661,
+            1.07928337,
+            1.14811918,
+            1.23374337,
+            1.34018504,
+            1.47220538,
+            1.6352427,
+            1.83521193,
+        ]
+    )
+    e3w = np.array(
+        [
+            1.01152003,
+            1.05009529,
+            1.11182645,
+            1.18859799,
+            1.28408151,
+            1.40267237,
+            1.54948477,
+            1.73023204,
+        ]
+    )
+    e3t = np.moveaxis(np.tile(e3t, (1, 5, 4, 1)), -1, 1)
+    e3w = np.moveaxis(np.tile(e3w, (1, 5, 4, 1)), -1, 1)
+
+    grid = {"e3t": e3t, "e3w": e3w}
+    missing = ["gdept", "gdepw", "gdepu", "gdepvw"]
+
+    grid = zgr.fill_zgrid_vars("zps", grid, "C", missing)
+
+    result1 = np.array(
+        [
+            0.50576002,
+            1.5558553,
+            2.66768175,
+            3.85627974,
+            5.14036125,
+            6.54303362,
+            8.09251839,
+            9.82275043,
+        ]
+    )
+    result2 = np.array(
+        [
+            0.0,
+            1.02390661,
+            2.10318998,
+            3.25130916,
+            4.48505253,
+            5.82523756,
+            7.29744294,
+            8.93268564,
+        ]
+    )
+
+    errors = []
+    if not (np.isclose(grid["gdept"][0, :, 0, 0], result1, atol=1e-7)).all():
+        errors.append("gdept from e3 not correct.")
+    elif not (np.isclose(grid["gdepw"][0, :, 0, 0], result2, atol=1e-7)).all():
+        errors.append("gdepw from e3 not correct.")
+    elif not (np.isclose(grid["gdepu"][0, :, 0, 0], result1, atol=1e-7)).all():
+        errors.append("gdepw from e3 not correct.")
+    elif not (np.isclose(grid["gdepvw"][0, :, 0, 0], result2, atol=1e-7)).all():
+        errors.append("gdepw from e3 not correct.")
+
+    # assert no error message has been registered, else print messages
+    assert not errors, "errors occured:\n{}".format("\n".join(errors))
+
+
 def test_fill_zgrid_vars_regression():
     # Test the variable filling functions using a regression test
     lon_t = np.arange(-10, 1, 1)
@@ -143,28 +213,6 @@ def test_fill_zgrid_vars_regression():
     lon_tg = lon_tg[np.newaxis, ...]
     lat_tg = lat_tg[np.newaxis, ...]
 
-    grid = {
-        "glamt": lon_tg,
-        "gphit": lat_tg,
-        "glamu": lon_tg + 0.5,
-        "gphiu": lat_tg,
-        "glamv": lon_tg,
-        "gphiv": lat_tg + 0.25,
-        "glamf": lon_tg + 0.5,
-        "gphif": lat_tg + 0.25,
-    }
-    missing = [
-        "e1t",
-        "e2t",
-        "e1u",
-        "e2u",
-        "e1v",
-        "e2v",
-        "e1f",
-        "e2f",
-    ]
-    h_grid = hgr.fill_hgrid_vars("C", grid, missing)
-
     grid = {"gdept_0": gdept_0, "mbathy": mbathy}
     missing = [
         "gdept",
@@ -178,7 +226,7 @@ def test_fill_zgrid_vars_regression():
     ]
     hgr_type = "C"
 
-    grid = zgr.fill_zgrid_vars("z", grid, hgr_type, h_grid, missing)
+    grid = zgr.fill_zgrid_vars("z", grid, hgr_type, missing)
     summary_grid = {
         "Num_var": len(grid.keys()),
         "Min_gdepw": np.min(grid["gdepw"]),
