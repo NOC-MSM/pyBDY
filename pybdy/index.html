@@ -1,0 +1,1744 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://noc-msm.github.io/pyBDY/pybdy/">
+      
+      
+        <link rel="prev" href="../pybdy.gui/">
+      
+      
+        <link rel="next" href="../pybdy.reader/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/icons/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>pybdy package - pyBDY Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="../assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="../assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="light-blue" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pybdy-package" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="pyBDY Documentation" class="md-header__button md-logo" aria-label="pyBDY Documentation" data-md-component="logo">
+      
+  <img src="../assets/icons/noc_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pyBDY Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pybdy package
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="light-blue" data-md-color-accent="deep-orange" aria-label="Light mode" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="light-blue" data-md-color-accent="deep-purple" aria-label="Dark mode" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/NOC-MSM/pyBDY" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    pyBDY
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  pyBDY Documentation
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../grid/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  grid package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../module_structure/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Module structure
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../pybdy.gui/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy.gui package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="./" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../pybdy.reader/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy.reader package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../pybdy.tide/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy.tide package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../pybdy.utils/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy.utils package
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="pyBDY Documentation" class="md-nav__button md-logo" aria-label="pyBDY Documentation" data-md-component="logo">
+      
+  <img src="../assets/icons/noc_logo.png" alt="logo">
+
+    </a>
+    pyBDY Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/NOC-MSM/pyBDY" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    pyBDY
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pyBDY Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../grid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    grid package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../module_structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pybdy.gui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy.gui package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy package
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#subpackages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Subpackages
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#submodules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Submodules
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pybdy.reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy.reader package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pybdy.tide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy.tide package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../pybdy.utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy.utils package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/NOC-MSM/pyBDY/edit/main/docs/pybdy.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"></path></svg>
+    </a>
+  
+  
+
+
+<h1 id="pybdy-package">pybdy package</h1>
+<h2 id="subpackages">Subpackages</h2>
+<ul>
+<li><a href="../pybdy.gui/">pybdy.gui package</a><ul>
+<li><a href="../pybdy.gui/#submodules">Submodules</a></li>
+<li><a href="../pybdy.gui/#module-pybdy.gui.mynormalize">pybdy.gui.mynormalize module</a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.mynormalize.MyNormalize"><code>MyNormalize</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.mynormalize.MyNormalize.__init__"><code>MyNormalize.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.mynormalize.MyNormalize.inverse"><code>MyNormalize.inverse()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#module-pybdy.gui.nemo_bdy_input_window">pybdy.gui.nemo_bdy_input_window module</a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_input_window.InputWindow"><code>InputWindow</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_input_window.InputWindow.__init__"><code>InputWindow.__init__()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#module-pybdy.gui.nemo_bdy_mask">pybdy.gui.nemo_bdy_mask module</a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask"><code>Mask</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.__init__"><code>Mask.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.add_mask"><code>Mask.add_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.apply_border_mask"><code>Mask.apply_border_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.apply_mediterrian_mask"><code>Mask.apply_mediterrian_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.fill_small_regions"><code>Mask.fill_small_regions()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.mask_type"><code>Mask.mask_type</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.min_depth"><code>Mask.min_depth</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.remove_mask"><code>Mask.remove_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.remove_small_regions"><code>Mask.remove_small_regions()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.reset_mask"><code>Mask.reset_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.save_mask"><code>Mask.save_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.select_the_largest_region"><code>Mask.select_the_largest_region()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.set_bathymetry_file"><code>Mask.set_bathymetry_file()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.set_mask_file"><code>Mask.set_mask_file()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.set_mask_type"><code>Mask.set_mask_type()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.set_minimum_depth_mask"><code>Mask.set_minimum_depth_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask.Mask.shelfbreak_dist"><code>Mask.shelfbreak_dist</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#module-pybdy.gui.nemo_bdy_mask_gui">pybdy.gui.nemo_bdy_mask_gui module</a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget"><code>MatplotlibWidget</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.__init__"><code>MatplotlibWidget.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.add_mask"><code>MatplotlibWidget.add_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.apply_border_mask"><code>MatplotlibWidget.apply_border_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.create_basemap"><code>MatplotlibWidget.create_basemap()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.drawing_tool_callback"><code>MatplotlibWidget.drawing_tool_callback()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.mask_type"><code>MatplotlibWidget.mask_type</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.min_depth"><code>MatplotlibWidget.min_depth</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.remove_mask"><code>MatplotlibWidget.remove_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.reset_mask"><code>MatplotlibWidget.reset_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.save_mask_file"><code>MatplotlibWidget.save_mask_file()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.set_bathymetry_file"><code>MatplotlibWidget.set_bathymetry_file()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.set_mask_settings"><code>MatplotlibWidget.set_mask_settings()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.set_mask_type"><code>MatplotlibWidget.set_mask_type()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.MatplotlibWidget.shelfbreak_dist"><code>MatplotlibWidget.shelfbreak_dist</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar"><code>NemoNavigationToolbar</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.__init__"><code>NemoNavigationToolbar.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.add_mask"><code>NemoNavigationToolbar.add_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.border"><code>NemoNavigationToolbar.border()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.drawing_tool"><code>NemoNavigationToolbar.drawing_tool</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.freehand"><code>NemoNavigationToolbar.freehand()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.get_active_button"><code>NemoNavigationToolbar.get_active_button()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.max_depth_mask"><code>NemoNavigationToolbar.max_depth_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.normal_mask"><code>NemoNavigationToolbar.normal_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.rectangle"><code>NemoNavigationToolbar.rectangle()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.remove_mask"><code>NemoNavigationToolbar.remove_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.reset"><code>NemoNavigationToolbar.reset()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.shelf_break_mask"><code>NemoNavigationToolbar.shelf_break_mask()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.NemoNavigationToolbar.update_height_mask"><code>NemoNavigationToolbar.update_height_mask()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_mask_gui.set_icon"><code>set_icon()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#module-pybdy.gui.nemo_bdy_namelist_edit">pybdy.gui.nemo_bdy_namelist_edit module</a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor"><code>NameListEditor</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.__init__"><code>NameListEditor.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.bathymetry_update"><code>NameListEditor.bathymetry_update</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.combo_index_changed"><code>NameListEditor.combo_index_changed()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.init_ui"><code>NameListEditor.init_ui()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.label_changed"><code>NameListEditor.label_changed()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.mask_settings_update"><code>NameListEditor.mask_settings_update</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.mask_update"><code>NameListEditor.mask_update</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.new_settings"><code>NameListEditor.new_settings</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_bdy_namelist_edit.NameListEditor.state_changed"><code>NameListEditor.state_changed()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#module-pybdy.gui.nemo_ncml_generator">pybdy.gui.nemo_ncml_generator module</a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator"><code>Ncml_generator</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.__init__"><code>Ncml_generator.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.enable_btn_update"><code>Ncml_generator.enable_btn_update()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.enable_tab"><code>Ncml_generator.enable_tab()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.generate"><code>Ncml_generator.generate()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.generateNcML"><code>Ncml_generator.generateNcML()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.get_fname"><code>Ncml_generator.get_fname()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.get_fname_input"><code>Ncml_generator.get_fname_input()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.indent"><code>Ncml_generator.indent()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.initUI"><code>Ncml_generator.initUI()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_generator.Ncml_generator.url_trawler"><code>Ncml_generator.url_trawler()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#module-pybdy.gui.nemo_ncml_tab_widget">pybdy.gui.nemo_ncml_tab_widget module</a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab"><code>Ncml_tab</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab.__init__"><code>Ncml_tab.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab.add_tab"><code>Ncml_tab.add_tab()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab.initUI"><code>Ncml_tab.initUI()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab.resetValues"><code>Ncml_tab.resetValues()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab.reset_tab"><code>Ncml_tab.reset_tab()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab.setWidgetStack"><code>Ncml_tab.setWidgetStack()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab.src_combo_changed"><code>Ncml_tab.src_combo_changed()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.Ncml_tab.src_tedit_edited"><code>Ncml_tab.src_tedit_edited()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.ncml_variable"><code>ncml_variable</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.nemo_ncml_tab_widget.ncml_variable.__init__"><code>ncml_variable.__init__()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#module-pybdy.gui.selection_editor">pybdy.gui.selection_editor module</a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.BoxEditor"><code>BoxEditor</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.BoxEditor.__init__"><code>BoxEditor.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.BoxEditor.disable"><code>BoxEditor.disable()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.BoxEditor.enable"><code>BoxEditor.enable()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.BoxEditor.line_select_callback"><code>BoxEditor.line_select_callback()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.BoxEditor.polygon"><code>BoxEditor.polygon</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.BoxEditor.reset"><code>BoxEditor.reset()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.BoxEditor.reset_polygon"><code>BoxEditor.reset_polygon()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor"><code>PolygonEditor</code></a><ul>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.__init__"><code>PolygonEditor.__init__()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.add_point"><code>PolygonEditor.add_point()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.button_press_callback"><code>PolygonEditor.button_press_callback()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.button_release_callback"><code>PolygonEditor.button_release_callback()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.delete_datapoint"><code>PolygonEditor.delete_datapoint()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.disable"><code>PolygonEditor.disable()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.draw_callback"><code>PolygonEditor.draw_callback()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.draw_line"><code>PolygonEditor.draw_line()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.draw_polygon"><code>PolygonEditor.draw_polygon()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.enable"><code>PolygonEditor.enable()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.epsilon"><code>PolygonEditor.epsilon</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.get_index_under_point"><code>PolygonEditor.get_index_under_point()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.insert_datapoint"><code>PolygonEditor.insert_datapoint()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.motion_notify_callback"><code>PolygonEditor.motion_notify_callback()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.polygon_changed"><code>PolygonEditor.polygon_changed()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.refresh"><code>PolygonEditor.refresh()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.reset"><code>PolygonEditor.reset()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.reset_line"><code>PolygonEditor.reset_line()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.reset_polygon"><code>PolygonEditor.reset_polygon()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.set_visibility"><code>PolygonEditor.set_visibility()</code></a></li>
+<li><a href="../pybdy.gui/#pybdy.gui.selection_editor.PolygonEditor.show_verts"><code>PolygonEditor.show_verts</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.gui/#module-pybdy.gui">Module contents</a></li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/">pybdy.reader package</a><ul>
+<li><a href="../pybdy.reader/#submodules">Submodules</a></li>
+<li><a href="../pybdy.reader/#module-pybdy.reader.directory">pybdy.reader.directory module</a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.GridGroup"><code>GridGroup</code></a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.GridGroup.__init__"><code>GridGroup.__init__()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.GridGroup.get_meta_data"><code>GridGroup.get_meta_data()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Reader"><code>Reader</code></a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Reader.__init__"><code>Reader.__init__()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Reader.calculate_time_interval"><code>Reader.calculate_time_interval()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Reader.delta_time_interval"><code>Reader.delta_time_interval()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Reader.get_dir_list"><code>Reader.get_dir_list()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Reader.get_source_timedata"><code>Reader.get_source_timedata()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Reader.grid_type_list"><code>Reader.grid_type_list</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Variable"><code>Variable</code></a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Variable.__init__"><code>Variable.__init__()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Variable.get_attribute_values"><code>Variable.get_attribute_values()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Variable.get_dimensions"><code>Variable.get_dimensions()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Variable.set_time_dimension_index"><code>Variable.set_time_dimension_index()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.directory.Variable.time_counter_const"><code>Variable.time_counter_const</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#module-pybdy.reader.factory">pybdy.reader.factory module</a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.factory.GetFile"><code>GetFile()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.factory.GetReader"><code>GetReader()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.factory.NetCDFFile"><code>NetCDFFile</code></a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.factory.NetCDFFile.__init__"><code>NetCDFFile.__init__()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.factory.NetCDFFile.close"><code>NetCDFFile.close()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#module-pybdy.reader.ncml">pybdy.reader.ncml module</a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.GridGroup"><code>GridGroup</code></a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.GridGroup.__init__"><code>GridGroup.__init__()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.GridGroup.get_meta_data"><code>GridGroup.get_meta_data()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.GridGroup.logger"><code>GridGroup.logger</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.GridGroup.update_atrributes"><code>GridGroup.update_atrributes()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.NcMLFile"><code>NcMLFile</code></a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.NcMLFile.__init__"><code>NcMLFile.__init__()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.NcMLFile.close"><code>NcMLFile.close()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.Reader"><code>Reader</code></a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.Reader.__init__"><code>Reader.__init__()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.Reader.close"><code>Reader.close()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.Reader.grid_type_list"><code>Reader.grid_type_list</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.Reader.time_counter"><code>Reader.time_counter</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.Variable"><code>Variable</code></a><ul>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.Variable.__init__"><code>Variable.__init__()</code></a></li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.Variable.get_attribute_value"><code>Variable.get_attribute_value()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#pybdy.reader.ncml.init_jnius"><code>init_jnius()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.reader/#module-pybdy.reader">Module contents</a></li>
+</ul>
+</li>
+<li><a href="../pybdy.tide/">pybdy.tide package</a><ul>
+<li><a href="../pybdy.tide/#submodules">Submodules</a></li>
+<li><a href="../pybdy.tide/#module-pybdy.tide.fes2014_extract_HC">pybdy.tide.fes2014_extract_HC module</a><ul>
+<li><a href="../pybdy.tide/#pybdy.tide.fes2014_extract_HC.FesExtract"><code>FesExtract</code></a><ul>
+<li><a href="../pybdy.tide/#pybdy.tide.fes2014_extract_HC.FesExtract.__init__"><code>FesExtract.__init__()</code></a></li>
+<li><a href="../pybdy.tide/#pybdy.tide.fes2014_extract_HC.FesExtract.interpolate_constituents"><code>FesExtract.interpolate_constituents()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.tide/#pybdy.tide.fes2014_extract_HC.bilinear_interpolation"><code>bilinear_interpolation()</code></a></li>
+<li><a href="../pybdy.tide/#pybdy.tide.fes2014_extract_HC.interpolate_data"><code>interpolate_data()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.tide/#module-pybdy.tide.nemo_bdy_tide">pybdy.tide.nemo_bdy_tide module</a><ul>
+<li><a href="../pybdy.tide/#pybdy.tide.nemo_bdy_tide.Extract"><code>Extract</code></a><ul>
+<li><a href="../pybdy.tide/#pybdy.tide.nemo_bdy_tide.Extract.__init__"><code>Extract.__init__()</code></a></li>
+<li><a href="../pybdy.tide/#pybdy.tide.nemo_bdy_tide.Extract.extract_con"><code>Extract.extract_con()</code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="../pybdy.tide/#module-pybdy.tide.nemo_bdy_tide3">pybdy.tide.nemo_bdy_tide3 module</a><ul>
+<li><a href="../pybdy.tide/#pybdy.tide.nemo_bdy_tide3.constituents_index"><code>constituents_index()</code></a></li>
+<li><a href="../pybdy.tide/#pybdy.tide.nemo_bdy_tide3.nemo_bdy_tide_rot"><code>nemo_bdy_tide_rot()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.tide/#module-pybdy.tide.nemo_bdy_tide_ncgen">pybdy.tide.nemo_bdy_tide_ncgen module</a><ul>
+<li><a href="../pybdy.tide/#pybdy.tide.nemo_bdy_tide_ncgen.CreateBDYTideNetcdfFile"><code>CreateBDYTideNetcdfFile()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.tide/#module-pybdy.tide.tpxo_extract_HC">pybdy.tide.tpxo_extract_HC module</a><ul>
+<li><a href="../pybdy.tide/#pybdy.tide.tpxo_extract_HC.TpxoExtract"><code>TpxoExtract</code></a><ul>
+<li><a href="../pybdy.tide/#pybdy.tide.tpxo_extract_HC.TpxoExtract.__init__"><code>TpxoExtract.__init__()</code></a></li>
+<li><a href="../pybdy.tide/#pybdy.tide.tpxo_extract_HC.TpxoExtract.generate_landmask_from_bathymetry"><code>TpxoExtract.generate_landmask_from_bathymetry()</code></a></li>
+<li><a href="../pybdy.tide/#pybdy.tide.tpxo_extract_HC.TpxoExtract.interpolate_constituents"><code>TpxoExtract.interpolate_constituents()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.tide/#pybdy.tide.tpxo_extract_HC.bilinear_interpolation"><code>bilinear_interpolation()</code></a></li>
+<li><a href="../pybdy.tide/#pybdy.tide.tpxo_extract_HC.interpolate_data"><code>interpolate_data()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.tide/#module-pybdy.tide">Module contents</a></li>
+</ul>
+</li>
+<li><a href="../pybdy.utils/">pybdy.utils package</a><ul>
+<li><a href="../pybdy.utils/#submodules">Submodules</a></li>
+<li><a href="../pybdy.utils/#module-pybdy.utils.Constants">pybdy.utils.Constants module</a></li>
+<li><a href="../pybdy.utils/#module-pybdy.utils.e3_to_depth">pybdy.utils.e3_to_depth module</a><ul>
+<li><a href="../pybdy.utils/#pybdy.utils.e3_to_depth.e3_to_depth"><code>e3_to_depth()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.utils/#module-pybdy.utils.gcoms_break_depth">pybdy.utils.gcoms_break_depth module</a><ul>
+<li><a href="../pybdy.utils/#pybdy.utils.gcoms_break_depth.gcoms_boundary_masks"><code>gcoms_boundary_masks()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.gcoms_break_depth.gcoms_break_depth"><code>gcoms_break_depth()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.gcoms_break_depth.polcoms_select_domain"><code>polcoms_select_domain()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.utils/#module-pybdy.utils.nemo_bdy_lib">pybdy.utils.nemo_bdy_lib module</a><ul>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.bdy_sections"><code>bdy_sections()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.bdy_transport"><code>bdy_transport()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.dist"><code>dist()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.dist_point_to_segment"><code>dist_point_to_segment()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.get_output_filename"><code>get_output_filename()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.get_output_tidal_filename"><code>get_output_tidal_filename()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.psi_field"><code>psi_field()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.rot_rep"><code>rot_rep()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.sub2ind"><code>sub2ind()</code></a></li>
+<li><a href="../pybdy.utils/#pybdy.utils.nemo_bdy_lib.velocity_field"><code>velocity_field()</code></a></li>
+</ul>
+</li>
+<li><a href="../pybdy.utils/#module-pybdy.utils">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<h2 id="submodules">Submodules</h2>
+<h1 id="pybdynemo_bdy_chunk-module">pybdy.nemo_bdy_chunk module</h1>
+<blockquote>
+<p>Created on Thu Dec 19 10:39:46 2024.<br></p>
+</blockquote>
+<p>@author James Harle
+@author Benjamin Barton</p>
+<h2 id="pybdynemo_bdy_chunkchunk_bdybdy">pybdy.nemo_bdy_chunk.chunk_bdy(bdy)</h2>
+<p>Master chunking function.</p>
+<p>Takes the boundary indicies and turns them into a list of boundary chunks.
+The boundary is first split at natural breaks like land or the east-west wrap.
+The chunks are then split near corners.
+The chunks are then optionally split in the middle if they’re above a certain size
+after attempting to split at corners.</p>
+<blockquote>
+<h3 id="parameters">Parameters<br></h3>
+<p>bdy (obj) : organised as bdy_i[point, i/j grid] and rim width bdy_r[point]<br>
+logger : log error and messages<br></p>
+<h3 id="returns">Returns<br></h3>
+<p>chunk_number (numpy.array) : array of chunk numbers<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_chunkchunk_corneribdy-jbdy-rbdy-chunk_number-rw">pybdy.nemo_bdy_chunk.chunk_corner(ibdy, jbdy, rbdy, chunk_number, rw)</h2>
+<p>Find corners and split along the change in direction.</p>
+<p>To do this we look for a change in direction along each rim.</p>
+<blockquote>
+<h3 id="parameters_1">Parameters<br></h3>
+<p>ibdy (numpy.array) : index in i direction<br>
+jbdy (numpy.array) : index in j direction<br>
+rbdy (numpy.array) : rim index<br>
+chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
+rw (int) : rimwidth<br></p>
+<h3 id="returns_1">Returns<br></h3>
+<p>chunk_number (numpy.array) : array of chunk numbers<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_chunkchunk_landibdy-jbdy-chunk_number-rw">pybdy.nemo_bdy_chunk.chunk_land(ibdy, jbdy, chunk_number, rw)</h2>
+<p>Find natural breaks in the boundary looking for gaps in i and j.</p>
+<blockquote>
+<h3 id="parameters_2">Parameters<br></h3>
+<p>ibdy (numpy.array) : index in i direction<br>
+jbdy (numpy.array) : index in j direction<br>
+chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br>
+rw (int) : rimwidth<br></p>
+<h3 id="returns_2">Returns<br></h3>
+<p>chunk_number (numpy.array) : array of chunk numbers<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_chunkchunk_largeibdy-jbdy-chunk_number">pybdy.nemo_bdy_chunk.chunk_large(ibdy, jbdy, chunk_number)</h2>
+<p>Split boundaries that have too much white space and are too large.</p>
+<blockquote>
+<h3 id="parameters_3">Parameters<br></h3>
+<p>ibdy (numpy.array) : index in i direction<br>
+jbdy (numpy.array) : index in j direction<br>
+chunk_number (numpy.array) : array of chunk numbers. -1 means an unassigned chunk number<br></p>
+<h3 id="returns_3">Returns<br></h3>
+<p>chunk_number (numpy.array) : array of chunk numbers<br></p>
+</blockquote>
+<h1 id="pybdynemo_bdy_dst_coord-module">pybdy.nemo_bdy_dst_coord module</h1>
+<h2 id="class-pybdynemo_bdy_dst_coorddstcoord"><em>class</em> pybdy.nemo_bdy_dst_coord.DstCoord</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<p>Object is currently empty and has data bound to it externally.</p>
+<p>Equivalent to Matlab dst_coord.</p>
+<h1 id="pybdynemo_bdy_extr_assist-module">pybdy.nemo_bdy_extr_assist module</h1>
+<blockquote>
+<p>Created on Thu Dec 21 17:34:00 2024.<br></p>
+</blockquote>
+<p>@author James Harle
+@author Benjamin Barton</p>
+<h2 id="pybdynemo_bdy_extr_assistcheck_wrapimin-imax-sc_lon">pybdy.nemo_bdy_extr_assist.check_wrap(imin, imax, sc_lon)</h2>
+<p>Check if source domain wraps and dst spans the wrap.</p>
+<blockquote>
+<h3 id="parameters_4">Parameters<br></h3>
+<p>imin (int) : minimum i index<br>
+imax (int) : maximum i index<br>
+sc_lon (np.array) : the longitude of the source grid<br></p>
+<h3 id="returns_4">Returns<br></h3>
+<p>wrap_flag (bool) : if true the sc wraps and dst spans wrap<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_extr_assistdistance_weightssc_bdy-dist_tot-sc_z_len-r0-logger">pybdy.nemo_bdy_extr_assist.distance_weights(sc_bdy, dist_tot, sc_z_len, r0, logger)</h2>
+<p>Find the distance weightings for averaging source data to destination.</p>
+<blockquote>
+<h3 id="parameters_5">Parameters<br></h3>
+<p>sc_bdy (numpy.array) : source data<br>
+dist_tot (numpy.array) : distance from dst point to 9 nearest sc points<br>
+sc_z_len (int) : the number of depth levels<br>
+r0 (float) : correlation distance<br>
+logger : log of statements<br></p>
+<h3 id="returns_5">Returns<br></h3>
+<p>dist_wei (numpy.array) : weightings for averaging<br>
+dist_fac (numpy.array) : total weighting factor<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_extr_assistflood_fillsc_bdy-isslab-logger">pybdy.nemo_bdy_extr_assist.flood_fill(sc_bdy, isslab, logger)</h2>
+<p>Fill the data horizontally then downwards to remove nans before interpolation.</p>
+<blockquote>
+<h3 id="parameters_6">Parameters<br></h3>
+<p>sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]<br>
+isslab (bool) : if true data has vertical cells for vertical flood fill<br>
+logger : log of statements<br></p>
+<h3 id="returns_6">Returns<br></h3>
+<p>sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_extr_assistget_inddst_lon-dst_lat-sc_lon-sc_lat">pybdy.nemo_bdy_extr_assist.get_ind(dst_lon, dst_lat, sc_lon, sc_lat)</h2>
+<p>Calculate indicies of max and min for data extraction.</p>
+<blockquote>
+<h3 id="parameters_7">Parameters<br></h3>
+<p>dst_lon (np.array) : the longitude of the destination grid<br>
+dst_lat (np.array) : the latitude of the destination grid<br>
+sc_lon (np.array) : the longitude of the source grid<br>
+sc_lat (np.array) : the latitude of the source grid<br></p>
+<h3 id="returns_7">Returns<br></h3>
+<p>imin (int) : minimum i index<br>
+imax (int) : maximum i index<br>
+jmin (int) : minimum j index<br>
+jmax (int) : maximum j index<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_extr_assistget_vertical_weightsdst_dep-dst_len_z-num_bdy-sc_z-sc_z_len-ind-zco">pybdy.nemo_bdy_extr_assist.get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco)</h2>
+<p>Determine 3D depth vertical weights for the linear interpolation onto Dst grid.</p>
+<p>Selects 9 source points horizontally around a destination grid point.
+Calculated the distance from each source point to the destination to
+be used in weightings. The resulting arrays are [nz * nbdy * 9, 2].</p>
+<blockquote>
+<h3 id="parameters_8">Parameters<br></h3>
+<p>dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
+dst_len_z (int) : the length of depth axis of the destination grid<br>
+num_bdy (int) : number of boundary points in chunk<br>
+sc_z (np.array) : the depth of the source grid [k, j, i]<br>
+sc_z_len (int) : the length of depth axis of the source grid<br>
+ind (np.array) : indices of bdy and 9 nearest neighbours flattened “F” j,i [nbdy, 9]<br>
+zco (bool) : if True z levels are not spatially varying<br></p>
+<h3 id="returns_8">Returns<br></h3>
+<p>z9_dist (np.array) : the distance weights of the selected points<br>
+z9_ind (np.array) : the indices of the sc depth above and below bdy<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_extr_assistget_vertical_weights_zcodst_dep-dst_len_z-num_bdy-sc_z-sc_z_len">pybdy.nemo_bdy_extr_assist.get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len)</h2>
+<p>Determine vertical weights for the linear interpolation onto Dst grid.</p>
+<p>Calculated the vertical distance from each source point to the destination to
+be used in weightings. The resulting arrays are [nbdy * nz, 2].</p>
+<blockquote>
+<p>Note: z_dist and z_ind are [nbdy*nz, 2] where [:, 0] is the nearest vertical index<br>
+and [:, 1] is the index above or below i.e. the vertical index -1 for sc_z &gt; dst_z<br>
+and vertical index +1 for sc_z \&lt;= dst_z</p>
+<h3 id="parameters_9">Parameters<br></h3>
+<p>dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
+dst_len_z (int) : the length of depth axis of the destination grid<br>
+num_bdy (int) : number of boundary points in chunk<br>
+sc_z (np.array) : the depth of the source grid [k, j, i]<br>
+sc_z_len (int) : the length of depth axis of the source grid<br></p>
+<h3 id="returns_9">Returns<br></h3>
+<p>z_dist (np.array) : the distance weights of the selected points<br>
+z_ind (np.array) : the indices of the sc depth above and below bdy<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_extr_assistinterp_horizontalsc_bdy-dist_wei-dist_fac-logger">pybdy.nemo_bdy_extr_assist.interp_horizontal(sc_bdy, dist_wei, dist_fac, logger)</h2>
+<p>Interpolate the source data to the destination grid using weighted average.</p>
+<blockquote>
+<h3 id="parameters_10">Parameters<br></h3>
+<p>sc_bdy (numpy.array) : source data<br>
+dist_wei (numpy.array) : weightings for interpolation<br>
+dist_fac (numpy.array) : sum of weightings<br>
+logger : log of statements<br></p>
+<h3 id="returns_10">Returns<br></h3>
+<p>dst_bdy (numpy.array) : destination bdy points with data from source grid<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_extr_assistinterp_verticalsc_bdy-dst_dep-bdy_bathy-z_ind-z_dist-num_bdy-zinterptrue">pybdy.nemo_bdy_extr_assist.interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy, zinterp=True)</h2>
+<p>Interpolate source data onto destination vertical levels.</p>
+<blockquote>
+<h3 id="parameters_11">Parameters<br></h3>
+<p>sc_bdy (np.array) : souce data [nz_sc, nbdy, 9]<br>
+dst_dep (np.array) : the depth of the destination grid chunk [nz, nbdy]<br>
+bdy_bathy (np.array): the destination grid bdy points bathymetry<br>
+z_ind (np.array) : the indices of the sc depth above and below bdy point<br>
+z_dist (np.array) : the distance weights of the selected points<br>
+num_bdy (int) : number of boundary points in chunk<br>
+zinterp (bool) : vertical interpolation flag<br></p>
+<h3 id="returns_11">Returns<br></h3>
+<p>data_out (np.array) : source data on destination depth levels<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_extr_assistvalid_indexsc_bdy-logger">pybdy.nemo_bdy_extr_assist.valid_index(sc_bdy, logger)</h2>
+<p>Find an array of valid indicies.</p>
+<blockquote>
+<h3 id="parameters_12">Parameters<br></h3>
+<p>sc_bdy (numpy.array) : source data<br>
+logger : log of statements<br></p>
+<h3 id="returns_12">Returns<br></h3>
+<p>data_ind (numpy.array) : indicies of max depth of valid data<br>
+nan_ind (numpy.array) : indicies where source is land<br></p>
+</blockquote>
+<h1 id="pybdynemo_bdy_extr_tm3-module">pybdy.nemo_bdy_extr_tm3 module</h1>
+<blockquote>
+<p>Created on Wed Sep 12 08:02:46 2012.<br></p>
+</blockquote>
+<p>This Module defines the extraction of the data from the source grid and does
+the interpolation onto the destination grid.</p>
+<p>@author James Harle
+@author John Kazimierz Farey</p>
+<blockquote>
+<p>@author: Mr. Srikanth Nagella<br></p>
+</blockquote>
+<h2 id="class-pybdynemo_bdy_extr_tm3extractsetup-sourcecoord-dstcoord-grid-var_nam-grd-pair"><em>class</em> pybdy.nemo_bdy_extr_tm3.Extract(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<h3 id="method-__init__setup-sourcecoord-dstcoord-grid-var_nam-grd-pair"><em>method</em> __init__(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)</h3>
+<p>Initialise the Extract object.</p>
+<p>Parent grid to child grid weights are defined along with rotation
+weightings for vector quantities.</p>
+<blockquote>
+<h3 id="parameters_13">Parameters<br></h3>
+<p>setup (list) : settings for bdy<br>
+SourceCoord (obj) : source grid information<br>
+DstCoord (obj) : destination grid information<br>
+Grid (dict) : containing grid type ‘t’, ‘u’, ‘v’ and source time<br>
+var_name (list) : netcdf file variable names (str)<br>
+grd (str) : grid to process ‘t’, ‘u’, ‘v’<br>
+pair (str) : None or ‘uv’<br></p>
+<h3 id="returns_13">Returns<br></h3>
+<p>Extract (obj) : Object with indexing arrays and weightings ready for interpolation<br></p>
+</blockquote>
+<h3 id="method-cal_transsource-dest-year-month"><em>method</em> cal_trans(source, dest, year, month)</h3>
+<p>Translate between calendars and return scale factor and number of days in month.</p>
+<blockquote>
+<h3 id="parameters_14">Parameters<br></h3>
+<p>source : source calendar<br>
+dest : destination calendar<br>
+year : input year<br>
+month : input month<br></p>
+<h3 id="returns_14">Returns<br></h3>
+<p>sf : scale factor<br>
+ed : number of days in month<br></p>
+</blockquote>
+<h3 id="method-extract_monthyear-month"><em>method</em> extract_month(year, month)</h3>
+<p>Extract monthly data and interpolates onto the destination grid.</p>
+<blockquote>
+<h3 id="parameters_15">Parameters<br></h3>
+<p>year : year of data to be extracted<br>
+month : month of the year to be extracted<br></p>
+<h3 id="returns_15">Returns<br></h3>
+<p>self.data_out : data from source on bdy locations and depths<br></p>
+</blockquote>
+<h3 id="method-time_deltatime_counter"><em>method</em> time_delta(time_counter)</h3>
+<p>Get time delta and number of time steps per day.</p>
+<p>Calculates difference between time steps for time_counter and checks
+these are uniform. Then retrives the number of time steps per day.</p>
+<blockquote>
+<h3 id="parameters_16">Parameters<br></h3>
+<p>time_counter : model time coordinate<br></p>
+<h3 id="returns_16">Returns<br></h3>
+<p>deltaT : length of time step<br>
+dstep : number of time steps per day<br></p>
+</blockquote>
+<h3 id="method-time_interpyear-month"><em>method</em> time_interp(year, month)</h3>
+<p>Perform a time interpolation of the BDY data to daily frequency.</p>
+<p>This method performs a time interpolation (if required). This is
+necessary if the time frequency is not a factor of monthly output or the
+input and output calendars differ. CF compliant calendar options</p>
+<blockquote>
+<p>accepted: gregorian | standard, proleptic_gregorian, noleap | 365_day,<br>
+360_day or julian.*</p>
+</blockquote>
+<h3 id="method-write_outyear-month-ind-unit_origin"><em>method</em> write_out(year, month, ind, unit_origin)</h3>
+<p>Write monthy BDY data to netCDF file.</p>
+<p>This method writes out all available variables for a given grid along with
+any asscoaied metadata. Currently data are only written out as monthly
+files.</p>
+<blockquote>
+<h3 id="parameters_17">Parameters<br></h3>
+<p>year (int) : year to write out<br>
+month (int) : month to write out<br>
+ind (dict): dictionary holding grid information<br>
+unit_origin (str) : time reference ‘%d 00:00:00’ %date_origin<br></p>
+<h3 id="returns_17">Returns<br></h3>
+<p>None<br></p>
+</blockquote>
+<h1 id="pybdynemo_bdy_gen_c-module">pybdy.nemo_bdy_gen_c module</h1>
+<p>NEMO Boundary module.</p>
+<p>Creates indices for t, u and v points, plus rim gradient.
+The variable names have been renamed to keep consistent with python standards and generalizing
+the variable names eg. bdy_i is used instead of bdy_t</p>
+<p>Ported from Matlab code by James Harle</p>
+<blockquote>
+<p>@author: John Kazimierz Farey<br>
+@author: Srikanth Nagella.<br></p>
+</blockquote>
+<h2 id="class-pybdynemo_bdy_gen_cboundaryboundary_mask-settings-grid"><em>class</em> pybdy.nemo_bdy_gen_c.Boundary(boundary_mask, settings, grid)</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<p>Class for boundary definitions.</p>
+<h3 id="method-__init__boundary_mask-settings-grid"><em>method</em> __init__(boundary_mask, settings, grid)</h3>
+<p>Generate the indices for NEMO Boundary and returns a Grid object with indices.</p>
+<blockquote>
+<h3 id="parameters_18">Parameters<br></h3>
+<p>boundary_mask : boundary mask<br>
+settings : dictionary of setting values<br>
+grid : type of the grid ‘t’, ‘u’, ‘v’<br></p>
+<h3 id="returns_18">Returns<br></h3>
+<p>Boundary (object) : where bdy_i is index and bdy_r is the r index<br></p>
+</blockquote>
+<h3 id="method-fillmask-ref-brg"><em>method</em> fill(mask, ref, brg)</h3>
+<h3 id="method-find_bdyigrid-jgrid-mask-brg"><em>method</em> find_bdy(igrid, jgrid, mask, brg)</h3>
+<p>Find the border indexes by checking the change from ocean to land.</p>
+<blockquote>
+<p>Returns the i and j index array where the shift happens.<br></p>
+<h3 id="parameters_19">Parameters<br></h3>
+<p>igrid : I x direction indexes<br>
+jgrid : J y direction indexes<br>
+mask : mask data<br>
+brg : mask index range<br></p>
+<h3 id="returns_19">Returns<br></h3>
+<p>bdy_i : bdy indexes<br>
+bdy_r : bdy rim values.<br></p>
+</blockquote>
+<h3 id="method-remove_duplicate_pointsbdy_i-bdy_r"><em>method</em> remove_duplicate_points(bdy_i, bdy_r)</h3>
+<p>Remove the duplicate points in the bdy_i and return the bdy_i and bdy_r.</p>
+<blockquote>
+<h3 id="parameters_20">Parameters<br></h3>
+<p>bdy_i : bdy indexes<br>
+bdy_r : bdy rim values.<br></p>
+<h3 id="returns_20">Returns<br></h3>
+<p>bdy_i : bdy indexes<br>
+bdy_r : bdy rim values.<br></p>
+</blockquote>
+<h3 id="method-remove_landpoints_open_oceanmask-bdy_i-bdy_r"><em>method</em> remove_landpoints_open_ocean(mask, bdy_i, bdy_r)</h3>
+<p>Remove the land points and open ocean points.</p>
+<h3 id="method-unique_rowst"><em>method</em> unique_rows(t)</h3>
+<p>Find indexes of unique rows in the input 2D array.</p>
+<blockquote>
+<h3 id="parameters_21">Parameters<br></h3>
+<p>t : input 2D array.<br></p>
+<h3 id="returns_21">Returns<br></h3>
+<p>indx : indexes of unique rows<br></p>
+</blockquote>
+<h1 id="pybdynemo_bdy_grid_angle-module">pybdy.nemo_bdy_grid_angle module</h1>
+<h2 id="class-pybdynemo_bdy_grid_anglegridanglehgr-imin-imax-jmin-jmax-cd_type"><em>class</em> pybdy.nemo_bdy_grid_angle.GridAngle(hgr, imin, imax, jmin, jmax, cd_type)</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<p>Class to get orientation of grid from I and J offsets for different grid types.</p>
+<h3 id="method-__init__hgr-imin-imax-jmin-jmax-cd_type"><em>method</em> __init__(hgr, imin, imax, jmin, jmax, cd_type)</h3>
+<p>Get sin and cosin files for the grid angle from North.</p>
+<blockquote>
+<h3 id="parameters_22">Parameters<br></h3>
+<p>hgr : grid object<br>
+imin : minimum model zonal indices<br>
+imax : maximum model zonal indices<br>
+jmin : minimum model meridional indices<br>
+jmax : maximum model meridional indices<br>
+cd_type: define the nature of pt2d grid points<br></p>
+<h3 id="returns_22">Returns<br></h3>
+<p>None : object<br></p>
+</blockquote>
+<h3 id="method-get_lam_phimapfalse-i0-j0-singlefalse"><em>method</em> get_lam_phi(map=False, i=0, j=0, single=False)</h3>
+<p>Get lam/phi in (offset) i/j range for init grid type.</p>
+<p>Data must be converted to float64 to prevent dementation of later results.</p>
+<h3 id="method-get_north_dir"><em>method</em> get_north_dir()</h3>
+<p>Find North pole direction and modulus of some point.</p>
+<h3 id="method-get_seg_dirnorth_n"><em>method</em> get_seg_dir(north_n)</h3>
+<p>Find segmentation direction of some point.</p>
+<h3 id="method-get_sin_cosnx-ny-nn-sx-sy-sn"><em>method</em> get_sin_cos(nx, ny, nn, sx, sy, sn)</h3>
+<p>Get sin and cos from lat and lon using using scaler/vectorial products.</p>
+<h3 id="method-trig_eqx-eq-z_one-z_two"><em>method</em> trig_eq(x, eq, z_one, z_two)</h3>
+<p>Calculate long winded equation of two vars; some lam and phi.</p>
+<h1 id="pybdynemo_bdy_ice-module">pybdy.nemo_bdy_ice module</h1>
+<h2 id="class-pybdynemo_bdy_iceboundaryice"><em>class</em> pybdy.nemo_bdy_ice.BoundaryIce</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<h3 id="method-__init__"><em>method</em> __init__()</h3>
+<h1 id="pybdynemo_bdy_ncgen-module">pybdy.nemo_bdy_ncgen module</h1>
+<p>Create a Nemo Bdy netCDF file ready for population.</p>
+<p>Written by John Kazimierz Farey, started August 30, 2012
+Port of Matlab code of James Harle</p>
+<h2 id="pybdynemo_bdy_ncgencreatebdynetcdffilefilename-xb_len-x_len-y_len-depth_len-rw-h-orig-fv-calendar-grd">pybdy.nemo_bdy_ncgen.CreateBDYNetcdfFile(filename, xb_len, x_len, y_len, depth_len, rw, h, orig, fv, calendar, grd)</h2>
+<p>Create a template of bdy netcdf files. A common for T, I, U, V, E grid types.</p>
+<h1 id="pybdynemo_bdy_ncpop-module">pybdy.nemo_bdy_ncpop module</h1>
+<p>Created on 3 Oct 2014.</p>
+<blockquote>
+<p>@author: Mr. Srikanth Nagella<br>
+Netcdf writer for the bdy output</p>
+</blockquote>
+<h2 id="pybdynemo_bdy_ncpopwrite_data_to_filefilename-variable_name-data">pybdy.nemo_bdy_ncpop.write_data_to_file(filename, variable_name, data)</h2>
+<p>Write the data to the netcdf templete file.</p>
+<blockquote>
+<h3 id="parameters_23">Parameters<br></h3>
+</blockquote>
+<p>filename – output filename
+variable_name – variable name into which the data is written to.
+data – data that will be written to variable in netcdf.</p>
+<h1 id="pybdynemo_bdy_scr_coord-module">pybdy.nemo_bdy_scr_coord module</h1>
+<h2 id="class-pybdynemo_bdy_scr_coordscrcoord"><em>class</em> pybdy.nemo_bdy_scr_coord.ScrCoord</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<h3 id="method-__init___1"><em>method</em> __init__()</h3>
+<h1 id="pybdynemo_bdy_setup-module">pybdy.nemo_bdy_setup module</h1>
+<blockquote>
+<p>Created on Wed Sep 12 08:02:46 2012.<br></p>
+</blockquote>
+<p>Parses a file to find out which nemo boundary settings to use</p>
+<p>@author John Kazimierz Farey
+@author James Harle</p>
+<h2 id="class-pybdynemo_bdy_setupsetupsetfile"><em>class</em> pybdy.nemo_bdy_setup.Setup(setfile)</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<p>Invoke with a text file location, class init reads and deciphers variables.</p>
+<p>This class holds the settings information</p>
+<h3 id="method-__init__setfile"><em>method</em> __init__(setfile)</h3>
+<p>Set up the constructor.</p>
+<p>This constructor reads the settings file and sets the dictionary with
+setting name/key and it’s value.</p>
+<blockquote>
+<h3 id="parameters_24">Parameters<br></h3>
+<p>setfile (str) : settings file<br></p>
+</blockquote>
+<h3 id="method-refresh"><em>method</em> refresh()</h3>
+<p>Reload the settings from file.</p>
+<h3 id="method-variable_info_readerfilename"><em>method</em> variable_info_reader(filename)</h3>
+<p>Read the variable description data from the ‘variable.info’ file.</p>
+<p>This method reads the variable description data from ‘variable.info’ file
+in the pybdy installation path if it can’t find the file with the same
+name as input bdy file with extension .info</p>
+<blockquote>
+<h3 id="parameters_25">Parameters<br></h3>
+</blockquote>
+<p>filename – filename of the variables information
+returns a dictionary with variable name and its description.</p>
+<blockquote>
+<h3 id="returns_23">Returns<br></h3>
+<p>variable_info : dict<br></p>
+</blockquote>
+<h3 id="method-write"><em>method</em> write()</h3>
+<p>Write backs the variable data back into the file.</p>
+<h2 id="pybdynemo_bdy_setupstrip_commentsline">pybdy.nemo_bdy_setup.strip_comments(line)</h2>
+<p>Strip the comments in the line. removes text after !.</p>
+<h1 id="pybdynemo_bdy_source_coord-module">pybdy.nemo_bdy_source_coord module</h1>
+<h2 id="class-pybdynemo_bdy_source_coordsourcecoord"><em>class</em> pybdy.nemo_bdy_source_coord.SourceCoord</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<h3 id="method-__init___2"><em>method</em> __init__()</h3>
+<p>Initialise the source coordinates attributes of the object.</p>
+<h1 id="pybdynemo_bdy_zgrv2-module">pybdy.nemo_bdy_zgrv2 module</h1>
+<p>Created.</p>
+<p>@author John Kazimierz Farey
+@author Benjamin Barton.</p>
+<h2 id="pybdynemo_bdy_zgrv2get_bdy_depthsdstcoord-bdy_i-grd">pybdy.nemo_bdy_zgrv2.get_bdy_depths(DstCoord, bdy_i, grd)</h2>
+<p>Depth levels on the destination grid at bdy points.</p>
+<blockquote>
+<h3 id="parameters_26">Parameters<br></h3>
+<p>DstCoord (object) : Object containing destination grid info<br>
+bdy_i (np.array) : indices of the i, j bdy points [bdy, 2]<br>
+grd (str) : grid type t, u, v<br></p>
+<h3 id="returns_24">Returns<br></h3>
+<p>bdy_tz (array) : sc depths on bdy points on t levels<br>
+bdy_wz (array) : sc depths on bdy points on w levels<br>
+bdy_e3 (array) : sc level thickness on bdy points on t levels<br></p>
+</blockquote>
+<h2 id="pybdynemo_bdy_zgrv2get_bdy_depths_oldbdy_t-bdy_u-bdy_v-dstcoord-settings">pybdy.nemo_bdy_zgrv2.get_bdy_depths_old(bdy_t, bdy_u, bdy_v, DstCoord, settings)</h2>
+<p>Generate Depth information.</p>
+<p>Written by John Kazimierz Farey, Sep 2012
+Port of Matlab code of James Harle</p>
+<p>Generates depth points for t, u and v in one loop iteration.
+Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary.</p>
+<h2 id="pybdynemo_bdy_zgrv2get_bdy_sc_depthssourcecoord-dstcoord-grd">pybdy.nemo_bdy_zgrv2.get_bdy_sc_depths(SourceCoord, DstCoord, grd)</h2>
+<p>Depth levels from the nearest neighbour on the source grid.</p>
+<blockquote>
+<h3 id="parameters_27">Parameters<br></h3>
+<p>SourceCoord (object) : Object containing source grid info<br>
+DstCoord (object) : Object containing destination grid info<br>
+grd (str) : grid type t, u, v<br></p>
+<h3 id="returns_25">Returns<br></h3>
+<p>bdy_tz (array) : sc depths on bdy points on t levels<br>
+bdy_wz (array) : sc depths on bdy points on w levels<br>
+bdy_e3 (array) : sc level thickness on bdy points on t levels<br></p>
+</blockquote>
+<h1 id="pybdynemo_coord_gen_pop-module">pybdy.nemo_coord_gen_pop module</h1>
+<p>Module that combines matlab coord gen and pop.</p>
+<p>Initialise with netcdf file name and dictionary containing all bdy grids (objects).</p>
+<h2 id="class-pybdynemo_coord_gen_popcoordfname-bdy_ind"><em>class</em> pybdy.nemo_coord_gen_pop.Coord(fname, bdy_ind)</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<p>Class for writing boundayr coordinate data to netcdf file.</p>
+<h3 id="method-__init__fname-bdy_ind"><em>method</em> __init__(fname, bdy_ind)</h3>
+<p>Create Nemo bdy indices for t, u, v points.</p>
+<blockquote>
+<h3 id="parameters_28">Parameters<br></h3>
+<p>fname (str) : file name of coords file for output<br>
+bdy_ind (numpy.array) : indicies of bdy points<br></p>
+<h3 id="returns_26">Returns<br></h3>
+<p>None : object<br></p>
+</blockquote>
+<h3 id="method-add_varsdim-grd-unt"><em>method</em> add_vars(dim, grd, unt)</h3>
+<p>Create a var w/ attributes.</p>
+<h3 id="method-build_dictdim-units"><em>method</em> build_dict(dim, units)</h3>
+<p>Set up a grid dictionary.</p>
+<h3 id="method-closeme"><em>method</em> closeme()</h3>
+<h3 id="method-create_dims"><em>method</em> create_dims()</h3>
+<p>Create dims and returns a dictionary of them.</p>
+<h3 id="method-populatehgr"><em>method</em> populate(hgr)</h3>
+<p>Populate the file with indices, lat, lon, and e dimensions.</p>
+<h3 id="method-set_lenvarvardic-hgrnone-untnone"><em>method</em> set_lenvar(vardic, hgr=None, unt=None)</h3>
+<p>Set the len var of each array in the var dictionary.</p>
+<p>Use by specifying hgr and unt which pulls data from loaded grid data.
+Otherwise pull it from the class dict.</p>
+<h1 id="pybdyprofiler-module">pybdy.profiler module</h1>
+<blockquote>
+<p>Created on Wed Sep 12 08:02:46 2012.<br></p>
+</blockquote>
+<p>The main application script for the NRCT.</p>
+<p>@author James Harle
+@author John Kazimierz Farey
+@author Srikanth Nagella</p>
+<h2 id="class-pybdyprofilergrid"><em>class</em> pybdy.profiler.Grid</h2>
+<blockquote>
+<p>Bases: <code>object</code><br></p>
+</blockquote>
+<p>A Grid object that stores bdy grid information.</p>
+<h3 id="method-__init___3"><em>method</em> __init__()</h3>
+<h2 id="pybdyprofilerprocess_bdysetup_filepath0-mask_guifalse">pybdy.profiler.process_bdy(setup_filepath=0, mask_gui=False)</h2>
+<p>Handle all the calls to generate open boundary conditions for a given regional domain.</p>
+<p>This is main entry for processing BDY lateral boundary conditions.
+This is the main script that handles all the calls to generate open
+boundary conditions for a given regional domain. Input options are handled
+in a NEMO style namelist (namelist.bdy). There is an optional GUI allowing
+the user to create a mask that defines the extent of the regional model.</p>
+<blockquote>
+<h3 id="parameters_29">Parameters<br></h3>
+<p>setup_filepath (str) : file path to find namelist.bdy<br>
+mask_gui (bool): whether use of the GUI is required<br></p>
+<h3 id="returns_27">Returns<br></h3>
+<p>None : bdy data is written out to NetCDF file<br></p>
+</blockquote>
+<h2 id="pybdyprofilerwrite_tidal_datasetup_var-dst_coord_var-grid-tide_cons-cons">pybdy.profiler.write_tidal_data(setup_var, dst_coord_var, grid, tide_cons, cons)</h2>
+<p>Write the tidal data to a NetCDF file.</p>
+<blockquote>
+<h3 id="parameters_30">Parameters<br></h3>
+<p>setup_var (list): Description of arg1<br>
+dst_coord_var (obj) : Description of arg1<br>
+grid (dict): Description of arg1<br>
+tide_cons (list): Description of arg1<br>
+cons (data): cosz, sinz, cosu, sinu, cosv, sinv<br></p>
+<h3 id="returns_28">Returns<br></h3>
+<p>None : tidal data is written to NetCDF file<br></p>
+</blockquote>
+<h1 id="pybdypybdy_exe-module">pybdy.pybdy_exe module</h1>
+<p>Entry for the project.</p>
+<blockquote>
+<p>@author: Mr. Srikanth Nagella<br></p>
+</blockquote>
+<h2 id="pybdypybdy_exemain">pybdy.pybdy_exe.main()</h2>
+<p>Run main function.</p>
+<p>Checks the command line parameters and passes them to the profile module for processing.</p>
+<h1 id="pybdypybdy_ncml_generator-module">pybdy.pybdy_ncml_generator module</h1>
+<p>Created on 2 Jul 2015.</p>
+<p>The main application object for hosting the pybdy ncml editor.
+Used for development purposes to display the ncml editor dialog.</p>
+<blockquote>
+<p>@author: Shirley Crompton, UK Science and Technology Facilities Council<br></p>
+</blockquote>
+<h2 id="pybdypybdy_ncml_generatormain">pybdy.pybdy_ncml_generator.main()</h2>
+<p>Command line execution method.</p>
+<p>Checks the input arguments and passes on to method to open the ncml generator window.</p>
+<h1 id="pybdypybdy_settings_editor-module">pybdy.pybdy_settings_editor module</h1>
+<p>Created on 7 Jan 2015.</p>
+<blockquote>
+<p>@author: Mr. Srikanth Nagella<br></p>
+</blockquote>
+<h2 id="pybdypybdy_settings_editormain">pybdy.pybdy_settings_editor.main()</h2>
+<p>Command line execution method.</p>
+<p>Checks the input arguments and passes on to method to open the settings window.</p>
+<h2 id="pybdypybdy_settings_editoropen_settings_dialogsetup">pybdy.pybdy_settings_editor.open_settings_dialog(setup)</h2>
+<p>Start the settings window using the setup settings provided in the input.</p>
+<p>On clicking the cancel button it doesn’t shutdown the applicaiton but carries on with the execution.</p>
+<h2 id="pybdypybdy_settings_editoropen_settings_windowfname">pybdy.pybdy_settings_editor.open_settings_window(fname)</h2>
+<p>Start a Qt application.</p>
+<p>This method gives the user the option to pick a namelist.bdy file to edit.
+Once user selects it it will open a dialog box where users can edit the parameters.</p>
+<h1 id="pybdyversion-module">pybdy.version module</h1>
+<h2 id="module-contents">Module contents</h2>
+<p>a Python based regional NEMO model configuration toolbox.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+          
+          <a href="../pybdy.gui/" class="md-footer__link md-footer__link--prev" aria-label="Previous: pybdy.gui package">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                pybdy.gui package
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../pybdy.reader/" class="md-footer__link md-footer__link--next" aria-label="Next: pybdy.reader package">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                pybdy.reader package
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/NOC-MSM/pyBDY" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["content.action.edit", "content.tabs.link", "content.code.copy", "content.code.annotate", "content.code.select", "toc.integrate", "navigation.tabs", "navigation.expand", "navigation.footer", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>

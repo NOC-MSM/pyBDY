@@ -1,0 +1,1897 @@
+<!DOCTYPE html><html lang="en" class="no-js"><head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://noc-msm.github.io/pyBDY/">
+      
+      
+      
+        <link rel="next" href="grid/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/icons/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>pyBDY Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&amp;display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <link href="assets/stylesheets/glightbox.min.css" rel="stylesheet"><script src="assets/javascripts/glightbox.min.js"></script><style id="glightbox-style">
+            html.glightbox-open { overflow: initial; height: 100%; }
+            .gslide-title { margin-top: 0px; user-select: text; }
+            .gslide-desc { color: #666; user-select: text; }
+            .gslide-image img { background: white; }
+            .gscrollbar-fixer { padding-right: 15px; }
+            .gdesc-inner { font-size: 0.75rem; }
+            body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color); }
+            body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color); }
+            body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color); }
+        </style></head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="light-blue" data-md-color-accent="deep-orange">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pybdy-documentation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="pyBDY Documentation" class="md-header__button md-logo" aria-label="pyBDY Documentation" data-md-component="logo">
+      
+  <img src="assets/icons/noc_logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"></path></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            pyBDY Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              pyBDY Documentation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="light-blue" data-md-color-accent="deep-orange" aria-label="Light mode" type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m17.75 4.09-2.53 1.94.91 3.06-2.63-1.81-2.63 1.81.91-3.06-2.53-1.94L12.44 4l1.06-3 1.06 3zm3.5 6.91-1.64 1.25.59 1.98-1.7-1.17-1.7 1.17.59-1.98L15.75 11l2.06-.05L18.5 9l.69 1.95zm-2.28 4.95c.83-.08 1.72 1.1 1.19 1.85-.32.45-.66.87-1.08 1.27C15.17 23 8.84 23 4.94 19.07c-3.91-3.9-3.91-10.24 0-14.14.4-.4.82-.76 1.27-1.08.75-.53 1.93.36 1.85 1.19-.27 2.86.69 5.83 2.89 8.02a9.96 9.96 0 0 0 8.02 2.89m-1.64 2.02a12.08 12.08 0 0 1-7.8-3.47c-2.17-2.19-3.33-5-3.49-7.82-2.81 3.14-2.7 7.96.31 10.98 3.02 3.01 7.84 3.12 10.98.31"></path></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="light-blue" data-md-color-accent="deep-purple" aria-label="Dark mode" type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Dark mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0-7 2.39 3.42C13.65 5.15 12.84 5 12 5s-1.65.15-2.39.42zM3.34 7l4.16-.35A7.2 7.2 0 0 0 5.94 8.5c-.44.74-.69 1.5-.83 2.29zm.02 10 1.76-3.77a7.131 7.131 0 0 0 2.38 4.14zM20.65 7l-1.77 3.79a7.02 7.02 0 0 0-2.38-4.15zm-.01 10-4.14.36c.59-.51 1.12-1.14 1.54-1.86.42-.73.69-1.5.83-2.29zM12 22l-2.41-3.44c.74.27 1.55.44 2.41.44.82 0 1.63-.17 2.37-.44z"></path></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"></path></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"></path></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/NOC-MSM/pyBDY" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    pyBDY
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+  
+    
+  
+  pyBDY Documentation
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="grid/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  grid package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="module_structure/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Module structure
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="pybdy.gui/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy.gui package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="pybdy/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="pybdy.reader/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy.reader package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="pybdy.tide/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy.tide package
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="pybdy.utils/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  pybdy.utils package
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="pyBDY Documentation" class="md-nav__button md-logo" aria-label="pyBDY Documentation" data-md-component="logo">
+      
+  <img src="assets/icons/noc_logo.png" alt="logo">
+
+    </a>
+    pyBDY Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/NOC-MSM/pyBDY" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"></path></svg>
+  </div>
+  <div class="md-source__repository">
+    pyBDY
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pyBDY Documentation
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pyBDY Documentation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-cite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to cite
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#change-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Change Log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start-installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-to-use-pybdy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How to use pyBDY
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="How to use pyBDY">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-file-preparation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: File Preparation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-edit-the-namelist-namelist_localbdy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Edit the Namelist namelist_local.bdy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 2: Edit the Namelist namelist_local.bdy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#key-namelist-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Namelist Parameters
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Namelist Parameters">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vertical-grid-type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vertical grid type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Paths
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#other-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Other Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#time-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Time Settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Time Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#required-namelist-time-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required Namelist Time Parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-setting-up-the-ncml-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Setting up the NcML file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-setting-up-the-json-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Setting up the JSON file
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-running-pybdy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Running pyBDY
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#worked-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Worked Example
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Worked Example">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#namelist-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namelist File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ncml-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NcML File
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tidal-boundary-conditions-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tidal Boundary Conditions Generation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tidal Boundary Conditions Generation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#namelist-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Namelist options
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#harmonic-output-checker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Harmonic Output Checker
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Harmonic Output Checker">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#amplitude-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Amplitude Threshold
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phases-threshold" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phases Threshold
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pybdy-module-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pyBDY Module Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="grid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    grid package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="module_structure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Module structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pybdy.gui/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy.gui package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pybdy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pybdy.reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy.reader package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pybdy.tide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy.tide package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="pybdy.utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pybdy.utils package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/NOC-MSM/pyBDY/edit/main/docs/index.md" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"></path></svg>
+    </a>
+  
+  
+
+
+<h1 id="pybdy-documentation">pyBDY Documentation</h1>
+<p><strong>Welcome to the documentation for pyBDY (NEMO lateral boundary conditions)</strong></p>
+<p><a class="glightbox" data-type="image" data-width="auto" data-height="auto" href="assets/icons/pybdy_logo_small.png" data-desc-position="bottom"><img src="assets/icons/pybdy_logo_small.png" alt="pybdy_logo" width="100"></a></p>
+<h2 id="introduction">Introduction</h2>
+<p>pyBDY is a python package to generate lateral boundary conditions for regional NEMO model configurations.
+It has been developed to uses geographical and depth information from an a source data (e.g. a global ocean
+simulation) and translate them to a destination NEMO region simulation. It makes use of a kdtree approximate
+nearest neighbour algorithm in order to provide a generic method of weighted average interpolation for any
+flavour of ocean model. The available options are accessed through a NEMO style namelist.</p>
+<hr>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#how-to-cite-bookmark">How to cite <img alt="🔖" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f516.svg" title=":bookmark:"></a></li>
+<li><a href="#change-log-twisted_rightwards_arrows">Change Log <img alt="🔀" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f500.svg" title=":twisted_rightwards_arrows:"></a></li>
+<li><a href="#dependencies-globe_with_meridians">Dependencies <img alt="🌐" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f310.svg" title=":globe_with_meridians:"></a></li>
+<li><a href="#quick-start-installation-rocket">Quick Start Installation <img alt="🚀" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f680.svg" title=":rocket:"></a></li>
+<li><a href="#how-to-use-pybdy-student">How to use pyBDY <img alt="🧑‍🎓" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9d1-200d-1f393.svg" title=":student:"></a></li>
+<li><a href="#worked-example-mechanical_arm">Worked Example <img alt="🦾" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9be.svg" title=":mechanical_arm:"></a></li>
+<li><a href="#tidal-boundary-conditions-generation-sailboat">Tidal Boundary Conditions Generation <img alt="⛵" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26f5.svg" title=":sailboat:"></a></li>
+<li><a href="#troubleshooting-safety_vest">Troubleshooting <img alt="🦺" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9ba.svg" title=":safety_vest:"></a></li>
+<li><a href="#pybdy-module-structure-scroll">pyBDY Module Structure <img alt="📜" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f4dc.svg" title=":scroll:"></a></li>
+</ul>
+<p><a name="how-to-cite-bookmark"></a></p>
+<h2 id="how-to-cite">How to cite <img alt="🔖" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f516.svg" title=":bookmark:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>Please cite pyBDY version 0.4.0 in your work using:</p>
+<p>Harle, J., Barton, B.I., Nagella, S., Crompton, S., Polton J., Patmore, R., Morado, J., Prime, T., Wise, A., De Dominicis, M., Blaker, A. Farey, J.K., (2025). pyBDY - NEMO lateral boundary conditions v0.4.0 [Software]. <a href="">https://doi.org</a></p>
+<p><a name="change-log-twisted_rightwards_arrows"></a></p>
+<h2 id="change-log">Change Log <img alt="🔀" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f500.svg" title=":twisted_rightwards_arrows:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>The lastes version of pyBDY is version 0.4.0.
+The changes relative to the previous version (0.3.0) are:</p>
+<ul>
+<li>Sigma to sigma vertical layer interpolation is now possible.</li>
+<li>Vertical interpolation in pyBDY can now be turned off for zco vertical coodinate data.</li>
+<li>The namelist has been streamlined to removed variables that are no longer used.</li>
+<li>Time input in the namelist has changed to offer more granularity.</li>
+<li>Grid variables names are now specified using a .json file instead of .ncml. Source data is still specified with .nmcl.</li>
+<li>The boundary is split into chunks to allow for processing smaller sections of data.</li>
+<li>Boundaries that cross an east - west wrap in source data can be processed.</li>
+<li>The 1-2-1 horizontal filter has been turned off.</li>
+<li>The <em>seawater</em> dependancy updated to <em>gsw</em>.</li>
+<li>A plotting masking bug has been fixed.</li>
+<li>There is now horizontal flood filling that will remove zeros from salinity and temperature near land.</li>
+<li>Bug fix for 90 boundaries that meet diagonally to produce a 90 degree corner.</li>
+<li>Some unit tests have been added and full integration tests.</li>
+<li>Documentation has been updated and restructured.</li>
+<li>sn_src_zgr_type and sn_dst_zgr_type are defined in the namelist.bdy</li>
+</ul>
+<p><strong>There is a new library for generating NEMO initial conditions called pyIC.</strong>
+pyIC can be found at: <a href="https://github.com/NOC-MSM/pyIC">https://github.com/NOC-MSM/pyIC</a></p>
+<p><a name="dependencies-globe_with_meridians"></a></p>
+<h2 id="dependencies">Dependencies <img alt="🌐" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f310.svg" title=":globe_with_meridians:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>pyBDY is installed under a conda/mamba environment to aid wider distribution and to facilitate development.
+The key dependecies are listed below:</p>
+<ul>
+<li>python=3.9</li>
+<li>netCDF4</li>
+<li>scipy</li>
+<li>numpy</li>
+<li>xarray</li>
+<li>matplotlib</li>
+<li>cartopy</li>
+<li>thredds_crawler</li>
+<li>seawater</li>
+<li>pyqt5</li>
+<li>pyjnius</li>
+<li>cftime</li>
+<li>gsw</li>
+</ul>
+<p>A recent JAVA installation is also required.</p>
+<hr>
+<p><a name="quick-start-installation-rocket"></a></p>
+<h2 id="quick-start-installation">Quick Start Installation <img alt="🚀" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f680.svg" title=":rocket:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>To get started, check out and set up an instance of the pyBDY GitHub <a href="https://github.com/NOC-MSM/pyBDY">repository</a>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">PYBDY_DIR</span><span class="o">=</span><span class="nv">$PWD</span>/pyBDY
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>git<span class="w"> </span>clone<span class="w"> </span>git@github.com:NOC-MSM/pyBDY.git
+</span></code></pre></div>
+<p>**Helpful Tip...</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>- **It is not advised to checkout the respository in your home directory.**
+</span></code></pre></div>
+<p>Creating a specific conda virtual environment is highly recommended (<a href="https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html">click here for more about virtual
+enviroments</a>).
+Load conda (e.g. through anaconda/miniforge) and create the environment through the provided <code>environment.yml</code> file.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$PYBDY_DIR</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-n<span class="w"> </span>pybdy<span class="w"> </span>-f<span class="w"> </span>environment.yml
+</span></code></pre></div>
+<p>Activate the new environment</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>conda<span class="w"> </span>activate<span class="w"> </span>pybdy
+</span></code></pre></div>
+<p>Install pyBDY</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</span></code></pre></div>
+<p>Make sure the Java Runtime Environment is set:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">JAVA_HOME</span><span class="o">=</span>path_to_jre
+</span></code></pre></div>
+<p>Generalised methods for defining paths are as follows:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>export JAVA_HOME=$(readlink -f $(which java)) # UNIX
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>export JAVA_HOME=$(/usr/libexec/java_home)    # Mac
+</span></code></pre></div>
+<p>To check that pyBDY have been correctly installed in the virtual environment,
+enter the following command:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>pybdy -v
+</span></code></pre></div>
+<p>If it has you should see the help usage prompt:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>usage: pybdy -s &lt;namelist.bdy&gt;
+</span></code></pre></div>
+<p>If not please see the troubleshooting pages for common causes as
+to why the installation may fail.</p>
+<p>To deactivate the conda environment:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>conda deactivate
+</span></code></pre></div>
+<p><a name="how-to-use-pybdy-student"></a></p>
+<h2 id="how-to-use-pybdy">How to use pyBDY <img alt="🧑‍🎓" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9d1-200d-1f393.svg" title=":student:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>In this documentation "bdy points" refer to the output boundary points generated by pyBDY.
+First follow the installation instructions <a href="#quick-start-installation-rocket">Quick Start Installation</a>.</p>
+<h3 id="step-1-file-preparation">Step 1: File Preparation</h3>
+<p>Copy and paste the following files into your working directory:</p>
+<ul>
+<li>
+<p><code>inputs/namelist_local.bdy</code></p>
+</li>
+<li>
+<p><code>inputs/grid_name_map.json</code></p>
+</li>
+<li>
+<p><code>inputs/src_data_local.ncml</code></p>
+</li>
+<li>
+<p><code>namelist.bdy</code>: Specifies file paths and configuration options.</p>
+</li>
+<li>
+<p><code>grid_name_map.json</code>: Defines variable names in horizontal and vertical grid files.</p>
+</li>
+<li>
+<p><code>src_data.ncml</code>: Aggregates and remaps source data variables for PyBDY.</p>
+</li>
+</ul>
+<h3 id="step-2-edit-the-namelist-namelist_localbdy">Step 2: Edit the Namelist <code>namelist_local.bdy</code></h3>
+<p>Descriptions of all required variables are in
+<a href="https://github.com/NOC-MSM/pyBDY/blob/master/src/pybdy/variable.info"><code>src/pybdy/variable.info</code></a>.
+Here we will summarise the main variables that will need changing to get started.</p>
+<h4 id="key-namelist-parameters">Key Namelist Parameters</h4>
+<ul>
+<li><code>sn_src_zgr_type</code></li>
+<li><code>sn_dst_zgr_type</code></li>
+<li><code>sn_src_hgr</code></li>
+<li><code>sn_src_zgr</code></li>
+<li><code>sn_dst_hgr</code></li>
+<li><code>sn_dst_zgr</code></li>
+<li><code>sn_src_msk</code></li>
+<li><code>sn_bathy</code></li>
+<li><code>sn_nme_map</code></li>
+<li><code>sn_src_dir</code></li>
+<li><code>sn_dst_dir</code></li>
+<li><code>cn_mask_file</code></li>
+<li><code>ln_zinterp</code></li>
+<li><code>nn_rimwidth</code></li>
+</ul>
+<h5 id="vertical-grid-type">Vertical grid type</h5>
+<ul>
+<li><strong><code>sn_src_zgr_type</code></strong>: The source vertical coordinate type. This can be 'zco', 'zps' or 'sco'. 'zco' for the z-coordinate full step which are not spatially verying, 'zps' for z-coordinate - partial steps which have some adjustment in height near the seabed and 'sco' for sigma or hybrid z-sigma-coordinates which get thicker or thinner depending on the bathymetry.</li>
+<li><strong><code>sn_dst_zgr_type</code></strong>: Same as <code>sn_src_zgr_type</code> but for destination vertical coordinate type.</li>
+</ul>
+<h5 id="file-paths">File Paths</h5>
+<p>Directory paths in bdy file can be relative or absolute.
+The application picks the relative path from the current working directory.</p>
+<ul>
+<li>
+<p><strong><code>sn_src_hgr</code></strong>: Source horizontal grid file. Use <code>ncdump -h</code> or <code>ncview</code> to inspect variables. The variable names are mapped in grid_name_map.json. Map extra variable names in <code>grid_name_map.json</code> to avoid recalculation. See <a href="#step-4:-setting-up-the-json-file">Step 4: Setting up the JSON file</a> for variable descriptions and requirements.</p>
+</li>
+<li>
+<p><strong><code>sn_src_zgr</code></strong>: Source vertical grid file. The file may be the same file as <code>sn_src_hgr</code>. The variable names are mapped in grid_name_map.json. Map extra variables like <code>gdepw</code>, <code>gdepu</code>, <code>e3w</code> in <code>grid_name_map.json</code> to avoid recalculation. <strong>Note</strong>: Time-varying depths are not used in PyBDY. See <a href="#step-4:-setting-up-the-json-file">Step 4: Setting up the JSON file</a> for variable descriptions and requirements.</p>
+</li>
+<li>
+<p><strong><code>sn_dst_hgr</code>, <code>sn_dst_zgr</code></strong>: Destination equivalents of the above.</p>
+</li>
+<li>
+<p><strong><code>sn_src_msk</code></strong>: Source mask file with variables:</p>
+<ul>
+<li><code>tmask</code>, <code>umask</code>, <code>vmask</code>, <code>fmask</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code>sn_bathy</code></strong>: Destination bathymetry file with variable:</p>
+<ul>
+<li>
+<p><code>Bathymetry</code></p>
+</li>
+<li>
+<p>Used to calculate boundary mask if <code>ln_mask_file</code> is unset.</p>
+</li>
+<li>
+<p>Can be computed from <code>e3w</code> and <code>bottom_level</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">gdepw</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">e3w</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">indices</span><span class="p">(</span><span class="n">bottom_level</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">bathy</span> <span class="o">=</span> <span class="n">gdepw</span><span class="p">[</span><span class="n">bottom_level</span><span class="p">,</span> <span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+</span></code></pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>sn_nme_map</code></strong>: Path to <code>grid_name_map.json</code></p>
+<ul>
+<li><strong>Note</strong>: <code>ncml</code> is no longer used for grid input. Use <code>grid_name_map.json</code> instead.</li>
+<li>See <a href="#step-4:-setting-up-the-json-file">Step 4: Setting up the JSON file</a> for variable descriptions and <a href="https://github.com/NOC-MSM/pyBDY/blob/master/inputs/grid_name_map_readme.txt"><code>inputs/grid_name_map_readme.txt</code></a>.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>sn_src_dir</code></strong>: Path to <code>src_data.ncml</code></p>
+<ul>
+<li>This is an NcML (XML) file that points to source data (not grid) paths. It can also include THREDDS URLs (see <code>inputs/namelist_remote.bdy</code> for example).</li>
+<li>More detail on setting up the NcML file is in <a href="#step-3:-setting-up-the-ncml-file">Step 3: Setting up the NcML file</a>.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>sn_dst_dir</code></strong>: Output directory for PyBDY data</p>
+</li>
+<li>
+<p><strong><code>cn_mask_file</code></strong> <em>(optional)</em>: Used to define open boundaries.</p>
+<ul>
+<li>Values: <code>-1</code> (out-of-domain), <code>0</code> (land), <code>1</code> (water)</li>
+<li>If not provided, PyBDY uses bathymetry to infer boundaries</li>
+</ul>
+</li>
+</ul>
+<h5 id="other-settings">Other Settings</h5>
+<ul>
+<li>
+<p><strong><code>ln_dyn2d</code></strong>: used to turn on barotropic velocities in boundary processing.</p>
+</li>
+<li>
+<p><strong><code>ln_dyn3d</code></strong>: used to turn on total velocities in boundary processing. <strong>Note</strong> this is not baroclinic velocities, which is important when running NEMO. You may want ln_dyn2d and ln_dyn3d if testing but usually one of them is sufficient as long as it matches your NEMO namelist setup.</p>
+</li>
+<li>
+<p><strong><code>ln_tra</code></strong>: used to turn on tracers temperature and salinity in the boundary processing.</p>
+</li>
+<li>
+<p><strong><code>ln_ice</code></strong>: used to turn on ice boundary conditions so that <code>ice1</code>, <code>ice2</code> and <code>ice3</code> are processed.</p>
+</li>
+<li>
+<p><strong><code>ln_zinterp</code></strong>: Disables vertical interpolation if <code>false</code> and source (parents) <strong>must</strong> use zco vertical levels.</p>
+<ul>
+<li>Output will match source vertical levels.</li>
+<li>If source uses zps or sco, this will be automatically set to <code>true</code> during run-time.</li>
+</ul>
+</li>
+<li>
+<p><strong><code>nn_rimwidth</code></strong>: Number of interior boundary points to generate</p>
+<ul>
+<li>Typical value: <code>9</code></li>
+<li>For tidal boundaries: <code>1</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="time-settings">Time Settings</h4>
+<ul>
+<li>Ensure <code>time_counter</code> exists in source files</li>
+<li>Files must be time-ascending</li>
+<li>NetCDF time metadata must include:<ul>
+<li><code>calendar</code>: <code>"gregorian"</code>, <code>"noleap"</code>, or <code>"360_day"</code></li>
+<li><code>units</code>: <code>"seconds since YYYY-MM-DD hh:mm:ss"</code></li>
+</ul>
+</li>
+</ul>
+<h5 id="required-namelist-time-parameters">Required Namelist Time Parameters</h5>
+<ul>
+<li><strong><code>sn_date_start</code></strong>: Start date for output (format: <code>YYYY-MM-DD</code>)</li>
+<li><strong><code>sn_date_end</code></strong>: End date for output (format: <code>YYYY-MM-DD</code>)<ul>
+<li>The start date and end date of output must fall within the source data time range.</li>
+</ul>
+</li>
+<li><strong><code>sn_dst_calendar</code></strong>: Output calendar format</li>
+<li><strong><code>sn_date_origin</code></strong>: Time counter reference date for output (format: <code>YYYY-MM-DD</code>)</li>
+<li><strong><code>ln_time_interpolation</code></strong>: If <code>true</code>, interpolate to daily steps.<ul>
+<li>If <code>false</code>, output uses source data calendar (monthly steps only)</li>
+</ul>
+</li>
+</ul>
+<h3 id="step-3-setting-up-the-ncml-file">Step 3: Setting up the NcML file</h3>
+<ul>
+<li>The NcML file has wrappers like:<ul>
+<li><code>&lt;netcdf&gt;</code> which specifies a single NetCDF file or dataset reference. The top level in the example below declares a virtual NetCDF dataset.</li>
+<li><code>&lt;aggregation&gt;</code> virtually combine multiple NetCDF files into a single dataset. It has attributes <code>type</code> and <code>dimName</code>. The <code>type</code> of combination can be <code>joinExisting</code> or <code>union</code>. The <code>dimName</code> specifies the dimension along which to join files.</li>
+<li><code>&lt;scan&gt;</code> is used inside the <code>&lt;aggregation&gt;</code> wrapper to find multiple NetCDF files in a directory. This is instead of or in addition to listing them manually with several <code>&lt;netcdf location="./example_path.nc"/&gt;</code> wrappers. <code>&lt;scan&gt;</code> has attributes like <code>location</code> which gives the path to search, <code>suffix</code> which gives the file ending and <code>regExp</code> which can provide a search expression using Regular Expression (Regex) format. Regex is a special text string that can be used in the NcML file for describing a search pattern to match against some text. You may compare using Regex to filter what files to include in your datasets against using wildcard (*) to specify a file search pattern in your computer. More information on Regex patterns can be found here <a href="https://learn.microsoft.com/en-us/dotnet/standard/base-types/regular-expression-language-quick-reference">Regex</a>.</li>
+<li><code>&lt;dimension&gt;</code> is a wrapper that allows for renaming a dimension (e.g. time_counter).</li>
+<li><code>&lt;variable&gt;</code> is a wrapper that allows for renaming or modifying a variable or variable attributes (e.g. units).</li>
+<li><code>&lt;rename&gt;</code> maps a variable or dimension from its original name to a new name. It must be placed inside a <code>&lt;variable&gt;</code> or <code>&lt;dimension&gt;</code> wrapper. Variable names can be remapped in a way that only affects the reading of the file whithout modifying the original NetCDF file. This can be useful if the source (parent) data does not have the variables named in the standard way pybdy expects. The renaming can be do using <code>&lt;variable name="v1"&gt;</code> and <code>&lt;rename name="v2"&gt;</code> where the "v1" is the original name and "v2" is the new name.</li>
+</ul>
+</li>
+<li>The dimensions that pybdy expects in the source data are:<ul>
+<li><code>time_counter</code> - this is the required time dimension name</li>
+<li>dimensions in variables must be ordered <code>time_counter</code>, <code>depth</code>, <code>y</code>, <code>x</code> if 4 dimensional or ordered <code>time_counter</code>, <code>y</code>, <code>x</code> if 3 dimensional.</li>
+</ul>
+</li>
+<li>The variables that pybdy expects in the source data are:<ul>
+<li><code>votemper</code> - the water temperature</li>
+<li><code>votemper</code> - the water salinity</li>
+<li><code>sossheig</code> - the sea surface height</li>
+<li><code>vozocrtx</code> - the u (northward) component of velocity</li>
+<li><code>vomecrty</code> - the v (eastward) component of velocity</li>
+<li><code>ice1</code> - a sea ice parameter</li>
+<li><code>ice2</code> - a sea ice parameter</li>
+<li><code>ice3</code> - a sea ice parameter</li>
+</ul>
+</li>
+<li>See <code>inputs</code> folder for more examples.</li>
+</ul>
+<p>Example structure combining data on the T grid, U grid and V grid each along the time dimension then aggregating them together into a single virtual file:</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">&lt;ns0:netcdf</span><span class="w"> </span><span class="na">xmlns:ns0=</span><span class="s">"http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2"</span><span class="w"> </span><span class="na">title=</span><span class="s">"aggregation example"</span><span class="nt">&gt;</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="w">  </span><span class="nt">&lt;ns0:aggregation</span><span class="w"> </span><span class="na">type=</span><span class="s">"union"</span><span class="nt">&gt;</span>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="w">    </span><span class="nt">&lt;ns0:netcdf&gt;</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="w">      </span><span class="nt">&lt;ns0:aggregation</span><span class="w"> </span><span class="na">type=</span><span class="s">"joinExisting"</span><span class="w"> </span><span class="na">dimName=</span><span class="s">"time_counter"</span><span class="nt">&gt;</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="w">        </span><span class="nt">&lt;ns0:scan</span><span class="w"> </span><span class="na">location=</span><span class="s">"/path_to_src_data/Data/"</span><span class="w"> </span><span class="na">regExp=</span><span class="s">".*grid_T.*"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="w">      </span><span class="nt">&lt;/ns0:aggregation&gt;</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="w">    </span><span class="nt">&lt;/ns0:netcdf&gt;</span>
+</span><span id="__span-11-8"><a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="w">    </span><span class="nt">&lt;ns0:netcdf&gt;</span>
+</span><span id="__span-11-9"><a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="w">      </span><span class="nt">&lt;ns0:aggregation</span><span class="w"> </span><span class="na">type=</span><span class="s">"joinExisting"</span><span class="w"> </span><span class="na">dimName=</span><span class="s">"time_counter"</span><span class="nt">&gt;</span>
+</span><span id="__span-11-10"><a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="w">        </span><span class="nt">&lt;ns0:scan</span><span class="w"> </span><span class="na">location=</span><span class="s">"/path_to_src_data/Data/"</span><span class="w"> </span><span class="na">regExp=</span><span class="s">".*grid_U.*"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-11-11"><a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a><span class="w">      </span><span class="nt">&lt;/ns0:aggregation&gt;</span>
+</span><span id="__span-11-12"><a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a><span class="w">    </span><span class="nt">&lt;/ns0:netcdf&gt;</span>
+</span><span id="__span-11-13"><a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a><span class="w">    </span><span class="nt">&lt;ns0:netcdf&gt;</span>
+</span><span id="__span-11-14"><a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a><span class="w">      </span><span class="nt">&lt;ns0:aggregation</span><span class="w"> </span><span class="na">type=</span><span class="s">"joinExisting"</span><span class="w"> </span><span class="na">dimName=</span><span class="s">"time_counter"</span><span class="nt">&gt;</span>
+</span><span id="__span-11-15"><a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a><span class="w">        </span><span class="nt">&lt;ns0:scan</span><span class="w"> </span><span class="na">location=</span><span class="s">"/path_to_src_data/Data/"</span><span class="w"> </span><span class="na">regExp=</span><span class="s">".*grid_V.*"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-11-16"><a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a><span class="w">      </span><span class="nt">&lt;/ns0:aggregation&gt;</span>
+</span><span id="__span-11-17"><a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a><span class="w">    </span><span class="nt">&lt;/ns0:netcdf&gt;</span>
+</span><span id="__span-11-18"><a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a><span class="w">  </span><span class="nt">&lt;/ns0:aggregation&gt;</span>
+</span><span id="__span-11-19"><a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a><span class="nt">&lt;/ns0:netcdf&gt;</span>
+</span></code></pre></div>
+<p>An example NcML expression renaming a variable in joined NetCDF files:</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">&lt;ns0:netcdf</span><span class="w"> </span><span class="na">xmlns:ns0=</span><span class="s">"http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2"</span><span class="nt">&gt;</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">  </span><span class="nt">&lt;ns0:aggregation</span><span class="w"> </span><span class="na">type=</span><span class="s">"joinExisting"</span><span class="w"> </span><span class="na">dimName=</span><span class="s">"time_counter"</span><span class="nt">&gt;</span>
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">    </span><span class="nt">&lt;ns0:scan</span><span class="w"> </span><span class="na">location=</span><span class="s">"./monthly/"</span><span class="w"> </span><span class="na">suffix=</span><span class="s">".nc"</span><span class="w"> </span><span class="na">subdirs=</span><span class="s">"false"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">    </span><span class="nt">&lt;ns0:variable</span><span class="w"> </span><span class="na">name=</span><span class="s">"temp"</span><span class="nt">&gt;</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">      </span><span class="nt">&lt;ns0:rename</span><span class="w"> </span><span class="na">name=</span><span class="s">"votemper"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">    </span><span class="nt">&lt;/ns0:variable&gt;</span>
+</span><span id="__span-12-7"><a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">  </span><span class="nt">&lt;/ns0:aggregation&gt;</span>
+</span><span id="__span-12-8"><a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="nt">&lt;/ns0:netcdf&gt;</span>
+</span></code></pre></div>
+<h3 id="step-4-setting-up-the-json-file">Step 4: Setting up the JSON file</h3>
+<p>The JSON file "grid_name_map.json" file provides a way to rename/remap the variables from
+names in the file netcdf file to the variable names desired by pybdy. This is
+specifically for the horizontal (hgr) and vertical (zgr) grid files (not data Input/Output).
+In the past this could be done with a .ncml file but now it done using .json.</p>
+<p>The "grid_name_map.json" file has "dimension_map", "sc_variable_map" and
+"dst_variable_map", these should not be edited. "sc" refers to the source grid
+and "dst" refers to the destination grid. The list of dimensions t, z, y, x
+under "dimension_map" are "key: value" pairs, where the "key" should be unedited
+and the "value" should be changed to match the name of the respective dimension
+in your netcdf file. The is the same process for the list of variables under
+"variable_map". The "variable_map" is used for both horizontal and vertical
+grid variable names even if they come from separate files.</p>
+<p>Below is a decription of each dimension and variable. Not all variables are needed,
+those that are marked with a * below are optional, if you don't have the optional
+variable in your netcdf file leave it as the default "value" and pybdy will do its
+best to calculate it. If the variable is available it should be name mapped
+otherwise pybdy may incorrectly interpret the grid type for example. Variables
+marked ** may be optional depending on what other variables are provided.
+In all cases "t" should be size 1. Pybdy does not deal with time varying grids.</p>
+<p>Summary of ideal requirements:</p>
+<ul>
+<li>2D grid (or 3D with time dimension = 1) of <code>glamt</code>, <code>gphit</code>, <code>glamu</code>, <code>e1t</code>, <code>e2t</code>, <code>e1u</code>, etc.</li>
+<li>3D grid (or 4D with time dimension = 1) of <code>gdept</code>, <code>gdepw</code>, <code>e3t</code>, <code>e3w</code>, and 2D grid of <code>mbathy</code> (aka <code>bottom_level</code>)</li>
+</ul>
+<p>Summary of minimum requirements:</p>
+<ul>
+<li>for the horizontal grid variables we need at least <code>nav_lat</code>, <code>nav_lon</code> on a 2D grid.</li>
+<li>for the vertical grid variables we have several possible variations ordered by preference:
+    1.<code>gdept</code> or <code>e3t</code> are specified on 3D grids (<strong>Note</strong> et3 is sometimes called et3_0 i.e. non-time varying, but has dimensions t, z, y, x, in this case specify <code>"et3": "et3_0"</code>).
+    2. 1D depth (or 2D with dimension time and z) <code>gdept_0</code> is specified in addition to <code>mbathy</code>.
+    3. If <code>mbathy</code> is missing in the source grid, use <code>gdept_0</code> (1D depth) and specify any 2D field (e.g., <code>"mbathy": "nav_lon"</code>) for <code>mbathy</code> <strong>Not recommended for destination (sn_dst_zgr)</strong>.
+    4. <code>deptht_bounds</code> is not the same at <code>gdept</code>. If it is the only option you need to use it to calculate <code>gdept</code> yourself.</li>
+</ul>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>"dimension_map"
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>"t" = time dimension (size 1)
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>"z" = depth dimension
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>"y" = horizontal dimension often aligned with latitude
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>"x" = horizontal dimension often aligned with longitude
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>"sc_variable_map" and "dst_variable_map" which refer to sc (source grid variables in "sn_src_hgr",
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>"sn_src_zgr") and dst (destination grid variables in "sn_dst_hgr", "sn_dst_zgr")
+</span><span id="__span-13-10"><a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>
+</span><span id="__span-13-11"><a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>"nav_lon" = ** Longitude on t-grid (dims [y, x])
+</span><span id="__span-13-12"><a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>            (only needed if glamt is not present in the file)
+</span><span id="__span-13-13"><a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>"nav_lat" = ** Latitude on t-grid (dims [y, x])
+</span><span id="__span-13-14"><a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>            (only needed if gphit is not present in the file)
+</span><span id="__span-13-15"><a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>"glamt" = Longitude on t-grid (dims [t, y, x])
+</span><span id="__span-13-16"><a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>"gphit" = Latitude on t-grid (dims [t, y, x])
+</span><span id="__span-13-17"><a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>"glamf" = * Longitude on f-grid (dims [t, y, x])
+</span><span id="__span-13-18"><a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>"gphif" = * Latitude on f-grid (dims [t, y, x])
+</span><span id="__span-13-19"><a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>"glamu" = * Longitude on u-grid (dims [t, y, x])
+</span><span id="__span-13-20"><a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>"gphiu" = * Latitude on u-grid (dims [t, y, x])
+</span><span id="__span-13-21"><a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>"glamv" = * Longitude on v-grid (dims [t, y, x])
+</span><span id="__span-13-22"><a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>"gphiv" = * Latitude on v-grid (dims [t, y, x])
+</span><span id="__span-13-23"><a id="__codelineno-13-23" name="__codelineno-13-23" href="#__codelineno-13-23"></a>"e1t" = * scale factor distance between grid cell in x direction on t-grid (dims [t, y, x])
+</span><span id="__span-13-24"><a id="__codelineno-13-24" name="__codelineno-13-24" href="#__codelineno-13-24"></a>"e2t" = * scale factor distance between grid cell in y direction on t-grid (dims [t, y, x])
+</span><span id="__span-13-25"><a id="__codelineno-13-25" name="__codelineno-13-25" href="#__codelineno-13-25"></a>"e1f" = * scale factor distance between grid cell in x direction on f-grid (dims [t, y, x])
+</span><span id="__span-13-26"><a id="__codelineno-13-26" name="__codelineno-13-26" href="#__codelineno-13-26"></a>"e2f" = * scale factor distance between grid cell in y direction on f-grid (dims [t, y, x])
+</span><span id="__span-13-27"><a id="__codelineno-13-27" name="__codelineno-13-27" href="#__codelineno-13-27"></a>"e1u" = * scale factor distance between grid cell in x direction on u-grid (dims [t, y, x])
+</span><span id="__span-13-28"><a id="__codelineno-13-28" name="__codelineno-13-28" href="#__codelineno-13-28"></a>"e2u" = * scale factor distance between grid cell in y direction on u-grid (dims [t, y, x])
+</span><span id="__span-13-29"><a id="__codelineno-13-29" name="__codelineno-13-29" href="#__codelineno-13-29"></a>"e1v" = * scale factor distance between grid cell in x direction on v-grid (dims [t, y, x])
+</span><span id="__span-13-30"><a id="__codelineno-13-30" name="__codelineno-13-30" href="#__codelineno-13-30"></a>"e2v" = * scale factor distance between grid cell in y direction on v-grid (dims [t, y, x])
+</span><span id="__span-13-31"><a id="__codelineno-13-31" name="__codelineno-13-31" href="#__codelineno-13-31"></a>
+</span><span id="__span-13-32"><a id="__codelineno-13-32" name="__codelineno-13-32" href="#__codelineno-13-32"></a>"mbathy" = ** index of the ocean bottom level (may be called bottom_level) (dims [t, y, x])
+</span><span id="__span-13-33"><a id="__codelineno-13-33" name="__codelineno-13-33" href="#__codelineno-13-33"></a>            (only needed if gdept or e3t not given i.e. gdept_0 given. If gdept_0 is the
+</span><span id="__span-13-34"><a id="__codelineno-13-34" name="__codelineno-13-34" href="#__codelineno-13-34"></a>            only option and no mbathy is available offer any variable with dims [t, y, x]
+</span><span id="__span-13-35"><a id="__codelineno-13-35" name="__codelineno-13-35" href="#__codelineno-13-35"></a>            or dims [y, x])
+</span><span id="__span-13-36"><a id="__codelineno-13-36" name="__codelineno-13-36" href="#__codelineno-13-36"></a>"gdept_0" = ** 1D depth of levels on t-grid and t-levels (dims [t, z])
+</span><span id="__span-13-37"><a id="__codelineno-13-37" name="__codelineno-13-37" href="#__codelineno-13-37"></a>            (only needed if gdept or e3t not given)
+</span><span id="__span-13-38"><a id="__codelineno-13-38" name="__codelineno-13-38" href="#__codelineno-13-38"></a>"gdept" = ** 3D depth of levels on t-grid and t-levels (dims [t, z, y, x])
+</span><span id="__span-13-39"><a id="__codelineno-13-39" name="__codelineno-13-39" href="#__codelineno-13-39"></a>            (only needed if gdept_0 or e3t not given)
+</span><span id="__span-13-40"><a id="__codelineno-13-40" name="__codelineno-13-40" href="#__codelineno-13-40"></a>"gdepu" = * 3D depth of levels on u-grid and t-levels (dims [t, z, y, x])
+</span><span id="__span-13-41"><a id="__codelineno-13-41" name="__codelineno-13-41" href="#__codelineno-13-41"></a>"gdepv" = * 3D depth of levels on v-grid and t-levels (dims [t, z, y, x])
+</span><span id="__span-13-42"><a id="__codelineno-13-42" name="__codelineno-13-42" href="#__codelineno-13-42"></a>"gdepf" = * 3D depth of levels on f-grid and t-levels (dims [t, z, y, x])
+</span><span id="__span-13-43"><a id="__codelineno-13-43" name="__codelineno-13-43" href="#__codelineno-13-43"></a>"gdepw" = * 3D depth of levels on t-grid and w-levels (dims [t, z, y, x])
+</span><span id="__span-13-44"><a id="__codelineno-13-44" name="__codelineno-13-44" href="#__codelineno-13-44"></a>"gdepuw" = * 3D depth of levels on u-grid and w-levels (dims [t, z, y, x])
+</span><span id="__span-13-45"><a id="__codelineno-13-45" name="__codelineno-13-45" href="#__codelineno-13-45"></a>"gdepvw" = * 3D depth of levels on v-grid and w-levels (dims [t, z, y, x])
+</span><span id="__span-13-46"><a id="__codelineno-13-46" name="__codelineno-13-46" href="#__codelineno-13-46"></a>"e3t" = ** vertical scale factor distance between t-levels on t-grid (dims [t, z, y, x])
+</span><span id="__span-13-47"><a id="__codelineno-13-47" name="__codelineno-13-47" href="#__codelineno-13-47"></a>            (only needed if gdept or gdept_0 not given)
+</span><span id="__span-13-48"><a id="__codelineno-13-48" name="__codelineno-13-48" href="#__codelineno-13-48"></a>"e3w" = * vertical scale factor distance between w-levels on t-grid (dims [t, z, y, x])
+</span><span id="__span-13-49"><a id="__codelineno-13-49" name="__codelineno-13-49" href="#__codelineno-13-49"></a>"e3u" = * vertical scale factor distance between t-levels on u-grid (dims [t, z, y, x])
+</span><span id="__span-13-50"><a id="__codelineno-13-50" name="__codelineno-13-50" href="#__codelineno-13-50"></a>"e3v" = * vertical scale factor distance between t-levels on v-grid (dims [t, z, y, x])
+</span><span id="__span-13-51"><a id="__codelineno-13-51" name="__codelineno-13-51" href="#__codelineno-13-51"></a>"e3f" = * vertical scale factor distance between t-levels on f-grid (dims [t, z, y, x])
+</span><span id="__span-13-52"><a id="__codelineno-13-52" name="__codelineno-13-52" href="#__codelineno-13-52"></a>"e3uw" = * vertical scale factor distance between w-levels on u-grid (dims [t, z, y, x])
+</span><span id="__span-13-53"><a id="__codelineno-13-53" name="__codelineno-13-53" href="#__codelineno-13-53"></a>"e3vw" = * vertical scale factor distance between w-levels on v-grid (dims [t, z, y, x])
+</span><span id="__span-13-54"><a id="__codelineno-13-54" name="__codelineno-13-54" href="#__codelineno-13-54"></a>"e3fw" = * vertical scale factor distance between w-levels on f-grid (dims [t, z, y, x])
+</span><span id="__span-13-55"><a id="__codelineno-13-55" name="__codelineno-13-55" href="#__codelineno-13-55"></a>
+</span><span id="__span-13-56"><a id="__codelineno-13-56" name="__codelineno-13-56" href="#__codelineno-13-56"></a>"ln_zco" = * flag for zco vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
+</span><span id="__span-13-57"><a id="__codelineno-13-57" name="__codelineno-13-57" href="#__codelineno-13-57"></a>"ln_zps" = * flag for zps vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
+</span><span id="__span-13-58"><a id="__codelineno-13-58" name="__codelineno-13-58" href="#__codelineno-13-58"></a>"ln_sco" = * flag for sco vertical coordinates 1 for true, 0 for false often provided in domain_cfg.nc
+</span></code></pre></div>
+<h3 id="step-5-running-pybdy">Step 5: Running pyBDY</h3>
+<p>To use pyBDY, the following command is entered: (the example will run a benchmarking test):</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>pybdy -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
+</span></code></pre></div>
+<p>This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation.</p>
+<p><a name="worked-example-mechanical_arm"></a></p>
+<h2 id="worked-example">Worked Example <img alt="🦾" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9be.svg" title=":mechanical_arm:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>Here we show a worked example of how to set up the namelist for a different domain than the examples found in the <em>inputs</em> folder.
+The example child (destination) here is a regional NEMO model that covers the Indian Ocean and the parent (source) used here is a global NEMO model.</p>
+<h3 id="namelist-file">Namelist File</h3>
+<p>Below is excerpts from an example <em>namelist.bdy</em>.</p>
+<p>This sections tells pybdy the vertical coordinate type of the parent (src) and child (dst). In this case the the parent is on constant z-levels and the child is on spatially varying sigma-levels.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>!------------------------------------------------------------------------------
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>!   vertical coordinate
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>!------------------------------------------------------------------------------
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>   sn_src_zgr_type = 'zco' ! vertical coordinate type: 'zco', 'zps' or 'sco'
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>   sn_dst_zgr_type = 'sco' ! vertical coordinate type: 'zco', 'zps' or 'sco'
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>                           ! 'zco' is z-coordinate - full    steps
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>                           ! 'zps' is z-coordinate - partial steps
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>                           ! 'sco' is s- or hybrid z-s-coordinate
+</span></code></pre></div>
+<p>Here the file paths are set. These can be absolute (i.e. starting with "/") or relative (i.e. starting with "./"). For help with what variables are needed in these files see <a href="#how-to-use-pybdy-student">How to use pyBDY <img alt="🧑‍🎓" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9d1-200d-1f393.svg" title=":student:"></a>. In the example case, the bathmetry file needed to be calculated before running pybdy. It may also be the case that you need to calculate variables like gdept for the sn_src_zgr file fore running pybdy. For setting up the grid_name_map.json see the JSON file example section below.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>!------------------------------------------------------------------------------
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>!  grid information
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>!------------------------------------------------------------------------------
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>   sn_src_hgr = '/scratch/India_Test/mesh_mask_ORCA025_light.nc4'
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>   sn_src_zgr = '/scratch/India_Test/20241211_restart.nc'
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>   sn_dst_hgr = '/scratch/India_Test/domain_cfg.nc'     ! Expects vars found in domain_cfg.nc
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>   sn_dst_zgr = '/scratch/India_Test/domain_cfg.nc'     ! Expects vars: {e3u,e3v,e3w,e3t,nav_lat,nav_lon,mbathy}
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>   sn_src_msk = '/scratch/India_Test/mask_3D.nc'
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>   sn_bathy   = '/scratch/India_Test/domain_cfg_bathy.nc'    ! dst bathymetry w/o time dimension
+</span><span id="__span-16-10"><a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>                                                                            !Expects vars: {Bathymetry,nav_lat,nav_lon}
+</span><span id="__span-16-11"><a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>   sn_nme_map = './india_test/grid_name_map.json'     ! json file mapping variable names to netcdf vars
+</span></code></pre></div>
+<p>Here the source (parent) data is specified via the .nmcl file in NcML format. For setting up the src_data_local.ncml see the NcML file example section below. The output directory, file name prefix and <code>\_FillValue</code> in the netCDF file is specified. The sn_dst_metainfo is set in the netcdf output file <code>history</code> attribute. <code>nn_src_time_adj</code> does not get used???</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>!------------------------------------------------------------------------------
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>!  I/O
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>!------------------------------------------------------------------------------
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>   sn_src_dir = './india_test/src_data_local.ncml' ! src_files/'
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>   sn_dst_dir = '/scratch/benbar/India_Test/'
+</span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>   sn_fn      = 'india'             ! prefix for output files
+</span><span id="__span-17-7"><a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>   nn_fv      = -1e20                 !  set fill value for output files
+</span><span id="__span-17-8"><a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>   nn_src_time_adj = 0                ! src time adjustment
+</span><span id="__span-17-9"><a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>   sn_dst_metainfo = 'India Data'  ! history info
+</span></code></pre></div>
+<p>Here some options are set. cn_coords_file is a file that can be output by pybdy.
+In this case, the child (destination) data does not have a pre-defined mask file so pybdy will use the bathymetry provided in sn_bathy to calculate the mask. If the mask produced if not giving the correct boundaries you may need to provide a mask.nc file which you generate. This file contains a 2d mask the same shape as the bathymetry where 1 = "water", 0 = "land" and -1 = "out of domain". Boundary points will be generated between water and "out of domain" which can also be where water meets the edge of the defined 2d area.
+Here, ln_dyn2d will provide a sea surface height (<code>sossheig</code>) variable in the output for barotropic velocities.
+ln_dyn3d would define total velocities in the in the output if set to true. Here, ln_dyn3d will not include the barotropic component in the 3d velocities but we do not need it because we have ln_dyn2d=true. At least one or the other of ln_dyn2d or ln_dyn3d should be selected and match options in NEMO.
+Here, ln_tra shows temperature and salinity will be output. ln_ice shows ice will not be output. ln_zinterp shows the vertical interpolation is calculated by pybdy (so should be turned off in NEMO).
+Here, nn_rimwidth is set to 9 to provide 9 layers of boundary points along all boundaries.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>!------------------------------------------------------------------------------
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>!  unstructured open boundaries
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>!------------------------------------------------------------------------------
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    ln_coords_file = .true.               !  =T : produce bdy coordinates files
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    cn_coords_file = 'coordinates.bdy.nc' !  name of bdy coordinates files
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>                                          !  (if ln_coords_file=.TRUE.)
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    ln_mask_file   = .false.              !  =T : read mask from file
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>    cn_mask_file   = 'mask.nc'            !  name of mask file
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>                                          !  (if ln_mask_file=.TRUE.)
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>    ln_dyn2d       = .true.               !  boundary conditions for
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>                                          !  barotropic fields
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    ln_dyn3d       = .false.              !  boundary conditions for
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>                                          !  baroclinic velocities
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>    ln_tra         = .true.               !  boundary conditions for T and S
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>    ln_ice         = .false.              !  ice boundary condition
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>    ln_zinterp     = .true.               !  vertical interpolation
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>    nn_rimwidth    = 9                    !  width of the relaxation zone
+</span></code></pre></div>
+<p>In this example we are not producing the tidal forcing on the boundary because ln_tide is set to false. This means the rest of this section does not matter. See <a href="#tidal-boundary-conditions-generation-sailboat">Tidal Boundary Conditions Generation <img alt="⛵" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26f5.svg" title=":sailboat:"></a> for more on setting up tidal boundaries.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>!------------------------------------------------------------------------------
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>!  unstructured open boundaries tidal parameters
+</span><span id="__span-19-3"><a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>!------------------------------------------------------------------------------
+</span><span id="__span-19-4"><a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>    ln_tide        = .false.              !  =T : produce bdy tidal conditions
+</span><span id="__span-19-5"><a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>    sn_tide_model  = 'FES2014'            !  Name of tidal model. Accepts FES2014, TPXO7p2, or TPXO9v5
+</span><span id="__span-19-6"><a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    clname(1)      = 'M2'                 !  constituent name
+</span><span id="__span-19-7"><a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    clname(2)      = 'S2'
+</span><span id="__span-19-8"><a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    clname(3)      = 'K2'
+</span><span id="__span-19-9"><a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    clname(4)      = 'O1'
+</span><span id="__span-19-10"><a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>    clname(5)      = 'P1'
+</span><span id="__span-19-11"><a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>    clname(6)      = 'Q1'
+</span><span id="__span-19-12"><a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    clname(7)      = 'M4'
+</span><span id="__span-19-13"><a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>    ln_trans       = .true.               !  interpolate transport rather than
+</span><span id="__span-19-14"><a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>                                          !  velocities
+</span><span id="__span-19-15"><a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>    ! location of TPXO7.2 data
+</span><span id="__span-19-16"><a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>    sn_tide_grid_7p2   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+</span><span id="__span-19-17"><a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>    sn_tide_h          = './inputs/tpxo7.2/h_tpxo7.2.nc'
+</span><span id="__span-19-18"><a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>    sn_tide_u          = './inputs/tpxo7.2/u_tpxo7.2.nc'
+</span><span id="__span-19-19"><a id="__codelineno-19-19" name="__codelineno-19-19" href="#__codelineno-19-19"></a>    ! location of TPXO9v5 data: single constituents per file
+</span><span id="__span-19-20"><a id="__codelineno-19-20" name="__codelineno-19-20" href="#__codelineno-19-20"></a>    sn_tide_grid_9p5   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
+</span><span id="__span-19-21"><a id="__codelineno-19-21" name="__codelineno-19-21" href="#__codelineno-19-21"></a>    sn_tide_dir        = './inputs/TPXO9_atlas_v5_nc/'
+</span><span id="__span-19-22"><a id="__codelineno-19-22" name="__codelineno-19-22" href="#__codelineno-19-22"></a>    ! location of FES2014 data
+</span><span id="__span-19-23"><a id="__codelineno-19-23" name="__codelineno-19-23" href="#__codelineno-19-23"></a>    sn_tide_fes        = './inputs/FES2014/'
+</span></code></pre></div>
+<p>The time step required in output here are 3 days starting on 12th Dec 2024 (which is also used as the reference date).</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>!------------------------------------------------------------------------------
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>!  Time information for output
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>!------------------------------------------------------------------------------
+</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    sn_date_start   = '2024-12-12'    !  dst output date start YYYY-MM-DD
+</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    sn_date_end     = '2024-12-15'    !  dst output date end YYYY-MM-DD
+</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    sn_dst_calendar = 'gregorian'     !  output calendar format
+</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    sn_date_origin  = '2024-12-12'    !  reference for time counter YYYY-MM-DD
+</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    ln_time_interpolation = .true. !  set to false to use parent
+</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>                                   !  calender for monthly frequency only
+</span></code></pre></div>
+<p>These parameters can be left unchanged. We do not recommend changing them.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>!------------------------------------------------------------------------------
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>!  Additional parameters
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>!------------------------------------------------------------------------------
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    nn_wei  = 1                   !  smoothing filter weights
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    rn_r0   = 0.041666666         !  decorrelation distance use in gauss
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>                                  !  smoothing onto dst points. Need to
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>                                  !  make this a funct. of dlon
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    ln_nemo3p4  = .true.          !  else presume v3.2 or v3.3
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>    nn_alpha    = 0               !  Euler rotation angle
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    nn_beta     = 0               !  Euler rotation angle
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>    nn_gamma    = 0               !  Euler rotation angle
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>    rn_mask_max_depth = 100.0     !  Maximum depth to be ignored for the mask
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>    rn_mask_shelfbreak_dist = 20000.0 !  Distance from the shelf break
+</span></code></pre></div>
+<h3 id="json-file">JSON File</h3>
+<p>This is an example .json file: <em>grid_name_map.json</em>. It specifise the names of variables in the source (parent) and destination (child) netCDF grid files. The grid files need to be checked with "ncdump -h" and the variable names matched appropriately. It is expected that some of these variables will not be in your grid files. That is not a problem as long at you map the variables that meet the minimum requirements: see <a href="#how-to-use-pybdy-student">How to use pyBDY <img alt="🧑‍🎓" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9d1-200d-1f393.svg" title=":student:"></a> for the minimum requirements.</p>
+<div class="language-json highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="p">{</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="w">  </span><span class="nt">"dimension_map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="w">    </span><span class="nt">"t"</span><span class="p">:</span><span class="w"> </span><span class="s2">"t"</span><span class="p">,</span>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span><span class="nt">"z"</span><span class="p">:</span><span class="w"> </span><span class="s2">"z"</span><span class="p">,</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="w">    </span><span class="nt">"y"</span><span class="p">:</span><span class="w"> </span><span class="s2">"y"</span><span class="p">,</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="w">    </span><span class="nt">"x"</span><span class="p">:</span><span class="w"> </span><span class="s2">"x"</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="w">  </span><span class="nt">"sc_variable_map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="w">    </span><span class="nt">"nav_lon"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nav_lon"</span><span class="p">,</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="w">    </span><span class="nt">"nav_lat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nav_lat"</span><span class="p">,</span>
+</span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a><span class="w">    </span><span class="nt">"glamt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glamt"</span><span class="p">,</span>
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="w">    </span><span class="nt">"gphit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gphit"</span><span class="p">,</span>
+</span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="w">    </span><span class="nt">"glamf"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glamf"</span><span class="p">,</span>
+</span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a><span class="w">    </span><span class="nt">"gphif"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gphif"</span><span class="p">,</span>
+</span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a><span class="w">    </span><span class="nt">"glamu"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glamu"</span><span class="p">,</span>
+</span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a><span class="w">    </span><span class="nt">"gphiu"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gphiu"</span><span class="p">,</span>
+</span><span id="__span-22-17"><a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a><span class="w">    </span><span class="nt">"glamv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glamv"</span><span class="p">,</span>
+</span><span id="__span-22-18"><a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a><span class="w">    </span><span class="nt">"gphiv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gphiv"</span><span class="p">,</span>
+</span><span id="__span-22-19"><a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a><span class="w">    </span><span class="nt">"e1t"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e1t"</span><span class="p">,</span>
+</span><span id="__span-22-20"><a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a><span class="w">    </span><span class="nt">"e2t"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e2t"</span><span class="p">,</span>
+</span><span id="__span-22-21"><a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a><span class="w">    </span><span class="nt">"e1f"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e1f"</span><span class="p">,</span>
+</span><span id="__span-22-22"><a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a><span class="w">    </span><span class="nt">"e2f"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e2f"</span><span class="p">,</span>
+</span><span id="__span-22-23"><a id="__codelineno-22-23" name="__codelineno-22-23" href="#__codelineno-22-23"></a><span class="w">    </span><span class="nt">"e1u"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e1u"</span><span class="p">,</span>
+</span><span id="__span-22-24"><a id="__codelineno-22-24" name="__codelineno-22-24" href="#__codelineno-22-24"></a><span class="w">    </span><span class="nt">"e2u"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e2u"</span><span class="p">,</span>
+</span><span id="__span-22-25"><a id="__codelineno-22-25" name="__codelineno-22-25" href="#__codelineno-22-25"></a><span class="w">    </span><span class="nt">"e1v"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e1v"</span><span class="p">,</span>
+</span><span id="__span-22-26"><a id="__codelineno-22-26" name="__codelineno-22-26" href="#__codelineno-22-26"></a><span class="w">    </span><span class="nt">"e2v"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e2v"</span><span class="p">,</span>
+</span><span id="__span-22-27"><a id="__codelineno-22-27" name="__codelineno-22-27" href="#__codelineno-22-27"></a><span class="w">    </span><span class="nt">"mbathy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nav_lon"</span><span class="p">,</span>
+</span><span id="__span-22-28"><a id="__codelineno-22-28" name="__codelineno-22-28" href="#__codelineno-22-28"></a><span class="w">    </span><span class="nt">"gdept_0"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nav_lev"</span><span class="p">,</span>
+</span><span id="__span-22-29"><a id="__codelineno-22-29" name="__codelineno-22-29" href="#__codelineno-22-29"></a><span class="w">    </span><span class="nt">"gdept"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdept"</span><span class="p">,</span>
+</span><span id="__span-22-30"><a id="__codelineno-22-30" name="__codelineno-22-30" href="#__codelineno-22-30"></a><span class="w">    </span><span class="nt">"gdepu"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepu"</span><span class="p">,</span>
+</span><span id="__span-22-31"><a id="__codelineno-22-31" name="__codelineno-22-31" href="#__codelineno-22-31"></a><span class="w">    </span><span class="nt">"gdepv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepv"</span><span class="p">,</span>
+</span><span id="__span-22-32"><a id="__codelineno-22-32" name="__codelineno-22-32" href="#__codelineno-22-32"></a><span class="w">    </span><span class="nt">"gdepf"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepf"</span><span class="p">,</span>
+</span><span id="__span-22-33"><a id="__codelineno-22-33" name="__codelineno-22-33" href="#__codelineno-22-33"></a><span class="w">    </span><span class="nt">"gdepw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepw"</span><span class="p">,</span>
+</span><span id="__span-22-34"><a id="__codelineno-22-34" name="__codelineno-22-34" href="#__codelineno-22-34"></a><span class="w">    </span><span class="nt">"gdepuw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepuw"</span><span class="p">,</span>
+</span><span id="__span-22-35"><a id="__codelineno-22-35" name="__codelineno-22-35" href="#__codelineno-22-35"></a><span class="w">    </span><span class="nt">"gdepvw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepvw"</span><span class="p">,</span>
+</span><span id="__span-22-36"><a id="__codelineno-22-36" name="__codelineno-22-36" href="#__codelineno-22-36"></a><span class="w">    </span><span class="nt">"e3t"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3t"</span><span class="p">,</span>
+</span><span id="__span-22-37"><a id="__codelineno-22-37" name="__codelineno-22-37" href="#__codelineno-22-37"></a><span class="w">    </span><span class="nt">"e3w"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3w"</span><span class="p">,</span>
+</span><span id="__span-22-38"><a id="__codelineno-22-38" name="__codelineno-22-38" href="#__codelineno-22-38"></a><span class="w">    </span><span class="nt">"e3u"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3u"</span><span class="p">,</span>
+</span><span id="__span-22-39"><a id="__codelineno-22-39" name="__codelineno-22-39" href="#__codelineno-22-39"></a><span class="w">    </span><span class="nt">"e3v"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3v"</span><span class="p">,</span>
+</span><span id="__span-22-40"><a id="__codelineno-22-40" name="__codelineno-22-40" href="#__codelineno-22-40"></a><span class="w">    </span><span class="nt">"e3f"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3f"</span><span class="p">,</span>
+</span><span id="__span-22-41"><a id="__codelineno-22-41" name="__codelineno-22-41" href="#__codelineno-22-41"></a><span class="w">    </span><span class="nt">"e3uw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3uw"</span><span class="p">,</span>
+</span><span id="__span-22-42"><a id="__codelineno-22-42" name="__codelineno-22-42" href="#__codelineno-22-42"></a><span class="w">    </span><span class="nt">"e3vw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3vw"</span><span class="p">,</span>
+</span><span id="__span-22-43"><a id="__codelineno-22-43" name="__codelineno-22-43" href="#__codelineno-22-43"></a><span class="w">    </span><span class="nt">"e3fw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3fw"</span><span class="p">,</span>
+</span><span id="__span-22-44"><a id="__codelineno-22-44" name="__codelineno-22-44" href="#__codelineno-22-44"></a><span class="w">    </span><span class="nt">"ln_zco"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ln_zco"</span><span class="p">,</span>
+</span><span id="__span-22-45"><a id="__codelineno-22-45" name="__codelineno-22-45" href="#__codelineno-22-45"></a><span class="w">    </span><span class="nt">"ln_zps"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ln_zps"</span><span class="p">,</span>
+</span><span id="__span-22-46"><a id="__codelineno-22-46" name="__codelineno-22-46" href="#__codelineno-22-46"></a><span class="w">    </span><span class="nt">"ln_sco"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ln_sco"</span>
+</span><span id="__span-22-47"><a id="__codelineno-22-47" name="__codelineno-22-47" href="#__codelineno-22-47"></a><span class="w">  </span><span class="p">},</span>
+</span><span id="__span-22-48"><a id="__codelineno-22-48" name="__codelineno-22-48" href="#__codelineno-22-48"></a><span class="w">  </span><span class="nt">"dst_variable_map"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-22-49"><a id="__codelineno-22-49" name="__codelineno-22-49" href="#__codelineno-22-49"></a><span class="w">    </span><span class="nt">"nav_lon"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nav_lon"</span><span class="p">,</span>
+</span><span id="__span-22-50"><a id="__codelineno-22-50" name="__codelineno-22-50" href="#__codelineno-22-50"></a><span class="w">    </span><span class="nt">"nav_lat"</span><span class="p">:</span><span class="w"> </span><span class="s2">"nav_lat"</span><span class="p">,</span>
+</span><span id="__span-22-51"><a id="__codelineno-22-51" name="__codelineno-22-51" href="#__codelineno-22-51"></a><span class="w">    </span><span class="nt">"glamt"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glamt"</span><span class="p">,</span>
+</span><span id="__span-22-52"><a id="__codelineno-22-52" name="__codelineno-22-52" href="#__codelineno-22-52"></a><span class="w">    </span><span class="nt">"gphit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gphit"</span><span class="p">,</span>
+</span><span id="__span-22-53"><a id="__codelineno-22-53" name="__codelineno-22-53" href="#__codelineno-22-53"></a><span class="w">    </span><span class="nt">"glamf"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glamf"</span><span class="p">,</span>
+</span><span id="__span-22-54"><a id="__codelineno-22-54" name="__codelineno-22-54" href="#__codelineno-22-54"></a><span class="w">    </span><span class="nt">"gphif"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gphif"</span><span class="p">,</span>
+</span><span id="__span-22-55"><a id="__codelineno-22-55" name="__codelineno-22-55" href="#__codelineno-22-55"></a><span class="w">    </span><span class="nt">"glamu"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glamu"</span><span class="p">,</span>
+</span><span id="__span-22-56"><a id="__codelineno-22-56" name="__codelineno-22-56" href="#__codelineno-22-56"></a><span class="w">    </span><span class="nt">"gphiu"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gphiu"</span><span class="p">,</span>
+</span><span id="__span-22-57"><a id="__codelineno-22-57" name="__codelineno-22-57" href="#__codelineno-22-57"></a><span class="w">    </span><span class="nt">"glamv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"glamv"</span><span class="p">,</span>
+</span><span id="__span-22-58"><a id="__codelineno-22-58" name="__codelineno-22-58" href="#__codelineno-22-58"></a><span class="w">    </span><span class="nt">"gphiv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gphiv"</span><span class="p">,</span>
+</span><span id="__span-22-59"><a id="__codelineno-22-59" name="__codelineno-22-59" href="#__codelineno-22-59"></a><span class="w">    </span><span class="nt">"e1t"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e1t"</span><span class="p">,</span>
+</span><span id="__span-22-60"><a id="__codelineno-22-60" name="__codelineno-22-60" href="#__codelineno-22-60"></a><span class="w">    </span><span class="nt">"e2t"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e2t"</span><span class="p">,</span>
+</span><span id="__span-22-61"><a id="__codelineno-22-61" name="__codelineno-22-61" href="#__codelineno-22-61"></a><span class="w">    </span><span class="nt">"e1f"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e1f"</span><span class="p">,</span>
+</span><span id="__span-22-62"><a id="__codelineno-22-62" name="__codelineno-22-62" href="#__codelineno-22-62"></a><span class="w">    </span><span class="nt">"e2f"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e2f"</span><span class="p">,</span>
+</span><span id="__span-22-63"><a id="__codelineno-22-63" name="__codelineno-22-63" href="#__codelineno-22-63"></a><span class="w">    </span><span class="nt">"e1u"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e1u"</span><span class="p">,</span>
+</span><span id="__span-22-64"><a id="__codelineno-22-64" name="__codelineno-22-64" href="#__codelineno-22-64"></a><span class="w">    </span><span class="nt">"e2u"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e2u"</span><span class="p">,</span>
+</span><span id="__span-22-65"><a id="__codelineno-22-65" name="__codelineno-22-65" href="#__codelineno-22-65"></a><span class="w">    </span><span class="nt">"e1v"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e1v"</span><span class="p">,</span>
+</span><span id="__span-22-66"><a id="__codelineno-22-66" name="__codelineno-22-66" href="#__codelineno-22-66"></a><span class="w">    </span><span class="nt">"e2v"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e2v"</span><span class="p">,</span>
+</span><span id="__span-22-67"><a id="__codelineno-22-67" name="__codelineno-22-67" href="#__codelineno-22-67"></a><span class="w">    </span><span class="nt">"mbathy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bottom_level"</span><span class="p">,</span>
+</span><span id="__span-22-68"><a id="__codelineno-22-68" name="__codelineno-22-68" href="#__codelineno-22-68"></a><span class="w">    </span><span class="nt">"gdept_0"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdept_0"</span><span class="p">,</span>
+</span><span id="__span-22-69"><a id="__codelineno-22-69" name="__codelineno-22-69" href="#__codelineno-22-69"></a><span class="w">    </span><span class="nt">"gdept"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdept"</span><span class="p">,</span>
+</span><span id="__span-22-70"><a id="__codelineno-22-70" name="__codelineno-22-70" href="#__codelineno-22-70"></a><span class="w">    </span><span class="nt">"gdepu"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepu"</span><span class="p">,</span>
+</span><span id="__span-22-71"><a id="__codelineno-22-71" name="__codelineno-22-71" href="#__codelineno-22-71"></a><span class="w">    </span><span class="nt">"gdepv"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepv"</span><span class="p">,</span>
+</span><span id="__span-22-72"><a id="__codelineno-22-72" name="__codelineno-22-72" href="#__codelineno-22-72"></a><span class="w">    </span><span class="nt">"gdepf"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepf"</span><span class="p">,</span>
+</span><span id="__span-22-73"><a id="__codelineno-22-73" name="__codelineno-22-73" href="#__codelineno-22-73"></a><span class="w">    </span><span class="nt">"gdepw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepw"</span><span class="p">,</span>
+</span><span id="__span-22-74"><a id="__codelineno-22-74" name="__codelineno-22-74" href="#__codelineno-22-74"></a><span class="w">    </span><span class="nt">"gdepuw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepuw"</span><span class="p">,</span>
+</span><span id="__span-22-75"><a id="__codelineno-22-75" name="__codelineno-22-75" href="#__codelineno-22-75"></a><span class="w">    </span><span class="nt">"gdepvw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"gdepvw"</span><span class="p">,</span>
+</span><span id="__span-22-76"><a id="__codelineno-22-76" name="__codelineno-22-76" href="#__codelineno-22-76"></a><span class="w">    </span><span class="nt">"e3t"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3t_0"</span><span class="p">,</span>
+</span><span id="__span-22-77"><a id="__codelineno-22-77" name="__codelineno-22-77" href="#__codelineno-22-77"></a><span class="w">    </span><span class="nt">"e3w"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3w_0"</span><span class="p">,</span>
+</span><span id="__span-22-78"><a id="__codelineno-22-78" name="__codelineno-22-78" href="#__codelineno-22-78"></a><span class="w">    </span><span class="nt">"e3u"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3u_0"</span><span class="p">,</span>
+</span><span id="__span-22-79"><a id="__codelineno-22-79" name="__codelineno-22-79" href="#__codelineno-22-79"></a><span class="w">    </span><span class="nt">"e3v"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3v_0"</span><span class="p">,</span>
+</span><span id="__span-22-80"><a id="__codelineno-22-80" name="__codelineno-22-80" href="#__codelineno-22-80"></a><span class="w">    </span><span class="nt">"e3f"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3f_0"</span><span class="p">,</span>
+</span><span id="__span-22-81"><a id="__codelineno-22-81" name="__codelineno-22-81" href="#__codelineno-22-81"></a><span class="w">    </span><span class="nt">"e3uw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3uw_0"</span><span class="p">,</span>
+</span><span id="__span-22-82"><a id="__codelineno-22-82" name="__codelineno-22-82" href="#__codelineno-22-82"></a><span class="w">    </span><span class="nt">"e3vw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3vw_0"</span><span class="p">,</span>
+</span><span id="__span-22-83"><a id="__codelineno-22-83" name="__codelineno-22-83" href="#__codelineno-22-83"></a><span class="w">    </span><span class="nt">"e3fw"</span><span class="p">:</span><span class="w"> </span><span class="s2">"e3fw"</span><span class="p">,</span>
+</span><span id="__span-22-84"><a id="__codelineno-22-84" name="__codelineno-22-84" href="#__codelineno-22-84"></a><span class="w">    </span><span class="nt">"ln_zco"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ln_zco"</span><span class="p">,</span>
+</span><span id="__span-22-85"><a id="__codelineno-22-85" name="__codelineno-22-85" href="#__codelineno-22-85"></a><span class="w">    </span><span class="nt">"ln_zps"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ln_zps"</span><span class="p">,</span>
+</span><span id="__span-22-86"><a id="__codelineno-22-86" name="__codelineno-22-86" href="#__codelineno-22-86"></a><span class="w">    </span><span class="nt">"ln_sco"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ln_sco"</span>
+</span><span id="__span-22-87"><a id="__codelineno-22-87" name="__codelineno-22-87" href="#__codelineno-22-87"></a><span class="w">  </span><span class="p">}</span>
+</span><span id="__span-22-88"><a id="__codelineno-22-88" name="__codelineno-22-88" href="#__codelineno-22-88"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="ncml-file">NcML File</h3>
+<p>This is an example NcML file which is used to providing file paths for parent (source) data that pybdy will read in.
+The example files name is <em>src_data_local.ncml</em>. Here the NcML file combines data on the T grid, U grid and V grid each along the time dimension then aggregating them together into a single virtual file</p>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="nt">&lt;ns0:netcdf</span><span class="w"> </span><span class="na">xmlns:ns0=</span><span class="s">"http://www.unidata.ucar.edu/namespaces/netcdf/ncml-2.2"</span><span class="w"> </span><span class="na">title=</span><span class="s">"aggregation example"</span><span class="nt">&gt;</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="w">  </span><span class="nt">&lt;ns0:aggregation</span><span class="w"> </span><span class="na">type=</span><span class="s">"union"</span><span class="nt">&gt;</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="w">    </span><span class="nt">&lt;ns0:netcdf</span><span class="w"> </span><span class="na">location=</span><span class="s">"/scratch/India_Test/mersea.grid_V.nc"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="w">    </span><span class="nt">&lt;ns0:netcdf</span><span class="w"> </span><span class="na">location=</span><span class="s">"/scratch/India_Test/mersea.grid_U.nc"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="w">    </span><span class="nt">&lt;ns0:netcdf</span><span class="w"> </span><span class="na">location=</span><span class="s">"/scratch/India_Test/mersea.grid_T.nc"</span><span class="w"> </span><span class="nt">/&gt;</span>
+</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a><span class="w">  </span><span class="nt">&lt;/ns0:aggregation&gt;</span>
+</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a><span class="nt">&lt;/ns0:netcdf&gt;</span>
+</span></code></pre></div>
+<p><a name="tidal-boundary-conditions-generation-sailboat"></a></p>
+<h2 id="tidal-boundary-conditions-generation">Tidal Boundary Conditions Generation <img alt="⛵" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/26f5.svg" title=":sailboat:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>By providing a global tidal model dataset (TPXO and FES are currently supported) pyBDY can generate boundary conditions for the NEMO configuration supplied using the namelist file.</p>
+<h3 id="namelist-options">Namelist options</h3>
+<p>To use the namelist needs to be configured with the required options. These are listed below:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>ln_tide        = .true.              !  =T : produce bdy tidal conditions
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>sn_tide_model  = 'FES2014'           !  Name of tidal model. Accepts FES2014, TPXO7p2, or TPXO9v5
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>clname(1)      = 'M2'                !  constituent name
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>clname(2)      = 'S2'
+</span><span id="__span-24-5"><a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>clname(3)      = 'K2'
+</span><span id="__span-24-6"><a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>clname(4)      = 'O1'
+</span><span id="__span-24-7"><a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>clname(5)      = 'P1'
+</span><span id="__span-24-8"><a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>clname(6)      = 'Q1'
+</span><span id="__span-24-9"><a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>clname(7)      = 'M4'
+</span><span id="__span-24-10"><a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>ln_trans       = .true.              !  interpolate transport rather than velocities
+</span><span id="__span-24-11"><a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>! location of TPXO7.2 data
+</span><span id="__span-24-12"><a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>sn_tide_grid_7p2   = './inputs/tpxo7.2/grid_tpxo7.2.nc'
+</span><span id="__span-24-13"><a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>sn_tide_h          = './inputs/tpxo7.2/h_tpxo7.2.nc'
+</span><span id="__span-24-14"><a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>sn_tide_u          = './inputs/tpxo7.2/u_tpxo7.2.nc'
+</span><span id="__span-24-15"><a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>! location of TPXO9v5 data: single constituents per file
+</span><span id="__span-24-16"><a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a>sn_tide_grid_9p5   = './inputs/TPXO9_atlas_v5_nc/grid_tpxo9_atlas_30_v5.nc'
+</span><span id="__span-24-17"><a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>sn_tide_dir        = './inputs/TPXO9_atlas_v5_nc/'
+</span><span id="__span-24-18"><a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>! location of FES2014 data
+</span><span id="__span-24-19"><a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a>sn_tide_fes        = './inputs/FES2014/'
+</span></code></pre></div>
+<p>These options define the location of the tidal model datasets, note this differs depending on model as TPXO has all harmonic constants in one netcdf file whereas FES has three separate netcdf files (one for amplitude two for currents) for each constant. Extra harmonics can be appended to the clname(n) list. FES supports 34 constants and TPXO7.2 has 13 to choose from. Other versions of TPXO should work with pyBDY but have not been yet been tested. NOTE FES dataset filenames must have be in the format of constituent then type. e.g.:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>M2_Z.nc (for amplitude)
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>M2_U.nc (for U component of velocity)
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>M2_V.nc (for V component of velocity)
+</span></code></pre></div>
+<p>If this is not undertaken the pyBDY will not recognise the files. TPXO data files are specified directly so these can be anyname although it is best to stick with the default names as shown above. So far the tidal model datasets have been downloaded and used locally but could also be stored on a THREDDS server although this has not been tested with the global tide models.</p>
+<p>Other options include “ln_tide” a boolean that when set to true will generate tidal boundaries. “sn_tide_model” is a string that defines the model to use, currently only “fes” or “tpxo” are supported. “ln_trans” is a boolean that when set to true will interpolate transport rather than velocities.</p>
+<h3 id="harmonic-output-checker">Harmonic Output Checker</h3>
+<p>There is an harmonic output checker that can be utilised to check the output of pyBDY with a reference tide model. So far the only supported reference model is FES but TPXO will be added in the future. Any tidal output from pyBDY can be checked (e.g. FES and TPXO). While using the same model used as input to check output doesn’t improve accuracy, it does confirm that the output is within acceptable/expected limits of the nearest model reference point.</p>
+<p>There are differences as pyBDY interpolates the harmonics and the tidal checker does not, so there can be some difference in the values particularly close to coastlines.</p>
+<p>The checker can be enabled by editing the following in the relevent bdy file:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a>ln_tide_checker = .true.                ! run tide checker on pyBDY tide output
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>sn_ref_model    = 'fes'                 ! which model to check output against (FES only)
+</span></code></pre></div>
+<p>The boolean determines if to run the checker or not, this takes place after creating the interpolated harmonics and writing them to disk. The string denotes which tide model to use as reference, so far only FES is supported. The string denoting model is not strictly needed, by default fes is used.</p>
+<p>The checker will output information regarding the checking to the NRCT log, and also write an spreadsheet to the output folder containing any exceedance values, the closest reference model value and their locations. Amplitude and phase are checked independently, so both have latitude and longitude associated with them. It is also useful to know the amplitude of a exceeded phase to see how much impact it will have so this is also written to the spreadsheet. An example output is shown below, as can be seen the majority of the amplitudes, both the two amplitudes exceedances and the ones associated with the phase exceedances are low (~0.01), so can most likely be ignored. There a few phase exceedances that have higher amplitudes (~0.2) which would potentially require further investigation. A common reason for such an exceedance is due to coastlines and the relevant point being further away from an FES data point.</p>
+<p>The actual thresholds for both amplitude and phase are based on the amplitude of the output or reference, this is due to different tolerances based on the amplitude. e.g. high amplitudes should have lower percentage differences to the FES reference, than lower ones simply due to the absolute amount of the ampltiude itself, e.g. a 0.1 m difference for a 1.0 m amplitude is acceptable but not for a 0.01 m amplitude. The smaller amplitudes contribute less to the overall tide height so larger percentage differences are acceptable. The same also applies to phases, where large amplitude phases have little room for differences but at lower amplitudes this is less critical so a higher threshold is tolerated.</p>
+<p>The following power functions are used to determine what threshold to apply based on the reference model amplitude.</p>
+<h4 id="amplitude-threshold">Amplitude Threshold</h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>Percentage Exceedance = 26.933 * Reference Amplitude ^ -0.396’
+</span></code></pre></div>
+<h4 id="phases-threshold">Phases Threshold</h4>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>Phase Exceedance = 5.052 * pyBDY Amplitude ^ -0.60
+</span></code></pre></div>
+<p><a name="troubleshooting-safety_vest"></a></p>
+<h2 id="troubleshooting">Troubleshooting <img alt="🦺" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9ba.svg" title=":safety_vest:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>Always check the pyBDY log file. This is usually saved in the working directory of pyBDY as nrct.log. It gives helpful information which may help to diagnose issues. E.g. ValueErrors that are result of a THREDDS server being down and unable to provide data files.</p>
+<p>If you get the error message "Destination touches source i-edge but source is not cylindrical" or you get the error message "Destination touches source j-edge but North Fold is not implemented". There is a plot you can uncomment in pybdy.nemo_bdy_chunk.chunk_bdy() that will show you where pyBDY is attempting to place bdy points.</p>
+<ul>
+<li>For "Destination touches source i-edge but source is not cylindrical", you may have an open boundary in your mask or bathymetry file that is not inside the domain of the source data. If this is the case you need to edit your mask to be land (i.e. zeros) to block the incorrect open boundary.</li>
+<li>For "Destination touches source j-edge but North Fold is not implemented", your domain probably touches the Arctic North Fold and pyBDY is trying to put an open boundary there. If this is the case you need to edit your mask to be land (i.e. zeros) to block the incorrect open boundary along the north edge of the domain. Do not attept to have a regional model with a boundary crossing the North Fold, this has not be implemented yet.</li>
+</ul>
+<p>Check your variable and dimension names match the requirements and are mapped correctly either in the NcML file or JSON for the source data and grid data respectively (see section <a href="#how-to-use-pybdy-student">How to use pyBDY <img alt="🧑‍🎓" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f9d1-200d-1f393.svg" title=":student:"></a>)</p>
+<p>If you have time interpolation problems read the section <a href="#time-settings">Time Settings</a>.</p>
+<p><a name="pybdy-module-structure-scroll"></a></p>
+<h2 id="pybdy-module-structure">pyBDY Module Structure <img alt="📜" class="twemoji" src="https://cdn.jsdelivr.net/gh/jdecked/twemoji@16.0.1/assets/svg/1f4dc.svg" title=":scroll:"></h2>
+<p><a href="#pybdy-documentation">Back to top</a></p>
+<p>All the classes, methods and functions in pyBDY can be found in the tab along the top of the page.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer">
+        
+        
+          
+          <a href="grid/" class="md-footer__link md-footer__link--next" aria-label="Next: grid package">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                grid package
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"></path></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+    <a href="https://github.com/NOC-MSM/pyBDY" target="_blank" rel="noopener" title="GitHub" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"></path></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["content.action.edit", "content.tabs.link", "content.code.copy", "content.code.annotate", "content.code.select", "toc.integrate", "navigation.tabs", "navigation.expand", "navigation.footer", "search.suggest"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  
+<script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
+document$.subscribe(()=>{ lightbox.reload(); });
+</script></body></html>
