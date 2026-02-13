@@ -122,6 +122,35 @@ def test_depth_file_zps():
         assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
 
+def test_e3_to_gdep():
+    e3t = np.array([10, 12, 15, 18, 22, 27])
+    e3t = np.moveaxis(np.tile(e3t, (1, 5, 4, 1)), -1, 1)
+    e3w = e3t.copy()
+
+    grid = {"e3t": e3t, "e3w": e3w}
+    missing = ["gdept", "gdepw", "gdepu", "gdepvw"]
+    e_dict = {"e1t": 1}
+
+    grid = zgr.fill_zgrid_vars("zps", grid, "C", e_dict, missing)
+
+    result1 = np.array([5, 15, 27, 42, 60, 82])
+    result2 = np.array([0, 10, 22, 37, 55, 77])
+
+    errors = []
+    print(grid["gdept"][0, :, 0, 0])
+    if not (grid["gdept"][0, :, 0, 0] == result1).all():
+        errors.append("gdept not correct.")
+    elif not (grid["gdepw"][0, :, 0, 0] == result2).all():
+        errors.append("gdepw not correct.")
+    elif not (grid["gdepu"][0, :, 0, 0] == result1).all():
+        errors.append("gdepw not correct.")
+    elif not (grid["gdepvw"][0, :, 0, 0] == result2).all():
+        errors.append("gdepw not correct.")
+
+    # assert no error message has been registered, else print messages
+    assert not errors, "errors occured:\n{}".format("\n".join(errors))
+
+
 def test_fill_zgrid_vars_regression():
     # Test the variable filling functions using a regression test
     lon_t = np.arange(-10, 1, 1)
