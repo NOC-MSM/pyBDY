@@ -121,28 +121,72 @@ def test_depth_file_zps():
 
 
 def test_e3_to_gdep():
-    e3t = np.array([10, 12, 15, 18, 22, 27])
+    e3t = np.array(
+        [
+            1.02390661,
+            1.07928337,
+            1.14811918,
+            1.23374337,
+            1.34018504,
+            1.47220538,
+            1.6352427,
+            1.83521193,
+        ]
+    )
+    e3w = np.array(
+        [
+            1.01152003,
+            1.05009529,
+            1.11182645,
+            1.18859799,
+            1.28408151,
+            1.40267237,
+            1.54948477,
+            1.73023204,
+        ]
+    )
     e3t = np.moveaxis(np.tile(e3t, (1, 5, 4, 1)), -1, 1)
-    e3w = e3t.copy()
+    e3w = np.moveaxis(np.tile(e3w, (1, 5, 4, 1)), -1, 1)
 
     grid = {"e3t": e3t, "e3w": e3w}
     missing = ["gdept", "gdepw", "gdepu", "gdepvw"]
 
     grid = zgr.fill_zgrid_vars("zps", grid, "C", missing)
 
-    result1 = np.array([5, 15, 27, 42, 60, 82])
-    result2 = np.array([0, 10, 22, 37, 55, 77])
+    result1 = np.array(
+        [
+            0.50576002,
+            1.5558553,
+            2.66768175,
+            3.85627974,
+            5.14036125,
+            6.54303362,
+            8.09251839,
+            9.82275043,
+        ]
+    )
+    result2 = np.array(
+        [
+            0.0,
+            1.02390661,
+            2.10318998,
+            3.25130916,
+            4.48505253,
+            5.82523756,
+            7.29744294,
+            8.93268564,
+        ]
+    )
 
     errors = []
-    print(grid["gdept"][0, :, 0, 0])
-    if not (grid["gdept"][0, :, 0, 0] == result1).all():
-        errors.append("gdept not correct.")
-    elif not (grid["gdepw"][0, :, 0, 0] == result2).all():
-        errors.append("gdepw not correct.")
-    elif not (grid["gdepu"][0, :, 0, 0] == result1).all():
-        errors.append("gdepw not correct.")
-    elif not (grid["gdepvw"][0, :, 0, 0] == result2).all():
-        errors.append("gdepw not correct.")
+    if not (np.isclose(grid["gdept"][0, :, 0, 0], result1, atol=1e-7)).all():
+        errors.append("gdept from e3 not correct.")
+    elif not (np.isclose(grid["gdepw"][0, :, 0, 0], result2, atol=1e-7)).all():
+        errors.append("gdepw from e3 not correct.")
+    elif not (np.isclose(grid["gdepu"][0, :, 0, 0], result1, atol=1e-7)).all():
+        errors.append("gdepw from e3 not correct.")
+    elif not (np.isclose(grid["gdepvw"][0, :, 0, 0], result2, atol=1e-7)).all():
+        errors.append("gdepw from e3 not correct.")
 
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
