@@ -196,8 +196,11 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
     if t_done is False:
         # Fill in the 3D gdept data from 1D gdept_0
         if "e3w" not in missing:
-            grid["gdept"] = np.cumsum(grid["e3w"], axis=1) - (
-                0.5 * grid["e3w"][:, 0:1, :, :]
+            grid["gdept"] = np.append(
+                (grid["e3w"][:, 0:1, :, :] * 0.5),
+                np.cumsum(grid["e3w"][:, :-1, :, :], axis=1)
+                + (grid["e3w"][:, 0:1, :, :] * 0.5),
+                axis=1,
             )
         elif "gdept_0" in missing:
             raise Exception("No gdept_0 in vertical grid file (zgr).")
@@ -254,16 +257,18 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
 
     for vi in missing:
         if "gdep" in vi:
-            print(missing)
-            print(list(grid.keys()))
             if (
                 (vi == "gdepu")
                 & ("e3uw" not in missing)
                 & ("e3uw" in list(grid.keys()))
             ):
-                grid[vi] = np.cumsum(grid["e3uw"], axis=1) - (
-                    0.5 * grid["e3uw"][:, 0:1, :, :]
+                grid[vi] = np.append(
+                    (grid["e3uw"][:, 0:1, :, :] * 0.5),
+                    np.cumsum(grid["e3uw"][:, :-1, :, :], axis=1)
+                    + (grid["e3uw"][:, 0:1, :, :] * 0.5),
+                    axis=1,
                 )
+
             elif (
                 (vi == "gdepuw") & ("e3u" not in missing) & ("e3u" in list(grid.keys()))
             ):
@@ -273,8 +278,11 @@ def fill_zgrid_vars(zgr_type, grid, hgr_type, e_dict, missing):
                 & ("e3vw" not in missing)
                 & ("e3vw" in list(grid.keys()))
             ):
-                grid[vi] = np.cumsum(grid["e3vw"], axis=1) - (
-                    0.5 * grid["e3vw"][:, 0:1, :, :]
+                grid[vi] = np.append(
+                    (grid["e3vw"][:, 0:1, :, :] * 0.5),
+                    np.cumsum(grid["e3vw"][:, :-1, :, :], axis=1)
+                    + (grid["e3vw"][:, 0:1, :, :] * 0.5),
+                    axis=1,
                 )
             elif (
                 (vi == "gdepvw") & ("e3v" not in missing) & ("e3v" in list(grid.keys()))
