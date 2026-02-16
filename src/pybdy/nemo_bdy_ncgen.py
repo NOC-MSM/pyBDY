@@ -25,7 +25,7 @@ from netCDF4 import Dataset
 
 
 def CreateBDYNetcdfFile(
-    filename, xb_len, x_len, y_len, depth_len, rw, h, orig, fv, calendar, grd
+    filename, xb_len, x_len, y_len, depth_len, rw, h, orig, fv, calendar, ln_ice, grd
 ):
     """Create a template of bdy netcdf files. A common for T, I, U, V, E grid types."""
     gridNames = ["T", "I", "U", "V", "E", "Z"]  # All possible grids
@@ -181,9 +181,9 @@ def CreateBDYNetcdfFile(
             ),
             fill_value=fv,
         )
-        if grd == "I":
+        if ln_ice | (grd == "I"):
             varildID = ncid.createVariable(
-                "ileadfra",
+                "ice1",
                 "f4",
                 (
                     "time_counter",
@@ -193,7 +193,7 @@ def CreateBDYNetcdfFile(
                 fill_value=fv,
             )
             variicID = ncid.createVariable(
-                "iicethic",
+                "ice2",
                 "f4",
                 (
                     "time_counter",
@@ -203,7 +203,7 @@ def CreateBDYNetcdfFile(
                 fill_value=fv,
             )
             varisnID = ncid.createVariable(
-                "isnowthi",
+                "ice3",
                 "f4",
                 (
                     "time_counter",
@@ -440,19 +440,19 @@ def CreateBDYNetcdfFile(
         varsalID.long_name = "Salinity"
         varsalID.grid = "bdyT"
 
-        if grd == "I":
+        if ln_ice | (grd == "I"):
             varildID.units = "%"
-            varildID.short_name = "ildsconc"
-            varildID.long_name = "Ice lead fraction"
+            varildID.short_name = "siconc"
+            varildID.long_name = "Sea ice fraction"
             varildID.grid = "bdyT"
 
             variicID.units = "m"
-            variicID.short_name = "iicethic"
-            variicID.long_name = "Ice thickness"
+            variicID.short_name = "sivolu"
+            variicID.long_name = "Sea ice volume"
             variicID.grid = "bdyT"
 
             varisnID.units = "m"
-            varisnID.short_name = "isnowthi"
+            varisnID.short_name = "snthic"
             varisnID.long_name = "Snow thickness"
             varisnID.grid = "bdyT"
     elif grd == "U":
