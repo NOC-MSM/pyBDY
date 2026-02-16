@@ -96,7 +96,7 @@ def test_zco_zco():
     print(summary_grid)
     test_grid = {
         "Num_var_co": 21,
-        "Num_var_t": 11,
+        "Num_var_t": 14,
         "Min_gdept": 41.66666793823242,
         "Max_gdept": 958.3333129882812,
         "Shape_temp": (30, 25, 1, 1584),
@@ -176,7 +176,7 @@ def test_zps_sco():
     print(summary_grid)
     test_grid = {
         "Num_var_co": 21,
-        "Num_var_t": 11,
+        "Num_var_t": 14,
         "Min_gdept": 3.8946874141693115,
         "Max_gdept": 966.4112548828125,
         "Shape_temp": (30, 15, 1, 1584),
@@ -256,7 +256,7 @@ def test_sco_sco():
     print(summary_grid)
     test_grid = {
         "Num_var_co": 21,
-        "Num_var_t": 11,
+        "Num_var_t": 14,
         "Min_gdept": 3.8946874141693115,
         "Max_gdept": 966.4112548828125,
         "Shape_temp": (30, 15, 1, 1584),
@@ -336,7 +336,7 @@ def test_sco_zco():
     print(summary_grid)
     test_grid = {
         "Num_var_co": 21,
-        "Num_var_t": 11,
+        "Num_var_t": 14,
         "Min_gdept": 41.66666793823242,
         "Max_gdept": 958.3333129882812,
         "Shape_temp": (30, 25, 1, 1584),
@@ -419,7 +419,7 @@ def test_wrap_sc():
     print(summary_grid)
     test_grid = {
         "Num_var_co": 21,
-        "Num_var_t": 11,
+        "Num_var_t": 14,
         "Min_gdept": 41.66666793823242,
         "Max_gdept": 958.3333129882812,
         "Shape_temp": (30, 25, 1, 1584),

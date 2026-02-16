@@ -40,9 +40,9 @@ def write_data_to_file(filename, variable_name, data):
         "sossheig",
         "vobtcrtx",
         "vobtcrty",
-        "siconc",
-        "sivolu",
-        "snthic",
+        "ice1",
+        "ice2",
+        "ice3",
     ]
     # print(filename)
     # print(variable_name)

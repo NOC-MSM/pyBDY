@@ -455,6 +455,9 @@ def generate_variables(
     uvel = xr.full_like(ds_domcfg.gdept, 1.0, dtype=np.double)
     vvel = xr.full_like(ds_domcfg.gdept, 1.0, dtype=np.double)
     ssh = xr.full_like(ds_domcfg.Bathymetry, 0.0, dtype=np.double)
+    ice1 = xr.full_like(ds_domcfg.Bathymetry, 0.0, dtype=np.double)
+    ice2 = xr.full_like(ds_domcfg.Bathymetry, 0.0, dtype=np.double)
+    ice3 = xr.full_like(ds_domcfg.Bathymetry, 0.0, dtype=np.double)
 
     # Add attributes
     temp.attrs = dict(units="C", long_name="Temperature (degrees centigrade)")
@@ -462,6 +465,9 @@ def generate_variables(
     uvel.attrs = dict(units="m/s", long_name="Zonal Velocity (m/s)")
     vvel.attrs = dict(units="m/s", long_name="Meridional Velocity (m/s)")
     ssh.attrs = dict(units="m", long_name="Sea Surface Height (m)")
+    ice1.attrs = dict(units="", long_name="Sea ice area fraction")
+    ice2.attrs = dict(units="m3", long_name="Sea ice volume (m3)")
+    ice3.attrs = dict(units="m", long_name="Snow thickness (m)")
 
     # Add to ds
     ds["votemper"] = temp
@@ -469,6 +475,9 @@ def generate_variables(
     ds["vozocrtx"] = uvel
     ds["vomecrty"] = vvel
     ds["sossheig"] = ssh
+    ds["ice1"] = ice1
+    ds["ice2"] = ice2
+    ds["ice3"] = ice3
 
     # Add t dim
     # times = pd.date_range("2020","2023",freq='Y')+ DateOffset(months=6)
