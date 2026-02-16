@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://noc-msm.github.io/pyBDY/</loc>
+         <lastmod>2026-02-16</lastmod>
+    </url>
+    <url>
+         <loc>https://noc-msm.github.io/pyBDY/grid/</loc>
+         <lastmod>2026-02-16</lastmod>
+    </url>
+    <url>
+         <loc>https://noc-msm.github.io/pyBDY/module_structure/</loc>
+         <lastmod>2026-02-16</lastmod>
+    </url>
+    <url>
+         <loc>https://noc-msm.github.io/pyBDY/pybdy.gui/</loc>
+         <lastmod>2026-02-16</lastmod>
+    </url>
+    <url>
+         <loc>https://noc-msm.github.io/pyBDY/pybdy/</loc>
+         <lastmod>2026-02-16</lastmod>
+    </url>
+    <url>
+         <loc>https://noc-msm.github.io/pyBDY/pybdy.reader/</loc>
+         <lastmod>2026-02-16</lastmod>
+    </url>
+    <url>
+         <loc>https://noc-msm.github.io/pyBDY/pybdy.tide/</loc>
+         <lastmod>2026-02-16</lastmod>
+    </url>
+    <url>
+         <loc>https://noc-msm.github.io/pyBDY/pybdy.utils/</loc>
+         <lastmod>2026-02-16</lastmod>
+    </url>
+</urlset>
