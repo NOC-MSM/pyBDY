@@ -167,7 +167,11 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     # Get slice indices for each chunk to subset the horizontal grids and vertical grids
 
-    all_chunk = np.unique(bdy_ind[grd].chunk_number)
+    all_chunk = np.unique(bdy_ind["t"].chunk_number)
+    if (len(all_chunk) != len(np.unique(bdy_ind["u"].chunk_number))) | (
+        len(all_chunk) != len(np.unique(bdy_ind["v"].chunk_number))
+    ):
+        raise Exception("Differet number of chunks in u or v grid from t.")
     DstCoord.hgr = [None] * len(all_chunk)
     SourceCoord.hgr = [None] * len(all_chunk)
     DstCoord.zgr = [None] * len(all_chunk)
