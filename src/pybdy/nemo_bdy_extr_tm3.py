@@ -150,7 +150,7 @@ class Extract:
         sc_ind_ch = []
         self.sc_wrap = np.zeros((len(all_chunk)), dtype=bool)
         self.dst_chunk = chunk_number.copy()
-        self.dist_tot = np.zeros((len(dst_lon), 9))
+        self.dist_tot = np.zeros((len(dst_lon), 16))
         self.num_bdy_ch = np.zeros((len(all_chunk)), dtype=int)
         self.tmp_filt_2d = np.zeros((1, len(dst_lon), len(wei_121)))
         self.tmp_filt_3d = np.zeros((sc_z_len, len(dst_lon), len(wei_121)))
@@ -159,12 +159,12 @@ class Extract:
         if self.key_vec:
             self.dst_gcos = np.zeros((dst_len_z, len(dst_lon)))
             self.dst_gsin = np.zeros((dst_len_z, len(dst_lon)))
-            self.gcos = np.empty((0, 9))
-            self.gsin = np.empty((0, 9))
+            self.gcos = np.empty((0, 16))
+            self.gsin = np.empty((0, 16))
             self.sc_chunk = np.empty((0), int)
-        self.z_ind = np.zeros((dst_len_z * num_bdy * 9, 2), dtype=np.int64)
-        self.z_dist = np.ma.zeros((dst_len_z * num_bdy * 9, 2))
-        self.z_chunk = np.zeros((num_bdy * dst_len_z * 9), dtype=np.int64) - 1
+        self.z_ind = np.zeros((dst_len_z * num_bdy * 16, 2), dtype=np.int64)
+        self.z_dist = np.ma.zeros((dst_len_z * num_bdy * 16, 2))
+        self.z_chunk = np.zeros((num_bdy * dst_len_z * 16), dtype=np.int64) - 1
         self.bdy_dz = np.zeros((self.jpk, len(Grid[grd].bdy_i[:, 0])))
         if not isslab:
             self.bdy_z = np.zeros((len(Grid[grd].bdy_i[:, 0])))
@@ -182,9 +182,9 @@ class Extract:
             dst_lat_ch = dst_lat[chunk]
             self.num_bdy_ch[c] = len(dst_lon_ch)
             self.z_chunk[
-                zc_count : zc_count + (self.num_bdy_ch[c] * dst_len_z * 9)
+                zc_count : zc_count + (self.num_bdy_ch[c] * dst_len_z * 16)
             ] = all_chunk[c]
-            zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z * 9)
+            zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z * 16)
             chunk_z_bool = self.z_chunk == all_chunk[c]
             wrap_flag = SC.hgr[c].wrap_flag
 
@@ -268,10 +268,10 @@ class Extract:
 
             # Find surrounding points
             j_sp, i_sp = np.unravel_index(nn_id, source_dims, order="F")
-            j_sp = np.vstack((j_sp, j_sp + 1, j_sp - 1))
-            j_sp = np.vstack((j_sp, j_sp, j_sp))
-            i_sp = np.vstack((i_sp, i_sp, i_sp))
-            i_sp = np.vstack((i_sp, i_sp + 1, i_sp - 1))
+            j_sp = np.vstack((j_sp, j_sp + 1, j_sp - 1, j_sp - 2))
+            j_sp = np.vstack((j_sp, j_sp, j_sp, j_sp))
+            i_sp = np.vstack((i_sp, i_sp, i_sp, i_sp))
+            i_sp = np.vstack((i_sp, i_sp + 1, i_sp - 1, i_sp - 2))
 
             # Check index out of bounds
             if (i_sp >= source_dims[1]).any() | (i_sp < 0).any():
@@ -290,19 +290,19 @@ class Extract:
                     "Destination touches source j-edge but North Fold is not implemented"
                 )
 
-            # Determine 9 nearest neighbours based on distance
+            # Determine 16 nearest neighbours based on distance
             ind = sub2ind(source_dims, i_sp, j_sp)
             ind_rv = np.ravel(ind, order="F")
             sc_lon_rv = np.ravel(SC.lon_ch, order="F")
             sc_lat_rv = np.ravel(SC.lat_ch, order="F")
             sc_lon_ind = sc_lon_rv[ind_rv]
 
-            diff_lon = sc_lon_ind - np.repeat(dst_lon_ch, 9).T
+            diff_lon = sc_lon_ind - np.repeat(dst_lon_ch, 16).T
             diff_lon = diff_lon.reshape(ind.shape, order="F")
             out = np.abs(diff_lon) > 180
             diff_lon[out] = -np.sign(diff_lon[out]) * (360 - np.abs(diff_lon[out]))
 
-            dst_lat_rep = np.repeat(dst_lat_ch.T, 9)
+            dst_lat_rep = np.repeat(dst_lat_ch.T, 16)
             diff_lon_rv = np.ravel(diff_lon, order="F")
             dist_merid = diff_lon_rv * np.cos(dst_lat_rep * np.pi / 180)
             dist_zonal = sc_lat_rv[ind_rv] - dst_lat_rep
@@ -318,7 +318,7 @@ class Extract:
             # Shuffle ind to reflect ascending dist of source and dst points
             ind = ind.T
             for p in range(ind.shape[0]):
-                ind[p, :] = ind[p, dist_ind[p, :]]  # [chunk, 9]
+                ind[p, :] = ind[p, dist_ind[p, :]]  # [chunk, 16]
 
             if self.key_vec:
                 self.gcos = np.append(
@@ -441,8 +441,8 @@ class Extract:
                 )
 
             else:
-                z_ind = np.zeros([dst_len_z * int(np.sum(chunk)) * 9, 2], dtype=int)
-                z_dist = np.ma.zeros([dst_len_z * int(np.sum(chunk)) * 9, 2])
+                z_ind = np.zeros([dst_len_z * int(np.sum(chunk)) * 16, 2], dtype=int)
+                z_dist = np.ma.zeros([dst_len_z * int(np.sum(chunk)) * 16, 2])
             # End isslab
 
             # Put variables in list and array

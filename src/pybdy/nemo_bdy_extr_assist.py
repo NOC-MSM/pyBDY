@@ -45,11 +45,11 @@ def get_ind(dst_lon, dst_lat, sc_lon, sc_lat):
     ind_e = sc_lon < np.amax(dst_lon)
     ind_w = sc_lon > np.amin(dst_lon)
     ind_e[:, 2:] = ind_e[:, :-2]
-    ind_w[:, :-2] = ind_w[:, 2:]
+    ind_w[:, :-3] = ind_w[:, 3:]
     ind_ew = np.logical_and(ind_e, ind_w)
     ind_s = sc_lat > np.amin(dst_lat)
     ind_n = sc_lat < np.amax(dst_lat)
-    ind_s[:-2, :] = ind_s[2:, :]
+    ind_s[:-3, :] = ind_s[3:, :]
     ind_n[2:, :] = ind_n[:-2, :]
     ind_sn = np.logical_and(ind_s, ind_n)
 
@@ -109,9 +109,9 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
     """
     Determine 3D depth vertical weights for the linear interpolation onto Dst grid.
 
-    Selects 9 source points horizontally around a destination grid point.
+    Selects 16 source points horizontally around a destination grid point.
     Calculated the distance from each source point to the destination to
-    be used in weightings. The resulting arrays are [nz * nbdy * 9, 2].
+    be used in weightings. The resulting arrays are [nz * nbdy * 16, 2].
 
     Parameters
     ----------
@@ -120,42 +120,42 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
     num_bdy (int)      : number of boundary points in chunk
     sc_z (np.array)    : the depth of the source grid [k, j, i]
     sc_z_len (int)     : the length of depth axis of the source grid
-    ind (np.array)     : indices of bdy and 9 nearest neighbours flattened "F" j,i [nbdy, 9]
+    ind (np.array)     : indices of bdy and 16 nearest neighbours flattened "F" j,i [nbdy, 16]
     zco (bool)         : if True z levels are not spatially varying
 
     Returns
     -------
-    z9_dist (np.array) : the distance weights of the selected points
-    z9_ind (np.array)  : the indices of the sc depth above and below bdy
+    z16_dist (np.array) : the distance weights of the selected points
+    z16_ind (np.array)  : the indices of the sc depth above and below bdy
     """
-    # We need sc depth in the form [sc_z_len, nbdy_ch, 9]
+    # We need sc depth in the form [sc_z_len, nbdy_ch, 16]
     sc_z_rv = np.zeros((sc_z_len, sc_z.shape[1] * sc_z.shape[2]))
     for k in range(sc_z_len):
         sc_z_rv[k, :] = sc_z[k, :, :].flatten("F")
 
-    sc_z9 = sc_z_rv[:, ind]  # [sc_z_len, nbdy_ch, 9]
+    sc_z16 = sc_z_rv[:, ind]  # [sc_z_len, nbdy_ch, 16]
 
-    # We need vertical weight in the form [dst_z_len, nbdy_ch, 9, 2]
-    # Tile dst_dep by 9 to get the same size as we want all 9 source points
+    # We need vertical weight in the form [dst_z_len, nbdy_ch, 16, 2]
+    # Tile dst_dep by 16 to get the same size as we want all 16 source points
     # on the same bdy depth before horizontal interpolation. We want the tile
     # so it is all interpolated onto the same level before the horizontal
     # interpolation folds the data onto the centre point.
-    # The 9 vertical weights won't nessicarily be equal because sc can
+    # The 16 vertical weights won't nessicarily be equal because sc can
     # have sloping levels.
 
-    dst_dep9 = np.transpose(
-        np.tile(dst_dep, (9, 1, 1)), axes=[1, 2, 0]
-    )  # [dst_z_len, nbdy_ch, 9]
-    dst_dep9 = dst_dep9.filled(np.nan)
-    z9_ind = np.zeros((dst_len_z, num_bdy, 9, 2), dtype=np.int64)
-    z9_dist = np.ma.zeros((dst_len_z, num_bdy, 9, 2))
+    dst_dep16 = np.transpose(
+        np.tile(dst_dep, (16, 1, 1)), axes=[1, 2, 0]
+    )  # [dst_z_len, nbdy_ch, 16]
+    dst_dep16 = dst_dep16.filled(np.nan)
+    z16_ind = np.zeros((dst_len_z, num_bdy, 16, 2), dtype=np.int64)
+    z16_dist = np.ma.zeros((dst_len_z, num_bdy, 16, 2))
     source_tree = None
 
     if zco:
         # 1D depths
-        sc_z = sc_z9[:, 0, 0]
-        dst_dep9_rv = dst_dep9.ravel(order="F")
-        z_ind = np.zeros((dst_len_z * num_bdy * 9, 2), dtype=np.int64)
+        sc_z = sc_z16[:, 0, 0]
+        dst_dep16_rv = dst_dep16.ravel(order="F")
+        z_ind = np.zeros((dst_len_z * num_bdy * 16, 2), dtype=np.int64)
         try:
             source_tree = sp.cKDTree(
                 list(zip(sc_z.ravel(order="F"))),
@@ -165,7 +165,7 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
         except TypeError:  # fix for scipy 0.16.0
             source_tree = sp.cKDTree(list(zip(sc_z.ravel(order="F"))))
 
-        junk, nn_id = source_tree.query(list(zip(dst_dep9_rv)), k=1)
+        junk, nn_id = source_tree.query(list(zip(dst_dep16_rv)), k=1)
 
         # WORKAROUND: the tree query returns out of range val when
         # dst_dep point is NaN, causing ref problems later.
@@ -173,69 +173,71 @@ def get_vertical_weights(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco):
 
         # Find next adjacent point in the vertical
         z_ind[:, 0] = nn_id
-        z_ind[sc_z[nn_id] > dst_dep9_rv[:], 1] = nn_id[sc_z[nn_id] > dst_dep9_rv[:]] - 1
-        z_ind[sc_z[nn_id] <= dst_dep9_rv[:], 1] = (
-            nn_id[sc_z[nn_id] <= dst_dep9_rv[:]] + 1
+        z_ind[sc_z[nn_id] > dst_dep16_rv[:], 1] = (
+            nn_id[sc_z[nn_id] > dst_dep16_rv[:]] - 1
         )
-        z9_ind = z_ind.reshape((dst_len_z, num_bdy, 9, 2), order="F")
+        z_ind[sc_z[nn_id] <= dst_dep16_rv[:], 1] = (
+            nn_id[sc_z[nn_id] <= dst_dep16_rv[:]] + 1
+        )
+        z16_ind = z_ind.reshape((dst_len_z, num_bdy, 16, 2), order="F")
 
     else:
         # 3D depths
         for i in range(num_bdy):
-            for j in range(9):
+            for j in range(16):
                 try:
                     source_tree = sp.cKDTree(
-                        list(zip(sc_z9[:, i, j])),
+                        list(zip(sc_z16[:, i, j])),
                         balanced_tree=False,
                         compact_nodes=False,
                     )
                 except TypeError:  # fix for scipy 0.16.0
-                    source_tree = sp.cKDTree(list(zip(sc_z9[:, i, j])))
+                    source_tree = sp.cKDTree(list(zip(sc_z16[:, i, j])))
 
-                junk, nn_id = source_tree.query(list(zip(dst_dep9[:, i, j])), k=1)
+                junk, nn_id = source_tree.query(list(zip(dst_dep16[:, i, j])), k=1)
 
                 # WORKAROUND: the tree query returns out of range val when
                 # dst_dep point is NaN, causing ref problems later.
                 nn_id[nn_id == sc_z_len] = sc_z_len - 1
 
                 # Find next adjacent point in the vertical
-                z9_ind[:, i, j, 0] = nn_id
-                z9_ind[sc_z9[nn_id, i, j] > dst_dep9[:, i, j], i, j, 1] = (
-                    nn_id[sc_z9[nn_id, i, j] > dst_dep9[:, i, j]] - 1
+                z16_ind[:, i, j, 0] = nn_id
+                z16_ind[sc_z16[nn_id, i, j] > dst_dep16[:, i, j], i, j, 1] = (
+                    nn_id[sc_z16[nn_id, i, j] > dst_dep16[:, i, j]] - 1
                 )
-                z9_ind[sc_z9[nn_id, i, j] <= dst_dep9[:, i, j], i, j, 1] = (
-                    nn_id[sc_z9[nn_id, i, j] <= dst_dep9[:, i, j]] + 1
+                z16_ind[sc_z16[nn_id, i, j] <= dst_dep16[:, i, j], i, j, 1] = (
+                    nn_id[sc_z16[nn_id, i, j] <= dst_dep16[:, i, j]] + 1
                 )
 
     # Adjust out of range values
-    z9_ind[z9_ind == -1] = 0
-    z9_ind[z9_ind == sc_z_len] = sc_z_len - 1
+    z16_ind[z16_ind == -1] = 0
+    z16_ind[z16_ind == sc_z_len] = sc_z_len - 1
 
-    ind_grid = np.indices(z9_ind.shape[:3])
+    ind_grid = np.indices(z16_ind.shape[:3])
     g_bdy = ind_grid[1]
-    g_9 = ind_grid[2]
-    z9_dist[:, :, :, 0] = np.abs(sc_z9[z9_ind[:, :, :, 0], g_bdy, g_9] - dst_dep9)
-    z9_dist[:, :, :, 1] = np.abs(sc_z9[z9_ind[:, :, :, 1], g_bdy, g_9] - dst_dep9)
+    g_16 = ind_grid[2]
+    z16_dist[:, :, :, 0] = np.abs(sc_z16[z16_ind[:, :, :, 0], g_bdy, g_16] - dst_dep16)
+    z16_dist[:, :, :, 1] = np.abs(sc_z16[z16_ind[:, :, :, 1], g_bdy, g_16] - dst_dep16)
 
-    rat = np.ma.sum(z9_dist, axis=3)
-    z9_dist = 1 - (z9_dist / np.tile(rat.T, (2, 1, 1, 1)).T)
+    rat = np.ma.sum(z16_dist, axis=3)
+    z16_dist = 1 - (z16_dist / np.tile(rat.T, (2, 1, 1, 1)).T)
 
-    # Vector indexing for z9_ind by adding values to offset z9_ind so it can
+    # Vector indexing for z16_ind by adding values to offset z16_ind so it can
     # be used to index a flat array (np.ravel_multi_index) for 5x faster run
-    ind_grid = np.indices((z9_ind.shape[:3]))
+    ind_grid = np.indices((z16_ind.shape[:3]))
     ind_bdy = ind_grid[1].flatten("F")
-    ind_9 = ind_grid[2].flatten("F")
-    z9_ind = z9_ind.reshape(dst_len_z * num_bdy * 9, 2, order="F")
-    z9_ind_rv = np.zeros((dst_len_z * num_bdy * 9, 2), dtype=int)
-    z9_ind_rv[:, 0] = np.ravel_multi_index(
-        (z9_ind[:, 0], ind_bdy, ind_9), (sc_z_len, num_bdy, 9), order="F"
+    ind_16 = ind_grid[2].flatten("F")
+    z16_ind = z16_ind.reshape(dst_len_z * num_bdy * 16, 2, order="F")
+    z16_ind_rv = np.zeros((dst_len_z * num_bdy * 16, 2), dtype=int)
+    z16_ind_rv[:, 0] = np.ravel_multi_index(
+        (z16_ind[:, 0], ind_bdy, ind_16), (sc_z_len, num_bdy, 16), order="F"
     )
-    z9_ind_rv[:, 1] = np.ravel_multi_index(
-        (z9_ind[:, 1], ind_bdy, ind_9), (sc_z_len, num_bdy, 9), order="F"
+    z16_ind_rv[:, 1] = np.ravel_multi_index(
+        (z16_ind[:, 1], ind_bdy, ind_16), (sc_z_len, num_bdy, 16), order="F"
     )
-    z9_dist = z9_dist.reshape(dst_len_z * num_bdy * 9, 2, order="F")
+    z16_dist = z16_dist.reshape(dst_len_z * num_bdy * 16, 2, order="F")
 
-    return z9_dist, z9_ind_rv
+    return z16_dist, z16_ind_rv
 
 
 def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
@@ -294,20 +296,20 @@ def get_vertical_weights_zco(dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len):
     rat = np.ma.sum(z_dist, axis=1)
     z_dist = 1 - (z_dist / rat.repeat(2).reshape(len(rat), 2))
 
-    # Vector indexing for z9_ind by adding values to offset z9_ind so it can
+    # Vector indexing for z16_ind by adding values to offset z16_ind so it can
     # be used to index a flat array
     z_ind += np.arange(0, num_bdy * sc_z_len, sc_z_len)[
         np.arange(num_bdy).repeat(2 * dst_len_z)
     ].reshape(z_ind.shape)
 
     # Pad with -1e20 so it fits the 3D interp
-    z9_ind = np.zeros((dst_len_z * num_bdy * 9, 2), dtype=np.int64) - 1e20
-    z9_dist = np.ma.zeros((dst_len_z * num_bdy * 9, 2)) - 1e20
+    z16_ind = np.zeros((dst_len_z * num_bdy * 16, 2), dtype=np.int64) - 1e20
+    z16_dist = np.ma.zeros((dst_len_z * num_bdy * 16, 2)) - 1e20
 
-    z9_ind[: z_ind.shape[0], :] = z_ind
-    z9_dist[: z_dist.shape[0], :] = z_dist
+    z16_ind[: z_ind.shape[0], :] = z_ind
+    z16_dist[: z_dist.shape[0], :] = z_dist
 
-    return z9_dist, z9_ind
+    return z16_dist, z16_ind
 
 
 def flood_fill(sc_bdy, isslab, logger):
@@ -316,13 +318,13 @@ def flood_fill(sc_bdy, isslab, logger):
 
     Parameters
     ----------
-    sc_bdy (np.array)   : souce data [nz_sc, nbdy, 9]
+    sc_bdy (np.array)   : souce data [nz_sc, nbdy, 16]
     isslab (bool)       : if true data has vertical cells for vertical flood fill
     logger              : log of statements
 
     Returns
     -------
-    sc_bdy (np.array)   : souce data [nz_sc, nbdy, 9]
+    sc_bdy (np.array)   : souce data [nz_sc, nbdy, 16]
     """
     # identify valid pts
     data_ind, nan_ind = valid_index(sc_bdy, logger)
@@ -354,7 +356,7 @@ def flood_fill(sc_bdy, isslab, logger):
 
     # Replace nans around centre-point with value.
     sc_nan = np.isnan(sc_bdy)
-    sc_bdy[:, :, 1:][sc_nan[:, :, 1:]] = np.tile(sc_bdy[:, :, 0:1], (1, 1, 8))[
+    sc_bdy[:, :, 1:][sc_nan[:, :, 1:]] = np.tile(sc_bdy[:, :, 0:1], (1, 1, 15))[
         sc_nan[:, :, 1:]
     ]
 
@@ -367,7 +369,7 @@ def interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy, zinterp=
 
     Parameters
     ----------
-    sc_bdy (np.array)   : souce data [nz_sc, nbdy, 9]
+    sc_bdy (np.array)   : souce data [nz_sc, nbdy, 16]
     dst_dep (np.array)  : the depth of the destination grid chunk [nz, nbdy]
     bdy_bathy (np.array): the destination grid bdy points bathymetry
     z_ind (np.array)    : the indices of the sc depth above and below bdy point
@@ -388,7 +390,7 @@ def interp_vertical(sc_bdy, dst_dep, bdy_bathy, z_ind, z_dist, num_bdy, zinterp=
         sc_bdy_lev = sc_bdy.reshape((dst_dep.shape[0], num_bdy, sc_shape[2]), order="F")
 
         # If z-level replace data below bed using nans in dst_dep (from mbathy)
-        ind_z = np.transpose(np.tile(np.isnan(dst_dep), (9, 1, 1)), axes=[1, 2, 0])
+        ind_z = np.transpose(np.tile(np.isnan(dst_dep), (16, 1, 1)), axes=[1, 2, 0])
         sc_bdy_lev[ind_z] = np.nan
     else:
         # if zinterp is false leave data below bottom for NEMO run-time interpolation
@@ -407,7 +409,7 @@ def distance_weights(sc_bdy, dist_tot, sc_z_len, r0, logger):
     Parameters
     ----------
         sc_bdy (numpy.array)    : source data
-        dist_tot (numpy.array)  : distance from dst point to 9 nearest sc points
+        dist_tot (numpy.array)  : distance from dst point to 16 nearest sc points
         sc_z_len (int)          : the number of depth levels
         r0 (float)              : correlation distance
         logger                  : log of statements
