@@ -33,7 +33,15 @@ from pybdy.reader.factory import GetFile
 
 class Z_Grid:
     def __init__(
-        self, zgr_file, zgr_type, name_map_file, hgr_type, logger, indices=[], dst=1
+        self,
+        zgr_file,
+        zgr_type,
+        name_map_file,
+        hgr_type,
+        logger,
+        grd,
+        indices=[],
+        dst=1,
     ):
         """
         Master depth class.
@@ -45,7 +53,8 @@ class Z_Grid:
             name_map_file (str)      : string of file for mapping variable names
             hgr_type (str)           : horizontal grid type
             logger (object)          : log error and messages
-            indices (list)          : min and max, i and j indicies for chunk
+            grd (str)                : t, u or v grid
+            indices (list)           : min and max, i and j indicies for chunk
             dst (bool)               : flag for destination (true) or source (false)
 
         Returns
@@ -103,6 +112,22 @@ class Z_Grid:
         missing_vars = sorted(list(set(vars_want) - set(self.var_list)))
 
         self.grid = fill_zgrid_vars(self.grid_type, self.grid, hgr_type, missing_vars)
+        for var in list(self.grid.keys()):
+            if var in ["mbathy", "ln_zco", "ln_zps", "ln_sco"]:
+                continue
+            elif (grd == "t") & (
+                (var == "gdept_0")
+                | (var == "gdepw")
+                | (var[-1] == "f")
+                | (var[-2] == "f")
+            ):
+                # Put f variables with t grid
+                continue
+            elif (var[-1] == grd) | (var[-2] == grd):
+                continue
+            else:
+                # Remove varibales that are not on the respective grid (to avoid duplication)
+                self.grid.pop(var, None)
         self.var_list = list(self.grid.keys())
 
     def get_vars(self, vars_want, ind):

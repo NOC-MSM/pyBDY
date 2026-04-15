@@ -184,7 +184,7 @@ class H_Grid:
         self.var_list = list(self.grid.keys())
         self.logger.info("Horizonal grid is type: " + self.grid_type)
 
-    def subset_hgr(self, indices):
+    def subset_hgr(self, grd, indices):
         """Use indices to spatially subset the domain."""
         x1 = indices[0]
         x2 = indices[1]
@@ -192,7 +192,9 @@ class H_Grid:
         y2 = indices[3]
         out = copy.deepcopy(self)
         for var in self.var_list:
+            # all grids are needed for GridAngle
             out.grid[var] = self.grid[var][:, y1:y2, x1:x2]  # [t, y, x]
+
         out.indices = indices
         return out
 
