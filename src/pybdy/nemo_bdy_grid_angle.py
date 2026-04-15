@@ -72,7 +72,7 @@ class GridAngle:
         self.IMIN, self.IMAX = imin, imax
         self.JMIN, self.JMAX = jmin, jmax
 
-        ndim = len(self.hgr.grid["glamt"].shape)
+        ndim = len(self.hgr.grid["glam" + cd_type].shape)
         if ndim == 4:
             self.DIM_STR = 0, 0
         elif ndim == 3:

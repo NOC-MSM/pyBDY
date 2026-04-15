@@ -81,7 +81,7 @@ class Extract:
 
         sc_time = Grid[grd].source_time
         self.var_nam = var_nam
-        sc_z_len = np.squeeze(SC.zgr[0].grid["gdept"][:]).shape[0]
+        sc_z_len = np.squeeze(SC.zgr["t"][0].grid["gdept"][:]).shape[0]
 
         self.jpj, self.jpi = DC.lonlat[grd]["lon"].shape
         self.jpk = DC.depths[grd]["bdy_z"][0].shape[0]
@@ -186,7 +186,7 @@ class Extract:
             ] = all_chunk[c]
             zc_count = zc_count + (self.num_bdy_ch[c] * dst_len_z * 9)
             chunk_z_bool = self.z_chunk == all_chunk[c]
-            wrap_flag = SC.hgr[c].wrap_flag
+            wrap_flag = SC.hgr[grd][c].wrap_flag
 
             if not isslab:
                 self.bdy_z[chunk] = DC.depths[self.g_type]["bdy_H"][c]
@@ -198,9 +198,9 @@ class Extract:
 
             # Reduce the source coordinates to the sub region identified
 
-            SC.lon_ch = SC.hgr[c].grid["glamt"].squeeze()  # lon
-            SC.lat_ch = SC.hgr[c].grid["gphit"].squeeze()  # lat
-            sc_z_ch = SC.zgr[c].grid["gdept"].squeeze()  # depth
+            SC.lon_ch = SC.hgr[grd][c].grid["glam" + grd].squeeze()  # lon
+            SC.lat_ch = SC.hgr[grd][c].grid["gphi" + grd].squeeze()  # lat
+            sc_z_ch = SC.zgr[grd][c].grid["gdep" + grd].squeeze()  # depth
 
             # Determine size of source data subset
 
@@ -211,8 +211,8 @@ class Extract:
             if self.key_vec:
                 bdy_ind = Grid[grd].bdy_i_ch[chunk, :]
 
-                maxI = DC.hgr[c].grid["glamt"].squeeze().shape[1]
-                maxJ = DC.hgr[c].grid["glamt"].squeeze().shape[0]
+                maxI = DC.hgr[grd][c].grid["glam" + grd].squeeze().shape[1]
+                maxJ = DC.hgr[grd][c].grid["glam" + grd].squeeze().shape[0]
                 dst_gcos = np.ones([maxJ, maxI])
                 dst_gsin = np.zeros([maxJ, maxI])
 
@@ -222,12 +222,12 @@ class Extract:
                 # U/V points naturally average onto these
 
                 src_ga = ga.GridAngle(
-                    SC.hgr[c], 0, source_dims[1], 0, source_dims[0], "t"
+                    SC.hgr[grd][c], 0, source_dims[1], 0, source_dims[0], grd
                 )
 
                 # Extract the rotation angles for the bdy velocities points
 
-                dst_ga = ga.GridAngle(DC.hgr[c], 1, maxI, 1, maxJ, grd)
+                dst_ga = ga.GridAngle(DC.hgr[grd][c], 1, maxI, 1, maxJ, grd)
 
                 sc_gcos = src_ga.cosval
                 sc_gsin = src_ga.sinval
@@ -337,14 +337,24 @@ class Extract:
 
             sc_ind = {}
             sc_ind["ind"] = ind
-            sc_ind["imin"], sc_ind["imax"] = SC.hgr[c].indices[0], SC.hgr[c].indices[1]
-            sc_ind["jmin"], sc_ind["jmax"] = SC.hgr[c].indices[2], SC.hgr[c].indices[3]
+            sc_ind["imin"], sc_ind["imax"] = (
+                SC.hgr[grd][c].indices[0],
+                SC.hgr[grd][c].indices[1],
+            )
+            sc_ind["jmin"], sc_ind["jmax"] = (
+                SC.hgr[grd][c].indices[2],
+                SC.hgr[grd][c].indices[3],
+            )
 
             # Fig not implemented
             # Sri TODO::: key_vec compare to assign gcos and gsin
             # Determine 1-2-1 filter indices
             id_121 = np.zeros((self.num_bdy_ch[c], 3), dtype=np.int64)
             for r in range(int(np.amax(bdy_r[chunk])) + 1):
+                if sum(bdy_r[chunk] == r) == 0:
+                    # no bdy points in this rim of this chunk
+                    continue
+
                 r_id = bdy_r[chunk] != r
                 rr_id = bdy_r[chunk] == r
                 tmp_lon = dst_lon_ch.copy()
@@ -369,6 +379,7 @@ class Extract:
                         dst_lat_ch[rr_id].ravel(order="F"),
                     )
                 )
+
                 junk, an_id = source_tree.query(dst_pts, k=3, distance_upper_bound=fr)
                 id_121[rr_id, :] = an_id
             #            id_121[id_121 == len(dst_lon_ch)] = 0
@@ -437,7 +448,7 @@ class Extract:
                     sc_z_ch,
                     sc_z_len,
                     ind,
-                    SC.zgr[c].grid_type == "zco",
+                    SC.zgr[grd][c].grid_type == "zco",
                 )
 
             else:

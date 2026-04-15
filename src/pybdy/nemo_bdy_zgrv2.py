@@ -151,10 +151,12 @@ def get_bdy_depths(DstCoord, bdy_ind, grd):
     bdy_wz = [None] * len(DstCoord.all_chunk)
     bdy_e3 = [None] * len(DstCoord.all_chunk)
     for c in range(len(DstCoord.all_chunk)):
+        if (bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]).any() is False:
+            continue
         c_ind = bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]
 
         # numpy requires float dtype to use NaNs
-        mbathy = np.float16(DstCoord.zgr[c].grid["mbathy"].squeeze())
+        mbathy = np.float16(DstCoord.zgr[grd][c].grid["mbathy"].squeeze())
         mbathy[mbathy == 0] = np.NaN
 
         if grd == "t":
@@ -172,9 +174,10 @@ def get_bdy_depths(DstCoord, bdy_ind, grd):
         )
 
         # Get the gdept, gdepw and e3 data from the Dst grid
-        m_w = np.ma.array(np.squeeze(DstCoord.zgr[c].grid["gdep" + g + "w"]))
-        m_t = np.ma.array(np.squeeze(DstCoord.zgr[c].grid["gdep" + grd]))
-        m_e = np.ma.array(np.squeeze(DstCoord.zgr[c].grid["e3" + grd]))
+
+        m_w = np.ma.array(np.squeeze(DstCoord.zgr[grd][c].grid["gdep" + g + "w"]))
+        m_t = np.ma.array(np.squeeze(DstCoord.zgr[grd][c].grid["gdep" + grd]))
+        m_e = np.ma.array(np.squeeze(DstCoord.zgr[grd][c].grid["e3" + grd]))
 
         bdy_wz[c] = np.ma.zeros((m_w.shape[0], len(g_ind)))
         bdy_tz[c] = np.ma.zeros((m_t.shape[0], len(g_ind)))
@@ -218,17 +221,19 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, bdy_ind, grd):
         g = grd
 
     # Loop over chunks
-    bdy_tz = [None] * len(DstCoord.all_chunk)
-    bdy_wz = [None] * len(DstCoord.all_chunk)
-    bdy_e3 = [None] * len(DstCoord.all_chunk)
-    for c in range(len(DstCoord.all_chunk)):
-        c_ind = bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]
+    bdy_tz = [None] * len(SourceCoord.all_chunk)
+    bdy_wz = [None] * len(SourceCoord.all_chunk)
+    bdy_e3 = [None] * len(SourceCoord.all_chunk)
+    for c in range(len(SourceCoord.all_chunk)):
+        if (bdy_ind[grd].chunk_number == SourceCoord.all_chunk[c]).all() is False:
+            continue
+        c_ind = bdy_ind[grd].chunk_number == SourceCoord.all_chunk[c]
 
         source_tree = sp.cKDTree(
             list(
                 zip(
-                    np.ravel(np.squeeze(SourceCoord.hgr[c].grid["glamt"])),
-                    np.ravel(np.squeeze(SourceCoord.hgr[c].grid["gphit"])),
+                    np.ravel(np.squeeze(SourceCoord.hgr[grd][c].grid["glam" + grd])),
+                    np.ravel(np.squeeze(SourceCoord.hgr[grd][c].grid["gphi" + grd])),
                 )
             )
         )
@@ -240,12 +245,12 @@ def get_bdy_sc_depths(SourceCoord, DstCoord, bdy_ind, grd):
         )
         nn_dist, nn_id = source_tree.query(dst_pts, k=1)
 
-        mbathy = np.float16(SourceCoord.zgr[c].grid["mbathy"].squeeze())
+        mbathy = np.float16(SourceCoord.zgr[grd][c].grid["mbathy"].squeeze())
         mbathy[mbathy == 0] = np.NaN
 
-        tmp_w = np.ma.array(np.squeeze(SourceCoord.zgr[c].grid["gdep" + g + "w"]))
-        tmp_t = np.ma.array(np.squeeze(SourceCoord.zgr[c].grid["gdep" + grd]))
-        tmp_e = np.ma.array(np.squeeze(SourceCoord.zgr[c].grid["e3" + grd]))
+        tmp_w = np.ma.array(np.squeeze(SourceCoord.zgr[grd][c].grid["gdep" + g + "w"]))
+        tmp_t = np.ma.array(np.squeeze(SourceCoord.zgr[grd][c].grid["gdep" + grd]))
+        tmp_e = np.ma.array(np.squeeze(SourceCoord.zgr[grd][c].grid["e3" + grd]))
         for k in range(tmp_w.shape[0]):
             tmp_w[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_w[k, :, :])
             tmp_t[k, :, :] = np.ma.masked_where(mbathy + 1 < k + 1, tmp_t[k, :, :])
