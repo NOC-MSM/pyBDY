@@ -151,7 +151,7 @@ def get_bdy_depths(DstCoord, bdy_ind, grd):
     bdy_wz = [None] * len(DstCoord.all_chunk)
     bdy_e3 = [None] * len(DstCoord.all_chunk)
     for c in range(len(DstCoord.all_chunk)):
-        if (bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]).any() is False:
+        if sum(bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]) == 0:
             continue
 
         c_ind = bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]
