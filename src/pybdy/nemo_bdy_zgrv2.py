@@ -153,6 +153,7 @@ def get_bdy_depths(DstCoord, bdy_ind, grd):
     for c in range(len(DstCoord.all_chunk)):
         if (bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]).any() is False:
             continue
+
         c_ind = bdy_ind[grd].chunk_number == DstCoord.all_chunk[c]
 
         # numpy requires float dtype to use NaNs

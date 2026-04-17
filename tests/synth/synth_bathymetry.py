@@ -131,7 +131,7 @@ class Bathymetry:
         )
         clawed = np.invert(clawed.astype(bool))
         clawed[:, :4] = 1
-        ds["Bathymetry"] = ds["Bathymetry"].where(clawed, 1)  # land
+        ds["Bathymetry"] = xr.where(clawed, -1, ds["Bathymetry"])  # land
 
         return _add_attributes(_add_mask(ds))
 

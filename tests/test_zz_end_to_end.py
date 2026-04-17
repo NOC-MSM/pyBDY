@@ -355,6 +355,87 @@ def test_sco_zco():
     assert summary_grid == test_grid, "May need to update regression values."
 
 
+def test_claw():
+    """
+    Test the full pybdy processing using a regression test.
+
+    This test is for dst with a claw of land near the boundary that separates
+    the bdy points.
+    Horizontal coordinates are C-Grid.
+    """
+    path1, path2, path3 = generate_sc_test_case(ztype="sco")
+    path4 = generate_dst_test_case(ztype="sco", hgrid_type="C", claw=True)
+    name_list_path = modify_namelist(path1, path3, path4, "sco", "sco")
+
+    # Run pybdy
+    subprocess.run(
+        "pybdy -s " + name_list_path,
+        shell=True,
+        check=True,
+        text=True,
+    )
+
+    coords = "./tests/data/coordinates.bdy.nc"
+    output_t = "./tests/data/data_output_bdyT_y1979m11.nc"
+    output_u = "./tests/data/data_output_bdyU_y1979m11.nc"
+    output_v = "./tests/data/data_output_bdyV_y1979m11.nc"
+
+    # Check output
+    ds_c = xr.open_dataset(coords)
+    ds_t = xr.open_dataset(output_t)
+    ds_u = xr.open_dataset(output_u)
+    ds_v = xr.open_dataset(output_v)
+    temp = ds_t["votemper"].to_masked_array()
+
+    summary_grid = {
+        "Num_var_co": len(ds_c.keys()),
+        "Num_var_t": len(ds_t.keys()),
+        "Min_gdept": float(ds_t["gdept"].min().to_numpy()),
+        "Max_gdept": float(ds_t["gdept"].max().to_numpy()),
+        "Shape_temp": ds_t["votemper"].shape,
+        "Shape_ssh": ds_t["sossheig"].shape,
+        "Shape_mask": ds_t["bdy_msk"].shape,
+        "Mean_temp": float(ds_t["votemper"].mean().to_numpy()),
+        "Mean_sal": float(ds_t["vosaline"].mean().to_numpy()),
+        "Sum_unmask": np.ma.count(temp),
+        "Sum_mask": np.ma.count_masked(temp),
+        "Shape_u": ds_u["vozocrtx"].shape,
+        "Shape_v": ds_v["vomecrty"].shape,
+        "Mean_u": float(ds_u["vozocrtx"].mean().to_numpy()),
+        "Mean_v": float(ds_v["vomecrty"].mean().to_numpy()),
+    }
+
+    # Clean up files
+    os.remove(path1)
+    os.remove(path2)
+    os.remove(path4)
+    os.remove(coords)
+    os.remove(output_t)
+    os.remove(output_u)
+    os.remove(output_v)
+
+    print(summary_grid)
+    test_grid = {
+        "Num_var_co": 21,
+        "Num_var_t": 11,
+        "Min_gdept": 13.022256851196289,
+        "Max_gdept": 986.9777221679688,
+        "Shape_temp": (30, 15, 1, 1089),
+        "Shape_ssh": (30, 1, 1089),
+        "Shape_mask": (60, 50),
+        "Mean_temp": 17.386369705200195,
+        "Mean_sal": 34.07022476196289,
+        "Sum_unmask": 457380,
+        "Sum_mask": 32670,
+        "Shape_u": (30, 15, 1, 1065),
+        "Shape_v": (30, 15, 1, 1066),
+        "Mean_u": 0.7910420894622803,
+        "Mean_v": 0.7955458760261536,
+    }
+
+    assert summary_grid == test_grid, "May need to update regression values."
+
+
 def test_wrap_sc():
     """
     Test the full pybdy processing for dst that spans a warpped sc domain.
@@ -440,87 +521,6 @@ def test_wrap_sc():
             30.0,
         ],
         "Temp_Strip2": [30.0, 19.80881690979004],
-    }
-
-    assert summary_grid == test_grid, "May need to update regression values."
-
-
-def test_claw():
-    """
-    Test the full pybdy processing using a regression test.
-
-    This test is for dst with a claw of land near the boundary that separates
-    the bdy points.
-    Horizontal coordinates are C-Grid.
-    """
-    path1, path2, path3 = generate_sc_test_case(ztype="sco")
-    path4 = generate_dst_test_case(ztype="sco", hgrid_type="C", claw=True)
-    name_list_path = modify_namelist(path1, path3, path4, "sco", "sco")
-
-    # Run pybdy
-    subprocess.run(
-        "pybdy -s " + name_list_path,
-        shell=True,
-        check=True,
-        text=True,
-    )
-
-    coords = "./tests/data/coordinates.bdy.nc"
-    output_t = "./tests/data/data_output_bdyT_y1979m11.nc"
-    output_u = "./tests/data/data_output_bdyU_y1979m11.nc"
-    output_v = "./tests/data/data_output_bdyV_y1979m11.nc"
-
-    # Check output
-    ds_c = xr.open_dataset(coords)
-    ds_t = xr.open_dataset(output_t)
-    ds_u = xr.open_dataset(output_u)
-    ds_v = xr.open_dataset(output_v)
-    temp = ds_t["votemper"].to_masked_array()
-
-    summary_grid = {
-        "Num_var_co": len(ds_c.keys()),
-        "Num_var_t": len(ds_t.keys()),
-        "Min_gdept": float(ds_t["gdept"].min().to_numpy()),
-        "Max_gdept": float(ds_t["gdept"].max().to_numpy()),
-        "Shape_temp": ds_t["votemper"].shape,
-        "Shape_ssh": ds_t["sossheig"].shape,
-        "Shape_mask": ds_t["bdy_msk"].shape,
-        "Mean_temp": float(ds_t["votemper"].mean().to_numpy()),
-        "Mean_sal": float(ds_t["vosaline"].mean().to_numpy()),
-        "Sum_unmask": np.ma.count(temp),
-        "Sum_mask": np.ma.count_masked(temp),
-        "Shape_u": ds_u["vozocrtx"].shape,
-        "Shape_v": ds_v["vomecrty"].shape,
-        "Mean_u": float(ds_u["vozocrtx"].mean().to_numpy()),
-        "Mean_v": float(ds_v["vomecrty"].mean().to_numpy()),
-    }
-
-    # Clean up files
-    os.remove(path1)
-    os.remove(path2)
-    os.remove(path4)
-    os.remove(coords)
-    os.remove(output_t)
-    os.remove(output_u)
-    os.remove(output_v)
-
-    print(summary_grid)
-    test_grid = {
-        "Num_var_co": 21,
-        "Num_var_t": 11,
-        "Min_gdept": 3.8946874141693115,
-        "Max_gdept": 966.4112548828125,
-        "Shape_temp": (30, 15, 1, 1584),
-        "Shape_ssh": (30, 1, 1584),
-        "Shape_mask": (60, 50),
-        "Mean_temp": 18.054527282714844,
-        "Mean_sal": 34.12153625488281,
-        "Sum_unmask": 665280,
-        "Sum_mask": 47520,
-        "Shape_u": (30, 15, 1, 1566),
-        "Shape_v": (30, 15, 1, 1566),
-        "Mean_u": 0.8234031200408936,
-        "Mean_v": 0.8260475397109985,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -696,7 +696,7 @@ def generate_dst_test_case(ztype="zco", hgrid_type="C", claw=False):
     ppe2 = np.zeros((len(lat_t))) + dy
     synth = synth_bathymetry.Bathymetry(ppe1, ppe2, ppglam0=lon_t[0], ppgphi0=lat_t[0])
     if claw:
-        synth = synth.claw(depth=-1000)
+        synth = synth.claw(depth=1000)
     else:
         synth = synth.sea_mount(depth=1000, stiff=1)
 
