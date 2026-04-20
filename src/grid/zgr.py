@@ -118,6 +118,7 @@ class Z_Grid:
             elif (grd == "t") & (
                 (var == "gdept_0")
                 | (var == "gdepw")
+                | (var == "e3w")
                 | (var[-1] == "f")
                 | (var[-2] == "f")
             ):
