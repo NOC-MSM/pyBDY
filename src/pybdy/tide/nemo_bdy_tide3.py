@@ -28,7 +28,7 @@ from pybdy.utils.nemo_bdy_lib import rot_rep
 from . import fes2014_extract_HC, tpxo_extract_HC
 
 
-def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
+def nemo_bdy_tide_rot_old(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     """
     Global Tidal model interpolation onto target grid, including grid rotation.
 
@@ -60,17 +60,15 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
     cosv = np.zeros((numharm, len(Grid_V.bdy_i)))
     sinv = np.zeros((numharm, len(Grid_V.bdy_i)))
 
-    for ch in range(len(DstCoord.chunk_num)):
+    # T grid
+
+    for ch in range(len(DstCoord.all_chunk)):
         ct_ind = Grid_T.chunk_number == DstCoord.all_chunk[ch]
-        cu_ind = Grid_U.chunk_number == DstCoord.all_chunk[ch]
-        cv_ind = Grid_V.chunk_number == DstCoord.all_chunk[ch]
+        if sum(ct_ind) == 0:
+            continue
 
         dst_lon = DC.bdy_lonlat[g_type]["lon"][(Grid_T.bdy_r == 0) & ct_ind]
         dst_lat = DC.bdy_lonlat[g_type]["lat"][(Grid_T.bdy_r == 0) & ct_ind]
-
-        # nbdyz = len(Grid_T.bdy_i[ct_ind, :])
-        nbdyu = len(Grid_U.bdy_i[cu_ind, :])
-        nbdyv = len(Grid_V.bdy_i[cv_ind, :])
 
         # convert the dst_lon into TMD Conventions (0E/360E)
         dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0] + 360.0
@@ -100,6 +98,13 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
 
         ampz[ind] = 0.0
         phaz[ind] = 0.0
+
+    # U grid
+
+    for ch in range(len(DstCoord.all_chunk)):
+        cu_ind = Grid_U.chunk_number == DstCoord.all_chunk[ch]
+        if sum(cu_ind) == 0:
+            continue
 
         # extract U values of constituents
         dst_lon = DC.bdy_lonlat[Grid_U.grid_type]["lon"][(Grid_U.bdy_r == 0) & cu_ind]
@@ -156,6 +161,13 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         # convert back the u-longitudes into the usual conventions (-180E/+180E)
         dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0] - 360.0
 
+    # V grid
+
+    for ch in range(len(DstCoord.all_chunk)):
+        cv_ind = Grid_V.chunk_number == DstCoord.all_chunk[ch]
+        if sum(cv_ind) == 0:
+            continue
+
         # extract V values of constituents
         dst_lon = DC.bdy_lonlat[Grid_V.grid_type]["lon"][(Grid_V.bdy_r == 0) & cv_ind]
         dst_lat = DC.bdy_lonlat[Grid_V.grid_type]["lat"][(Grid_V.bdy_r == 0) & cv_ind]
@@ -211,16 +223,20 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         # convert back the u-longitudes into the usual conventions (-180E/+180E)
         dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0] - 360.0
 
+    for ch in range(len(DstCoord.all_chunk)):
+        cu_ind = Grid_U.chunk_number == DstCoord.all_chunk[ch]
+        if sum(cu_ind) == 0:
+            continue
         # extract the depths along the U-point open boundary
 
-        mbathy = DC.zgr[ch].grid["mbathy"][:, :, :].squeeze()
+        mbathy = DC.zgr["u"][ch].grid["mbathy"][:, :, :].squeeze()
 
         # summing over scale factors as zps doesn't have hbat variable
 
         try:  # Read in either 3D or 4D data.
-            e3X = DC.zgr[ch].grid["e3u"][:, :, :].squeeze()
+            e3X = DC.zgr["u"][ch].grid["e3u"][:, :, :].squeeze()
         except ValueError:
-            e3X = DC.zgr[ch].grid["e3u"][:, :, :, :].squeeze()
+            e3X = DC.zgr["u"][ch].grid["e3u"][:, :, :, :].squeeze()
         if len(np.shape(e3X)) != 3:
             logger.warning("Expected a 3D array for e3u field")
 
@@ -243,13 +259,20 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         # be the wrong bathy for tides so recalculating makes sense
         # depu = DC.depths["u"]["bdy_H"][np.newaxis, :]
 
+    for ch in range(len(DstCoord.all_chunk)):
+        cv_ind = Grid_V.chunk_number == DstCoord.all_chunk[ch]
+        if sum(cv_ind) == 0:
+            continue
         # extract the depths along the V-point open boundary
+
+        mbathy = DC.zgr["v"][ch].grid["mbathy"][:, :, :].squeeze()
+
         # summing over scale factors as zps doesn't have hbat variable
 
         try:  # Read in either 3D or 4D data.
-            e3X = DC.zgr[ch].grid["e3v"][:, :, :].squeeze()
+            e3X = DC.zgr["v"][ch].grid["e3v"][:, :, :].squeeze()
         except ValueError:
-            e3X = DC.zgr[ch].grid["e3v"][:, :, :, :].squeeze()
+            e3X = DC.zgr["v"][ch].grid["e3v"][:, :, :, :].squeeze()
         if len(np.shape(e3X)) != 3:
             logger.warning("Expected a 3D array for e3v field")
 
@@ -314,12 +337,14 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
                     sinvY[h, :] = ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :]))
 
         # TOD:: Do we need to rotate ??? And is this method  correct ????
-        maxJ = DC.hgr[ch].grid["gphit"].shape[0]
-        maxI = DC.hgr[ch].grid["glamt"].shape[1]
+        maxJ = DC.hgr["u"][ch].grid["gphiu"].shape[0]
+        maxI = DC.hgr["u"][ch].grid["glamu"].shape[1]
         dst_gcos = np.ones([maxJ, maxI])
         dst_gsin = np.zeros([maxJ, maxI])
         # lets start with the u-points
-        grid_angles = nemo_bdy_grid_angle.GridAngle(DC.hgr[ch], 0, maxI, 0, maxJ, "u")
+        grid_angles = nemo_bdy_grid_angle.GridAngle(
+            DC.hgr["u"][ch], 0, maxI, 0, maxJ, "u"
+        )
         dst_gcos = grid_angles.cosval
         dst_gsin = grid_angles.sinval
 
@@ -340,9 +365,13 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
         sinu[:, cu_ind] = rot_rep(sinuX, sinvX, "u", "en to i", dst_gcos, dst_gsin)
 
         # let do the v points
+        maxJ = DC.hgr["v"][ch].grid["gphiv"].shape[0]
+        maxI = DC.hgr["v"][ch].grid["glamv"].shape[1]
         dst_gcos = np.ones([maxJ, maxI])
         dst_gsin = np.zeros([maxJ, maxI])
-        grid_angles = nemo_bdy_grid_angle.GridAngle(DC.hgr[ch], 0, maxI, 0, maxJ, "v")
+        grid_angles = nemo_bdy_grid_angle.GridAngle(
+            DC.hgr["v"][ch], 0, maxI, 0, maxJ, "v"
+        )
         dst_gcos = grid_angles.cosval
         dst_gsin = grid_angles.sinval
 
@@ -354,6 +383,382 @@ def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
             tmp_gsin[index] = dst_gsin[Grid_V.bdy_i[index, 1], Grid_V.bdy_i[index, 0]]
         dst_gcos = tmp_gcos[cv_ind]
         dst_gsin = tmp_gsin[cv_ind]
+
+        cosv[:, cv_ind] = rot_rep(cosuY, cosvY, "v", "en to j", dst_gcos, dst_gsin)
+        sinv[:, cv_ind] = rot_rep(sinuY, sinvY, "v", "en to j", dst_gcos, dst_gsin)
+    # this should return arrays like before not lists of chunks with arrays
+    # return the values
+    return cosz, sinz, cosu, sinu, cosv, sinv
+
+
+def nemo_bdy_tide_rot(setup, DstCoord, Grid_T, Grid_U, Grid_V, comp):
+    """
+    Global Tidal model interpolation onto target grid, including grid rotation.
+
+    Parameters
+    ----------
+        setup          : settings
+        DstCoord       : destination coordinate object
+        Grid_T         : t grid bdy_i, grid_type, bdy_r
+        Grid_U         : u grid bdy_i, grid_type, bdy_r
+        Grid_V         : v grid bdy_i, grid_type, bdy_r
+        comp           : dictionary of harmonics read from namelist {'1':"M2" , '2':"<const name>"}
+
+    Returns
+    -------
+        cosz, sinz, cosu, sinu, cosv, sinv: [# of constituents, number of bdy points]
+
+    """
+    key_transport = 0  # compute the velocities from transport
+    numharm = len(comp)
+    logger = logging.getLogger(__name__)
+    g_type = Grid_T.grid_type
+    DC = DstCoord
+
+    # Loop over chunks
+    cosz = np.zeros((numharm, len(Grid_T.bdy_i)))
+    sinz = np.zeros((numharm, len(Grid_T.bdy_i)))
+    cosu = np.zeros((numharm, len(Grid_U.bdy_i)))
+    sinu = np.zeros((numharm, len(Grid_U.bdy_i)))
+    cosv = np.zeros((numharm, len(Grid_V.bdy_i)))
+    sinv = np.zeros((numharm, len(Grid_V.bdy_i)))
+
+    # T grid
+
+    for ch in range(len(DstCoord.all_chunk)):
+        ct_ind = Grid_T.chunk_number == DstCoord.all_chunk[ch]
+        if sum(ct_ind) == 0:
+            continue
+
+        dst_lon = DC.bdy_lonlat[g_type]["lon"][(Grid_T.bdy_r == 0) & ct_ind]
+        dst_lat = DC.bdy_lonlat[g_type]["lat"][(Grid_T.bdy_r == 0) & ct_ind]
+
+        # convert the dst_lon into TMD Conventions (0E/360E)
+        dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0] + 360.0
+        # extract the surface elevation at each z-point
+        if setup.settings["tide_model"].lower() == "tpxo7p2":
+            tide_z = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, g_type
+            )
+        elif setup.settings["tide_model"].lower() == "tpxo9v5":
+            tide_z = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, g_type
+            )
+        elif setup.settings["tide_model"].lower() == "fes2014":
+            tide_z = fes2014_extract_HC.FesExtract(
+                setup.settings, dst_lat, dst_lon, g_type
+            )
+
+        # convert back the z-longitudes into the usual conventions (-180E/+180E)
+        dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0] - 360.0
+        # check if elevation data are missing
+        ind = np.where((np.isnan(tide_z.amp)) | (np.isnan(tide_z.gph)))
+        if ind[0].size > 0:
+            logger.warning("Missing elevation along the open boundary")
+
+        ampz = tide_z.amp
+        phaz = tide_z.gph
+
+        ampz[ind] = 0.0
+        phaz[ind] = 0.0
+
+        compindx = constituents_index(tide_z.cons, comp)
+
+        for h in range(numharm):
+            c = int(compindx[h])
+            if c != -1:
+                cosz[h, ct_ind] = ampz[c, :] * np.cos(np.deg2rad(phaz[c, :]))
+                sinz[h, ct_ind] = ampz[c, :] * np.sin(np.deg2rad(phaz[c, :]))
+
+    # U grid
+
+    for ch in range(len(DstCoord.all_chunk)):
+        cu_ind = Grid_U.chunk_number == DstCoord.all_chunk[ch]
+        if sum(cu_ind) == 0:
+            continue
+
+        # extract U values of constituents
+        dst_lon = DC.bdy_lonlat[Grid_U.grid_type]["lon"][(Grid_U.bdy_r == 0) & cu_ind]
+        dst_lat = DC.bdy_lonlat[Grid_U.grid_type]["lat"][(Grid_U.bdy_r == 0) & cu_ind]
+        # set the array size for the target boundary output
+        if len(dst_lon) != len(dst_lon):
+            logger.error("These should be the same size")
+        else:
+            nbdyu = len(dst_lon)
+
+        # convert the U-longitudes into the TMD conventions (0/360E)
+        dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0] + 360.0
+
+        if setup.settings["tide_model"].lower() == "tpxo7p2":
+            tide_ux = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+            )
+            tide_vx = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+            )
+        elif setup.settings["tide_model"].lower() == "tpxo9v5":
+            tide_ux = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+            )
+            tide_vx = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+            )
+        elif setup.settings["tide_model"].lower() == "fes2014":
+            tide_ux = fes2014_extract_HC.FesExtract(
+                setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+            )
+            tide_vx = fes2014_extract_HC.FesExtract(
+                setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+            )
+
+        ampuX = tide_ux.amp
+        phauX = tide_ux.gph
+        ampvX = tide_vx.amp
+        phavX = tide_vx.gph
+
+        # check if ux data are missing
+        ind = np.where((np.isnan(ampuX)) | (np.isnan(phauX)))
+        if ind[0].size > 0:
+            logger.warning("Missing zonal velocity along the x open boundary")
+        ampuX[ind] = 0
+        phauX[ind] = 0
+        # check if vx data are missing
+        ind = np.where((np.isnan(ampvX)) | (np.isnan(phavX)))
+        if ind[0].size > 0:
+            logger.warning("Missing meridional velocity along the x open boundary")
+        ampvX[ind] = 0
+        phavX[ind] = 0
+
+        # convert back the u-longitudes into the usual conventions (-180E/+180E)
+        dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0] - 360.0
+
+        # extract the depths along the U-point open boundary
+
+        mbathy = DC.zgr["u"][ch].grid["mbathy"][:, :, :].squeeze()
+
+        # summing over scale factors as zps doesn't have hbat variable
+
+        try:  # Read in either 3D or 4D data.
+            e3X = DC.zgr["u"][ch].grid["e3u"][:, :, :].squeeze()
+        except ValueError:
+            e3X = DC.zgr["u"][ch].grid["e3u"][:, :, :, :].squeeze()
+        if len(np.shape(e3X)) != 3:
+            logger.warning("Expected a 3D array for e3u field")
+
+        heightrange = np.arange(1, e3X.shape[0] + 1)
+        regular_heightprofile = np.tile(
+            heightrange, e3X.shape[1] * e3X.shape[2]
+        ).reshape(heightrange.shape[0], e3X.shape[1], e3X.shape[2], order="F")
+        ind = np.tile(mbathy, [e3X.shape[0], 1, 1]) >= regular_heightprofile
+
+        # in u direction blank cells neighbouring T-point land as defined by mbathy
+        ind[:, :, 1:] = ind[:, :, 0:-1] | ind[:, :, 1:]
+        hbatX = np.sum(e3X * ind, 0)
+
+        bdy_i_ch = Grid_U.bdy_i_ch[cu_ind, :]
+        depu = np.zeros((1, bdy_i_ch.shape[0]))
+        for n in range(0, bdy_i_ch.shape[0]):
+            depu[0, n] = hbatX[bdy_i_ch[n, 1], bdy_i_ch[n, 0]]
+
+        # although we already have this in bdy_H, if zinterp id false this would
+        # be the wrong bathy for tides so recalculating makes sense
+        # depu = DC.depths["u"]["bdy_H"][np.newaxis, :]
+
+        compindx = constituents_index(tide_ux.cons, comp)
+
+        nbdyu = np.sum(cu_ind)
+        cosuX = np.zeros((numharm, nbdyu))
+        sinuX = np.zeros((numharm, nbdyu))
+        cosvX = np.zeros((numharm, nbdyu))
+        sinvX = np.zeros((numharm, nbdyu))
+
+        for h in range(numharm):
+            c = int(compindx[h])
+            if c == -1:
+                continue
+
+            if key_transport == 1:
+                if np.sum(depu[:] <= 0.0) > 0:
+                    logger.error("Error: Land or Mask contamination")
+
+                cosuX[h, :] = (
+                    ampuX[c, :] * np.cos(np.deg2rad(phauX[c, :])) / depu.ravel()
+                )
+                sinuX[h, :] = (
+                    ampuX[c, :] * np.sin(np.deg2rad(phauX[c, :])) / depu.ravel()
+                )
+                cosvX[h, :] = (
+                    ampvX[c, :] * np.cos(np.deg2rad(phavX[c, :])) / depu.ravel()
+                )
+                sinvX[h, :] = (
+                    ampvX[c, :] * np.sin(np.deg2rad(phavX[c, :])) / depu.ravel()
+                )
+            else:
+                cosuX[h, :] = ampuX[c, :] * np.cos(np.deg2rad(phauX[c, :]))
+                sinuX[h, :] = ampuX[c, :] * np.sin(np.deg2rad(phauX[c, :]))
+                cosvX[h, :] = ampvX[c, :] * np.cos(np.deg2rad(phavX[c, :]))
+                sinvX[h, :] = ampvX[c, :] * np.sin(np.deg2rad(phavX[c, :]))
+
+        maxJ = DC.hgr["u"][ch].grid["glamu"].squeeze().shape[0]
+        maxI = DC.hgr["u"][ch].grid["glamu"].squeeze().shape[1]
+        grid_angles = nemo_bdy_grid_angle.GridAngle(
+            DC.hgr["u"][ch], 0, maxI, 0, maxJ, "u"
+        )
+        dst_gcos = grid_angles.cosval
+        dst_gsin = grid_angles.sinval
+
+        # retain only boundary points rotation information
+        tmp_gcos = np.zeros((Grid_U.bdy_r[cu_ind] == 0).sum())
+        tmp_gsin = np.zeros((Grid_U.bdy_r[cu_ind] == 0).sum())
+        for index in range(len(tmp_gcos)):
+            tmp_gcos[index] = dst_gcos[bdy_i_ch[index, 1], bdy_i_ch[index, 0]]
+            tmp_gsin[index] = dst_gsin[bdy_i_ch[index, 1], bdy_i_ch[index, 0]]
+        dst_gcos = tmp_gcos.copy()
+        dst_gsin = tmp_gsin.copy()
+
+        cosu[:, cu_ind] = rot_rep(cosuX, cosvX, "u", "en to i", dst_gcos, dst_gsin)
+        sinu[:, cu_ind] = rot_rep(sinuX, sinvX, "u", "en to i", dst_gcos, dst_gsin)
+
+    # V grid
+
+    for ch in range(len(DstCoord.all_chunk)):
+        cv_ind = Grid_V.chunk_number == DstCoord.all_chunk[ch]
+        if sum(cv_ind) == 0:
+            continue
+
+        # extract V values of constituents
+        dst_lon = DC.bdy_lonlat[Grid_V.grid_type]["lon"][(Grid_V.bdy_r == 0) & cv_ind]
+        dst_lat = DC.bdy_lonlat[Grid_V.grid_type]["lat"][(Grid_V.bdy_r == 0) & cv_ind]
+        # set the array size for the target boundary output
+        if len(dst_lon) != len(dst_lon):
+            logger.error("These should be the same size")
+
+        else:
+            nbdyv = len(dst_lon)
+
+        # convert the U-longitudes into the TMD conventions (0/360E)
+        dst_lon[dst_lon < 0.0] = dst_lon[dst_lon < 0.0] + 360.0
+        if setup.settings["tide_model"].lower() == "tpxo7p2":
+            tpxo_uy = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+            )
+            tpxo_vy = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+            )
+        elif setup.settings["tide_model"].lower() == "tpxo9v5":
+            tpxo_uy = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+            )
+            tpxo_vy = tpxo_extract_HC.TpxoExtract(
+                setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+            )
+        elif setup.settings["tide_model"].lower() == "fes2014":
+            tpxo_uy = fes2014_extract_HC.FesExtract(
+                setup.settings, dst_lat, dst_lon, Grid_U.grid_type
+            )
+            tpxo_vy = fes2014_extract_HC.FesExtract(
+                setup.settings, dst_lat, dst_lon, Grid_V.grid_type
+            )
+
+        ampuY = tpxo_uy.amp
+        phauY = tpxo_uy.gph
+        ampvY = tpxo_vy.amp
+        phavY = tpxo_vy.gph
+
+        # check if uy data are missing
+        ind = np.where((np.isnan(ampuY)) | (np.isnan(phauY)))
+        if ind[0].size > 0:
+            logger.warning("Missing zonal velocity along the y open boundary")
+        ampuY[ind] = 0
+        phauY[ind] = 0
+        # check if ux data are missing
+        ind = np.where((np.isnan(ampvY)) | (np.isnan(phavY)))
+        if ind[0].size > 0:
+            logger.warning("Missing meridional velocity along the y open boundary")
+        ampvY[ind] = 0
+        phavY[ind] = 0
+
+        # convert back the u-longitudes into the usual conventions (-180E/+180E)
+        dst_lon[dst_lon > 180.0] = dst_lon[dst_lon > 180.0] - 360.0
+
+        # extract the depths along the V-point open boundary
+
+        mbathy = DC.zgr["v"][ch].grid["mbathy"][:, :, :].squeeze()
+
+        # summing over scale factors as zps doesn't have hbat variable
+
+        try:  # Read in either 3D or 4D data.
+            e3X = DC.zgr["v"][ch].grid["e3v"][:, :, :].squeeze()
+        except ValueError:
+            e3X = DC.zgr["v"][ch].grid["e3v"][:, :, :, :].squeeze()
+        if len(np.shape(e3X)) != 3:
+            logger.warning("Expected a 3D array for e3v field")
+
+        heightrange = np.arange(1, e3X.shape[0] + 1)
+        regular_heightprofile = np.tile(
+            heightrange, e3X.shape[1] * e3X.shape[2]
+        ).reshape(heightrange.shape[0], e3X.shape[1], e3X.shape[2], order="F")
+        ind = np.tile(mbathy, [e3X.shape[0], 1, 1]) >= regular_heightprofile
+
+        # in u direction blank cells neighbouring T-point land as defined by mbathy
+        ind[:, 1:, :] = ind[:, 0:-1, :] | ind[:, 1:, :]
+        hbatX = np.sum(e3X * ind, 0)
+
+        bdy_i_ch = Grid_V.bdy_i_ch[cv_ind, :]
+        depv = np.zeros((1, bdy_i_ch.shape[0]))
+        for n in range(0, bdy_i_ch.shape[0]):
+            depv[0, n] = hbatX[bdy_i_ch[n, 1], bdy_i_ch[n, 0]]
+
+        compindx = constituents_index(tpxo_uy.cons, comp)
+
+        nbdyv = np.sum(cv_ind)
+        cosuY = np.zeros((numharm, nbdyv))
+        sinuY = np.zeros((numharm, nbdyv))
+        cosvY = np.zeros((numharm, nbdyv))
+        sinvY = np.zeros((numharm, nbdyv))
+
+        for h in range(numharm):
+            c = int(compindx[h])
+            if c == -1:
+                continue
+
+            if key_transport == 1:
+                if np.sum(depv[:] <= 0.0) > 0:
+                    logger.error("Error: Land or Mask contamination")
+                cosuY[h, :] = (
+                    ampuY[c, :] * np.cos(np.deg2rad(phauY[c, :])) / depv.ravel()
+                )
+                sinuY[h, :] = (
+                    ampuY[c, :] * np.sin(np.deg2rad(phauY[c, :])) / depv.ravel()
+                )
+                cosvY[h, :] = (
+                    ampvY[c, :] * np.cos(np.deg2rad(phavY[c, :])) / depv.ravel()
+                )
+                sinvY[h, :] = (
+                    ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :])) / depv.ravel()
+                )
+            else:
+                cosuY[h, :] = ampuY[c, :] * np.cos(np.deg2rad(phauY[c, :]))
+                sinuY[h, :] = ampuY[c, :] * np.sin(np.deg2rad(phauY[c, :]))
+                cosvY[h, :] = ampvY[c, :] * np.cos(np.deg2rad(phavY[c, :]))
+                sinvY[h, :] = ampvY[c, :] * np.sin(np.deg2rad(phavY[c, :]))
+
+        maxJ = DC.hgr["v"][ch].grid["glamv"].squeeze().shape[0]
+        maxI = DC.hgr["v"][ch].grid["glamv"].squeeze().shape[1]
+        grid_angles = nemo_bdy_grid_angle.GridAngle(
+            DC.hgr["v"][ch], 0, maxI, 0, maxJ, "v"
+        )
+        dst_gcos = grid_angles.cosval
+        dst_gsin = grid_angles.sinval
+
+        # retain only boundary points rotation information
+        tmp_gcos = np.zeros((Grid_V.bdy_r[cv_ind] == 0).sum())
+        tmp_gsin = np.zeros((Grid_V.bdy_r[cv_ind] == 0).sum())
+        for index in range(len(tmp_gcos)):
+            tmp_gcos[index] = dst_gcos[bdy_i_ch[index, 1], bdy_i_ch[index, 0]]
+            tmp_gsin[index] = dst_gsin[bdy_i_ch[index, 1], bdy_i_ch[index, 0]]
+        dst_gcos = tmp_gcos.copy()
+        dst_gsin = tmp_gsin.copy()
 
         cosv[:, cv_ind] = rot_rep(cosuY, cosvY, "v", "en to j", dst_gcos, dst_gsin)
         sinv[:, cv_ind] = rot_rep(sinuY, sinvY, "v", "en to j", dst_gcos, dst_gsin)
