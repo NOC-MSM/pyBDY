@@ -408,6 +408,9 @@ def test_tide():
     os.remove(output_t)
     os.remove(output_u)
     os.remove(output_v)
+    os.remove("./tests/data/data_output_bdyT_y1979m11.nc")
+    os.remove("./tests/data/data_output_bdyU_y1979m11.nc")
+    os.remove("./tests/data/data_output_bdyV_y1979m11.nc")
 
     print(summary_grid)
     test_grid = {
