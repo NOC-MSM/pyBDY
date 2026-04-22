@@ -34,6 +34,7 @@ repos:
   rev: v2.9.0
   hooks:
   - id: pretty-format-yaml
+    additional_dependencies: [setuptools]
     args: [--autofix, --preserve-quotes]
   - id: pretty-format-toml
     args: [--autofix]
@@ -41,6 +42,7 @@ repos:
   rev: v1.2.1
   hooks:
   - id: jupyter-notebook-cleanup
+    additional_dependencies: [setuptools]
     args:
     - --remove-kernel-metadata
     - --pin-patterns
