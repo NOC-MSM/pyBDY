@@ -26,6 +26,7 @@ Called test_zz_end_to_end so it is the last unit test to run.
 import datetime as dt
 import os
 import subprocess
+import warnings
 
 import numpy as np
 import xarray as xr
@@ -362,72 +363,78 @@ def test_tide():
     This test is for tides dst in zco and sc in zco vertical coordinates.
     Horizontal coordinates are A-Grid.
     """
-    path1, path2, path3 = generate_sc_test_case(ztype="zco")
-    path4 = generate_dst_test_case(ztype="zco")
-    name_list_path = modify_namelist(path1, path3, path4, "zco", "zco", tide=True)
+    tide_dir = "./inputs/FES2014"
+    if (not os.path.isdir(tide_dir)) | (os.getenv("GITHUB_ACTIONS") is True):
+        # If the benchmark isn't present we can't test
+        warnings.warn(Warning("FES2014 tide data not present so can't test tide."))
+        assert True
+    else:
+        path1, path2, path3 = generate_sc_test_case(ztype="zco")
+        path4 = generate_dst_test_case(ztype="zco")
+        name_list_path = modify_namelist(path1, path3, path4, "zco", "zco", tide=True)
 
-    # Run pybdy
-    subprocess.run(
-        "pybdy -s " + name_list_path,
-        shell=True,
-        check=True,
-        text=True,
-    )
+        # Run pybdy
+        subprocess.run(
+            "pybdy -s " + name_list_path,
+            shell=True,
+            check=True,
+            text=True,
+        )
 
-    coords = "./tests/data/coordinates.bdy.nc"
-    output_t = "./tests/data/data_output_bdytide_FES2014_M2_grd_Z.nc"
-    output_u = "./tests/data/data_output_bdytide_FES2014_M2_grd_U.nc"
-    output_v = "./tests/data/data_output_bdytide_FES2014_M2_grd_V.nc"
+        coords = "./tests/data/coordinates.bdy.nc"
+        output_t = "./tests/data/data_output_bdytide_FES2014_M2_grd_Z.nc"
+        output_u = "./tests/data/data_output_bdytide_FES2014_M2_grd_U.nc"
+        output_v = "./tests/data/data_output_bdytide_FES2014_M2_grd_V.nc"
 
-    # Check output
-    ds_c = xr.open_dataset(coords)
-    ds_t = xr.open_dataset(output_t)
-    ds_u = xr.open_dataset(output_u)
-    ds_v = xr.open_dataset(output_v)
-    z1 = ds_t["z1"].to_masked_array()
+        # Check output
+        ds_c = xr.open_dataset(coords)
+        ds_t = xr.open_dataset(output_t)
+        ds_u = xr.open_dataset(output_u)
+        ds_v = xr.open_dataset(output_v)
+        z1 = ds_t["z1"].to_masked_array()
 
-    summary_grid = {
-        "Num_var_co": len(ds_c.keys()),
-        "Num_var_t": len(ds_t.keys()),
-        "Min_z1": float(ds_t["z1"].min().to_numpy()),
-        "Max_z1": float(ds_t["z1"].max().to_numpy()),
-        "Shape_z1": ds_t["z1"].shape,
-        "Shape_mask": ds_t["bdy_msk"].shape,
-        "Mean_z2": float(ds_t["z2"].mean().to_numpy()),
-        "Sum_unmask": np.ma.count(z1),
-        "Sum_mask": np.ma.count_masked(z1),
-        "Mean_u": float(ds_u["u1"].mean().to_numpy()),
-        "Mean_v": float(ds_v["v1"].mean().to_numpy()),
-    }
+        summary_grid = {
+            "Num_var_co": len(ds_c.keys()),
+            "Num_var_t": len(ds_t.keys()),
+            "Min_z1": float(ds_t["z1"].min().to_numpy()),
+            "Max_z1": float(ds_t["z1"].max().to_numpy()),
+            "Shape_z1": ds_t["z1"].shape,
+            "Shape_mask": ds_t["bdy_msk"].shape,
+            "Mean_z2": float(ds_t["z2"].mean().to_numpy()),
+            "Sum_unmask": np.ma.count(z1),
+            "Sum_mask": np.ma.count_masked(z1),
+            "Mean_u": float(ds_u["u1"].mean().to_numpy()),
+            "Mean_v": float(ds_v["v1"].mean().to_numpy()),
+        }
 
-    # Clean up files
-    os.remove(path1)
-    os.remove(path2)
-    os.remove(path4)
-    os.remove(coords)
-    os.remove(output_t)
-    os.remove(output_u)
-    os.remove(output_v)
-    os.remove("./tests/data/data_output_bdyT_y1979m11.nc")
-    os.remove("./tests/data/data_output_bdyU_y1979m11.nc")
-    os.remove("./tests/data/data_output_bdyV_y1979m11.nc")
+        # Clean up files
+        os.remove(path1)
+        os.remove(path2)
+        os.remove(path4)
+        os.remove(coords)
+        os.remove(output_t)
+        os.remove(output_u)
+        os.remove(output_v)
+        os.remove("./tests/data/data_output_bdyT_y1979m11.nc")
+        os.remove("./tests/data/data_output_bdyU_y1979m11.nc")
+        os.remove("./tests/data/data_output_bdyV_y1979m11.nc")
 
-    print(summary_grid)
-    test_grid = {
-        "Num_var_co": 21,
-        "Num_var_t": 8,
-        "Min_z1": -2.1040260791778564,
-        "Max_z1": 2.4698920249938965,
-        "Shape_z1": (1, 208),
-        "Shape_mask": (60, 50),
-        "Mean_z2": 0.5367974638938904,
-        "Sum_unmask": 208,
-        "Sum_mask": 0,
-        "Mean_u": -0.0024178538005799055,
-        "Mean_v": 0.01397832203656435,
-    }
+        print(summary_grid)
+        test_grid = {
+            "Num_var_co": 21,
+            "Num_var_t": 8,
+            "Min_z1": -2.1040260791778564,
+            "Max_z1": 2.4698920249938965,
+            "Shape_z1": (1, 208),
+            "Shape_mask": (60, 50),
+            "Mean_z2": 0.5367974638938904,
+            "Sum_unmask": 208,
+            "Sum_mask": 0,
+            "Mean_u": -0.0024178538005799055,
+            "Mean_v": 0.01397832203656435,
+        }
 
-    assert summary_grid == test_grid, "May need to update regression values."
+        assert summary_grid == test_grid, "May need to update regression values."
 
 
 def test_claw():
