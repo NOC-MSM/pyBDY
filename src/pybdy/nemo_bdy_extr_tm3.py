@@ -816,12 +816,16 @@ class Extract:
                         sc_alt_arr[0] *= u_mask
                         sc_alt_arr[1] *= v_mask
                         # Average from to T-grid assuming C-grid stagger
-                        sc_array[0] = 0.5 * (
-                            sc_alt_arr[0][:, :, :, :-1] + sc_alt_arr[0][:, :, :, 1:]
-                        )
-                        sc_array[1] = 0.5 * (
-                            sc_alt_arr[1][:, :, :-1, :] + sc_alt_arr[1][:, :, 1:, :]
-                        )
+                        #sc_array[0] = 0.5 * (
+                        #    sc_alt_arr[0][:, :, :, :-1] + sc_alt_arr[0][:, :, :, 1:]
+                        #)
+                        #sc_array[1] = 0.5 * (
+                        #    sc_alt_arr[1][:, :, :-1, :] + sc_alt_arr[1][:, :, 1:, :]
+                        #)
+                        #slwa  for GLORYS data only - already pre-interpolated to T grid
+                        sc_array[0] = sc_alt_arr[0][:, :, :, :-1]
+                        sc_array[1] = sc_alt_arr[1][:, :, :-1, :]
+                        #slwa
 
                     # Set land points to NaN and adjust with any scaling
                     # Factor offset
@@ -1140,12 +1144,14 @@ class Extract:
             var_id = 0
 
         nt = len(self.d_bdy[self.var_nam[var_id]]["date"])
+        print( self.var_nam[var_id] )
+        print( nt )
         time_counter = np.zeros([nt])
         tmp_cal = utime(
             "seconds since " + self.settings["date_origin"],
             self.settings["dst_calendar"].lower(),
         )
-
+        print(tmp_cal)
         for t in range(nt):
             time_counter[t] = tmp_cal.date2num(
                 self.d_bdy[self.var_nam[var_id]]["date"][t]
