@@ -1266,6 +1266,7 @@ class Extract:
             unit_origin,
             self.settings["fv"],
             self.settings["dst_calendar"],
+            self.settings["ice"],
             self.g_type.upper(),
         )
 
