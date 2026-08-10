@@ -317,7 +317,7 @@ The application picks the relative path from the current working directory.
     - dimensions in variables must be ordered `time_counter`, `depth`, `y`, `x` if 4 dimensional or ordered `time_counter`, `y`, `x` if 3 dimensional.
 - The variables that pybdy expects in the source data are:
     - `votemper` - the water temperature
-    - `votemper` - the water salinity
+    - `vosaline` - the water salinity
     - `sossheig` - the sea surface height
     - `vozocrtx` - the u (northward) component of velocity
     - `vomecrty` - the v (eastward) component of velocity
@@ -361,6 +361,12 @@ An example NcML expression renaming a variable in joined NetCDF files:
     </ns0:variable>
   </ns0:aggregation>
 </ns0:netcdf>
+```
+
+Some versions of NcML maybe need to place the rename outside the aggrgation or use the following rename syntax:
+
+```xml
+<variable name="votemper" orgName="temp" />
 ```
 
 ### Step 4: Setting up the JSON file
@@ -471,6 +477,9 @@ pybdy -s /path/to/namelist/file (e.g. ./inputs/namelist_remote.bdy)
 ```
 
 This command line tool reads a BDY file, extracts boundary data and prepares the data for a NEMO simulation.
+
+The image below is a rough guide for the memory requirements for running pybdy.
+<img src="assets/images/memory_guide.png" alt="memory guide" width="400"/>
 
 <a name="worked-example-mechanical_arm"></a>
 

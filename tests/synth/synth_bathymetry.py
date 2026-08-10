@@ -102,6 +102,112 @@ class Bathymetry:
 
         return _add_attributes(_add_mask(ds))
 
+    def claw(self, depth: float) -> Dataset:
+        """
+        Flat bottom case with claw.
+
+        Protusion of land wrapping around part of the boundary like a claw.
+
+        Parameters
+        ----------
+        depth: float
+            Bottom depth (units: m).
+
+        Returns
+        -------
+        Dataset.
+        """
+        ds = self._coords
+        ds["Bathymetry"] = xr.full_like(ds["glamt"], depth)
+        grid = np.ones_like(ds["Bathymetry"].to_numpy())
+        clawed = _make_claw_spiral(
+            grid,
+            bulb_radius=5,
+            gap_angle_deg=80,
+            turns=0.75,  # 3/4 turn
+            trench_width=1,
+            tip_from_left=15,  # cells from left edge
+            tip_from_bottom=3,  # cells from bottom edge
+        )
+        clawed = np.invert(clawed.astype(bool))
+        clawed[:, :4] = 1
+        ds["Bathymetry"] = xr.where(clawed, -1, ds["Bathymetry"])  # land
+
+        return _add_attributes(_add_mask(ds))
+
+
+def _make_claw_spiral(
+    grid,
+    bulb_radius=4,
+    gap_angle_deg=70,
+    turns=0.75,
+    points=1200,
+    trench_width=1,
+    tip_from_left=8,
+    tip_from_bottom=8,
+):
+    """
+    Spiral shape generated.
+
+    Carves a partial spiral of zeros into a 2D numpy array, with the
+    spiral tip positioned a fixed distance from the left and bottom edges.
+
+    Parameters
+    ----------
+    grid : np.ndarray
+        2D numeric array.
+    bulb_radius : int
+        Size of the semi-isolated non-zero bulb.
+    gap_angle_deg : float
+        Angular opening in the spiral, leaving the bulb only partially enclosed.
+    turns : float
+        How many spiral turns to draw.
+    points : int
+        Number of sample points used to trace the spiral.
+    trench_width : int
+        Thickness of the zeroed spiral path.
+    tip_from_left : int
+        Distance of the spiral tip from the left edge.
+    tip_from_bottom : int
+        Distance of the spiral tip from the bottom edge.
+
+    Returns
+    -------
+    np.ndarray
+        Copy of the grid with the claw spiral zeroed in.
+    """
+    arr = grid.copy()
+    nrows, ncols = arr.shape
+
+    # Tip position measured from the bottom-left corner
+    tip_row = tip_from_bottom
+    tip_col = tip_from_left
+
+    # Spiral settings
+    gap_angle = np.deg2rad(gap_angle_deg)
+    theta_max = 2 * np.pi * turns
+
+    # Start near the tip and grow outward
+    r0 = 0.0
+    r1 = min(nrows, ncols) * 0.35
+
+    thetas = np.linspace(gap_angle / 2, theta_max, points)
+    radii = np.linspace(r0, r1, points)
+
+    # Carve the spiral
+    for theta, r in zip(thetas, radii):
+        rr = int(round(tip_row + r * np.sin(theta)))
+        cc = int(round(tip_col + r * np.cos(theta)))
+
+        for dr in range(-trench_width, trench_width + 1):
+            for dc in range(-trench_width, trench_width + 1):
+                r2 = rr + dr
+                c2 = cc + dc
+                if 0 <= r2 < nrows and 0 <= c2 < ncols:
+                    arr[r2, c2] = 0
+
+    return arr
+
 
 def _add_mask(ds: Dataset) -> Dataset:
     """

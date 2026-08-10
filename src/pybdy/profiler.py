@@ -34,6 +34,7 @@ from PyQt5.QtWidgets import QMessageBox
 # Local imports
 from pybdy import nemo_bdy_chunk as chunk_func
 from pybdy import nemo_bdy_dst_coord as dst_coord
+from pybdy import nemo_bdy_extr_assist as extr_assist
 from pybdy import nemo_bdy_extr_tm3 as extract
 from pybdy import nemo_bdy_gen_c as gen_grid
 from pybdy import nemo_bdy_ncpop as ncpop
@@ -104,17 +105,6 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     DstCoord.bdy_msk = bdy_msk == 1
     logger.info("Reading mask completed")
 
-    DstCoord.hgr = hgr.H_Grid(settings["dst_hgr"], settings["nme_map"], logger, dst=1)
-    DstCoord.zgr = zgr.Z_Grid(
-        settings["dst_zgr"],
-        settings["dst_zgr_type"],
-        settings["nme_map"],
-        DstCoord.hgr.grid_type,
-        logger,
-        dst=1,
-    )
-    logger.info("Reading dst grid completed")
-
     bdy_ind = {}  # define a dictionary to hold the grid information
 
     for grd in ["t", "u", "v"]:
@@ -125,12 +115,20 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         # function to split the bdy into several boundary chunks
         bdy_ind[grd].chunk_number = chunk_func.chunk_bdy(bdy_ind[grd])
 
+    logger.info("Gathering horizontal grid information")
+    DstCoord.hgr_full = hgr.H_Grid(
+        settings["dst_hgr"], settings["nme_map"], logger, dst=1
+    )
+    SourceCoord.hgr_full = hgr.H_Grid(
+        settings["src_hgr"], settings["nme_map"], logger, dst=0
+    )
+
     if Setup.bool_settings["coords_file"]:
         # Write out grid information to coordinates.bdy.nc
         co_set = coord.Coord(
             settings["dst_dir"] + "/" + settings["coords_file"], bdy_ind
         )
-        co_set.populate(DstCoord.hgr)
+        co_set.populate(DstCoord.hgr_full)
         logger.info("File: coordinates.bdy.nc generated and populated")
 
     # Idenitify number of boundary points
@@ -143,8 +141,8 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     DstCoord.lonlat = {"t": {}, "u": {}, "v": {}}
     for grd in ["t", "u", "v"]:
-        DstCoord.lonlat[grd]["lon"] = DstCoord.hgr.grid["glam" + grd][0, :, :]
-        DstCoord.lonlat[grd]["lat"] = DstCoord.hgr.grid["gphi" + grd][0, :, :]
+        DstCoord.lonlat[grd]["lon"] = DstCoord.hgr_full.grid["glam" + grd][0, :, :]
+        DstCoord.lonlat[grd]["lat"] = DstCoord.hgr_full.grid["gphi" + grd][0, :, :]
 
     logger.info("Grid coordinates defined")
 
@@ -167,37 +165,124 @@ def process_bdy(setup_filepath=0, mask_gui=False):
 
     logger.info("BDY lons/lats identified from %s", settings["dst_hgr"])
 
-    # Gather grid information
+    # Get slice indices for each chunk to subset the horizontal grids and vertical grids
+    # Each grid can have a different number of chunks and number of points in a given chunk
 
-    logger.info("Gathering src grid information")
-    SourceCoord.hgr = hgr.H_Grid(
-        settings["src_hgr"], settings["nme_map"], logger, dst=0
+    all_chunk_grd = np.unique(
+        np.concatenate(
+            (
+                bdy_ind["t"].chunk_number,
+                bdy_ind["u"].chunk_number,
+                bdy_ind["v"].chunk_number,
+            )
+        )
     )
-    SourceCoord.zgr = zgr.Z_Grid(
-        settings["src_zgr"],
-        settings["src_zgr_type"],
-        settings["nme_map"],
-        SourceCoord.hgr.grid_type,
-        logger,
-        dst=0,
-    )
+    # if (len(all_chunk) != len(np.unique(bdy_ind["u"].chunk_number))) | (
+    #    len(all_chunk) != len(np.unique(bdy_ind["v"].chunk_number))
+    # ):
+    #    raise Exception("Differet number of chunks in u or v grid from t.")
+    DstCoord.hgr = {}
+    SourceCoord.hgr = {}
+    DstCoord.zgr = {}
+    SourceCoord.zgr = {}
 
-    # Fill horizontal grid information
+    logger.info("Gathering vertical grid information")
+    for grd in ["t", "u", "v"]:
+        bdy_ind[grd].bdy_i_ch = np.zeros_like(bdy_ind[grd].bdy_i)
+        all_chunk = np.unique(bdy_ind[grd].chunk_number)
+        DstCoord.hgr[grd] = [None] * len(all_chunk_grd)
+        SourceCoord.hgr[grd] = [None] * len(all_chunk_grd)
+        DstCoord.zgr[grd] = [None] * len(all_chunk_grd)
+        SourceCoord.zgr[grd] = [None] * len(all_chunk_grd)
 
-    try:  # if they are masked array convert them to normal arrays
-        SourceCoord.hgr.grid["glamt"] = SourceCoord.hgr.grid["glamt"].filled()  # lon
-    except Exception:
-        logger.debug("Not a masked array.")
-    try:
-        SourceCoord.hgr.grid["gphit"] = SourceCoord.hgr.grid["gphit"].filled()  # lat
-    except Exception:
-        logger.debug("Not a masked array.")
+        for c in range(len(all_chunk)):
+            chunk = bdy_ind[grd].chunk_number == all_chunk[c]
+            dst_lon_ch = DstCoord.bdy_lonlat[grd]["lon"][chunk]
+            dst_lat_ch = DstCoord.bdy_lonlat[grd]["lat"][chunk]
+            dimin, dimax, djmin, djmax = extr_assist.get_ind(
+                dst_lon_ch,
+                dst_lat_ch,
+                DstCoord.lonlat[grd]["lon"].squeeze(),
+                DstCoord.lonlat[grd]["lat"].squeeze(),
+            )
+
+            simin, simax, sjmin, sjmax = extr_assist.get_ind(
+                dst_lon_ch,
+                dst_lat_ch,
+                SourceCoord.hgr_full.grid["glam" + grd].squeeze(),
+                SourceCoord.hgr_full.grid["gphi" + grd].squeeze(),
+            )
+            wrap_flag, simin, simax = extr_assist.check_wrap(
+                simin, simax, SourceCoord.hgr_full.grid["glam" + grd].squeeze()
+            )
+
+            # Summarise subset region
+
+            logger.info("Extract __init__: subset region limits")
+            logger.info(
+                " \n imin: %d\n imax: %d\n jmin: %d\n jmax: %d\n",
+                simin,
+                simax,
+                sjmin,
+                sjmax,
+            )
+
+            chunk_sub_dst = [dimin, dimax, djmin, djmax]
+            chunk_sub_sc = [simin, simax, sjmin, sjmax]
+
+            # Make bdy_ind relevant for each chunk
+
+            c_ind = bdy_ind[grd].chunk_number == all_chunk[c]
+            bdy_ind[grd].bdy_i_ch[c_ind, 0] = bdy_ind[grd].bdy_i[c_ind, 0] - dimin
+            bdy_ind[grd].bdy_i_ch[c_ind, 1] = bdy_ind[grd].bdy_i[c_ind, 1] - djmin
+            if (
+                (bdy_ind[grd].bdy_i_ch < 0).any()
+                | (bdy_ind[grd].bdy_i_ch[c_ind, 0] > (dimax - dimin)).any()
+                | (bdy_ind[grd].bdy_i_ch[c_ind, 1] > (djmax - djmin)).any()
+            ):
+                raise Exception("bdy indices outside of chunk")
+
+            # Subset the horizontal grids and vertical grids for each chunk
+
+            DstCoord.hgr[grd][c] = DstCoord.hgr_full.subset_hgr(grd, chunk_sub_dst)
+            SourceCoord.hgr[grd][c] = SourceCoord.hgr_full.subset_hgr(grd, chunk_sub_sc)
+            SourceCoord.hgr[grd][c].wrap_flag = wrap_flag * 1  # copy
+
+            # Gather grid information
+
+            DstCoord.zgr[grd][c] = zgr.Z_Grid(
+                settings["dst_zgr"],
+                settings["dst_zgr_type"],
+                settings["nme_map"],
+                DstCoord.hgr[grd][c].grid_type,
+                logger,
+                grd,
+                chunk_sub_dst,
+                dst=1,
+            )
+
+            SourceCoord.zgr[grd][c] = zgr.Z_Grid(
+                settings["src_zgr"],
+                settings["src_zgr_type"],
+                settings["nme_map"],
+                SourceCoord.hgr[grd][c].grid_type,
+                logger,
+                grd,
+                chunk_sub_sc,
+                dst=0,
+            )
+
+    logger.info("Reading grid completed")
+    DstCoord.all_chunk = all_chunk_grd
+    SourceCoord.all_chunk = all_chunk_grd
+    DstCoord.hgr_full.grid = None
+    SourceCoord.hgr_full.grid = None
 
     # Define z at t/u/v points
 
     DstCoord.depths = {"t": {}, "u": {}, "v": {}}
 
-    if (SourceCoord.zgr.grid_type != "zco") & (settings["zinterp"] is False):
+    if (settings["src_zgr_type"] != "zco") & (settings["zinterp"] is False):
         # Override use zinterp flag if vertical grid type is not zco
         logger.warning("Setting zinterp to True because vertical grid is not zco")
         settings["zinterp"] = True
@@ -205,10 +290,14 @@ def process_bdy(setup_filepath=0, mask_gui=False):
     if settings["zinterp"] is True:
         # Condition to interp data on destiantion grid levels
         for grd in ["t", "u", "v"]:
-            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_depths(
-                DstCoord, bdy_ind[grd].bdy_i, grd
-            )
-            DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
+            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_depths(DstCoord, bdy_ind, grd)
+            bdy_H = []
+            for c in range(len(all_chunk_grd)):
+                if tmp_wz[c] is None:
+                    bdy_H.append(None)
+                else:
+                    bdy_H.append(np.ma.max(tmp_wz[c], axis=0))
+            DstCoord.depths[grd]["bdy_H"] = bdy_H
             DstCoord.depths[grd]["bdy_dz"] = tmp_e3
             DstCoord.depths[grd]["bdy_z"] = tmp_tz
         logger.info("Depths defined on destination grid levels")
@@ -216,8 +305,16 @@ def process_bdy(setup_filepath=0, mask_gui=False):
         # Condition to keep data on parent grid levels
         for grd in ["t", "u", "v"]:
             # These are just set to the nearest neighbour in source grid
-            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
-            DstCoord.depths[grd]["bdy_H"] = np.ma.max(tmp_wz, axis=0)
+            tmp_tz, tmp_wz, tmp_e3 = zgrv.get_bdy_sc_depths(
+                SourceCoord, DstCoord, bdy_ind, grd
+            )
+            bdy_H = []
+            for c in range(len(all_chunk_grd)):
+                if tmp_wz[c] is None:
+                    bdy_H.append(None)
+                else:
+                    bdy_H.append(np.ma.max(tmp_wz[c], axis=0))
+            DstCoord.depths[grd]["bdy_H"] = bdy_H
             DstCoord.depths[grd]["bdy_dz"] = tmp_e3
             DstCoord.depths[grd]["bdy_z"] = tmp_tz
         logger.info("Depths defined with destination equal to source levels")

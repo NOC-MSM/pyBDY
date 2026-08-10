@@ -479,6 +479,7 @@ the interpolation onto the destination grid.
 @author John Kazimierz Farey
 
 > @author: Mr. Srikanth Nagella<br>
+> @author Benjamin Barton
 
 ## *class* pybdy.nemo_bdy_extr_tm3.Extract(setup, SourceCoord, DstCoord, Grid, var_nam, grd, pair)
 
@@ -828,14 +829,14 @@ Created.
 @author John Kazimierz Farey
 @author Benjamin Barton.
 
-## pybdy.nemo_bdy_zgrv2.get_bdy_depths(DstCoord, bdy_i, grd)
+## pybdy.nemo_bdy_zgrv2.get_bdy_depths(DstCoord, bdy_ind, grd)
 
 Depth levels on the destination grid at bdy points.
 
 > ### Parameters<br>
 
 > DstCoord (object) : Object containing destination grid info<br>
-> bdy_i (np.array) : indices of the i, j bdy points [bdy, 2]<br>
+> bdy_ind (np.array) : indices of the i, j bdy points [grd]<br>
 > grd (str) : grid type t, u, v<br>
 
 > ### Returns<br>
@@ -854,7 +855,7 @@ Port of Matlab code of James Harle
 Generates depth points for t, u and v in one loop iteration.
 Initialise with bdy t, u and v grid attributes (Grid.bdy_i) and settings dictionary.
 
-## pybdy.nemo_bdy_zgrv2.get_bdy_sc_depths(SourceCoord, DstCoord, grd)
+## pybdy.nemo_bdy_zgrv2.get_bdy_sc_depths(SourceCoord, DstCoord, bdy_ind, grd)
 
 Depth levels from the nearest neighbour on the source grid.
 
@@ -862,6 +863,7 @@ Depth levels from the nearest neighbour on the source grid.
 
 > SourceCoord (object) : Object containing source grid info<br>
 > DstCoord (object) : Object containing destination grid info<br>
+> bdy_ind (np.array) : indices of the i, j bdy points [grd]<br>
 > grd (str) : grid type t, u, v<br>
 
 > ### Returns<br>

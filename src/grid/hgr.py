@@ -22,6 +22,7 @@ Created on Mon Feb 03 18:01:00 2025.
 """
 
 # External imports
+import copy
 import json
 import warnings
 
@@ -127,6 +128,8 @@ class H_Grid:
         for vi in vars_want:
             if vi in nm_var_list:
                 grid_tmp = nc.nc[nm[vi]][:].squeeze()  # [t, y, x]
+                if np.ma.is_masked(grid_tmp):
+                    grid_tmp = grid_tmp.filled()
                 if len(grid_tmp.shape) == 3:
                     self.grid[vi] = grid_tmp
                 elif len(grid_tmp.shape) == 2:
@@ -180,6 +183,20 @@ class H_Grid:
             del self.grid["nav_lat"]
         self.var_list = list(self.grid.keys())
         self.logger.info("Horizonal grid is type: " + self.grid_type)
+
+    def subset_hgr(self, grd, indices):
+        """Use indices to spatially subset the domain."""
+        x1 = indices[0]
+        x2 = indices[1]
+        y1 = indices[2]
+        y2 = indices[3]
+        out = copy.deepcopy(self)
+        for var in self.var_list:
+            # all grids are needed for GridAngle
+            out.grid[var] = self.grid[var][:, y1:y2, x1:x2]  # [t, y, x]
+
+        out.indices = indices
+        return out
 
 
 def fill_hgrid_vars(grid_type, grid, missing):

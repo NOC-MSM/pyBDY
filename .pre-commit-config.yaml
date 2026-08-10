@@ -34,8 +34,12 @@ repos:
   rev: v2.9.0
   hooks:
   - id: pretty-format-yaml
+    additional_dependencies:
+    - setuptools<82
     args: [--autofix, --preserve-quotes]
   - id: pretty-format-toml
+    additional_dependencies:
+    - setuptools<82
     args: [--autofix]
 - repo: https://github.com/roy-ht/pre-commit-jupyter
   rev: v1.2.1

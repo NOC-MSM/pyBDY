@@ -26,6 +26,7 @@ Called test_zz_end_to_end so it is the last unit test to run.
 import datetime as dt
 import os
 import subprocess
+import warnings
 
 import numpy as np
 import xarray as xr
@@ -108,8 +109,8 @@ def test_zco_zco():
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.8282182216644287,
-        "Mean_v": 0.8218976855278015,
+        "Mean_u": 0.8281874060630798,
+        "Mean_v": 0.8213980793952942,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -188,8 +189,8 @@ def test_zps_sco():
         "Sum_mask": 47520,
         "Shape_u": (30, 15, 1, 1566),
         "Shape_v": (30, 15, 1, 1566),
-        "Mean_u": 0.822255551815033,
-        "Mean_v": 0.8194692730903625,
+        "Mean_u": 0.8211907148361206,
+        "Mean_v": 0.8179070353507996,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -268,8 +269,8 @@ def test_sco_sco():
         "Sum_mask": 47520,
         "Shape_u": (30, 15, 1, 1566),
         "Shape_v": (30, 15, 1, 1566),
-        "Mean_u": 0.8234031200408936,
-        "Mean_v": 0.8260475397109985,
+        "Mean_u": 0.820919930934906,
+        "Mean_v": 0.8259032368659973,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -348,8 +349,170 @@ def test_sco_zco():
         "Sum_mask": 740490,
         "Shape_u": (30, 25, 1, 1566),
         "Shape_v": (30, 25, 1, 1566),
-        "Mean_u": 0.8177974224090576,
-        "Mean_v": 0.819809079170227,
+        "Mean_u": 0.8135325312614441,
+        "Mean_v": 0.8193168640136719,
+    }
+
+    assert summary_grid == test_grid, "May need to update regression values."
+
+
+def test_tide():
+    """
+    Test the full pybdy processing using a regression test.
+
+    This test is for tides dst in zco and sc in zco vertical coordinates.
+    Horizontal coordinates are A-Grid.
+    """
+    tide_dir = "./inputs/FES2014"
+    if (not os.path.isdir(tide_dir)) | (os.getenv("GITHUB_ACTIONS") is True):
+        # If the benchmark isn't present we can't test
+        warnings.warn(Warning("FES2014 tide data not present so can't test tide."))
+        assert True
+    else:
+        path1, path2, path3 = generate_sc_test_case(ztype="zco")
+        path4 = generate_dst_test_case(ztype="zco")
+        name_list_path = modify_namelist(path1, path3, path4, "zco", "zco", tide=True)
+
+        # Run pybdy
+        subprocess.run(
+            "pybdy -s " + name_list_path,
+            shell=True,
+            check=True,
+            text=True,
+        )
+
+        coords = "./tests/data/coordinates.bdy.nc"
+        output_t = "./tests/data/data_output_bdytide_FES2014_M2_grd_Z.nc"
+        output_u = "./tests/data/data_output_bdytide_FES2014_M2_grd_U.nc"
+        output_v = "./tests/data/data_output_bdytide_FES2014_M2_grd_V.nc"
+
+        # Check output
+        ds_c = xr.open_dataset(coords)
+        ds_t = xr.open_dataset(output_t)
+        ds_u = xr.open_dataset(output_u)
+        ds_v = xr.open_dataset(output_v)
+        z1 = ds_t["z1"].to_masked_array()
+
+        summary_grid = {
+            "Num_var_co": len(ds_c.keys()),
+            "Num_var_t": len(ds_t.keys()),
+            "Min_z1": float(ds_t["z1"].min().to_numpy()),
+            "Max_z1": float(ds_t["z1"].max().to_numpy()),
+            "Shape_z1": ds_t["z1"].shape,
+            "Shape_mask": ds_t["bdy_msk"].shape,
+            "Mean_z2": float(ds_t["z2"].mean().to_numpy()),
+            "Sum_unmask": np.ma.count(z1),
+            "Sum_mask": np.ma.count_masked(z1),
+            "Mean_u": float(ds_u["u1"].mean().to_numpy()),
+            "Mean_v": float(ds_v["v1"].mean().to_numpy()),
+        }
+
+        # Clean up files
+        os.remove(path1)
+        os.remove(path2)
+        os.remove(path4)
+        os.remove(coords)
+        os.remove(output_t)
+        os.remove(output_u)
+        os.remove(output_v)
+        os.remove("./tests/data/data_output_bdyT_y1979m11.nc")
+        os.remove("./tests/data/data_output_bdyU_y1979m11.nc")
+        os.remove("./tests/data/data_output_bdyV_y1979m11.nc")
+
+        print(summary_grid)
+        test_grid = {
+            "Num_var_co": 21,
+            "Num_var_t": 8,
+            "Min_z1": -2.1040260791778564,
+            "Max_z1": 2.4698920249938965,
+            "Shape_z1": (1, 208),
+            "Shape_mask": (60, 50),
+            "Mean_z2": 0.5367974638938904,
+            "Sum_unmask": 208,
+            "Sum_mask": 0,
+            "Mean_u": -0.0024178538005799055,
+            "Mean_v": 0.01397832203656435,
+        }
+
+        assert summary_grid == test_grid, "May need to update regression values."
+
+
+def test_claw():
+    """
+    Test the full pybdy processing using a regression test.
+
+    This test is for dst with a claw of land near the boundary that separates
+    the bdy points.
+    Horizontal coordinates are C-Grid.
+    """
+    path1, path2, path3 = generate_sc_test_case(ztype="sco")
+    path4 = generate_dst_test_case(ztype="sco", hgrid_type="C", claw=True)
+    name_list_path = modify_namelist(path1, path3, path4, "sco", "sco")
+
+    # Run pybdy
+    subprocess.run(
+        "pybdy -s " + name_list_path,
+        shell=True,
+        check=True,
+        text=True,
+    )
+
+    coords = "./tests/data/coordinates.bdy.nc"
+    output_t = "./tests/data/data_output_bdyT_y1979m11.nc"
+    output_u = "./tests/data/data_output_bdyU_y1979m11.nc"
+    output_v = "./tests/data/data_output_bdyV_y1979m11.nc"
+
+    # Check output
+    ds_c = xr.open_dataset(coords)
+    ds_t = xr.open_dataset(output_t)
+    ds_u = xr.open_dataset(output_u)
+    ds_v = xr.open_dataset(output_v)
+    temp = ds_t["votemper"].to_masked_array()
+
+    summary_grid = {
+        "Num_var_co": len(ds_c.keys()),
+        "Num_var_t": len(ds_t.keys()),
+        "Min_gdept": float(ds_t["gdept"].min().to_numpy()),
+        "Max_gdept": float(ds_t["gdept"].max().to_numpy()),
+        "Shape_temp": ds_t["votemper"].shape,
+        "Shape_ssh": ds_t["sossheig"].shape,
+        "Shape_mask": ds_t["bdy_msk"].shape,
+        "Mean_temp": float(ds_t["votemper"].mean().to_numpy()),
+        "Mean_sal": float(ds_t["vosaline"].mean().to_numpy()),
+        "Sum_unmask": np.ma.count(temp),
+        "Sum_mask": np.ma.count_masked(temp),
+        "Shape_u": ds_u["vozocrtx"].shape,
+        "Shape_v": ds_v["vomecrty"].shape,
+        "Mean_u": float(ds_u["vozocrtx"].mean().to_numpy()),
+        "Mean_v": float(ds_v["vomecrty"].mean().to_numpy()),
+    }
+
+    # Clean up files
+    os.remove(path1)
+    os.remove(path2)
+    os.remove(path4)
+    os.remove(coords)
+    os.remove(output_t)
+    os.remove(output_u)
+    os.remove(output_v)
+
+    print(summary_grid)
+    test_grid = {
+        "Num_var_co": 21,
+        "Num_var_t": 11,
+        "Min_gdept": 13.022256851196289,
+        "Max_gdept": 986.9777221679688,
+        "Shape_temp": (30, 15, 1, 1089),
+        "Shape_ssh": (30, 1, 1089),
+        "Shape_mask": (60, 50),
+        "Mean_temp": 17.386369705200195,
+        "Mean_sal": 34.07022476196289,
+        "Sum_unmask": 457380,
+        "Sum_mask": 32670,
+        "Shape_u": (30, 15, 1, 1065),
+        "Shape_v": (30, 15, 1, 1066),
+        "Mean_u": 0.7910420894622803,
+        "Mean_v": 0.7955458760261536,
     }
 
     assert summary_grid == test_grid, "May need to update regression values."
@@ -589,7 +752,7 @@ def generate_sc_test_case(ztype="zco", wrap=0):
     return path1, path2 + fname, path3
 
 
-def generate_dst_test_case(ztype="zco"):
+def generate_dst_test_case(ztype="zco", hgrid_type="C", claw=False):
     """
     Generate a synthetic test case for destination.
 
@@ -603,14 +766,21 @@ def generate_dst_test_case(ztype="zco"):
     """
     path1 = "./tests/data/mesh_synth_dst.nc"
 
-    dx = 0.3
-    dy = 0.1
+    if claw:
+        dx = 0.3
+        dy = 0.1
+    else:
+        dx = 0.3
+        dy = 0.1
     lon_t = np.arange(-12, 3, dx)
     lat_t = np.arange(45, 51, dy)
     ppe1 = np.zeros((len(lon_t))) + dx
     ppe2 = np.zeros((len(lat_t))) + dy
     synth = synth_bathymetry.Bathymetry(ppe1, ppe2, ppglam0=lon_t[0], ppgphi0=lat_t[0])
-    synth = synth.sea_mount(depth=1000, stiff=1)
+    if claw:
+        synth = synth.claw(depth=1000)
+    else:
+        synth = synth.sea_mount(depth=1000, stiff=1)
 
     # These are garbage let grid.hgr calculate them
     e_grid_vars = ["e1t", "e2t", "e1v", "e2v", "e1u", "e2u", "e1f", "e2f"]
@@ -666,14 +836,21 @@ def generate_dst_test_case(ztype="zco"):
     grid = {}
     grid["glamt"] = synth["glamt"].to_numpy()
     grid["gphit"] = synth["gphit"].to_numpy()
-    grid["glamu"] = synth["glamu"].to_numpy()
-    grid["gphiu"] = synth["gphiu"].to_numpy()
-    grid["glamv"] = synth["glamv"].to_numpy()
-    grid["gphiv"] = synth["gphiv"].to_numpy()
-    grid["glamf"] = synth["glamf"].to_numpy()
-    grid["gphif"] = synth["gphif"].to_numpy()
+    if hgrid_type == "C":
+        grid["glamu"] = synth["glamu"].to_numpy()
+        grid["gphiu"] = synth["gphiu"].to_numpy()
+        grid["glamv"] = synth["glamv"].to_numpy()
+        grid["gphiv"] = synth["gphiv"].to_numpy()
+        grid["glamf"] = synth["glamf"].to_numpy()
+        grid["gphif"] = synth["gphif"].to_numpy()
+    elif hgrid_type == "A":
+        grid["glamu"] = synth["glamt"].to_numpy()
+        grid["gphiu"] = synth["gphit"].to_numpy()
+        grid["glamv"] = synth["glamt"].to_numpy()
+        grid["gphiv"] = synth["gphit"].to_numpy()
+        grid["glamf"] = synth["glamt"].to_numpy()
+        grid["gphif"] = synth["gphit"].to_numpy()
 
-    hgrid_type = "A"
     grid = hgr.fill_hgrid_vars(hgrid_type, grid, e_grid_vars)
     for i in range(len(e_grid_vars)):
         synth[e_grid_vars[i]] = xr.DataArray(
@@ -697,7 +874,21 @@ def generate_dst_test_case(ztype="zco"):
     return path1
 
 
-def modify_namelist(path_src, path_sc_data, path_dst, src_zgr, dst_zgr):
+def A_to_C(grid):
+    grid["glamu"][:, :, :-1] = (grid["glamu"][:, :, :-1] + grid["glamu"][:, :, 1:]) / 2
+    grid["glamu"][:, :, -1] = grid["glamu"][:, :, -1] + (
+        grid["glamu"][:, :, -1] - grid["glamu"][:, :, -2]
+    )
+    grid["gphiv"][:, :-1, :] = (grid["gphiv"][:, :-1, :] + grid["gphiv"][:, 1:, :]) / 2
+    grid["gphiv"][:, -1, :] = grid["gphiv"][:, -1, :] + (
+        grid["gphiv"][:, -1, :] - grid["gphiv"][:, -2, :]
+    )
+    grid["glamf"] = grid["glamu"].copy()
+    grid["gphif"] = grid["gphiv"].copy()
+    return grid
+
+
+def modify_namelist(path_src, path_sc_data, path_dst, src_zgr, dst_zgr, tide=False):
     # Modify paths in a namelist file for testing.
 
     namelist_file = "./tests/data/namelist_zz_end_to_end.bdy"
@@ -750,6 +941,25 @@ def modify_namelist(path_src, path_sc_data, path_dst, src_zgr, dst_zgr):
                 lines[li] = (
                     st + "= '" + "/".join(path_sc_data.split("/")[:-1]) + "' !" + en
                 )
+            if "nn_rimwidth" in lines[li]:
+                if tide:
+                    st = lines[li].split("=")[0]
+                    en = lines[li].split("!")[-1]
+                    lines[li] = st + "= 1" + " !" + en
+                else:
+                    st = lines[li].split("=")[0]
+                    en = lines[li].split("!")[-1]
+                    lines[li] = st + "= 9" + " !" + en
+
+            if "ln_tide" in lines[li]:
+                if tide:
+                    st = lines[li].split("=")[0]
+                    en = lines[li].split("!")[-1]
+                    lines[li] = st + "= .true." + " !" + en
+                else:
+                    st = lines[li].split("=")[0]
+                    en = lines[li].split("!")[-1]
+                    lines[li] = st + "= .false." + " !" + en
 
     with open(namelist_file, "w") as f:
         for li in range(len(lines)):

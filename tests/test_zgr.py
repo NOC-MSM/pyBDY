@@ -63,7 +63,10 @@ def test_depth_file_zps():
         hg = hgr.H_Grid(bench_file_h, name_map, logger)
 
         # calc vertical grid
-        zg = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, logger)
+        zg = {}
+        zg["t"] = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, logger, "t")
+        zg["u"] = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, logger, "u")
+        zg["v"] = zgr.Z_Grid(in_file, "zps", name_map, hg.grid_type, logger, "v")
 
         nc = GetFile(bench_file)
         e3t = nc.nc["e3t"][:]
@@ -81,40 +84,77 @@ def test_depth_file_zps():
         # Mask below bathy starting from 2 levels above bathy
         # because we don't know depth of bathy for gdepw
 
-        z_ind = np.indices(zg.grid["gdept"].shape)[1]
+        z_ind = np.indices(zg["t"].grid["gdept"].shape)[1]
         m_tile = (
-            np.tile(zg.grid["mbathy"], (zg.grid["gdept"].shape[1], 1, 1))[
+            np.tile(zg["t"].grid["mbathy"], (zg["t"].grid["gdept"].shape[1], 1, 1))[
                 np.newaxis, ...
             ]
             - 2
         )
         m_tile[:, :, :-1, :] = np.minimum(m_tile[:, :, :-1, :], m_tile[:, :, 1:, :])
         m_tile[:, :, :, :-1] = np.minimum(m_tile[:, :, :, :-1], m_tile[:, :, :, 1:])
-        for vi in zg.var_list:
+        var_dict = {
+            "gdept": "t",
+            "gdepw": "t",
+            "gdepu": "u",
+            "gdepv": "v",
+            "e3t": "t",
+            "e3u": "u",
+            "e3v": "v",
+            "e3w": "t",
+        }
+        for vi in zg["t"].var_list:
             if vi in ["gdept", "gdepw", "gdepu", "gdepv", "e3t", "e3u", "e3v", "e3w"]:
-                zg.grid[vi] = np.ma.masked_where(z_ind >= m_tile, zg.grid[vi])
-        no_mask = zg.grid["gdepw"].mask is False
+                zg[var_dict[vi]].grid[vi] = np.ma.masked_where(
+                    z_ind >= m_tile, zg[var_dict[vi]].grid[vi]
+                )
+        for vi in zg["u"].var_list:
+            if vi in ["gdept", "gdepw", "gdepu", "gdepv", "e3t", "e3u", "e3v", "e3w"]:
+                zg[var_dict[vi]].grid[vi] = np.ma.masked_where(
+                    z_ind >= m_tile, zg[var_dict[vi]].grid[vi]
+                )
+        for vi in zg["v"].var_list:
+            if vi in ["gdept", "gdepw", "gdepu", "gdepv", "e3t", "e3u", "e3v", "e3w"]:
+                zg[var_dict[vi]].grid[vi] = np.ma.masked_where(
+                    z_ind >= m_tile, zg[var_dict[vi]].grid[vi]
+                )
+        no_mask = zg["t"].grid["gdepw"].mask is False
 
         errors = []
-        if not zg.grid_type == "zps":
+        if not zg["t"].grid_type == "zps":
             errors.append("Grid type not identified correctly.")
-        elif not len(zg.grid.keys()) == 16:
+        elif (
+            not (
+                len(zg["t"].grid.keys())
+                + len(zg["u"].grid.keys())
+                + len(zg["v"].grid.keys())
+            )
+            == 18
+        ):
             errors.append("Not enough grid variables generated.")
         elif not (
-            np.isclose(gdepw[no_mask], zg.grid["gdepw"][no_mask], atol=1e0)
+            np.isclose(gdepw[no_mask], zg["t"].grid["gdepw"][no_mask], atol=1e0)
         ).all():
             errors.append("gdepw does not match.")
         elif not (
-            np.isclose(gdepu[no_mask], zg.grid["gdepu"][no_mask], atol=1e-2)
+            np.isclose(gdepu[no_mask], zg["u"].grid["gdepu"][no_mask], atol=1e-2)
         ).all():
             errors.append("gdepu does not match.")
-        elif not (np.isclose(e3t[no_mask], zg.grid["e3t"][no_mask], atol=1e1)).all():
+        elif not (
+            np.isclose(e3t[no_mask], zg["t"].grid["e3t"][no_mask], atol=1e1)
+        ).all():
             errors.append("e3t does not match.")
-        elif not (np.isclose(e3w[no_mask], zg.grid["e3w"][no_mask], atol=1e1)).all():
+        elif not (
+            np.isclose(e3w[no_mask], zg["t"].grid["e3w"][no_mask], atol=1e1)
+        ).all():
             errors.append("e3w does not match.")
-        elif not (np.isclose(e3v[no_mask], zg.grid["e3v"][no_mask], atol=1e1)).all():
+        elif not (
+            np.isclose(e3v[no_mask], zg["v"].grid["e3v"][no_mask], atol=1e1)
+        ).all():
             errors.append("e3v does not match.")
-        elif not (np.isclose(e3u[no_mask], zg.grid["e3u"][no_mask], atol=1e1)).all():
+        elif not (
+            np.isclose(e3u[no_mask], zg["u"].grid["e3u"][no_mask], atol=1e1)
+        ).all():
             errors.append("e3u does not match.")
         # assert no error message has been registered, else print messages
         assert not errors, "errors occured:\n{}".format("\n".join(errors))

@@ -56,20 +56,20 @@
     ln_tra         = .true.               !  boundary conditions for T and S
     ln_ice         = .true.              !  ice boundary condition
     ln_zinterp     = .true.               !  vertical interpolation
-    nn_rimwidth    = 9                    !  width of the relaxation zone
+    nn_rimwidth    = 9 !  width of the relaxation zone
 
 !------------------------------------------------------------------------------
 !  unstructured open boundaries tidal parameters
 !------------------------------------------------------------------------------
-    ln_tide        = .false.              !  =T : produce bdy tidal conditions
+    ln_tide        = .false. !  =T : produce bdy tidal conditions
     sn_tide_model  = 'FES2014'            !  Name of tidal model. Accepts FES2014, TPXO7p2, or TPXO9v5
     clname(1)      = 'M2'                 !  constituent name
-    clname(2)      = 'S2'
-    clname(3)      = 'K2'
-    clname(4)      = 'O1'
-    clname(5)      = 'P1'
-    clname(6)      = 'Q1'
-    clname(7)      = 'M4'
+    !clname(2)      = 'S2'
+    !clname(3)      = 'K2'
+    !clname(4)      = 'O1'
+    !clname(5)      = 'P1'
+    !clname(6)      = 'Q1'
+    !clname(7)      = 'M4'
     ln_trans       = .true.               !  interpolate transport rather than
                                           !  velocities
     ! location of TPXO7.2 data
