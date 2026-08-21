@@ -46,7 +46,7 @@ def test_get_ind():
 
     imin, imax, jmin, jmax = extr_assist.get_ind(dst_lon, dst_lat, lon_sc, lat_sc)
     print(imin, imax, jmin, jmax)
-    test_case = np.array([5, 62, 2, 38])
+    test_case = np.array([4, 62, 1, 38])
     assert (np.array([imin, imax, jmin, jmax]) == test_case).all()
 
 
@@ -81,24 +81,29 @@ def test_get_vertical_weights_zco():
     dst_dep = np.ma.masked_array(dst_dep)
     sc_z_len = 15
     gdept, _ = synth_zgrid.synth_zco(max_depth, sc_z_len)
-    sc_z = np.tile(gdept, (3, 5, 1)).T
+    sc_z = np.tile(gdept, (5, 6, 1)).T
 
     # Centre then clockwise from 12 then corners
-    ind_g = np.array([[1, 2, 1, 0, 1, 2, 0, 0, 2], [1, 1, 2, 1, 0, 2, 2, 0, 0]])
-    ind = np.zeros((num_bdy, 9), dtype=int)
-    ind[0, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind_g = np.array(
+        [
+            [2, 3, 2, 1, 2, 3, 1, 1, 3, 0, 2, 0, 0, 1, 3, 0],
+            [2, 2, 3, 2, 1, 3, 3, 1, 1, 2, 0, 3, 1, 0, 0, 0],
+        ]
+    )
+    ind = np.zeros((num_bdy, 16), dtype=int)
+    ind[0, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     ind_g[1, :] = ind_g[1, :] + 1
-    ind[1, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind[1, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     ind_g[1, :] = ind_g[1, :] + 1
-    ind[2, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind[2, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     zco = True
 
     # Run function
-    z9_dist, z9_ind = extr_assist.get_vertical_weights(
+    z16_dist, z16_ind = extr_assist.get_vertical_weights(
         dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco
     )
-    print(z9_dist.T)
-    print(z9_ind.T)
+    print(z16_dist.T)
+    print(z16_ind.T)
     # Check results
     ind_test = np.array(
         [[0, 2, 3, 5, 6, 8, 10, 11, 13, 14], [1, 1, 4, 4, 7, 9, 9, 12, 12, 14]]
@@ -133,10 +138,10 @@ def test_get_vertical_weights_zco():
     ).T
 
     errors = []
-    if not (z9_ind[:dst_len_z, :] == ind_test).all():
-        errors.append("Error with vertical index z9_ind.")
-    elif not np.isclose(z9_dist.filled(-1)[:dst_len_z, :], dist_test, atol=1e-4).all():
-        errors.append("Error with vertical weights z9_dist.")
+    if not (z16_ind[:dst_len_z, :] == ind_test).all():
+        errors.append("Error with vertical index z16_ind.")
+    elif not np.isclose(z16_dist.filled(-1)[:dst_len_z, :], dist_test, atol=1e-4).all():
+        errors.append("Error with vertical weights z16_dist.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
@@ -149,23 +154,28 @@ def test_get_vertical_weights_sco():
     dst_dep, dst_depw = synth_zgrid.synth_sco(bdy_bathy, dst_len_z)
     dst_dep = np.ma.masked_array(dst_dep)
     sc_z_len = 15
-    sc_bathy = np.zeros((3, 5)) + 100
+    sc_bathy = np.zeros((5, 6)) + 100
     sc_bathy[:, 0] = 80.5
     sc_bathy[:, -2:] = 60
     sc_z, sc_zw = synth_zgrid.synth_sco(sc_bathy, sc_z_len)
 
     # Centre then clockwise from 12 then corners
-    ind_g = np.array([[1, 2, 1, 0, 1, 2, 0, 0, 2], [1, 1, 2, 1, 0, 2, 2, 0, 0]])
-    ind = np.zeros((num_bdy, 9), dtype=int)
-    ind[0, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind_g = np.array(
+        [
+            [2, 3, 2, 1, 2, 3, 1, 1, 3, 0, 2, 0, 0, 1, 3, 0],
+            [2, 2, 3, 2, 1, 3, 3, 1, 1, 2, 0, 3, 1, 0, 0, 0],
+        ]
+    )
+    ind = np.zeros((num_bdy, 16), dtype=int)
+    ind[0, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     ind_g[1, :] = ind_g[1, :] + 1
-    ind[1, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind[1, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     ind_g[1, :] = ind_g[1, :] + 1
-    ind[2, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind[2, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     zco = False
 
     # Run function
-    z9_dist, z9_ind = extr_assist.get_vertical_weights(
+    z16_dist, z16_ind = extr_assist.get_vertical_weights(
         dst_dep, dst_len_z, num_bdy, sc_z, sc_z_len, ind, zco
     )
 
@@ -203,10 +213,10 @@ def test_get_vertical_weights_sco():
     ).T
 
     errors = []
-    if not (z9_ind[:dst_len_z, :] == ind_test).all():
-        errors.append("Error with vertical index z9_ind.")
-    elif not np.isclose(z9_dist.filled(-1)[:dst_len_z, :], dist_test, atol=1e-4).all():
-        errors.append("Error with vertical weights z9_dist.")
+    if not (z16_ind[:dst_len_z, :] == ind_test).all():
+        errors.append("Error with vertical index z16_ind.")
+    elif not np.isclose(z16_dist.filled(-1)[:dst_len_z, :], dist_test, atol=1e-4).all():
+        errors.append("Error with vertical weights z16_dist.")
     # assert no error message has been registered, else print messages
     assert not errors, "errors occured:\n{}".format("\n".join(errors))
 
@@ -216,22 +226,27 @@ def test_flood_fill():
     logger = logging.getLogger(__name__)
     max_depth = 100
     num_bdy = 3
-    bdy_bathy = np.array([0, 0, 80.5, 100, 60])
+    bdy_bathy = np.array([0, 0, 0, 80.5, 100, 60])
     sc_z_len = 15
     gdept, _ = synth_zgrid.synth_zco(max_depth, sc_z_len)
-    sc_z = np.tile(gdept, (3, 5, 1)).T
-    sc_bdy = np.tile(np.linspace(12, 5, num=sc_z_len), (3, 5, 1)).T  # Temperature data
+    sc_z = np.tile(gdept, (5, 6, 1)).T
+    sc_bdy = np.tile(np.linspace(12, 5, num=sc_z_len), (5, 6, 1)).T  # Temperature data
 
     # Centre then clockwise from 12 then corners
-    ind_g = np.array([[1, 2, 1, 0, 1, 2, 0, 0, 2], [1, 1, 2, 1, 0, 2, 2, 0, 0]])
-    ind = np.zeros((num_bdy, 9), dtype=int)
-    ind[0, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind_g = np.array(
+        [
+            [2, 3, 2, 1, 2, 3, 1, 1, 3, 0, 2, 0, 0, 1, 3, 0],
+            [2, 2, 3, 2, 1, 3, 3, 1, 1, 2, 0, 3, 1, 0, 0, 0],
+        ]
+    )
+    ind = np.zeros((num_bdy, 16), dtype=int)
+    ind[0, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     ind_g[1, :] = ind_g[1, :] + 1
-    ind[1, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind[1, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     ind_g[1, :] = ind_g[1, :] + 1
-    ind[2, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind[2, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
 
-    bathy_tile = np.transpose(np.tile(bdy_bathy, (sc_z_len, 3, 1)), (0, 2, 1))
+    bathy_tile = np.transpose(np.tile(bdy_bathy, (sc_z_len, 5, 1)), (0, 2, 1))
     sc_bdy = np.ma.masked_where(sc_z > bathy_tile, sc_bdy)
     sc_bdy = sc_bdy.filled(np.nan)
 
@@ -264,7 +279,7 @@ def test_flood_fill():
     )
     print(sc_bdy[:, 0, 0])
     errors = []
-    if not (sc_bdy.shape == (sc_z_len, num_bdy, 9)):
+    if not (sc_bdy.shape == (sc_z_len, num_bdy, 16)):
         errors.append("Error with output sc_bdy shape.")
     elif not np.isclose(sc_bdy[:, 0, 0], lev_test, atol=1e-4).all():
         errors.append("Error with sc_bdy_lev.")
@@ -285,17 +300,22 @@ def test_interp_vertical():
     dst_dep = np.ma.masked_array(dst_dep)
     sc_z_len = 15
     gdept, _ = synth_zgrid.synth_zco(max_depth, sc_z_len)
-    sc_z = np.tile(gdept, (3, 5, 1)).T
-    sc_bdy = np.tile(np.linspace(12, 5, num=sc_z_len), (3, 5, 1)).T  # Temperature data
+    sc_z = np.tile(gdept, (5, 6, 1)).T
+    sc_bdy = np.tile(np.linspace(12, 5, num=sc_z_len), (5, 6, 1)).T  # Temperature data
 
     # Centre then clockwise from 12 then corners
-    ind_g = np.array([[1, 2, 1, 0, 1, 2, 0, 0, 2], [1, 1, 2, 1, 0, 2, 2, 0, 0]])
-    ind = np.zeros((num_bdy, 9), dtype=int)
-    ind[0, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind_g = np.array(
+        [
+            [2, 3, 2, 1, 2, 3, 1, 1, 3, 0, 2, 0, 0, 1, 3, 0],
+            [2, 2, 3, 2, 1, 3, 3, 1, 1, 2, 0, 3, 1, 0, 0, 0],
+        ]
+    )
+    ind = np.zeros((num_bdy, 16), dtype=int)
+    ind[0, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     ind_g[1, :] = ind_g[1, :] + 1
-    ind[1, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind[1, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
     ind_g[1, :] = ind_g[1, :] + 1
-    ind[2, :] = np.ravel_multi_index(ind_g, (3, 5), order="F")
+    ind[2, :] = np.ravel_multi_index(ind_g, (5, 6), order="F")
 
     sc_bdy = sc_bdy.reshape((sc_bdy.shape[0], sc_bdy.shape[1] * sc_bdy.shape[2]))[
         :, ind
@@ -330,7 +350,7 @@ def test_interp_vertical():
     )
 
     errors = []
-    if not (sc_bdy_lev.shape == (dst_len_z, num_bdy, 9)):
+    if not (sc_bdy_lev.shape == (dst_len_z, num_bdy, 16)):
         errors.append("Error with output sc_bdy_lev shape.")
     elif not np.isclose(sc_bdy_lev[:, 0, 0], lev_test, atol=1e-4).all():
         errors.append("Error with sc_bdy_lev.")
